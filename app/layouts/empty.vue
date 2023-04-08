@@ -5,7 +5,7 @@ const pb = usePocketbase()
 onMounted(() => {
   const url = window.location.host
   if (!url.includes('localhost')) {
-    pb.baseUrl = "https://" + url
+    pb.baseUrl = "http://" + url
   }
 })
 </script>

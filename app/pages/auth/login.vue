@@ -40,7 +40,7 @@ async function login() {
 <template>
 
     <div class="justify-content-center align-content-center display: flex flex-wrap fill-height mt-8">
-        
+
         <div class="surface-card p-4 shadow-2 border-round md:w-6 lg:w-3">
             <div class="text-center mb-5">
                 <img src="/images/logos/pocketnuxt.svg" alt="Image" height="50" class="mb-3">
@@ -71,4 +71,3 @@ async function login() {
     </div>
 
 </template>
-

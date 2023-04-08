@@ -5,3 +5,5 @@
 node_modules
 # pocketbase data
 pb_data
+# pocketnuxt binary
+pocketnuxt
