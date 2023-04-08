@@ -1,9 +1,44 @@
+<script lang="ts" setup>
+import { ref } from "vue";
+
+const items = ref([
+    {
+        label: 'Home',
+        icon: 'pi pi-fw pi-home',
+        to: '/'
+    },
+    {
+        label: 'Association',
+        to: '/association'
+    },
+    {
+        label: 'Canton',
+        to: '/canton'
+    },
+    {
+        label: 'Club',
+        to: '/club'
+    },
+    {
+        label: 'Wrestler',
+        to: '/wrestler'
+    },
+    {
+        label: 'Places',
+        to: '/places'
+    },
+    {
+        label: 'Bouts',
+        to: '/bouts'
+    },
+    {
+        label: 'Account',
+        to: '/account'
+    }
+]);
+
+</script>
+
 <template>
-    <Button label="Home" icon="pi pi-home" class="w-half mt-3" @click="navigateTo('/')"></Button>
-    <Button label="Association" class="w-half mt-3" @click="navigateTo('/association')"></Button>
-    <Button label="Canton" class="w-half mt-3" @click="navigateTo('/canton')"></Button>
-    <Button label="Club" class="w-half mt-3" @click="navigateTo('/club')"></Button>
-    <Button label="Wrestler" class="w-half mt-3" @click="navigateTo('/wrestler')"></Button>
-    <Button label="Places" class="w-half mt-3" @click="navigateTo('/places')"></Button>
-    <Button label="Bouts" class="w-half mt-3" @click="navigateTo('/bouts')"></Button>
+    <TabMenu :model="items" />
 </template>
