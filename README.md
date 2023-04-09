@@ -1,39 +1,7 @@
-<div align="center">
-<img
-    width=40%
-    src="app/public/images/logos/pocketnuxt.svg"
-    alt="pocketnuxt logo"
-/>
-
-</div>
-
-## [Quick Demo](https://pocketnuxt.williamson.ninja/auth/login)
-This demo allows you to login and see pocketnuxt in action. This is hosted on a small droplet in DigitalOcean using systemctl.
-
-
-# Pocket Nuxt
-
-Nuxt3 and PocketBase delivered in a simple binary that can run anywhere.
-
-This is achieved by compiling the Nuxt app into a static hosted folder and then using Go to serve the static files and pocketbase api.
-```go
-//go:embed all:.output/public
-var public embed.FS
-```
-Make it your own by extending [Pocketbase](https://pocketbase.io/docs/) and adding your app to the app folder.
-
-
-
-## Stack
-- PocketBase
-- Nuxt3
-- PrimeVue
-- PrimeIcons
-
+# Schwingen
 
 ## Run Locally
 This will run both a Nuxt3 dev server with hot reload and a pocketbase instance with a authentication and an api ready to go.
-
 
 Clone the project
 
@@ -67,7 +35,6 @@ Start the server
 
 From there build your nuxt app as normal. Follow the [pocketbase docs](https://pocketbase.io/docs/) for more info on how to use pocketbase.
 
-
 ## Deployment
 
 This will create a single binary containing Nuxt and PocketBase for deployment.
@@ -81,6 +48,17 @@ This will create a single binary containing Nuxt and PocketBase for deployment.
 ```
 https://pocketbase.io/docs/going-to-production/ for more examples.
 
+## Docker
+
+### Build
+
+`docker build . --tag 0.0.1`
+
+### Run
+
+`docker run --rm --mount type=bind,source="$(pwd)"/pb_data,target=/pb_data -p 8090:8090 0.0.1`
+
 ## Acknowledgements
 
+ - [Pocket Nuxt](https://github.com/j-wil/pocket-nuxt)
  - [PocketBase](https://github.com/pocketbase/pocketbase)
