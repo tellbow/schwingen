@@ -1,3 +1,3 @@
 <template>
-    <p>©Tellbow</p>
+    <p class="m-5">©Tellbow</p>
 </template>

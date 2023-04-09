@@ -24,7 +24,7 @@ const filters = ref({
 });
 </script>
 <template>
-  <div class="justify-content-center align-content-center display: flex flex-wrap fill-height mt-8">
+  <div class="justify-content-center align-content-center display: flex flex-wrap fill-height mt-5">
     <DataTable v-model:filters="filters" :value="records" paginator :rows="10" dataKey="id" filterDisplay="row" :loading="loading"
                 :globalFilterFields="['name', 'vorname', 'year', 'category']">
             <template #header>
@@ -42,7 +42,7 @@ const filters = ref({
                     {{ data.name }}
                 </template>
                 <template #filter="{ filterModel, filterCallback }">
-                    <InputText v-model="filterModel.value" type="text" @input="filterCallback()" class="p-column-filter" placeholder="Suchen nach Name" />
+                    <InputText v-model="filterModel.value" type="text" @input="filterCallback()" class="p-column-filter" placeholder="Filter Name" />
                 </template>
             </Column>
             <Column field="vorname" header="Vorname" style="min-width: 12rem">
@@ -50,7 +50,7 @@ const filters = ref({
                     {{ data.vorname }}
                 </template>
                 <template #filter="{ filterModel, filterCallback }">
-                    <InputText v-model="filterModel.value" type="text" @input="filterCallback()" class="p-column-filter" placeholder="Suchen nach Vorname" />
+                    <InputText v-model="filterModel.value" type="text" @input="filterCallback()" class="p-column-filter" placeholder="Filter Vorname" />
                 </template>
             </Column>
             <Column field="year" header="Jahrgang" style="min-width: 12rem">
@@ -58,7 +58,7 @@ const filters = ref({
                     {{ data.year }}
                 </template>
                 <template #filter="{ filterModel, filterCallback }">
-                    <InputText v-model="filterModel.value" type="text" @input="filterCallback()" class="p-column-filter" placeholder="Suchen nach Jahrgang" />
+                    <InputText v-model="filterModel.value" type="text" @input="filterCallback()" class="p-column-filter" placeholder="Filter Jahrgang" />
                 </template>
             </Column>
             <Column field="category" header="Kategorie" style="min-width: 12rem">
@@ -66,18 +66,9 @@ const filters = ref({
                     {{ data.category }}
                 </template>
                 <template #filter="{ filterModel, filterCallback }">
-                    <InputText v-model="filterModel.value" type="text" @input="filterCallback()" class="p-column-filter" placeholder="Suchen nach Kategorie" />
+                    <InputText v-model="filterModel.value" type="text" @input="filterCallback()" class="p-column-filter" placeholder="Filter Kategorie" />
                 </template>
             </Column>
         </DataTable>
-    <!-- <div class="surface-card p-4 shadow-2 border-round md:w-6 lg:w-4">
-        <ul v-for="record in records.items">
-          <li>{{ record.nummer }}</li>
-          <li>{{ record.name }}</li>
-          <li>{{ record.vorname }}</li>
-          <li>{{ record.year }}</li>
-          <li>{{ record.category }}</li>
-        </ul>
-    </div> -->
   </div>
 </template>

@@ -17,4 +17,5 @@ export default defineNuxtConfig({
       vueTemplate: true
     }
   },
+  modules: ['@nuxtjs/tailwindcss'],
 })
