@@ -4,7 +4,7 @@ import { ref } from "vue";
 const items = ref([
     {
         label: 'Home',
-        icon: 'pi pi-fw pi-home',
+        icon: 'pi pi-home',
         to: '/'
     },
     {
@@ -40,5 +40,8 @@ const items = ref([
 </script>
 
 <template>
-    <TabMenu :model="items" />
+    <div class="display-flex">
+        <Avatar image="/images/logos/tellbow_cricle_crop.png" class="mr-2" size="large" shape="circle" />
+        <TabMenu :model="items" />
+    </div>
 </template>

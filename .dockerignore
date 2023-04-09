@@ -1,6 +1,7 @@
 # Nuxt dev/build outputs
 .output
 .nuxt
+dist
 pocketbase/.output
 # Node dependencies
 node_modules
