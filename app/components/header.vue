@@ -28,8 +28,8 @@ const items = ref([
         to: '/places'
     },
     {
-        label: 'Bouts',
-        to: '/bouts'
+        label: 'Rankings',
+        to: '/rankings'
     },
     {
         label: 'Account',

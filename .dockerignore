@@ -9,3 +9,5 @@ node_modules
 pb_data
 # pocketnuxt binary
 pocketnuxt
+# import directory
+import

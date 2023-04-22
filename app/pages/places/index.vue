@@ -17,15 +17,16 @@ onMounted(async () => {
 
 const filters = ref({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    number: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
     name: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
-    ort: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
+    location: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
     year: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
 });
 </script>
 <template>
   <div class="justify-content-center align-content-center display: flex flex-wrap fill-height mt-5">
     <DataTable v-model:filters="filters" :value="records" paginator :rows="10" dataKey="id" filterDisplay="row" :loading="loading"
-                :globalFilterFields="['name','ort','year']">
+                :globalFilterFields="['number','name','location','year']">
             <template #header>
                 <div class="flex justify-content-end">
                     <span class="p-input-icon-left">
@@ -36,6 +37,14 @@ const filters = ref({
             </template>
             <template #empty> Keine Schwingfeste gefunden. </template>
             <template #loading> Schwingfeste werden geladen. Bitte warten. </template>
+            <Column field="number" header="Nummer" style="min-width: 12rem">
+                <template #body="{ data }">
+                    {{ data.number }}
+                </template>
+                <template #filter="{ filterModel, filterCallback }">
+                    <InputText v-model="filterModel.value" type="text" @input="filterCallback()" class="p-column-filter" placeholder="Filter Nummer" />
+                </template>
+            </Column>
             <Column field="name" header="Name" style="min-width: 12rem">
                 <template #body="{ data }">
                     {{ data.name }}
@@ -44,9 +53,9 @@ const filters = ref({
                     <InputText v-model="filterModel.value" type="text" @input="filterCallback()" class="p-column-filter" placeholder="Filter Name" />
                 </template>
             </Column>
-            <Column field="ort" header="Ort" style="min-width: 12rem">
+            <Column field="location" header="Ort" style="min-width: 12rem">
                 <template #body="{ data }">
-                    {{ data.ort }}
+                    {{ data.location }}
                 </template>
                 <template #filter="{ filterModel, filterCallback }">
                     <InputText v-model="filterModel.value" type="text" @input="filterCallback()" class="p-column-filter" placeholder="Filter Ort" />
