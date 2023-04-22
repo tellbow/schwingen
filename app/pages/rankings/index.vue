@@ -6,53 +6,10 @@ const pocketbase = usePocketbase();
 const records = ref();
 const loading = ref(true);
 
-onMounted(async () => {
-    await pocketbase.collection('places').getFullList(200 /* batch size */, {
-        sort: '-created',
-    }).then((data) => {
-        const picked = data.map((item) => {
-            return {
-                name: item.name + ' ' + item.location + ' ' + item.year.split('-')[0],
-            }
-        })
-        places.value = picked;
-    });
-    await pocketbase.collection('rankings').getList(1, 50, {
-        sort: '-created',
-        expand: 'wrestler,place',
-    }).then((data) => {
-        records.value = data.items;
-        loading.value = false;
-    });
-    // await pocketbase.collection('rankings').getFullList(200 /* batch size */, {
-    //     sort: '-created',
-    //     expand: 'wrestler,place',
-    // }).then((data) => {
-    //     records.value = data;
-    //     loading.value = false;
-    // });
-});
-
-const filters = ref({
-    global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    rank: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
-    points: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
-    result: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
-    'expand.wrestler.name': { value: null, matchMode: FilterMatchMode.STARTS_WITH },
-    'expand.wrestler.vorname': { value: null, matchMode: FilterMatchMode.STARTS_WITH },
-    'expand.place.name': { value: null, matchMode: FilterMatchMode.STARTS_WITH },
-    'expand.place.year': { value: null, matchMode: FilterMatchMode.STARTS_WITH }
-});
-
 const selectedPlaces = ref();
 const places = ref();
-const cities = ref([
-    { name: 'New York', code: 'NY' },
-    { name: 'Rome', code: 'RM' },
-    { name: 'London', code: 'LDN' },
-    { name: 'Istanbul', code: 'IST' },
-    { name: 'Paris', code: 'PRS' }
-]);
+const placeSelectionDisabled = ref(true);
+
 const selectedYears = ref();
 const years = ref([
     { year: '1998' },
@@ -81,18 +38,113 @@ const years = ref([
     { year: '2022' },
     { year: '2023' },
 ])
+
+onMounted(async () => {
+    let dataTable = document.getElementById("dataTable");
+    if (dataTable) {
+        dataTable.style.display = "none";
+    }
+});
+
+const filters = ref({
+    global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    rank: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
+    points: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
+    result: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
+    'expand.wrestler.name': { value: null, matchMode: FilterMatchMode.STARTS_WITH },
+    'expand.wrestler.vorname': { value: null, matchMode: FilterMatchMode.STARTS_WITH },
+    'expand.place.name': { value: null, matchMode: FilterMatchMode.STARTS_WITH },
+    'expand.place.year': { value: null, matchMode: FilterMatchMode.STARTS_WITH }
+});
+
+function loadData() {
+    onPlaceChange();
+    let dataTable = document.getElementById("dataTable");
+    if (dataTable) {
+       dataTable.style.display = "block";
+    }
+}
+
+async function onYearChange() {
+    placeSelectionDisabled.value = false;
+    const filterParts =[];
+    for (let index = 0; index < selectedYears.value.length; index++) {
+        const element = selectedYears.value[index];
+        filterParts.push('year ~ "' + element.year + '"');
+    }
+    let joinedFilter = filterParts.join(' || ')
+    await pocketbase.collection('places').getFullList(200 /* batch size */, {
+        sort: '-created',
+        filter: joinedFilter
+    }).then((data) => {
+        const picked = data.map((item) => {
+            return {
+                id: item.id,
+                name: item.name + ' ' + item.location + ' ' + item.year.split('-')[0],
+            }
+        })
+        places.value = picked;
+    });
+}
+
+// ToDo: Doesn't work, why?
+async function onSelectAllYearChange() {
+    await pocketbase.collection('places').getFullList(200 /* batch size */, {
+        sort: '-created',
+    }).then((data) => {
+        const picked = data.map((item) => {
+            return {
+                id: item.id,
+                name: item.name + ' ' + item.location + ' ' + item.year.split('-')[0],
+            }
+        })
+        places.value = picked;
+    });
+}
+
+async function onPlaceChange() {
+    const filterParts =[];
+    for (let index = 0; index < selectedPlaces.value.length; index++) {
+        const element = selectedPlaces.value[index];
+        filterParts.push('place.id = "' + element + '"');
+    }
+    let joinedFilter = filterParts.join(' || ')
+    await pocketbase.collection('rankings').getFullList(200 /* batch size */, {
+        sort: '-created',
+        filter: joinedFilter,
+        expand: 'wrestler,place',
+    }).then((data) => {
+        records.value = data;
+        loading.value = false;
+    });
+}
+
+// ToDo: Doesn't work, why?
+// async function onSelectAllPlaceChange() {
+//     await pocketbase.collection('rankings').getFullList(200 /* batch size */, {
+//         sort: '-created',
+//         expand: 'wrestler,place',
+//     }).then((data) => {
+//         records.value = data;
+//         loading.value = false;
+//     });
+// }
 </script>
 <template>
   <div class="justify-content-center align-content-center display: flex flex-wrap fill-height mt-5">
     <div class="justify-content-center align-content-center display: flex flex-wrap fill-height mb-2">
-        <p class="pt-2 pr-2">Schwingfest(e): </p>
-        <MultiSelect v-model="selectedPlaces" display="chip" :options="places" filter optionLabel="name" placeholder="Wähle Schwingest(e)"
-        :maxSelectedLabels="3" class="w-full md:w-20rem" />
-        <p class="pt-2 pl-10 pr-2">Jahr(e): </p>
+        <p class="pt-2 pr-2">Jahr(e): </p>
         <MultiSelect v-model="selectedYears" display="chip" :options="years" filter optionLabel="year" placeholder="Wähle Jahr(e)"
-        :maxSelectedLabels="3" class="w-full md:w-20rem" />
-        <Button label="Filtern" class="ml-4" />
+        :maxSelectedLabels="3" @selectall-change="onSelectAllYearChange()" @change="onYearChange()" class="w-full md:w-20rem" />
+        <p class="pt-2 pl-10 pr-2">Schwingfest(e): </p>
+        <MultiSelect v-model="selectedPlaces" display="chip" :options="places" filter optionLabel="name" optionValue="id" placeholder="Wähle Schwingest(e)"
+        :maxSelectedLabels="3" :disabled="placeSelectionDisabled" :virtualScrollerOptions="{ itemSize: 44 }" class="w-full md:w-20rem" />
+        <!-- <MultiSelect v-model="selectedPlaces" display="chip" :options="places" filter optionLabel="name" optionValue="id" placeholder="Wähle Schwingest(e)"
+        :maxSelectedLabels="3" :disabled="placeSelectionDisabled" :virtualScrollerOptions="{ itemSize: 44 }" @selectall-change="onSelectAllPlaceChange()" @change="onPlaceChange()" class="w-full md:w-20rem" /> -->
+        <!-- ToDo: When filter is empty, don't load anything on click -->
+        <Button label="Filtern" class="ml-4" @click="loadData" />
     </div>
+    <div id="dataTable">
     <DataTable v-model:filters="filters" :value="records" paginator :rows="10" dataKey="id" filterDisplay="row" :loading="loading"
                 :globalFilterFields="['rank','points','result','expand.wrestler.name','expand.wrestler.vorname','expand.place.name','expand.place.year']">
             <template #header>
@@ -162,5 +214,6 @@ const years = ref([
                 </template>
             </Column>
         </DataTable>
+    </div>
   </div>
 </template>
