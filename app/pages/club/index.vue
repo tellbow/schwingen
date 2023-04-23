@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { FilterMatchMode } from 'primevue/api'
+import { FilterMatchMode } from "primevue/api";
 
 const pocketbase = usePocketbase();
 
@@ -7,23 +7,28 @@ const records = ref();
 const loading = ref(true);
 
 onMounted(async () => {
-  await pocketbase.collection('club').getFullList(200 /* batch size */, {
-    sort: 'name,-created',
-    expand: 'canton',
-  }).then((data) => {
-    records.value = data;
-    loading.value = false;
-  });
+  await pocketbase
+    .collection("club")
+    .getFullList(200 /* batch size */, {
+      sort: "name,-created",
+      expand: "canton",
+    })
+    .then((data) => {
+      records.value = data;
+      loading.value = false;
+    });
 });
 
 const filters = ref({
-    global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    name: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
-    'expand.canton.name': { value: null, matchMode: FilterMatchMode.STARTS_WITH },
+  global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+  name: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
+  "expand.canton.name": { value: null, matchMode: FilterMatchMode.STARTS_WITH },
 });
 </script>
 <template>
-  <div class="justify-content-center align-content-center display: flex flex-wrap fill-height mt-5">
+  <div
+    class="justify-content-center align-content-center display: flex flex-wrap fill-height mt-5"
+  >
     <DataTable
       v-model:filters="filters"
       :value="records"
@@ -32,7 +37,7 @@ const filters = ref({
       data-key="id"
       filter-display="row"
       :loading="loading"
-      :global-filter-fields="['name','expand.canton.name']"
+      :global-filter-fields="['name', 'expand.canton.name']"
     >
       <template #header>
         <div class="flex justify-content-end">
@@ -45,17 +50,11 @@ const filters = ref({
           </span>
         </div>
       </template>
-      <template #empty>
-        Keine Schwingvereine gefunden.
-      </template>
+      <template #empty> Keine Schwingvereine gefunden. </template>
       <template #loading>
         Schwingvereine werden geladen. Bitte warten.
       </template>
-      <Column
-        field="name"
-        header="Name"
-        style="min-width: 12rem"
-      >
+      <Column field="name" header="Name" style="min-width: 12rem">
         <template #body="{ data }">
           {{ data.name }}
         </template>

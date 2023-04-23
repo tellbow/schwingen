@@ -1,24 +1,20 @@
 <script setup lang="ts">
 const pocketbase = usePocketbase();
 
-const user = pocketbase.authStore.model
-
-function logout() {
-  pocketbase.authStore.clear()
-  navigateTo('/auth/login')
-}
-
+const user = pocketbase.authStore.model;
 </script>
 <template>
-  <div class="justify-content-center align-content-center display: flex flex-wrap fill-height mt-8">
+  <div
+    class="justify-content-center align-content-center display: flex flex-wrap fill-height mt-8"
+  >
     <Card>
-      <template #title>
-        Schwinger
-      </template>
+      <template #title> Schwinger </template>
       <template #content>
         <p>
-          Lorem ipsum dolor sit amet, consectetur adipisicing elit. Inventore sed consequuntur error repudiandae numquam deserunt quisquam repellat libero asperiores earum nam nobis, culpa ratione quam perferendis esse, cupiditate neque
-          quas!
+          Lorem ipsum dolor sit amet, consectetur adipisicing elit. Inventore
+          sed consequuntur error repudiandae numquam deserunt quisquam repellat
+          libero asperiores earum nam nobis, culpa ratione quam perferendis
+          esse, cupiditate neque quas!
         </p>
         <Button
           v-if="user"
@@ -29,13 +25,13 @@ function logout() {
       </template>
     </Card>
     <Card>
-      <template #title>
-        Schwingfeste
-      </template>
+      <template #title> Schwingfeste </template>
       <template #content>
         <p>
-          Lorem ipsum dolor sit amet, consectetur adipisicing elit. Inventore sed consequuntur error repudiandae numquam deserunt quisquam repellat libero asperiores earum nam nobis, culpa ratione quam perferendis esse, cupiditate neque
-          quas!
+          Lorem ipsum dolor sit amet, consectetur adipisicing elit. Inventore
+          sed consequuntur error repudiandae numquam deserunt quisquam repellat
+          libero asperiores earum nam nobis, culpa ratione quam perferendis
+          esse, cupiditate neque quas!
         </p>
         <Button
           v-if="user"

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { FilterMatchMode } from 'primevue/api'
+import { FilterMatchMode } from "primevue/api";
 
 const pocketbase = usePocketbase();
 
@@ -7,22 +7,27 @@ const records = ref();
 const loading = ref(true);
 
 onMounted(async () => {
-  await pocketbase.collection('association').getFullList(200 /* batch size */, {
-    sort: 'name,-created',
-  }).then((data) => {
-    records.value = data;
-    loading.value = false;
-  });
+  await pocketbase
+    .collection("association")
+    .getFullList(200 /* batch size */, {
+      sort: "name,-created",
+    })
+    .then((data) => {
+      records.value = data;
+      loading.value = false;
+    });
 });
 
 const filters = ref({
-    global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    name: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
-    abbreviation: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
+  global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+  name: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
+  abbreviation: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
 });
 </script>
 <template>
-  <div class="justify-content-center align-content-center display: flex flex-wrap fill-height mt-5">
+  <div
+    class="justify-content-center align-content-center display: flex flex-wrap fill-height mt-5"
+  >
     <DataTable
       v-model:filters="filters"
       :value="records"
@@ -31,7 +36,7 @@ const filters = ref({
       data-key="id"
       filter-display="row"
       :loading="loading"
-      :global-filter-fields="['name','abbreviation']"
+      :global-filter-fields="['name', 'abbreviation']"
     >
       <template #header>
         <div class="flex justify-content-end">
@@ -44,17 +49,9 @@ const filters = ref({
           </span>
         </div>
       </template>
-      <template #empty>
-        Keine Verbände gefunden.
-      </template>
-      <template #loading>
-        Verbände werden geladen. Bitte warten.
-      </template>
-      <Column
-        field="name"
-        header="Name"
-        style="min-width: 12rem"
-      >
+      <template #empty> Keine Verbände gefunden. </template>
+      <template #loading> Verbände werden geladen. Bitte warten. </template>
+      <Column field="name" header="Name" style="min-width: 12rem">
         <template #body="{ data }">
           {{ data.name }}
         </template>
@@ -68,11 +65,7 @@ const filters = ref({
           />
         </template>
       </Column>
-      <Column
-        field="abbreviation"
-        header="Abkürzung"
-        style="min-width: 12rem"
-      >
+      <Column field="abbreviation" header="Abkürzung" style="min-width: 12rem">
         <template #body="{ data }">
           {{ data.abbreviation }}
         </template>

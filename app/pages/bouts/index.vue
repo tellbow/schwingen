@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { FilterMatchMode } from 'primevue/api'
+import { FilterMatchMode } from "primevue/api";
 
 const pocketbase = usePocketbase();
 
@@ -7,30 +7,46 @@ const records = ref();
 const loading = ref(true);
 
 onMounted(async () => {
-  await pocketbase.collection('bouts').getFullList(200 /* batch size */, {
-    sort: '-created',
-    expand: 'wrestler1,wrestler2,place',
-  }).then((data) => {
-    records.value = data;
-    loading.value = false;
-  });
+  await pocketbase
+    .collection("bouts")
+    .getFullList(200 /* batch size */, {
+      sort: "-created",
+      expand: "wrestler1,wrestler2,place",
+    })
+    .then((data) => {
+      records.value = data;
+      loading.value = false;
+    });
 });
 
 const filters = ref({
-    global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    'expand.wrestler1.name': { value: null, matchMode: FilterMatchMode.STARTS_WITH },
-    'expand.wrestler1.vorname': { value: null, matchMode: FilterMatchMode.STARTS_WITH },
-    level: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
-    points: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
-    fight_round: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
-    'expand.wrestler2.name': { value: null, matchMode: FilterMatchMode.STARTS_WITH },
-    'expand.wrestler2.vorname': { value: null, matchMode: FilterMatchMode.STARTS_WITH },
-    'expand.place.name': { value: null, matchMode: FilterMatchMode.STARTS_WITH }
+  global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+  "expand.wrestler1.name": {
+    value: null,
+    matchMode: FilterMatchMode.STARTS_WITH,
+  },
+  "expand.wrestler1.vorname": {
+    value: null,
+    matchMode: FilterMatchMode.STARTS_WITH,
+  },
+  level: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
+  points: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
+  fight_round: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
+  "expand.wrestler2.name": {
+    value: null,
+    matchMode: FilterMatchMode.STARTS_WITH,
+  },
+  "expand.wrestler2.vorname": {
+    value: null,
+    matchMode: FilterMatchMode.STARTS_WITH,
+  },
+  "expand.place.name": { value: null, matchMode: FilterMatchMode.STARTS_WITH },
 });
-
 </script>
 <template>
-  <div class="justify-content-center align-content-center display: flex flex-wrap fill-height mt-5">
+  <div
+    class="justify-content-center align-content-center display: flex flex-wrap fill-height mt-5"
+  >
     <DataTable
       v-model:filters="filters"
       :value="records"
@@ -39,7 +55,16 @@ const filters = ref({
       data-key="id"
       filter-display="row"
       :loading="loading"
-      :global-filter-fields="['expand.wrestler1.name','expand.wrestler1.vorname','level','points','fight_round','expand.wrestler2.name','expand.wrestler2.vorname','expand.place.name']"
+      :global-filter-fields="[
+        'expand.wrestler1.name',
+        'expand.wrestler1.vorname',
+        'level',
+        'points',
+        'fight_round',
+        'expand.wrestler2.name',
+        'expand.wrestler2.vorname',
+        'expand.place.name',
+      ]"
     >
       <template #header>
         <div class="flex justify-content-end">
@@ -52,12 +77,8 @@ const filters = ref({
           </span>
         </div>
       </template>
-      <template #empty>
-        Keine Kämpfe gefunden.
-      </template>
-      <template #loading>
-        Kämpfe wird geladen. Bitte warten.
-      </template>
+      <template #empty> Keine Kämpfe gefunden. </template>
+      <template #loading> Kämpfe wird geladen. Bitte warten. </template>
       <Column
         field="wrestler1_name"
         header="Schwinger 1 - Name"
@@ -96,11 +117,7 @@ const filters = ref({
           />
         </template>
       </Column>
-      <Column
-        field="level"
-        header="Schwingerstatus"
-        style="min-width: 12rem"
-      >
+      <Column field="level" header="Schwingerstatus" style="min-width: 12rem">
         <template #body="{ data }">
           {{ data.level }}
         </template>
@@ -114,11 +131,7 @@ const filters = ref({
           />
         </template>
       </Column>
-      <Column
-        field="points"
-        header="Punkte"
-        style="min-width: 12rem"
-      >
+      <Column field="points" header="Punkte" style="min-width: 12rem">
         <template #body="{ data }">
           {{ data.points }}
         </template>
@@ -132,11 +145,7 @@ const filters = ref({
           />
         </template>
       </Column>
-      <Column
-        field="fight_round"
-        header="Gang"
-        style="min-width: 12rem"
-      >
+      <Column field="fight_round" header="Gang" style="min-width: 12rem">
         <template #body="{ data }">
           {{ data.fight_round }}
         </template>

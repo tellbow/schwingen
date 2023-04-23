@@ -1,61 +1,88 @@
 <script setup lang="ts">
-import { FilterMatchMode } from 'primevue/api'
+import { FilterMatchMode } from "primevue/api";
 
 const pocketbase = usePocketbase();
 
-const records = ref();
 const loading = ref(true);
-
-onMounted(async () => {
-  await pocketbase.collection('places').getFullList(200 /* batch size */, {
-    sort: 'name,-created',
-  }).then((data) => {
-    records.value = data;
-    loading.value = false;
-  });
-});
+const page = ref(1);
+const records = ref();
+const totalRecords = ref(0);
 
 const filters = ref({
-    global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    number: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
-    name: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
-    location: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
-    year: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
+  number: { value: "", matchMode: FilterMatchMode.STARTS_WITH },
+  name: { value: "", matchMode: FilterMatchMode.STARTS_WITH },
+  location: { value: "", matchMode: FilterMatchMode.STARTS_WITH },
+  year: { value: "", matchMode: FilterMatchMode.STARTS_WITH },
 });
+
+const matchModeOptions = ref([
+  { label: "Contains", value: FilterMatchMode.CONTAINS },
+]);
+
+/* eslint require-await: "off" */
+onMounted(async () => {
+  loading.value = true;
+  loadLazyData();
+});
+
+const loadLazyData = () => {
+  loading.value = true;
+
+  pocketbase
+    .collection("places")
+    .getList(page.value, 10, {
+      filter:
+        'number ~ "' +
+        (filters.value.number.value || "") +
+        '" && name ~ "' +
+        (filters.value.name.value || "") +
+        '" && location ~ "' +
+        (filters.value.location.value || "") +
+        '" && year ~ "' +
+        (filters.value.year.value || "") +
+        '"',
+      sort: "name,-created",
+    })
+    .then((data) => {
+      records.value = data.items;
+      totalRecords.value = data.totalItems;
+      loading.value = false;
+    });
+};
+
+const onPage = (event: { page: number }) => {
+  page.value = event.page + 1;
+  loadLazyData();
+};
+
+const onFilter = () => {
+  loadLazyData();
+};
 </script>
 <template>
-  <div class="justify-content-center align-content-center display: flex flex-wrap fill-height mt-5">
+  <div
+    class="justify-content-center align-content-center display: flex flex-wrap fill-height mt-5"
+  >
     <DataTable
       v-model:filters="filters"
       :value="records"
+      lazy
       paginator
       :rows="10"
       data-key="id"
       filter-display="row"
+      :total-records="totalRecords"
       :loading="loading"
-      :global-filter-fields="['number','name','location','year']"
+      @page="onPage($event)"
+      @filter="onFilter()"
     >
-      <template #header>
-        <div class="flex justify-content-end">
-          <span class="p-input-icon-left">
-            <i class="pi pi-search" />
-            <InputText
-              v-model="filters['global'].value"
-              placeholder="Stichwortsuche"
-            />
-          </span>
-        </div>
-      </template>
-      <template #empty>
-        Keine Schwingfeste gefunden.
-      </template>
-      <template #loading>
-        Schwingfeste werden geladen. Bitte warten.
-      </template>
+      <template #empty> Keine Schwingfeste gefunden. </template>
+      <template #loading> Schwingfeste werden geladen. Bitte warten. </template>
       <Column
         field="number"
         header="Nummer"
         style="min-width: 12rem"
+        :filter-match-mode-options="matchModeOptions"
       >
         <template #body="{ data }">
           {{ data.number }}
@@ -74,6 +101,7 @@ const filters = ref({
         field="name"
         header="Name"
         style="min-width: 12rem"
+        :filter-match-mode-options="matchModeOptions"
       >
         <template #body="{ data }">
           {{ data.name }}
@@ -92,6 +120,7 @@ const filters = ref({
         field="location"
         header="Ort"
         style="min-width: 12rem"
+        :filter-match-mode-options="matchModeOptions"
       >
         <template #body="{ data }">
           {{ data.location }}
@@ -110,6 +139,7 @@ const filters = ref({
         field="year"
         header="Jahr"
         style="min-width: 12rem"
+        :filter-match-mode-options="matchModeOptions"
       >
         <template #body="{ data }">
           {{ data.year }}

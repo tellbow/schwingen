@@ -1,18 +1,18 @@
 <script lang="ts" setup>
-const appConfig = useAppConfig()
-const pb = usePocketbase()
+// Ensures that the pocketbase url is set to the current host
+const pb = usePocketbase();
 onMounted(() => {
-  const url = window.location.host
-  if (!url.includes('localhost')) {
-    pb.baseUrl = "https://" + url
+  const url = window.location.host;
+  if (!url.includes("localhost")) {
+    pb.baseUrl = "https://" + url;
   }
-})
+});
 </script>
 
 <template>
-  <Header />
   <div class="layout-empty">
+    <Header />
     <slot />
+    <Footer />
   </div>
-  <Footer />
 </template>

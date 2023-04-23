@@ -1,21 +1,21 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   ssr: false, // Must be false to be used served by pocketbase
-  srcDir: 'app',
+  srcDir: "app",
   css: [
-    'primevue/resources/themes/saga-blue/theme.css',
-    'primevue/resources/primevue.css',
-    'primeicons/primeicons.css',
-    'primeflex/primeflex.css'
+    "primevue/resources/themes/saga-blue/theme.css",
+    "primevue/resources/primevue.css",
+    "primeicons/primeicons.css",
+    "primeflex/primeflex.css",
   ],
   build: {
-    transpile: ['primevue']
+    transpile: ["primevue"],
   },
   imports: {
     autoImport: true,
     addons: {
-      vueTemplate: true
-    }
+      vueTemplate: true,
+    },
   },
-  modules: ['@nuxtjs/tailwindcss'],
-})
+  modules: ["@nuxtjs/tailwindcss"],
+});

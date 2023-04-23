@@ -1,78 +1,166 @@
 <script setup lang="ts">
-import { FilterMatchMode } from 'primevue/api'
+import { FilterMatchMode } from "primevue/api";
 
 const pocketbase = usePocketbase();
 
-const records = ref();
 const loading = ref(true);
-
-onMounted(async () => {
-  await pocketbase.collection('wrestler').getFullList(200 /* batch size */, {
-    sort: 'name,-created',
-  }).then((data) => {
-    records.value = data;
-    loading.value = false;
-  });
-});
+const page = ref(1);
+const records = ref();
+const totalRecords = ref(0);
 
 const filters = ref({
-    global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    name: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
-    vorname: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
-    year: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
-    category: { value: null, matchMode: FilterMatchMode.STARTS_WITH }
+  name: { value: "", matchMode: FilterMatchMode.CONTAINS },
+  vorname: { value: "", matchMode: FilterMatchMode.CONTAINS },
+  year: { value: "", matchMode: FilterMatchMode.CONTAINS },
+  category: { value: "", matchMode: FilterMatchMode.CONTAINS },
 });
 
+const matchModeOptions = ref([
+  { label: "Contains", value: FilterMatchMode.CONTAINS },
+]);
+
+/* eslint require-await: "off" */
+onMounted(async () => {
+  loading.value = true;
+  loadLazyData();
+});
+
+const loadLazyData = () => {
+  loading.value = true;
+
+  pocketbase
+    .collection("wrestler")
+    .getList(page.value, 10, {
+      filter:
+        'name ~ "' +
+        (filters.value.name.value || "") +
+        '" && vorname ~ "' +
+        (filters.value.vorname.value || "") +
+        '" && year ~ "' +
+        (filters.value.year.value || "") +
+        '" && category ~ "' +
+        (filters.value.category.value || "") +
+        '"',
+      sort: "name,-created",
+    })
+    .then((data) => {
+      records.value = data.items;
+      totalRecords.value = data.totalItems;
+      loading.value = false;
+    });
+};
+
+const onPage = (event: { page: number }) => {
+  page.value = event.page + 1;
+  loadLazyData();
+};
+
+const onFilter = () => {
+  loadLazyData();
+};
+
 async function rowClick(event: any) {
-    await navigateTo('/wrestler/' + event.data.id)
+  await navigateTo("/wrestler/" + event.data.id);
 }
 </script>
 <template>
-  <div class="justify-content-center align-content-center display: flex flex-wrap fill-height mt-5">
-    <DataTable v-model:filters="filters" :value="records" paginator :rows="10" dataKey="id" filterDisplay="row" :loading="loading" @row-click="rowClick($event)"
-                :globalFilterFields="['name', 'vorname', 'year', 'category']">
-            <template #header>
-                <div class="flex justify-content-end">
-                    <span class="p-input-icon-left">
-                        <i class="pi pi-search" />
-                        <InputText v-model="filters['global'].value" placeholder="Stichwortsuche" />
-                    </span>
-                </div>
-            </template>
-            <template #empty> Keine Schwinger gefunden. </template>
-            <template #loading> Schwingerdatenbank wird geladen. Bitte warten. </template>
-            <Column field="name" header="Name" style="min-width: 12rem">
-                <template #body="{ data }">
-                    {{ data.name }}
-                </template>
-                <template #filter="{ filterModel, filterCallback }">
-                    <InputText v-model="filterModel.value" type="text" @input="filterCallback()" class="p-column-filter" placeholder="Filter Name" />
-                </template>
-            </Column>
-            <Column field="vorname" header="Vorname" style="min-width: 12rem">
-                <template #body="{ data }">
-                    {{ data.vorname }}
-                </template>
-                <template #filter="{ filterModel, filterCallback }">
-                    <InputText v-model="filterModel.value" type="text" @input="filterCallback()" class="p-column-filter" placeholder="Filter Vorname" />
-                </template>
-            </Column>
-            <Column field="year" header="Jahrgang" style="min-width: 12rem">
-                <template #body="{ data }">
-                    {{ data.year }}
-                </template>
-                <template #filter="{ filterModel, filterCallback }">
-                    <InputText v-model="filterModel.value" type="text" @input="filterCallback()" class="p-column-filter" placeholder="Filter Jahrgang" />
-                </template>
-            </Column>
-            <Column field="category" header="Kategorie" style="min-width: 12rem">
-                <template #body="{ data }">
-                    {{ data.category }}
-                </template>
-                <template #filter="{ filterModel, filterCallback }">
-                    <InputText v-model="filterModel.value" type="text" @input="filterCallback()" class="p-column-filter" placeholder="Filter Kategorie" />
-                </template>
-            </Column>
-        </DataTable>
+  <div
+    class="justify-content-center align-content-center display: flex flex-wrap fill-height mt-5"
+  >
+    <DataTable
+      v-model:filters="filters"
+      :value="records"
+      lazy
+      paginator
+      :rows="10"
+      data-key="id"
+      filter-display="row"
+      :total-records="totalRecords"
+      :loading="loading"
+      @page="onPage($event)"
+      @filter="onFilter()"
+      @row-click="rowClick($event)"
+    >
+      <template #empty> Keine Schwinger gefunden. </template>
+      <template #loading>
+        Schwingerdatenbank wird geladen. Bitte warten.
+      </template>
+      <Column
+        field="name"
+        header="Name"
+        style="min-width: 12rem"
+        :filter-match-mode-options="matchModeOptions"
+      >
+        <template #body="{ data }">
+          {{ data.name }}
+        </template>
+        <template #filter="{ filterModel, filterCallback }">
+          <InputText
+            v-model="filterModel.value"
+            type="text"
+            class="p-column-filter"
+            placeholder="Filter Name"
+            @input="filterCallback()"
+          />
+        </template>
+      </Column>
+      <Column
+        field="vorname"
+        header="Vorname"
+        style="min-width: 12rem"
+        :filter-match-mode-options="matchModeOptions"
+      >
+        <template #body="{ data }">
+          {{ data.vorname }}
+        </template>
+        <template #filter="{ filterModel, filterCallback }">
+          <InputText
+            v-model="filterModel.value"
+            type="text"
+            class="p-column-filter"
+            placeholder="Filter Vorname"
+            @input="filterCallback()"
+          />
+        </template>
+      </Column>
+      <Column
+        field="year"
+        header="Jahrgang"
+        style="min-width: 12rem"
+        :filter-match-mode-options="matchModeOptions"
+      >
+        <template #body="{ data }">
+          {{ data.year }}
+        </template>
+        <template #filter="{ filterModel, filterCallback }">
+          <InputText
+            v-model="filterModel.value"
+            type="text"
+            class="p-column-filter"
+            placeholder="Filter Jahrgang"
+            @input="filterCallback()"
+          />
+        </template>
+      </Column>
+      <Column
+        field="category"
+        header="Kategorie"
+        style="min-width: 12rem"
+        :filter-match-mode-options="matchModeOptions"
+      >
+        <template #body="{ data }">
+          {{ data.category }}
+        </template>
+        <template #filter="{ filterModel, filterCallback }">
+          <InputText
+            v-model="filterModel.value"
+            type="text"
+            class="p-column-filter"
+            placeholder="Filter Kategorie"
+            @input="filterCallback()"
+          />
+        </template>
+      </Column>
+    </DataTable>
   </div>
 </template>

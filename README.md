@@ -1,6 +1,7 @@
 # Schwingen
 
 ## Run Locally
+
 This will run both a Nuxt3 dev server with hot reload and a pocketbase instance with a authentication and an api ready to go.
 
 Clone the project
@@ -28,8 +29,8 @@ Start the server
 ```
 
 | URL                 | Function                       |
-|---------------------|--------------------------------|
-| localhost:8090/_/   | pocketbase admin setup and log |
+| ------------------- | ------------------------------ |
+| localhost:8090/\_/  | pocketbase admin setup and log |
 | localhost:8090/api/ | pocketbase api                 |
 | localhost:3000/     | nuxt3 dev server               |
 
@@ -46,6 +47,7 @@ This will create a single binary containing Nuxt and PocketBase for deployment.
 ```bash
   ./pocketnuxt serve --http "yourdomain.com:80" --https "yourdomain.com:443"
 ```
+
 https://pocketbase.io/docs/going-to-production/ for more examples.
 
 ## Docker
@@ -56,9 +58,9 @@ https://pocketbase.io/docs/going-to-production/ for more examples.
 
 ### Run
 
-`docker run --rm --mount type=bind,source="$(pwd)"/pb_data,target=/pb_data -p 8090:8090 0.0.1`
+`docker run --rm -p 8090:8090 0.0.1`
 
 ## Acknowledgements
 
- - [Pocket Nuxt](https://github.com/j-wil/pocket-nuxt)
- - [PocketBase](https://github.com/pocketbase/pocketbase)
+- [Pocket Nuxt](https://github.com/j-wil/pocket-nuxt)
+- [PocketBase](https://github.com/pocketbase/pocketbase)
