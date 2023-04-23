@@ -31,82 +31,182 @@ const filters = ref({
 </script>
 <template>
   <div class="justify-content-center align-content-center display: flex flex-wrap fill-height mt-5">
-    <DataTable v-model:filters="filters" :value="records" paginator :rows="10" dataKey="id" filterDisplay="row" :loading="loading"
-                :globalFilterFields="['expand.wrestler1.name','expand.wrestler1.vorname','level','points','fight_round','expand.wrestler2.name','expand.wrestler2.vorname','expand.place.name']">
-            <template #header>
-                <div class="flex justify-content-end">
-                    <span class="p-input-icon-left">
-                        <i class="pi pi-search" />
-                        <InputText v-model="filters['global'].value" placeholder="Stichwortsuche" />
-                    </span>
-                </div>
-            </template>
-            <template #empty> Keine Kämpfe gefunden. </template>
-            <template #loading> Kämpfe wird geladen. Bitte warten. </template>
-            <Column field="wrestler1_name" header="Schwinger 1 - Name" filterField="expand.wrestler1.name" style="min-width: 12rem">
-                <template #body="{ data }">
-                    {{ data.expand.wrestler1.name }}
-                </template>
-                <template #filter="{ filterModel, filterCallback }">
-                    <InputText v-model="filterModel.value" type="text" @input="filterCallback()" class="p-column-filter" placeholder="Filter Schwinger 1 - Name" />
-                </template>
-            </Column>
-            <Column field="wrestler1_vorname" header="Schwinger 1 - Vorname" filterField="expand.wrestler1.vorname" style="min-width: 12rem">
-                <template #body="{ data }">
-                    {{ data.expand.wrestler1.vorname }}
-                </template>
-                <template #filter="{ filterModel, filterCallback }">
-                    <InputText v-model="filterModel.value" type="text" @input="filterCallback()" class="p-column-filter" placeholder="Filter Schwinger 1 - Vorname" />
-                </template>
-            </Column>
-            <Column field="level" header="Schwingerstatus" style="min-width: 12rem">
-                <template #body="{ data }">
-                    {{ data.level }}
-                </template>
-                <template #filter="{ filterModel, filterCallback }">
-                    <InputText v-model="filterModel.value" type="text" @input="filterCallback()" class="p-column-filter" placeholder="Filter Schwingerstatus" />
-                </template>
-            </Column>
-            <Column field="points" header="Punkte" style="min-width: 12rem">
-                <template #body="{ data }">
-                    {{ data.points }}
-                </template>
-                <template #filter="{ filterModel, filterCallback }">
-                    <InputText v-model="filterModel.value" type="text" @input="filterCallback()" class="p-column-filter" placeholder="Filter Punkte" />
-                </template>
-            </Column>
-            <Column field="fight_round" header="Gang" style="min-width: 12rem">
-                <template #body="{ data }">
-                    {{ data.fight_round }}
-                </template>
-                <template #filter="{ filterModel, filterCallback }">
-                    <InputText v-model="filterModel.value" type="text" @input="filterCallback()" class="p-column-filter" placeholder="Filter Gang" />
-                </template>
-            </Column>
-            <Column field="wrestler2_name" header="Schwinger 2 - Name" filterField="expand.wrestler2.name" style="min-width: 12rem">
-                <template #body="{ data }">
-                    {{ data.expand.wrestler2.name }}
-                </template>
-                <template #filter="{ filterModel, filterCallback }">
-                    <InputText v-model="filterModel.value" type="text" @input="filterCallback()" class="p-column-filter" placeholder="Filter Schwinger 2 - Name" />
-                </template>
-            </Column>
-            <Column field="wrestler2_vorname" header="Schwinger 2 - Vorname" filterField="expand.wrestler2.vorname" style="min-width: 12rem">
-                <template #body="{ data }">
-                    {{ data.expand.wrestler2.vorname }}
-                </template>
-                <template #filter="{ filterModel, filterCallback }">
-                    <InputText v-model="filterModel.value" type="text" @input="filterCallback()" class="p-column-filter" placeholder="Filter Schwinger 2 - Vorname" />
-                </template>
-            </Column>
-            <Column field="place" header="Schwingfest" filterField="expand.place.name" style="min-width: 12rem">
-                <template #body="{ data }">
-                    {{ data.expand.place.name }}
-                </template>
-                <template #filter="{ filterModel, filterCallback }">
-                    <InputText v-model="filterModel.value" type="text" @input="filterCallback()" class="p-column-filter" placeholder="Filter Schwingfest" />
-                </template>
-            </Column>
-        </DataTable>
+    <DataTable
+      v-model:filters="filters"
+      :value="records"
+      paginator
+      :rows="10"
+      data-key="id"
+      filter-display="row"
+      :loading="loading"
+      :global-filter-fields="['expand.wrestler1.name','expand.wrestler1.vorname','level','points','fight_round','expand.wrestler2.name','expand.wrestler2.vorname','expand.place.name']"
+    >
+      <template #header>
+        <div class="flex justify-content-end">
+          <span class="p-input-icon-left">
+            <i class="pi pi-search" />
+            <InputText
+              v-model="filters['global'].value"
+              placeholder="Stichwortsuche"
+            />
+          </span>
+        </div>
+      </template>
+      <template #empty>
+        Keine Kämpfe gefunden.
+      </template>
+      <template #loading>
+        Kämpfe wird geladen. Bitte warten.
+      </template>
+      <Column
+        field="wrestler1_name"
+        header="Schwinger 1 - Name"
+        filter-field="expand.wrestler1.name"
+        style="min-width: 12rem"
+      >
+        <template #body="{ data }">
+          {{ data.expand.wrestler1.name }}
+        </template>
+        <template #filter="{ filterModel, filterCallback }">
+          <InputText
+            v-model="filterModel.value"
+            type="text"
+            class="p-column-filter"
+            placeholder="Filter Schwinger 1 - Name"
+            @input="filterCallback()"
+          />
+        </template>
+      </Column>
+      <Column
+        field="wrestler1_vorname"
+        header="Schwinger 1 - Vorname"
+        filter-field="expand.wrestler1.vorname"
+        style="min-width: 12rem"
+      >
+        <template #body="{ data }">
+          {{ data.expand.wrestler1.vorname }}
+        </template>
+        <template #filter="{ filterModel, filterCallback }">
+          <InputText
+            v-model="filterModel.value"
+            type="text"
+            class="p-column-filter"
+            placeholder="Filter Schwinger 1 - Vorname"
+            @input="filterCallback()"
+          />
+        </template>
+      </Column>
+      <Column
+        field="level"
+        header="Schwingerstatus"
+        style="min-width: 12rem"
+      >
+        <template #body="{ data }">
+          {{ data.level }}
+        </template>
+        <template #filter="{ filterModel, filterCallback }">
+          <InputText
+            v-model="filterModel.value"
+            type="text"
+            class="p-column-filter"
+            placeholder="Filter Schwingerstatus"
+            @input="filterCallback()"
+          />
+        </template>
+      </Column>
+      <Column
+        field="points"
+        header="Punkte"
+        style="min-width: 12rem"
+      >
+        <template #body="{ data }">
+          {{ data.points }}
+        </template>
+        <template #filter="{ filterModel, filterCallback }">
+          <InputText
+            v-model="filterModel.value"
+            type="text"
+            class="p-column-filter"
+            placeholder="Filter Punkte"
+            @input="filterCallback()"
+          />
+        </template>
+      </Column>
+      <Column
+        field="fight_round"
+        header="Gang"
+        style="min-width: 12rem"
+      >
+        <template #body="{ data }">
+          {{ data.fight_round }}
+        </template>
+        <template #filter="{ filterModel, filterCallback }">
+          <InputText
+            v-model="filterModel.value"
+            type="text"
+            class="p-column-filter"
+            placeholder="Filter Gang"
+            @input="filterCallback()"
+          />
+        </template>
+      </Column>
+      <Column
+        field="wrestler2_name"
+        header="Schwinger 2 - Name"
+        filter-field="expand.wrestler2.name"
+        style="min-width: 12rem"
+      >
+        <template #body="{ data }">
+          {{ data.expand.wrestler2.name }}
+        </template>
+        <template #filter="{ filterModel, filterCallback }">
+          <InputText
+            v-model="filterModel.value"
+            type="text"
+            class="p-column-filter"
+            placeholder="Filter Schwinger 2 - Name"
+            @input="filterCallback()"
+          />
+        </template>
+      </Column>
+      <Column
+        field="wrestler2_vorname"
+        header="Schwinger 2 - Vorname"
+        filter-field="expand.wrestler2.vorname"
+        style="min-width: 12rem"
+      >
+        <template #body="{ data }">
+          {{ data.expand.wrestler2.vorname }}
+        </template>
+        <template #filter="{ filterModel, filterCallback }">
+          <InputText
+            v-model="filterModel.value"
+            type="text"
+            class="p-column-filter"
+            placeholder="Filter Schwinger 2 - Vorname"
+            @input="filterCallback()"
+          />
+        </template>
+      </Column>
+      <Column
+        field="place"
+        header="Schwingfest"
+        filter-field="expand.place.name"
+        style="min-width: 12rem"
+      >
+        <template #body="{ data }">
+          {{ data.expand.place.name }}
+        </template>
+        <template #filter="{ filterModel, filterCallback }">
+          <InputText
+            v-model="filterModel.value"
+            type="text"
+            class="p-column-filter"
+            placeholder="Filter Schwingfest"
+            @input="filterCallback()"
+          />
+        </template>
+      </Column>
+    </DataTable>
   </div>
 </template>

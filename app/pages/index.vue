@@ -12,23 +12,37 @@ function logout() {
 <template>
   <div class="justify-content-center align-content-center display: flex flex-wrap fill-height mt-8">
     <Card>
-      <template #title> Schwinger </template>
+      <template #title>
+        Schwinger
+      </template>
       <template #content>
-          <p>
-              Lorem ipsum dolor sit amet, consectetur adipisicing elit. Inventore sed consequuntur error repudiandae numquam deserunt quisquam repellat libero asperiores earum nam nobis, culpa ratione quam perferendis esse, cupiditate neque
-              quas!
-          </p>
-          <Button v-if="user" label="Anzeigen" class="w-half mt-3 ml-3" @click="navigateTo('/wrestler')"></Button>
+        <p>
+          Lorem ipsum dolor sit amet, consectetur adipisicing elit. Inventore sed consequuntur error repudiandae numquam deserunt quisquam repellat libero asperiores earum nam nobis, culpa ratione quam perferendis esse, cupiditate neque
+          quas!
+        </p>
+        <Button
+          v-if="user"
+          label="Anzeigen"
+          class="w-half mt-3 ml-3"
+          @click="navigateTo('/wrestler')"
+        />
       </template>
     </Card>
     <Card>
-      <template #title> Schwingfeste </template>
+      <template #title>
+        Schwingfeste
+      </template>
       <template #content>
-          <p>
-              Lorem ipsum dolor sit amet, consectetur adipisicing elit. Inventore sed consequuntur error repudiandae numquam deserunt quisquam repellat libero asperiores earum nam nobis, culpa ratione quam perferendis esse, cupiditate neque
-              quas!
-          </p>
-          <Button v-if="user" label="Anzeigen" class="w-half mt-3 ml-3" @click="navigateTo('/places')"></Button>
+        <p>
+          Lorem ipsum dolor sit amet, consectetur adipisicing elit. Inventore sed consequuntur error repudiandae numquam deserunt quisquam repellat libero asperiores earum nam nobis, culpa ratione quam perferendis esse, cupiditate neque
+          quas!
+        </p>
+        <Button
+          v-if="user"
+          label="Anzeigen"
+          class="w-half mt-3 ml-3"
+          @click="navigateTo('/places')"
+        />
       </template>
     </Card>
   </div>

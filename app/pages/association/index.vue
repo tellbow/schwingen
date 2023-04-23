@@ -23,34 +23,69 @@ const filters = ref({
 </script>
 <template>
   <div class="justify-content-center align-content-center display: flex flex-wrap fill-height mt-5">
-    <DataTable v-model:filters="filters" :value="records" paginator :rows="10" dataKey="id" filterDisplay="row" :loading="loading"
-                :globalFilterFields="['name','abbreviation']">
-            <template #header>
-                <div class="flex justify-content-end">
-                    <span class="p-input-icon-left">
-                        <i class="pi pi-search" />
-                        <InputText v-model="filters['global'].value" placeholder="Stichwortsuche" />
-                    </span>
-                </div>
-            </template>
-            <template #empty> Keine Verbände gefunden. </template>
-            <template #loading> Verbände werden geladen. Bitte warten. </template>
-            <Column field="name" header="Name" style="min-width: 12rem">
-                <template #body="{ data }">
-                    {{ data.name }}
-                </template>
-                <template #filter="{ filterModel, filterCallback }">
-                    <InputText v-model="filterModel.value" type="text" @input="filterCallback()" class="p-column-filter" placeholder="Filter Name" />
-                </template>
-            </Column>
-            <Column field="abbreviation" header="Abkürzung" style="min-width: 12rem">
-                <template #body="{ data }">
-                    {{ data.abbreviation }}
-                </template>
-                <template #filter="{ filterModel, filterCallback }">
-                    <InputText v-model="filterModel.value" type="text" @input="filterCallback()" class="p-column-filter" placeholder="Filter Abkürzung" />
-                </template>
-            </Column>
-        </DataTable>
+    <DataTable
+      v-model:filters="filters"
+      :value="records"
+      paginator
+      :rows="10"
+      data-key="id"
+      filter-display="row"
+      :loading="loading"
+      :global-filter-fields="['name','abbreviation']"
+    >
+      <template #header>
+        <div class="flex justify-content-end">
+          <span class="p-input-icon-left">
+            <i class="pi pi-search" />
+            <InputText
+              v-model="filters['global'].value"
+              placeholder="Stichwortsuche"
+            />
+          </span>
+        </div>
+      </template>
+      <template #empty>
+        Keine Verbände gefunden.
+      </template>
+      <template #loading>
+        Verbände werden geladen. Bitte warten.
+      </template>
+      <Column
+        field="name"
+        header="Name"
+        style="min-width: 12rem"
+      >
+        <template #body="{ data }">
+          {{ data.name }}
+        </template>
+        <template #filter="{ filterModel, filterCallback }">
+          <InputText
+            v-model="filterModel.value"
+            type="text"
+            class="p-column-filter"
+            placeholder="Filter Name"
+            @input="filterCallback()"
+          />
+        </template>
+      </Column>
+      <Column
+        field="abbreviation"
+        header="Abkürzung"
+        style="min-width: 12rem"
+      >
+        <template #body="{ data }">
+          {{ data.abbreviation }}
+        </template>
+        <template #filter="{ filterModel, filterCallback }">
+          <InputText
+            v-model="filterModel.value"
+            type="text"
+            class="p-column-filter"
+            placeholder="Filter Abkürzung"
+            @input="filterCallback()"
+          />
+        </template>
+      </Column>
+    </DataTable>
   </div>
 </template>

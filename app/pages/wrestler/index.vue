@@ -22,10 +22,14 @@ const filters = ref({
     year: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
     category: { value: null, matchMode: FilterMatchMode.STARTS_WITH }
 });
+
+async function rowClick(event: any) {
+    await navigateTo('/wrestler/' + event.data.id)
+}
 </script>
 <template>
   <div class="justify-content-center align-content-center display: flex flex-wrap fill-height mt-5">
-    <DataTable v-model:filters="filters" :value="records" paginator :rows="10" dataKey="id" filterDisplay="row" :loading="loading"
+    <DataTable v-model:filters="filters" :value="records" paginator :rows="10" dataKey="id" filterDisplay="row" :loading="loading" @row-click="rowClick($event)"
                 :globalFilterFields="['name', 'vorname', 'year', 'category']">
             <template #header>
                 <div class="flex justify-content-end">
