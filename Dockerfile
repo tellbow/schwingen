@@ -16,4 +16,5 @@ RUN go build -o pocketnuxt pocketbase/main.go
 #build docker image
 FROM ubuntu:22.10
 COPY --from=golang /usr/src/app/pocketnuxt /pocketnuxt
+COPY pb_data/ /pb_data/
 CMD ["/pocketnuxt", "serve", "--http", "0.0.0.0:8090"]
