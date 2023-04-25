@@ -3,36 +3,36 @@ import { ref } from "vue";
 
 const items = ref([
   {
-    label: "Home",
+    label: "Startseite",
     icon: "pi pi-home",
     to: "/",
   },
   {
-    label: "Association",
+    label: "Schwingerverband",
     to: "/association",
   },
   {
-    label: "Canton",
+    label: "Gauverband",
     to: "/canton",
   },
   {
-    label: "Club",
+    label: "Schwingklub",
     to: "/club",
   },
   {
-    label: "Wrestler",
+    label: "Schwinger",
     to: "/wrestler",
   },
   {
-    label: "Places",
+    label: "Schwingfeste",
     to: "/places",
   },
   {
-    label: "Rankings",
+    label: "Ranglisten",
     to: "/rankings",
   },
   {
-    label: "Account",
+    label: "Benutzerkonto",
     to: "/account",
   },
 ]);

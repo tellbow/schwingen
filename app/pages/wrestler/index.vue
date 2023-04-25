@@ -75,6 +75,7 @@ async function rowClick(event: any) {
       :rows="10"
       data-key="id"
       filter-display="row"
+      :row-hover="true"
       :total-records="totalRecords"
       :loading="loading"
       @page="onPage($event)"

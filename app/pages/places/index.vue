@@ -12,7 +12,7 @@ const filters = ref({
   number: { value: "", matchMode: FilterMatchMode.STARTS_WITH },
   name: { value: "", matchMode: FilterMatchMode.STARTS_WITH },
   location: { value: "", matchMode: FilterMatchMode.STARTS_WITH },
-  year: { value: "", matchMode: FilterMatchMode.STARTS_WITH },
+  // year: { value: "", matchMode: FilterMatchMode.STARTS_WITH },
 });
 
 const matchModeOptions = ref([
@@ -38,8 +38,9 @@ const loadLazyData = () => {
         (filters.value.name.value || "") +
         '" && location ~ "' +
         (filters.value.location.value || "") +
-        '" && year ~ "' +
-        (filters.value.year.value || "") +
+        '" && year ~ "2022' +
+        /* '" && year ~ "' +
+        (filters.value.year.value || "") + */
         '"',
       sort: "name,-created",
     })
@@ -58,6 +59,10 @@ const onPage = (event: { page: number }) => {
 const onFilter = () => {
   loadLazyData();
 };
+
+async function rowClick(event: any) {
+  await navigateTo("/rankings/" + event.data.id);
+}
 </script>
 <template>
   <div
@@ -71,10 +76,12 @@ const onFilter = () => {
       :rows="10"
       data-key="id"
       filter-display="row"
+      :row-hover="true"
       :total-records="totalRecords"
       :loading="loading"
       @page="onPage($event)"
       @filter="onFilter()"
+      @row-click="rowClick($event)"
     >
       <template #empty> Keine Schwingfeste gefunden. </template>
       <template #loading> Schwingfeste werden geladen. Bitte warten. </template>
@@ -135,7 +142,7 @@ const onFilter = () => {
           />
         </template>
       </Column>
-      <Column
+      <!-- <Column
         field="year"
         header="Jahr"
         style="min-width: 12rem"
@@ -153,7 +160,7 @@ const onFilter = () => {
             @input="filterCallback()"
           />
         </template>
-      </Column>
+      </Column> -->
     </DataTable>
   </div>
 </template>

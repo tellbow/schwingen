@@ -5,16 +5,15 @@ const user = pocketbase.authStore.model;
 </script>
 <template>
   <div
-    class="justify-content-center align-content-center display: flex flex-wrap fill-height mt-8"
+    class="justify-content-center align-content-center display: flex flex-wrap fill-height"
   >
-    <Card>
+    <Card class="w-9/12 mt-4">
       <template #title> Schwinger </template>
       <template #content>
         <p>
-          Lorem ipsum dolor sit amet, consectetur adipisicing elit. Inventore
-          sed consequuntur error repudiandae numquam deserunt quisquam repellat
-          libero asperiores earum nam nobis, culpa ratione quam perferendis
-          esse, cupiditate neque quas!
+          Enthält alle aktiven Schwinger aus der
+          <a href="https://esv.ch/hkesv/datenbank/">Datenbank des ESV</a> (Stand
+          11.02.2023).
         </p>
         <Button
           v-if="user"
@@ -24,15 +23,10 @@ const user = pocketbase.authStore.model;
         />
       </template>
     </Card>
-    <Card>
+    <Card class="w-9/12 mt-4">
       <template #title> Schwingfeste </template>
       <template #content>
-        <p>
-          Lorem ipsum dolor sit amet, consectetur adipisicing elit. Inventore
-          sed consequuntur error repudiandae numquam deserunt quisquam repellat
-          libero asperiores earum nam nobis, culpa ratione quam perferendis
-          esse, cupiditate neque quas!
-        </p>
+        <p>Enthält alle Schwingfeste der Aktivschwinger aus dem Jahr 2022.</p>
         <Button
           v-if="user"
           label="Anzeigen"
