@@ -3,45 +3,89 @@ import { FilterMatchMode } from "primevue/api";
 
 const pocketbase = usePocketbase();
 
-const records = ref();
 const loading = ref(true);
-
-onMounted(async () => {
-  await pocketbase
-    .collection("bouts")
-    .getFullList(200 /* batch size */, {
-      sort: "-created",
-      expand: "wrestler1,wrestler2,place",
-    })
-    .then((data) => {
-      records.value = data;
-      loading.value = false;
-    });
-});
+const page = ref(1);
+const records = ref();
+const totalRecords = ref(0);
 
 const filters = ref({
-  global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-  "expand.wrestler1.name": {
-    value: null,
-    matchMode: FilterMatchMode.STARTS_WITH,
+  result: { value: "", matchMode: FilterMatchMode.CONTAINS },
+  points: { value: "", matchMode: FilterMatchMode.CONTAINS },
+  fight_round: { value: "", matchMode: FilterMatchMode.CONTAINS },
+  "expand.wrestler.name": {
+    value: "",
+    matchMode: FilterMatchMode.CONTAINS,
   },
-  "expand.wrestler1.vorname": {
-    value: null,
-    matchMode: FilterMatchMode.STARTS_WITH,
+  "expand.wrestler.vorname": {
+    value: "",
+    matchMode: FilterMatchMode.CONTAINS,
   },
-  level: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
-  points: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
-  fight_round: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
-  "expand.wrestler2.name": {
-    value: null,
-    matchMode: FilterMatchMode.STARTS_WITH,
+  "expand.opponent.name": {
+    value: "",
+    matchMode: FilterMatchMode.CONTAINS,
   },
-  "expand.wrestler2.vorname": {
-    value: null,
-    matchMode: FilterMatchMode.STARTS_WITH,
+  "expand.opponent.vorname": {
+    value: "",
+    matchMode: FilterMatchMode.CONTAINS,
   },
-  "expand.place.name": { value: null, matchMode: FilterMatchMode.STARTS_WITH },
+  "expand.place.name": { value: "", matchMode: FilterMatchMode.CONTAINS },
+  "expand.place.year": { value: "", matchMode: FilterMatchMode.CONTAINS },
 });
+
+const matchModeOptions = ref([
+  { label: "Contains", value: FilterMatchMode.CONTAINS },
+]);
+
+/* eslint require-await: "off" */
+onMounted(async () => {
+  loading.value = true;
+  loadLazyData();
+});
+
+const loadLazyData = () => {
+  loading.value = true;
+
+  pocketbase
+    .collection("bouts")
+    .getList(page.value, 10, {
+      expand: "wrestler,opponent,place",
+      filter:
+        'result ~ "' +
+        (filters.value.result.value || "") +
+        '" && points ~ "' +
+        (filters.value.points.value || "") +
+        '" && fight_round ~ "' +
+        (filters.value.fight_round.value || "") +
+        '" && wrestler.name ~ "' +
+        (filters.value["expand.wrestler.name"].value || "") +
+        '" && wrestler.vorname ~ "' +
+        (filters.value["expand.wrestler.vorname"].value || "") +
+        '" && opponent.name ~ "' +
+        (filters.value["expand.opponent.name"].value || "") +
+        '" && opponent.vorname ~ "' +
+        (filters.value["expand.opponent.vorname"].value || "") +
+        '" && place.name ~ "' +
+        (filters.value["expand.place.name"].value || "") +
+        '" && place.year ~ "' +
+        (filters.value["expand.place.year"].value || "") +
+        '"',
+      sort: "-place.year,place.name,-created",
+    })
+    .then((data) => {
+      records.value = data.items;
+      totalRecords.value = data.totalItems;
+      loading.value = false;
+    });
+};
+
+const onPage = (event: { page: number }) => {
+  page.value = event.page + 1;
+  loadLazyData();
+};
+
+const onFilter = () => {
+  loadLazyData();
+};
 </script>
 <template>
   <div
@@ -50,76 +94,27 @@ const filters = ref({
     <DataTable
       v-model:filters="filters"
       :value="records"
+      lazy
       paginator
       :rows="10"
       data-key="id"
       filter-display="row"
+      :row-hover="true"
+      :total-records="totalRecords"
       :loading="loading"
-      :global-filter-fields="[
-        'expand.wrestler1.name',
-        'expand.wrestler1.vorname',
-        'level',
-        'points',
-        'fight_round',
-        'expand.wrestler2.name',
-        'expand.wrestler2.vorname',
-        'expand.place.name',
-      ]"
+      @page="onPage($event)"
+      @filter="onFilter()"
     >
-      <template #header>
-        <div class="flex justify-content-end">
-          <span class="p-input-icon-left">
-            <i class="pi pi-search" />
-            <InputText
-              v-model="filters['global'].value"
-              placeholder="Stichwortsuche"
-            />
-          </span>
-        </div>
-      </template>
       <template #empty> Keine Kämpfe gefunden. </template>
-      <template #loading> Kämpfe wird geladen. Bitte warten. </template>
+      <template #loading> Kämpfe werden geladen. Bitte warten. </template>
       <Column
-        field="wrestler1_name"
-        header="Schwinger 1 - Name"
-        filter-field="expand.wrestler1.name"
+        field="result"
+        header="Schwingerstatus"
         style="min-width: 12rem"
+        :filter-match-mode-options="matchModeOptions"
       >
         <template #body="{ data }">
-          {{ data.expand.wrestler1.name }}
-        </template>
-        <template #filter="{ filterModel, filterCallback }">
-          <InputText
-            v-model="filterModel.value"
-            type="text"
-            class="p-column-filter"
-            placeholder="Filter Schwinger 1 - Name"
-            @input="filterCallback()"
-          />
-        </template>
-      </Column>
-      <Column
-        field="wrestler1_vorname"
-        header="Schwinger 1 - Vorname"
-        filter-field="expand.wrestler1.vorname"
-        style="min-width: 12rem"
-      >
-        <template #body="{ data }">
-          {{ data.expand.wrestler1.vorname }}
-        </template>
-        <template #filter="{ filterModel, filterCallback }">
-          <InputText
-            v-model="filterModel.value"
-            type="text"
-            class="p-column-filter"
-            placeholder="Filter Schwinger 1 - Vorname"
-            @input="filterCallback()"
-          />
-        </template>
-      </Column>
-      <Column field="level" header="Schwingerstatus" style="min-width: 12rem">
-        <template #body="{ data }">
-          {{ data.level }}
+          {{ data.result }}
         </template>
         <template #filter="{ filterModel, filterCallback }">
           <InputText
@@ -131,7 +126,12 @@ const filters = ref({
           />
         </template>
       </Column>
-      <Column field="points" header="Punkte" style="min-width: 12rem">
+      <Column
+        field="points"
+        header="Punkte"
+        style="min-width: 12rem"
+        :filter-match-mode-options="matchModeOptions"
+      >
         <template #body="{ data }">
           {{ data.points }}
         </template>
@@ -145,7 +145,12 @@ const filters = ref({
           />
         </template>
       </Column>
-      <Column field="fight_round" header="Gang" style="min-width: 12rem">
+      <Column
+        field="fight_round"
+        header="Gang"
+        style="min-width: 12rem"
+        :filter-match-mode-options="matchModeOptions"
+      >
         <template #body="{ data }">
           {{ data.fight_round }}
         </template>
@@ -160,48 +165,91 @@ const filters = ref({
         </template>
       </Column>
       <Column
-        field="wrestler2_name"
-        header="Schwinger 2 - Name"
-        filter-field="expand.wrestler2.name"
+        field="wrestler_name"
+        header="Schwinger - Name"
+        filter-field="expand.wrestler.name"
         style="min-width: 12rem"
+        :filter-match-mode-options="matchModeOptions"
       >
         <template #body="{ data }">
-          {{ data.expand.wrestler2.name }}
+          {{ data.expand.wrestler.name }}
         </template>
         <template #filter="{ filterModel, filterCallback }">
           <InputText
             v-model="filterModel.value"
             type="text"
             class="p-column-filter"
-            placeholder="Filter Schwinger 2 - Name"
+            placeholder="Filter Name"
             @input="filterCallback()"
           />
         </template>
       </Column>
       <Column
-        field="wrestler2_vorname"
-        header="Schwinger 2 - Vorname"
-        filter-field="expand.wrestler2.vorname"
+        field="wrestler_vorname"
+        header="Schwinger - Vorname"
+        filter-field="expand.wrestler.vorname"
         style="min-width: 12rem"
+        :filter-match-mode-options="matchModeOptions"
       >
         <template #body="{ data }">
-          {{ data.expand.wrestler2.vorname }}
+          {{ data.expand.wrestler.vorname }}
         </template>
         <template #filter="{ filterModel, filterCallback }">
           <InputText
             v-model="filterModel.value"
             type="text"
             class="p-column-filter"
-            placeholder="Filter Schwinger 2 - Vorname"
+            placeholder="Filter Vorname"
             @input="filterCallback()"
           />
         </template>
       </Column>
       <Column
-        field="place"
+        field="opponent_name"
+        header="Gegner - Name"
+        filter-field="expand.opponent.name"
+        style="min-width: 12rem"
+        :filter-match-mode-options="matchModeOptions"
+      >
+        <template #body="{ data }">
+          {{ data.expand.opponent.name }}
+        </template>
+        <template #filter="{ filterModel, filterCallback }">
+          <InputText
+            v-model="filterModel.value"
+            type="text"
+            class="p-column-filter"
+            placeholder="Filter Name"
+            @input="filterCallback()"
+          />
+        </template>
+      </Column>
+      <Column
+        field="opponent_vorname"
+        header="Gegner - Vorname"
+        filter-field="expand.opponent.vorname"
+        style="min-width: 12rem"
+        :filter-match-mode-options="matchModeOptions"
+      >
+        <template #body="{ data }">
+          {{ data.expand.opponent.vorname }}
+        </template>
+        <template #filter="{ filterModel, filterCallback }">
+          <InputText
+            v-model="filterModel.value"
+            type="text"
+            class="p-column-filter"
+            placeholder="Filter Vorname"
+            @input="filterCallback()"
+          />
+        </template>
+      </Column>
+      <Column
+        field="place_name"
         header="Schwingfest"
         filter-field="expand.place.name"
         style="min-width: 12rem"
+        :filter-match-mode-options="matchModeOptions"
       >
         <template #body="{ data }">
           {{ data.expand.place.name }}
@@ -212,6 +260,26 @@ const filters = ref({
             type="text"
             class="p-column-filter"
             placeholder="Filter Schwingfest"
+            @input="filterCallback()"
+          />
+        </template>
+      </Column>
+      <Column
+        field="place_year"
+        header="Jahr"
+        filter-field="expand.place.year"
+        style="min-width: 12rem"
+        :filter-match-mode-options="matchModeOptions"
+      >
+        <template #body="{ data }">
+          {{ data.expand.place.year }}
+        </template>
+        <template #filter="{ filterModel, filterCallback }">
+          <InputText
+            v-model="filterModel.value"
+            type="text"
+            class="p-column-filter"
+            placeholder="Filter Jahr"
             @input="filterCallback()"
           />
         </template>

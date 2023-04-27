@@ -32,6 +32,10 @@ const items = ref([
     to: "/rankings",
   },
   {
+    label: "Kämpfe",
+    to: "/bouts",
+  },
+  {
     label: "Benutzerkonto",
     to: "/account",
   },

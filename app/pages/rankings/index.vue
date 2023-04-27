@@ -13,15 +13,15 @@ const filters = ref({
   points: { value: "", matchMode: FilterMatchMode.CONTAINS },
   result: { value: "", matchMode: FilterMatchMode.CONTAINS },
   "expand.wrestler.name": {
-    value: null,
-    matchMode: FilterMatchMode.STARTS_WITH,
+    value: "",
+    matchMode: FilterMatchMode.CONTAINS,
   },
   "expand.wrestler.vorname": {
-    value: null,
-    matchMode: FilterMatchMode.STARTS_WITH,
+    value: "",
+    matchMode: FilterMatchMode.CONTAINS,
   },
-  "expand.place.name": { value: null, matchMode: FilterMatchMode.STARTS_WITH },
-  "expand.place.year": { value: null, matchMode: FilterMatchMode.STARTS_WITH },
+  "expand.place.name": { value: "", matchMode: FilterMatchMode.CONTAINS },
+  "expand.place.year": { value: "", matchMode: FilterMatchMode.CONTAINS },
 });
 
 const matchModeOptions = ref([
