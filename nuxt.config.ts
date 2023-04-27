@@ -1,5 +1,10 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
+  app: {
+    head: {
+      title: "Tellbow",
+    },
+  },
   ssr: false, // Must be false to be used served by pocketbase
   srcDir: "app",
   css: [
@@ -18,4 +23,5 @@ export default defineNuxtConfig({
     },
   },
   modules: ["@nuxtjs/tailwindcss"],
+  telemetry: false,
 });
