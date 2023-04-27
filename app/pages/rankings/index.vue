@@ -39,7 +39,7 @@ const loadLazyData = () => {
 
   pocketbase
     .collection("rankings")
-    .getList(page.value, 10, {
+    .getList(page.value, 15, {
       expand: "wrestler,place",
       filter:
         'rank ~ "' +
@@ -86,9 +86,13 @@ async function rowClick(event: any) {
     <DataTable
       v-model:filters="filters"
       :value="records"
+      resizable-columns
+      column-resize-mode="fit"
+      show-gridlines
+      table-style="min-width: 50rem"
       lazy
       paginator
-      :rows="10"
+      :rows="15"
       data-key="id"
       filter-display="row"
       :row-hover="true"
@@ -103,7 +107,7 @@ async function rowClick(event: any) {
       <Column
         field="rank"
         header="Rang"
-        style="min-width: 12rem"
+        style="min-width: 12rem; padding: 0.5rem"
         :filter-match-mode-options="matchModeOptions"
       >
         <template #body="{ data }">
@@ -122,7 +126,7 @@ async function rowClick(event: any) {
       <Column
         field="points"
         header="Punkte"
-        style="min-width: 12rem"
+        style="min-width: 12rem; padding: 0.5rem"
         :filter-match-mode-options="matchModeOptions"
       >
         <template #body="{ data }">
@@ -141,7 +145,7 @@ async function rowClick(event: any) {
       <Column
         field="result"
         header="Resultat"
-        style="min-width: 12rem"
+        style="min-width: 12rem; padding: 0.5rem"
         :filter-match-mode-options="matchModeOptions"
       >
         <template #body="{ data }">
@@ -161,7 +165,7 @@ async function rowClick(event: any) {
         field="wrestler_name"
         header="Name"
         filter-field="expand.wrestler.name"
-        style="min-width: 12rem"
+        style="min-width: 12rem; padding: 0.5rem"
         :filter-match-mode-options="matchModeOptions"
       >
         <template #body="{ data }">
@@ -181,7 +185,7 @@ async function rowClick(event: any) {
         field="wrestler_vorname"
         header="Vorname"
         filter-field="expand.wrestler.vorname"
-        style="min-width: 12rem"
+        style="min-width: 12rem; padding: 0.5rem"
         :filter-match-mode-options="matchModeOptions"
       >
         <template #body="{ data }">
@@ -201,7 +205,7 @@ async function rowClick(event: any) {
         field="place_name"
         header="Schwingfest"
         filter-field="expand.place.name"
-        style="min-width: 12rem"
+        style="min-width: 12rem; padding: 0.5rem"
         :filter-match-mode-options="matchModeOptions"
       >
         <template #body="{ data }">
@@ -221,7 +225,7 @@ async function rowClick(event: any) {
         field="place_year"
         header="Jahr"
         filter-field="expand.place.year"
-        style="min-width: 12rem"
+        style="min-width: 12rem; padding: 0.5rem"
         :filter-match-mode-options="matchModeOptions"
       >
         <template #body="{ data }">

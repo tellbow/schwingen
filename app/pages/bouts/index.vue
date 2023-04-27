@@ -47,7 +47,7 @@ const loadLazyData = () => {
 
   pocketbase
     .collection("bouts")
-    .getList(page.value, 10, {
+    .getList(page.value, 15, {
       expand: "wrestler,opponent,place",
       filter:
         'result ~ "' +
@@ -94,9 +94,13 @@ const onFilter = () => {
     <DataTable
       v-model:filters="filters"
       :value="records"
+      resizable-columns
+      column-resize-mode="fit"
+      show-gridlines
+      table-style="min-width: 50rem"
       lazy
       paginator
-      :rows="10"
+      :rows="15"
       data-key="id"
       filter-display="row"
       :row-hover="true"
@@ -110,7 +114,7 @@ const onFilter = () => {
       <Column
         field="result"
         header="Schwingerstatus"
-        style="min-width: 12rem"
+        style="min-width: 12rem; padding: 0.5rem"
         :filter-match-mode-options="matchModeOptions"
       >
         <template #body="{ data }">
@@ -129,7 +133,7 @@ const onFilter = () => {
       <Column
         field="points"
         header="Punkte"
-        style="min-width: 12rem"
+        style="min-width: 12rem; padding: 0.5rem"
         :filter-match-mode-options="matchModeOptions"
       >
         <template #body="{ data }">
@@ -148,7 +152,7 @@ const onFilter = () => {
       <Column
         field="fight_round"
         header="Gang"
-        style="min-width: 12rem"
+        style="min-width: 12rem; padding: 0.5rem"
         :filter-match-mode-options="matchModeOptions"
       >
         <template #body="{ data }">
@@ -168,7 +172,7 @@ const onFilter = () => {
         field="wrestler_name"
         header="Schwinger - Name"
         filter-field="expand.wrestler.name"
-        style="min-width: 12rem"
+        style="min-width: 12rem; padding: 0.5rem"
         :filter-match-mode-options="matchModeOptions"
       >
         <template #body="{ data }">
@@ -188,7 +192,7 @@ const onFilter = () => {
         field="wrestler_vorname"
         header="Schwinger - Vorname"
         filter-field="expand.wrestler.vorname"
-        style="min-width: 12rem"
+        style="min-width: 12rem; padding: 0.5rem"
         :filter-match-mode-options="matchModeOptions"
       >
         <template #body="{ data }">
@@ -208,7 +212,7 @@ const onFilter = () => {
         field="opponent_name"
         header="Gegner - Name"
         filter-field="expand.opponent.name"
-        style="min-width: 12rem"
+        style="min-width: 12rem; padding: 0.5rem"
         :filter-match-mode-options="matchModeOptions"
       >
         <template #body="{ data }">
@@ -228,7 +232,7 @@ const onFilter = () => {
         field="opponent_vorname"
         header="Gegner - Vorname"
         filter-field="expand.opponent.vorname"
-        style="min-width: 12rem"
+        style="min-width: 12rem; padding: 0.5rem"
         :filter-match-mode-options="matchModeOptions"
       >
         <template #body="{ data }">
@@ -248,7 +252,7 @@ const onFilter = () => {
         field="place_name"
         header="Schwingfest"
         filter-field="expand.place.name"
-        style="min-width: 12rem"
+        style="min-width: 12rem; padding: 0.5rem"
         :filter-match-mode-options="matchModeOptions"
       >
         <template #body="{ data }">
@@ -268,7 +272,7 @@ const onFilter = () => {
         field="place_year"
         header="Jahr"
         filter-field="expand.place.year"
-        style="min-width: 12rem"
+        style="min-width: 12rem; padding: 0.5rem"
         :filter-match-mode-options="matchModeOptions"
       >
         <template #body="{ data }">
