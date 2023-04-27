@@ -7,6 +7,10 @@ const items = ref([
     icon: "pi pi-home",
     to: "/",
   },
+  // {
+  //   label: "Verbände & Klubs",
+  //   to: "/clubs",
+  // },
   {
     label: "Schwingerverband",
     to: "/association",
