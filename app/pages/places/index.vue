@@ -15,6 +15,11 @@ const filters = ref({
   // year: { value: "", matchMode: FilterMatchMode.STARTS_WITH },
 });
 
+const sorts = ref({
+  field: "number,",
+  order: "",
+});
+
 const matchModeOptions = ref([
   { label: "Contains", value: FilterMatchMode.CONTAINS },
 ]);
@@ -30,7 +35,7 @@ const loadLazyData = () => {
 
   pocketbase
     .collection("places")
-    .getList(page.value, 10, {
+    .getList(page.value, 15, {
       filter:
         'number ~ "' +
         (filters.value.number.value || "") +
@@ -42,7 +47,7 @@ const loadLazyData = () => {
         /* '" && year ~ "' +
         (filters.value.year.value || "") + */
         '"',
-      sort: "name,-created",
+      sort: sorts.value.order + sorts.value.field + "-created",
     })
     .then((data) => {
       records.value = data.items;
@@ -60,6 +65,12 @@ const onFilter = () => {
   loadLazyData();
 };
 
+const onSort = (event: { sortField: string; sortOrder: number }) => {
+  sorts.value.field = event.sortField + ",";
+  sorts.value.order = event.sortOrder > 0 ? "" : "-";
+  loadLazyData();
+};
+
 async function rowClick(event: any) {
   await navigateTo("/rankings/" + event.data.id);
 }
@@ -70,10 +81,15 @@ async function rowClick(event: any) {
   >
     <DataTable
       v-model:filters="filters"
+      class="w-8 cursor-pointer"
       :value="records"
+      resizable-columns
+      column-resize-mode="fit"
+      show-gridlines
+      table-style="min-width: 50rem"
       lazy
       paginator
-      :rows="10"
+      :rows="15"
       data-key="id"
       filter-display="row"
       :row-hover="true"
@@ -81,6 +97,7 @@ async function rowClick(event: any) {
       :loading="loading"
       @page="onPage($event)"
       @filter="onFilter()"
+      @sort="onSort($event)"
       @row-click="rowClick($event)"
     >
       <template #empty> Keine Schwingfeste gefunden. </template>
@@ -88,7 +105,8 @@ async function rowClick(event: any) {
       <Column
         field="number"
         header="Nummer"
-        style="min-width: 12rem"
+        style="min-width: 12rem; padding: 0.5rem"
+        sortable
         :filter-match-mode-options="matchModeOptions"
       >
         <template #body="{ data }">
@@ -107,7 +125,8 @@ async function rowClick(event: any) {
       <Column
         field="name"
         header="Name"
-        style="min-width: 12rem"
+        style="min-width: 12rem; padding: 0.5rem"
+        sortable
         :filter-match-mode-options="matchModeOptions"
       >
         <template #body="{ data }">
@@ -126,7 +145,8 @@ async function rowClick(event: any) {
       <Column
         field="location"
         header="Ort"
-        style="min-width: 12rem"
+        style="min-width: 12rem; padding: 0.5rem"
+        sortable
         :filter-match-mode-options="matchModeOptions"
       >
         <template #body="{ data }">
@@ -145,7 +165,8 @@ async function rowClick(event: any) {
       <!-- <Column
         field="year"
         header="Jahr"
-        style="min-width: 12rem"
+        style="min-width: 12rem; padding: 0.5rem"
+        sortable
         :filter-match-mode-options="matchModeOptions"
       >
         <template #body="{ data }">

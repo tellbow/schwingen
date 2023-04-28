@@ -24,6 +24,11 @@ const filters = ref({
   "expand.place.year": { value: "", matchMode: FilterMatchMode.CONTAINS },
 });
 
+const sorts = ref({
+  field: "rank,",
+  order: "",
+});
+
 const matchModeOptions = ref([
   { label: "Contains", value: FilterMatchMode.CONTAINS },
 ]);
@@ -54,12 +59,15 @@ const loadLazyData = () => {
         (filters.value["expand.wrestler.vorname"].value || "") +
         '" && place.name ~ "' +
         (filters.value["expand.place.name"].value || "") +
-        '" && place.year ~ "' +
-        (filters.value["expand.place.year"].value || "") +
+        /* '" && place.year ~ "' +
+        (filters.value["expand.place.year"].value || "") + */
         '"',
-      sort: "-place.year,place.name,-created",
+      sort: sorts.value.order + sorts.value.field + "-created",
     })
-    .then((data) => {
+    .then((data: { totalItems: number; items: any }) => {
+      /* data.items.forEach((item: { expand: { place: { year: string } } }) => {
+        item.expand.place.year = item.expand.place.year.split("-")[0];
+      }); */
       records.value = data.items;
       totalRecords.value = data.totalItems;
       loading.value = false;
@@ -75,6 +83,12 @@ const onFilter = () => {
   loadLazyData();
 };
 
+const onSort = (event: { sortField: string; sortOrder: number }) => {
+  sorts.value.field = event.sortField + ",";
+  sorts.value.order = event.sortOrder > 0 ? "" : "-";
+  loadLazyData();
+};
+
 async function rowClick(event: any) {
   await navigateTo("/wrestler/" + event.data.expand.wrestler.id);
 }
@@ -85,6 +99,7 @@ async function rowClick(event: any) {
   >
     <DataTable
       v-model:filters="filters"
+      class="w-11 cursor-pointer"
       :value="records"
       resizable-columns
       column-resize-mode="fit"
@@ -100,6 +115,7 @@ async function rowClick(event: any) {
       :loading="loading"
       @page="onPage($event)"
       @filter="onFilter()"
+      @sort="onSort($event)"
       @row-click="rowClick($event)"
     >
       <template #empty> Keine Ranglisten gefunden. </template>
@@ -108,6 +124,7 @@ async function rowClick(event: any) {
         field="rank"
         header="Rang"
         style="min-width: 12rem; padding: 0.5rem"
+        sortable
         :filter-match-mode-options="matchModeOptions"
       >
         <template #body="{ data }">
@@ -127,6 +144,7 @@ async function rowClick(event: any) {
         field="points"
         header="Punkte"
         style="min-width: 12rem; padding: 0.5rem"
+        sortable
         :filter-match-mode-options="matchModeOptions"
       >
         <template #body="{ data }">
@@ -146,6 +164,7 @@ async function rowClick(event: any) {
         field="result"
         header="Resultat"
         style="min-width: 12rem; padding: 0.5rem"
+        sortable
         :filter-match-mode-options="matchModeOptions"
       >
         <template #body="{ data }">
@@ -166,6 +185,7 @@ async function rowClick(event: any) {
         header="Name"
         filter-field="expand.wrestler.name"
         style="min-width: 12rem; padding: 0.5rem"
+        sortable
         :filter-match-mode-options="matchModeOptions"
       >
         <template #body="{ data }">
@@ -186,6 +206,7 @@ async function rowClick(event: any) {
         header="Vorname"
         filter-field="expand.wrestler.vorname"
         style="min-width: 12rem; padding: 0.5rem"
+        sortable
         :filter-match-mode-options="matchModeOptions"
       >
         <template #body="{ data }">
@@ -206,6 +227,7 @@ async function rowClick(event: any) {
         header="Schwingfest"
         filter-field="expand.place.name"
         style="min-width: 12rem; padding: 0.5rem"
+        sortable
         :filter-match-mode-options="matchModeOptions"
       >
         <template #body="{ data }">
@@ -221,11 +243,12 @@ async function rowClick(event: any) {
           />
         </template>
       </Column>
-      <Column
+      <!-- <Column
         field="place_year"
         header="Jahr"
         filter-field="expand.place.year"
         style="min-width: 12rem; padding: 0.5rem"
+        sortable
         :filter-match-mode-options="matchModeOptions"
       >
         <template #body="{ data }">
@@ -240,7 +263,7 @@ async function rowClick(event: any) {
             @input="filterCallback()"
           />
         </template>
-      </Column>
+      </Column> -->
     </DataTable>
   </div>
 </template>

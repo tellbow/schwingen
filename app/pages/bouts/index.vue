@@ -32,6 +32,11 @@ const filters = ref({
   "expand.place.year": { value: "", matchMode: FilterMatchMode.CONTAINS },
 });
 
+const sorts = ref({
+  field: "fight_round,",
+  order: "",
+});
+
 const matchModeOptions = ref([
   { label: "Contains", value: FilterMatchMode.CONTAINS },
 ]);
@@ -66,12 +71,15 @@ const loadLazyData = () => {
         (filters.value["expand.opponent.vorname"].value || "") +
         '" && place.name ~ "' +
         (filters.value["expand.place.name"].value || "") +
-        '" && place.year ~ "' +
-        (filters.value["expand.place.year"].value || "") +
+        /* '" && place.year ~ "' +
+        (filters.value["expand.place.year"].value || "") + */
         '"',
-      sort: "-place.year,place.name,-created",
+      sort: sorts.value.order + sorts.value.field + "-created",
     })
-    .then((data) => {
+    .then((data: { totalItems: number; items: any }) => {
+      /* data.items.forEach((item: { expand: { place: { year: string } } }) => {
+        item.expand.place.year = item.expand.place.year.split("-")[0];
+      }); */
       records.value = data.items;
       totalRecords.value = data.totalItems;
       loading.value = false;
@@ -86,6 +94,12 @@ const onPage = (event: { page: number }) => {
 const onFilter = () => {
   loadLazyData();
 };
+
+const onSort = (event: { sortField: string; sortOrder: number }) => {
+  sorts.value.field = event.sortField + ",";
+  sorts.value.order = event.sortOrder > 0 ? "" : "-";
+  loadLazyData();
+};
 </script>
 <template>
   <div
@@ -93,6 +107,7 @@ const onFilter = () => {
   >
     <DataTable
       v-model:filters="filters"
+      class="w-11 cursor-pointer"
       :value="records"
       resizable-columns
       column-resize-mode="fit"
@@ -108,6 +123,7 @@ const onFilter = () => {
       :loading="loading"
       @page="onPage($event)"
       @filter="onFilter()"
+      @sort="onSort($event)"
     >
       <template #empty> Keine Kämpfe gefunden. </template>
       <template #loading> Kämpfe werden geladen. Bitte warten. </template>
@@ -115,6 +131,7 @@ const onFilter = () => {
         field="result"
         header="Schwingerstatus"
         style="min-width: 12rem; padding: 0.5rem"
+        sortable
         :filter-match-mode-options="matchModeOptions"
       >
         <template #body="{ data }">
@@ -134,6 +151,7 @@ const onFilter = () => {
         field="points"
         header="Punkte"
         style="min-width: 12rem; padding: 0.5rem"
+        sortable
         :filter-match-mode-options="matchModeOptions"
       >
         <template #body="{ data }">
@@ -153,6 +171,7 @@ const onFilter = () => {
         field="fight_round"
         header="Gang"
         style="min-width: 12rem; padding: 0.5rem"
+        sortable
         :filter-match-mode-options="matchModeOptions"
       >
         <template #body="{ data }">
@@ -173,6 +192,7 @@ const onFilter = () => {
         header="Schwinger - Name"
         filter-field="expand.wrestler.name"
         style="min-width: 12rem; padding: 0.5rem"
+        sortable
         :filter-match-mode-options="matchModeOptions"
       >
         <template #body="{ data }">
@@ -193,6 +213,7 @@ const onFilter = () => {
         header="Schwinger - Vorname"
         filter-field="expand.wrestler.vorname"
         style="min-width: 12rem; padding: 0.5rem"
+        sortable
         :filter-match-mode-options="matchModeOptions"
       >
         <template #body="{ data }">
@@ -213,6 +234,7 @@ const onFilter = () => {
         header="Gegner - Name"
         filter-field="expand.opponent.name"
         style="min-width: 12rem; padding: 0.5rem"
+        sortable
         :filter-match-mode-options="matchModeOptions"
       >
         <template #body="{ data }">
@@ -233,6 +255,7 @@ const onFilter = () => {
         header="Gegner - Vorname"
         filter-field="expand.opponent.vorname"
         style="min-width: 12rem; padding: 0.5rem"
+        sortable
         :filter-match-mode-options="matchModeOptions"
       >
         <template #body="{ data }">
@@ -253,6 +276,7 @@ const onFilter = () => {
         header="Schwingfest"
         filter-field="expand.place.name"
         style="min-width: 12rem; padding: 0.5rem"
+        sortable
         :filter-match-mode-options="matchModeOptions"
       >
         <template #body="{ data }">
@@ -268,11 +292,12 @@ const onFilter = () => {
           />
         </template>
       </Column>
-      <Column
+      <!-- <Column
         field="place_year"
         header="Jahr"
         filter-field="expand.place.year"
         style="min-width: 12rem; padding: 0.5rem"
+        sortable
         :filter-match-mode-options="matchModeOptions"
       >
         <template #body="{ data }">
@@ -287,7 +312,7 @@ const onFilter = () => {
             @input="filterCallback()"
           />
         </template>
-      </Column>
+      </Column> -->
     </DataTable>
   </div>
 </template>

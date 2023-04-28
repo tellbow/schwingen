@@ -15,7 +15,9 @@ onMounted(async () => {
       expand: "club,club.canton,club.canton.association",
     })
     .then((data) => {
-      data.year = data.year.split("-")[0];
+      data.nummer = data.nummer === 0 ? "-" : data.nummer;
+      data.year = data.year ? data.year.split("-")[0] : "-";
+      data.category = data.category ? data.category : "-";
       wrestlerData.value = data;
       loadingWrestler.value = false;
     });
@@ -139,8 +141,15 @@ async function rowClick(id: any) {
           <p>Kategorie: {{ wrestlerData.category }}</p>
           <p>Jahrgang: {{ wrestlerData.year }}</p>
           <p>Schwingklub: {{ wrestlerData.expand.club.name }}</p>
-          <p>Gauverband: {{ wrestlerData.expand.club.expand.canton.name }}</p>
-          <p>
+          <p v-if="wrestlerData.expand.club.expand.length">
+            Gauverband: {{ wrestlerData.expand.club.expand.canton.name }}
+          </p>
+          <p
+            v-if="
+              wrestlerData.expand.club.expand.length &&
+              wrestlerData.expand.club.expand.canton.expand.length
+            "
+          >
             Schwingerverband:
             {{ wrestlerData.expand.club.expand.canton.expand.association.name }}
             ({{

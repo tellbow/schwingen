@@ -35,7 +35,7 @@ const items = ref([
 </script>
 
 <template>
-  <div class="mt-5 ml-5 flex">
+  <div class="mt-2 ml-2 flex">
     <Avatar
       image="/images/logos/tellbow_cricle_crop.png"
       class="mr-2"

@@ -15,6 +15,11 @@ const filters = ref({
   category: { value: "", matchMode: FilterMatchMode.CONTAINS },
 });
 
+const sorts = ref({
+  field: "name,",
+  order: "",
+});
+
 const matchModeOptions = ref([
   { label: "Contains", value: FilterMatchMode.CONTAINS },
 ]);
@@ -30,7 +35,7 @@ const loadLazyData = () => {
 
   pocketbase
     .collection("wrestler")
-    .getList(page.value, 10, {
+    .getList(page.value, 15, {
       filter:
         'name ~ "' +
         (filters.value.name.value || "") +
@@ -41,9 +46,12 @@ const loadLazyData = () => {
         '" && category ~ "' +
         (filters.value.category.value || "") +
         '"',
-      sort: "name,-created",
+      sort: sorts.value.order + sorts.value.field + "-created",
     })
     .then((data) => {
+      data.items.forEach((item) => {
+        item.year = item.year.split("-")[0];
+      });
       records.value = data.items;
       totalRecords.value = data.totalItems;
       loading.value = false;
@@ -59,6 +67,12 @@ const onFilter = () => {
   loadLazyData();
 };
 
+const onSort = (event: { sortField: string; sortOrder: number }) => {
+  sorts.value.field = event.sortField + ",";
+  sorts.value.order = event.sortOrder > 0 ? "" : "-";
+  loadLazyData();
+};
+
 async function rowClick(event: any) {
   await navigateTo("/wrestler/" + event.data.id);
 }
@@ -69,10 +83,15 @@ async function rowClick(event: any) {
   >
     <DataTable
       v-model:filters="filters"
+      class="cursor-pointer"
       :value="records"
+      resizable-columns
+      column-resize-mode="fit"
+      show-gridlines
+      table-style="min-width: 50rem"
       lazy
       paginator
-      :rows="10"
+      :rows="15"
       data-key="id"
       filter-display="row"
       :row-hover="true"
@@ -80,16 +99,16 @@ async function rowClick(event: any) {
       :loading="loading"
       @page="onPage($event)"
       @filter="onFilter()"
+      @sort="onSort($event)"
       @row-click="rowClick($event)"
     >
       <template #empty> Keine Schwinger gefunden. </template>
-      <template #loading>
-        Schwingerdatenbank wird geladen. Bitte warten.
-      </template>
+      <template #loading> Schwinger werden geladen. Bitte warten. </template>
       <Column
         field="name"
         header="Name"
-        style="min-width: 12rem"
+        style="min-width: 12rem; padding: 0.5rem"
+        sortable
         :filter-match-mode-options="matchModeOptions"
       >
         <template #body="{ data }">
@@ -108,7 +127,8 @@ async function rowClick(event: any) {
       <Column
         field="vorname"
         header="Vorname"
-        style="min-width: 12rem"
+        style="min-width: 12rem; padding: 0.5rem"
+        sortable
         :filter-match-mode-options="matchModeOptions"
       >
         <template #body="{ data }">
@@ -127,7 +147,8 @@ async function rowClick(event: any) {
       <Column
         field="year"
         header="Jahrgang"
-        style="min-width: 12rem"
+        style="min-width: 12rem; padding: 0.5rem"
+        sortable
         :filter-match-mode-options="matchModeOptions"
       >
         <template #body="{ data }">
@@ -146,7 +167,8 @@ async function rowClick(event: any) {
       <Column
         field="category"
         header="Kategorie"
-        style="min-width: 12rem"
+        style="min-width: 12rem; padding: 0.5rem"
+        sortable
         :filter-match-mode-options="matchModeOptions"
       >
         <template #body="{ data }">
