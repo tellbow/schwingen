@@ -7,21 +7,9 @@ const items = ref([
     icon: "pi pi-home",
     to: "/",
   },
-  // {
-  //   label: "Verbände & Klubs",
-  //   to: "/clubs",
-  // },
   {
-    label: "Schwingerverband",
-    to: "/association",
-  },
-  {
-    label: "Gauverband",
-    to: "/canton",
-  },
-  {
-    label: "Schwingklub",
-    to: "/club",
+    label: "Verbände & Klubs",
+    to: "/clubs",
   },
   {
     label: "Schwinger",

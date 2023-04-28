@@ -1,6 +1,5 @@
 import PrimeVue from "primevue/config";
 import Button from "primevue/button";
-import Breadcrumb from "primevue/breadcrumb";
 import Checkbox from "primevue/checkbox";
 import InputText from "primevue/inputtext";
 import Card from "primevue/card";
@@ -8,10 +7,10 @@ import Toast from "primevue/toast";
 import TabMenu from "primevue/tabmenu";
 import DataTable from "primevue/datatable";
 import DataView from "primevue/dataview";
-import Tree from "primevue/tree";
+import Accordion from "primevue/accordion";
+import AccordionTab from "primevue/accordiontab";
 import Column from "primevue/column";
 import Avatar from "primevue/avatar";
-import MultiSelect from "primevue/multiselect";
 import ProgressSpinner from "primevue/progressspinner";
 import Chart from "primevue/chart";
 import ConfirmationService from "primevue/confirmationservice";
@@ -19,7 +18,6 @@ import ToastService from "primevue/toastservice";
 
 export default defineNuxtPlugin((nuxtApp) => {
   nuxtApp.vueApp.component("Button", Button);
-  nuxtApp.vueApp.component("Breadcrumb", Breadcrumb);
   nuxtApp.vueApp.component("Checkbox", Checkbox);
   nuxtApp.vueApp.component("InputText", InputText);
   nuxtApp.vueApp.component("Card", Card);
@@ -27,10 +25,10 @@ export default defineNuxtPlugin((nuxtApp) => {
   nuxtApp.vueApp.component("TabMenu", TabMenu);
   nuxtApp.vueApp.component("DataTable", DataTable);
   nuxtApp.vueApp.component("DataView", DataView);
-  nuxtApp.vueApp.component("Tree", Tree);
+  nuxtApp.vueApp.component("Accordion", Accordion);
+  nuxtApp.vueApp.component("AccordionTab", AccordionTab);
   nuxtApp.vueApp.component("Column", Column);
   nuxtApp.vueApp.component("Avatar", Avatar);
-  nuxtApp.vueApp.component("MultiSelect", MultiSelect);
   nuxtApp.vueApp.component("ProgressSpinner", ProgressSpinner);
   nuxtApp.vueApp.component("Chart", Chart);
 

@@ -19,9 +19,6 @@ function logout() {
       <div class="font-medium text-500 mb-3">
         {{ user?.email }}
       </div>
-      <div style="height: 350px" class="border-2 border-dashed surface-border">
-        <pre>{{ user }}</pre>
-      </div>
       <Button
         v-if="user"
         label="Logout"

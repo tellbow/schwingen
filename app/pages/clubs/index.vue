@@ -1,127 +1,78 @@
 <script setup lang="ts">
 const pocketbase = usePocketbase();
 
+const associationData = ref();
 const cantonData = ref();
 const clubData = ref();
 const loadingAssociation = ref(true);
-const loadingCanton = ref(true);
-const loadingClub = ref(true);
-
-const nodes = ref(null);
-const loading = ref(false);
 
 onMounted(async () => {
-  loading.value = true;
-
-  setTimeout(() => {
-    nodes.value = initateNodes();
-    //nodes.value = associationData();
-    loading.value = false;
-  }, 2000);
-  // await pocketbase
-  //   .collection("association")
-  //   .getFullList(200 /* batch size */, {
-  //     sort: "name,-created",
-  //   })
-  //   .then((data) => {
-  //     associationData.value = data;
-  //     loadingAssociation.value = false;
-  //   });
-  // await pocketbase
-  //   .collection("canton")
-  //   .getFullList(200 /* batch size */, {
-  //     sort: "name,-created",
-  //   })
-  //   .then((data) => {
-  //     cantonData.value = data;
-  //     loadingCanton.value = false;
-  //   });
-  // await pocketbase
-  //   .collection("club")
-  //   .getFullList(200 /* batch size */, {
-  //     sort: "name,-created",
-  //   })
-  //   .then((data) => {
-  //     clubData.value = data;
-  //     loadingClub.value = false;
-  //   });
-});
-
-const onNodeExpand = (node: { children: any; key: string; label: string }) => {
-  if (!node.children) {
-    loading.value = true;
-
-    setTimeout(() => {
-      const _node = { ...node };
-
-      _node.children = [];
-
-      for (let i = 0; i < 3; i++) {
-        _node.children.push({
-          key: node.key + "-" + i,
-          label: "Lazy " + node.label + "-" + i,
-        });
-      }
-
-      const _nodes = { ...nodes.value };
-      _nodes[parseInt(node.key, 10)] = _node;
-
-      nodes.value = _nodes;
-      loading.value = false;
-    }, 500);
-  }
-};
-
-const associationData = () => {
-  return pocketbase
+  await pocketbase
     .collection("association")
-    .getFullList(200 /* batch size */, {
+    .getFullList(10 /* batch size */, {
       sort: "name,-created",
     })
     .then((data) => {
-      data.map((record) => {
-        return {
-          key: record.id,
-          label: record.name,
-          data: record.name + " Folder",
-          icon: "pi pi-fw pi-inbox",
-          children: [],
-        };
-      });
-      return data;
+      associationData.value = data;
+      loadingAssociation.value = false;
+    });
+});
+
+const onTabOpen = async (event: { index: string | number }) => {
+  await pocketbase
+    .collection("canton")
+    .getFullList(50 /* batch size */, {
+      sort: "name,-created",
+      filter:
+        'association.id = "' + associationData.value[event.index].id + '"',
+    })
+    .then((data) => {
+      cantonData.value = data;
     });
 };
 
-const initateNodes = () => {
-  return [
-    {
-      key: "0",
-      label: "Node 0",
-      leaf: false,
-    },
-    {
-      key: "1",
-      label: "Node 1",
-      leaf: false,
-    },
-    {
-      key: "2",
-      label: "Node 2",
-      leaf: false,
-    },
-  ];
+const onSubTabOpen = async (event: { index: string | number }) => {
+  await pocketbase
+    .collection("club")
+    .getFullList(200 /* batch size */, {
+      sort: "name,-created",
+      filter: 'canton.id = "' + cantonData.value[event.index].id + '"',
+    })
+    .then((data) => {
+      clubData.value = data;
+    });
 };
 </script>
 <template>
   <div
     class="justify-content-center align-content-center display: flex flex-wrap fill-height mt-5"
   >
-    <!-- ToDo: https://primevue.org/tree/#lazy -->
-    <Tree
-      :value="nodes"
-      :loading="loading"
-      class="w-full md:w-30rem"
-      @node-expand="onNodeExpand"
-    ></Tree>
+    <ProgressSpinner v-if="loadingAssociation" />
+    <Accordion
+      v-else
+      lazy
+      class="w-12 sm:w-10 md:w-8 lg:w-6 xl:w-4"
+      @tab-open="onTabOpen($event)"
+    >
+      <AccordionTab
+        v-for="association in associationData"
+        :key="association.id"
+        :header="association.abbreviation"
+      >
+        <Accordion lazy @tab-open="onSubTabOpen($event)">
+          <AccordionTab
+            v-for="canton in cantonData"
+            :key="canton.id"
+            :header="canton.name"
+          >
+            <ul>
+              <li v-for="value in clubData" :key="value.id">
+                {{ value.name }}
+              </li>
+            </ul>
+          </AccordionTab>
+        </Accordion>
+      </AccordionTab>
+    </Accordion>
   </div>
 </template>
