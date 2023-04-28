@@ -112,6 +112,9 @@ const ratioWinDrawLoss = computed({
 });
 
 const chartOptions = ref({
+  animation: {
+    animateRotate: false,
+  },
   plugins: {
     legend: {
       labels: {

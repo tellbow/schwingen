@@ -13,6 +13,7 @@ import Column from "primevue/column";
 import Avatar from "primevue/avatar";
 import ProgressSpinner from "primevue/progressspinner";
 import Chart from "primevue/chart";
+import ScrollTop from "primevue/scrolltop";
 import ConfirmationService from "primevue/confirmationservice";
 import ToastService from "primevue/toastservice";
 
@@ -28,6 +29,7 @@ export default defineNuxtPlugin((nuxtApp) => {
   nuxtApp.vueApp.component("Accordion", Accordion);
   nuxtApp.vueApp.component("AccordionTab", AccordionTab);
   nuxtApp.vueApp.component("Column", Column);
+  nuxtApp.vueApp.component("ScrollTop", ScrollTop);
   nuxtApp.vueApp.component("Avatar", Avatar);
   nuxtApp.vueApp.component("ProgressSpinner", ProgressSpinner);
   nuxtApp.vueApp.component("Chart", Chart);

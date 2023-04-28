@@ -14,5 +14,6 @@ onMounted(() => {
     <Header />
     <slot />
     <Footer />
+    <ScrollTop />
   </div>
 </template>
