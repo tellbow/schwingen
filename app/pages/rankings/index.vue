@@ -7,6 +7,7 @@ const loading = ref(true);
 const page = ref(1);
 const records = ref();
 const totalRecords = ref(0);
+const expandedRows = ref();
 
 const filters = ref({
   rank: { value: "", matchMode: FilterMatchMode.CONTAINS },
@@ -68,9 +69,36 @@ const loadLazyData = () => {
       /* data.items.forEach((item: { expand: { place: { year: string } } }) => {
         item.expand.place.year = item.expand.place.year.split("-")[0];
       }); */
-      records.value = data.items;
+      records.value = data.items.map((item: any) => ({
+        ...item,
+        bouts: [],
+      }));
       totalRecords.value = data.totalItems;
       loading.value = false;
+    });
+};
+
+const loadLazySubData = (wrestlerId: string, placeId: string) => {
+  // loading.value = true;
+  pocketbase
+    .collection("bouts")
+    .getList(page.value, 15, {
+      expand: "opponent",
+      filter:
+        "wrestler.id = '" + wrestlerId + "' && place.id = '" + placeId + "'",
+      sort: "fight_round,-created",
+    })
+    .then((data: { items: any }) => {
+      records.value.forEach((item: any) => {
+        if (
+          item.expand.wrestler.id === wrestlerId &&
+          item.expand.place.id === placeId
+        ) {
+          item.bouts = data.items;
+        }
+      });
+      console.log(records.value);
+      // loading.value = false;
     });
 };
 
@@ -84,9 +112,23 @@ const onFilter = () => {
 };
 
 const onSort = (event: { sortField: string; sortOrder: number }) => {
-  sorts.value.field = event.sortField + ",";
+  sorts.value.field = event.sortField.replace("_", ".") + ",";
   sorts.value.order = event.sortOrder > 0 ? "" : "-";
   loadLazyData();
+};
+
+const onRowExpand = (event: {
+  data: {
+    expand: {
+      wrestler: { id: string };
+      place: { id: string };
+    };
+  };
+}) => {
+  loadLazySubData(event.data.expand.wrestler.id, event.data.expand.place.id);
+};
+const onRowCollapse = (event: { data: { name: any } }) => {
+  console.log(event.data);
 };
 
 async function rowClick(event: any) {
@@ -99,6 +141,7 @@ async function rowClick(event: any) {
   >
     <DataTable
       v-model:filters="filters"
+      v-model:expanded-rows="expandedRows"
       class="w-11 cursor-pointer"
       :value="records"
       resizable-columns
@@ -116,10 +159,13 @@ async function rowClick(event: any) {
       @page="onPage($event)"
       @filter="onFilter()"
       @sort="onSort($event)"
+      @row-expand="onRowExpand($event)"
+      @row-collapse="onRowCollapse($event)"
       @row-click="rowClick($event)"
     >
       <template #empty> Keine Ranglisten gefunden. </template>
       <template #loading> Ranglisten werden geladen. Bitte warten. </template>
+      <Column expander style="width: 5rem" />
       <Column
         field="rank"
         header="Rang"
@@ -144,7 +190,6 @@ async function rowClick(event: any) {
         field="points"
         header="Punkte"
         style="min-width: 12rem; padding: 0.5rem"
-        sortable
         :filter-match-mode-options="matchModeOptions"
       >
         <template #body="{ data }">
@@ -164,7 +209,6 @@ async function rowClick(event: any) {
         field="result"
         header="Resultat"
         style="min-width: 12rem; padding: 0.5rem"
-        sortable
         :filter-match-mode-options="matchModeOptions"
       >
         <template #body="{ data }">
@@ -264,6 +308,25 @@ async function rowClick(event: any) {
           />
         </template>
       </Column> -->
+      <template #expansion="data">
+        <div class="p-1">
+          <DataTable :value="data.data.bouts">
+            <Column field="result" header="Resultat"></Column>
+            <Column field="points" header="Punkte" sortable></Column>
+            <Column field="fight_round" header="Gang" sortable></Column>
+            <Column
+              field="expand.opponent.name"
+              header="Gegner - Name"
+              sortable
+            ></Column>
+            <Column
+              field="expand.opponent.vorname"
+              header="Gegner - Vorname"
+              sortable
+            ></Column>
+          </DataTable>
+        </div>
+      </template>
     </DataTable>
   </div>
 </template>

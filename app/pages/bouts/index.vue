@@ -96,7 +96,7 @@ const onFilter = () => {
 };
 
 const onSort = (event: { sortField: string; sortOrder: number }) => {
-  sorts.value.field = event.sortField + ",";
+  sorts.value.field = event.sortField.replace("_", ".") + ",";
   sorts.value.order = event.sortOrder > 0 ? "" : "-";
   loadLazyData();
 };
@@ -107,7 +107,7 @@ const onSort = (event: { sortField: string; sortOrder: number }) => {
   >
     <DataTable
       v-model:filters="filters"
-      class="w-11 cursor-pointer"
+      class="w-11"
       :value="records"
       resizable-columns
       column-resize-mode="fit"

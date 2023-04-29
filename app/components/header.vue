@@ -3,11 +3,6 @@ import { ref } from "vue";
 
 const items = ref([
   {
-    label: "Startseite",
-    icon: "home-icon",
-    to: "/",
-  },
-  {
     label: "Verbände & Klubs",
     icon: "clubs-icon",
     to: "/clubs",
@@ -38,21 +33,28 @@ const items = ref([
     to: "/account",
   },
 ]);
+
+function home() {
+  navigateTo("/");
+}
 </script>
 
 <template>
   <div class="mt-2 ml-2 flex">
-    <Avatar
-      image="/images/logos/tellbow_cricle_crop.png"
-      class="mr-2"
-      size="large"
-      shape="circle"
+    <img
+      class="cursor-pointer hover:bg-gray-500"
+      src="/images/logos/tellbow_cricle_crop.png"
+      style="width: 48px; height: 48px"
+      @click="home"
     />
     <TabMenu :model="items" />
   </div>
 </template>
 
 <style scoped>
+/* :deep(.p-tabmenu-nav) {
+  border: none;
+} */
 :deep(.p-menuitem-text) {
   font-size: 20px;
 }
