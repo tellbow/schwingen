@@ -5,6 +5,7 @@ import InputText from "primevue/inputtext";
 import Card from "primevue/card";
 import Toast from "primevue/toast";
 import TabMenu from "primevue/tabmenu";
+import Dropdown from "primevue/dropdown";
 import DataTable from "primevue/datatable";
 import DataView from "primevue/dataview";
 import Accordion from "primevue/accordion";
@@ -24,6 +25,7 @@ export default defineNuxtPlugin((nuxtApp) => {
   nuxtApp.vueApp.component("Card", Card);
   nuxtApp.vueApp.component("Toast", Toast);
   nuxtApp.vueApp.component("TabMenu", TabMenu);
+  nuxtApp.vueApp.component("Dropdown", Dropdown);
   nuxtApp.vueApp.component("DataTable", DataTable);
   nuxtApp.vueApp.component("DataView", DataView);
   nuxtApp.vueApp.component("Accordion", Accordion);

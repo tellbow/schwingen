@@ -28,6 +28,11 @@ const items = ref([
     to: "/bouts",
   },
   {
+    label: "1 vs. 1",
+    icon: "bouts-direct-icon",
+    to: "/bouts-direct",
+  },
+  {
     label: "Benutzerkonto",
     icon: "account-icon",
     to: "/account",
@@ -68,6 +73,9 @@ function home() {
 }
 :deep(.p-menuitem-icon.bouts-icon) {
   background-image: url("/images/icons/bouts.svg");
+}
+:deep(.p-menuitem-icon.bouts-direct-icon) {
+  background-image: url("/images/icons/bouts-direct.svg");
 }
 :deep(.p-menuitem-icon.clubs-icon) {
   background-image: url("/images/icons/clubs.svg");
