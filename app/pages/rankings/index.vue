@@ -79,7 +79,7 @@ const loadLazyData = () => {
 };
 
 const loadLazySubData = (wrestlerId: string, placeId: string) => {
-  // loading.value = true;
+  loading.value = true;
   pocketbase
     .collection("bouts")
     .getList(page.value, 15, {
@@ -97,8 +97,7 @@ const loadLazySubData = (wrestlerId: string, placeId: string) => {
           item.bouts = data.items;
         }
       });
-      console.log(records.value);
-      // loading.value = false;
+      loading.value = false;
     });
 };
 
@@ -127,8 +126,16 @@ const onRowExpand = (event: {
 }) => {
   loadLazySubData(event.data.expand.wrestler.id, event.data.expand.place.id);
 };
-const onRowCollapse = (event: { data: { name: any } }) => {
-  console.log(event.data);
+
+const onRowCollapse = (event: {
+  data: {
+    id: string;
+  };
+}) => {
+  const objIndex = records.value.findIndex(
+    (obj: { id: string }) => obj.id === event.data.id
+  );
+  records.value[objIndex].bouts = [];
 };
 
 async function rowClick(event: any) {
