@@ -33,6 +33,11 @@ const items = ref([
     to: "/bouts-direct",
   },
   {
+    label: "Statistiken",
+    icon: "statistics-icon",
+    to: "/statistics",
+  },
+  {
     label: "Benutzerkonto",
     icon: "account-icon",
     to: "/account",
@@ -88,6 +93,9 @@ function home() {
 }
 :deep(.p-menuitem-icon.rankings-icon) {
   background-image: url("/images/icons/rankings.svg");
+}
+:deep(.p-menuitem-icon.statistics-icon) {
+  background-image: url("/images/icons/statistics.svg");
 }
 :deep(.p-menuitem-icon.wrestler-icon) {
   background-image: url("/images/icons/wrestler.svg");
