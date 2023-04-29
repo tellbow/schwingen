@@ -44,9 +44,13 @@ const averageRank = computed({
       return { id, name, vorname, avgRank };
     });
 
-    avgRankById.sort((a, b) => a.avgRank - b.avgRank);
+    const filteredAvgRankById = avgRankById.filter((item) => {
+      return rankSumCountById[item.id].count >= 5;
+    });
 
-    return avgRankById;
+    filteredAvgRankById.sort((a, b) => a.avgRank - b.avgRank);
+
+    return filteredAvgRankById;
   },
   set: () => {},
 });
@@ -77,17 +81,22 @@ const averagePoints = computed({
       return { id, name, vorname, avgPoints };
     });
 
-    avgPointsById.sort((a, b) => a.avgPoints - b.avgPoints);
+    const filteredAvgPointsById = avgPointsById.filter((item) => {
+      return pointsSumCountById[item.id].count >= 5;
+    });
 
-    return avgPointsById;
+    filteredAvgPointsById.sort((a, b) => a.avgPoints - b.avgPoints);
+
+    return filteredAvgPointsById;
   },
   set: () => {},
 });
 </script>
 <template>
   <div class="card">
+    <!-- ToDo: Select year -->
     <Card class="mt-2">
-      <template #title> Top 5 - ⌀ Rang </template>
+      <template #title> Top 5 - ⌀ Rang (mit 5 Teilnahmen oder mehr) </template>
       <template #content>
         <ProgressSpinner v-if="loadingRankings" />
         <ul v-else>
@@ -99,7 +108,9 @@ const averagePoints = computed({
       </template>
     </Card>
     <Card class="mt-2">
-      <template #title> Bottom 5 - ⌀ Rang </template>
+      <template #title>
+        Bottom 5 - ⌀ Rang (mit 5 Teilnahmen oder mehr)
+      </template>
       <template #content>
         <ProgressSpinner v-if="loadingRankings" />
         <ul v-else>
@@ -114,7 +125,9 @@ const averagePoints = computed({
       </template>
     </Card>
     <Card class="mt-2">
-      <template #title> Top 5 - ⌀ Punkte </template>
+      <template #title>
+        Top 5 - ⌀ Punkte (mit 5 Teilnahmen oder mehr)
+      </template>
       <template #content>
         <ProgressSpinner v-if="loadingRankings" />
         <ul v-else>
@@ -129,7 +142,9 @@ const averagePoints = computed({
       </template>
     </Card>
     <Card class="mt-2">
-      <template #title> Bottom 5 - ⌀ Punkte </template>
+      <template #title>
+        Bottom 5 - ⌀ Punkte (mit 5 Teilnahmen oder mehr)
+      </template>
       <template #content>
         <ProgressSpinner v-if="loadingRankings" />
         <ul v-else>
