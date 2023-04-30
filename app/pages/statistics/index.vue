@@ -3,20 +3,53 @@ const pocketbase = usePocketbase();
 
 const loadingRankings = ref(true);
 const rankingsData = ref();
+const selectedYear = ref({ year: 2022 });
+const years = ref([
+  // { year: 1998 },
+  // { year: 2000 },
+  // { year: 2001 },
+  // { year: 2002 },
+  // { year: 2003 },
+  // { year: 2004 },
+  // { year: 2005 },
+  // { year: 2006 },
+  // { year: 2007 },
+  // { year: 2008 },
+  // { year: 2009 },
+  // { year: 2010 },
+  // { year: 2011 },
+  // { year: 2012 },
+  // { year: 2013 },
+  // { year: 2014 },
+  // { year: 2015 },
+  // { year: 2016 },
+  // { year: 2017 },
+  // { year: 2018 },
+  // { year: 2019 },
+  // { year: 2020 },
+  // { year: 2021 },
+  { year: 2022 },
+  // { year: 2023 },
+]);
 
 /* eslint require-await: "off" */
 onMounted(async () => {
+  await loadData();
+});
+
+const loadData = async () => {
   await pocketbase
     .collection("rankings")
     .getFullList(200 /* batch size */, {
       expand: "wrestler",
+      filter: 'place.year ~ "' + selectedYear.value.year + '"',
       sort: "-created",
     })
     .then((data) => {
       rankingsData.value = data;
       loadingRankings.value = false;
     });
-});
+};
 
 const averageRank = computed({
   get: () => {
@@ -91,10 +124,22 @@ const averagePoints = computed({
   },
   set: () => {},
 });
+
+async function yearSelected() {
+  await loadData();
+}
 </script>
 <template>
   <div class="card">
-    <!-- ToDo: Select year -->
+    <p class="mt-2 ml-2">Jahr:</p>
+    <Dropdown
+      v-model="selectedYear"
+      :options="years"
+      option-label="year"
+      placeholder="Wähle ein Jahr"
+      class="w-full md:w-14rem mt-1 ml-2"
+      @change="yearSelected()"
+    />
     <Card class="mt-2">
       <template #title> Top 5 - ⌀ Rang (mit 5 Teilnahmen oder mehr) </template>
       <template #content>
