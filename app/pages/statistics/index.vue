@@ -1,8 +1,10 @@
 <script setup lang="ts">
 const pocketbase = usePocketbase();
 
-const loadingRankings = ref(true);
-const rankingsData = ref();
+const loadingAverageRank = ref(true);
+const averageRank = ref();
+const loadingAveragePoints = ref(true);
+const averagePoints = ref();
 const selectedYear = ref({ year: 2022 });
 const years = ref([
   // { year: 1998 },
@@ -39,91 +41,30 @@ onMounted(async () => {
 
 const loadData = async () => {
   await pocketbase
-    .collection("rankings")
-    .getFullList(200 /* batch size */, {
-      expand: "wrestler",
-      filter: 'place.year ~ "' + selectedYear.value.year + '"',
-      sort: "-created",
-    })
+    .collection("averageRank")
+    .getFullList()
     .then((data) => {
-      rankingsData.value = data;
-      loadingRankings.value = false;
+      averageRank.value = data.map((item) => {
+        return {
+          ...item,
+          avgRank: Math.round(item.averageRank * 100) / 100,
+        };
+      });
+      loadingAverageRank.value = false;
+    });
+  await pocketbase
+    .collection("averagePoints")
+    .getFullList()
+    .then((data) => {
+      averagePoints.value = data.map((item) => {
+        return {
+          ...item,
+          avgPoints: Math.round(item.averagePoints * 100) / 100,
+        };
+      });
+      loadingAveragePoints.value = false;
     });
 };
-
-const averageRank = computed({
-  get: () => {
-    const rankSumCountById = rankingsData.value.reduce(
-      (acc: any, item: any) => {
-        if (!acc[item.expand.wrestler.id]) {
-          acc[item.expand.wrestler.id] = {
-            name: item.expand.wrestler.name,
-            vorname: item.expand.wrestler.vorname,
-            sum: 0,
-            count: 0,
-          };
-        }
-        const rank = parseInt(item.rank.match(/^\d+/)[0]);
-        acc[item.expand.wrestler.id].sum += rank;
-        acc[item.expand.wrestler.id].count++;
-        return acc;
-      },
-      {}
-    );
-
-    const avgRankById = Object.keys(rankSumCountById).map((id) => {
-      const { name, vorname, sum, count } = rankSumCountById[id];
-      const avgRank = Math.round((sum / count) * 100);
-      return { id, name, vorname, avgRank };
-    });
-
-    const filteredAvgRankById = avgRankById.filter((item) => {
-      return rankSumCountById[item.id].count >= 5;
-    });
-
-    filteredAvgRankById.sort((a, b) => a.avgRank - b.avgRank);
-
-    return filteredAvgRankById;
-  },
-  set: () => {},
-});
-
-const averagePoints = computed({
-  get: () => {
-    const pointsSumCountById = rankingsData.value.reduce(
-      (acc: any, item: any) => {
-        if (!acc[item.expand.wrestler.id]) {
-          acc[item.expand.wrestler.id] = {
-            name: item.expand.wrestler.name,
-            vorname: item.expand.wrestler.vorname,
-            sum: 0,
-            count: 0,
-          };
-        }
-        const points = parseInt(item.points.match(/^\d+/)[0]);
-        acc[item.expand.wrestler.id].sum += points;
-        acc[item.expand.wrestler.id].count++;
-        return acc;
-      },
-      {}
-    );
-
-    const avgPointsById = Object.keys(pointsSumCountById).map((id) => {
-      const { name, vorname, sum, count } = pointsSumCountById[id];
-      const avgPoints = Math.round((sum / count) * 100);
-      return { id, name, vorname, avgPoints };
-    });
-
-    const filteredAvgPointsById = avgPointsById.filter((item) => {
-      return pointsSumCountById[item.id].count >= 5;
-    });
-
-    filteredAvgPointsById.sort((a, b) => a.avgPoints - b.avgPoints);
-
-    return filteredAvgPointsById;
-  },
-  set: () => {},
-});
 
 async function yearSelected() {
   await loadData();
@@ -143,28 +84,11 @@ async function yearSelected() {
     <Card class="mt-2">
       <template #title> Top 5 - ⌀ Rang (mit 5 Teilnahmen oder mehr) </template>
       <template #content>
-        <ProgressSpinner v-if="loadingRankings" />
+        <ProgressSpinner v-if="loadingAverageRank" />
         <ul v-else>
-          <li v-for="(item, index) in averageRank.slice(0, 5)" :key="item.id">
+          <li v-for="(item, index) in averageRank" :key="item.id">
             {{ index + 1 }}: {{ item.name }} {{ item.vorname }} -
-            {{ item.avgRank / 100 }}
-          </li>
-        </ul>
-      </template>
-    </Card>
-    <Card class="mt-2">
-      <template #title>
-        Bottom 5 - ⌀ Rang (mit 5 Teilnahmen oder mehr)
-      </template>
-      <template #content>
-        <ProgressSpinner v-if="loadingRankings" />
-        <ul v-else>
-          <li
-            v-for="(item, index) in averageRank.slice(-5).reverse()"
-            :key="item.id"
-          >
-            {{ index + 1 }}: {{ item.name }} {{ item.vorname }} -
-            {{ item.avgRank / 100 }}
+            {{ item.avgRank }}
           </li>
         </ul>
       </template>
@@ -174,28 +98,11 @@ async function yearSelected() {
         Top 5 - ⌀ Punkte (mit 5 Teilnahmen oder mehr)
       </template>
       <template #content>
-        <ProgressSpinner v-if="loadingRankings" />
+        <ProgressSpinner v-if="loadingAveragePoints" />
         <ul v-else>
-          <li
-            v-for="(item, index) in averagePoints.slice(-5).reverse()"
-            :key="item.id"
-          >
+          <li v-for="(item, index) in averagePoints" :key="item.id">
             {{ index + 1 }}: {{ item.name }} {{ item.vorname }} -
-            {{ item.avgPoints / 100 }}
-          </li>
-        </ul>
-      </template>
-    </Card>
-    <Card class="mt-2">
-      <template #title>
-        Bottom 5 - ⌀ Punkte (mit 5 Teilnahmen oder mehr)
-      </template>
-      <template #content>
-        <ProgressSpinner v-if="loadingRankings" />
-        <ul v-else>
-          <li v-for="(item, index) in averagePoints.slice(0, 5)" :key="item.id">
-            {{ index + 1 }}: {{ item.name }} {{ item.vorname }} -
-            {{ item.avgPoints / 100 }}
+            {{ item.avgPoints }}
           </li>
         </ul>
       </template>
