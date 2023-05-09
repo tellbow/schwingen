@@ -31,7 +31,7 @@ const years = ref([
   // { year: 2020 },
   // { year: 2021 },
   { year: 2022 },
-  // { year: 2023 },
+  { year: 2023 },
 ]);
 
 /* eslint require-await: "off" */
@@ -41,7 +41,7 @@ onMounted(async () => {
 
 const loadData = async () => {
   await pocketbase
-    .collection("averageRank")
+    .collection("averageRank" + selectedYear.value.year)
     .getFullList()
     .then((data) => {
       averageRank.value = data.map((item) => {
@@ -53,7 +53,7 @@ const loadData = async () => {
       loadingAverageRank.value = false;
     });
   await pocketbase
-    .collection("averagePoints")
+    .collection("averagePoints" + selectedYear.value.year)
     .getFullList()
     .then((data) => {
       averagePoints.value = data.map((item) => {
