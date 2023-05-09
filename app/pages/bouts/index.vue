@@ -33,8 +33,8 @@ const filters = ref({
 });
 
 const sorts = ref({
-  field: "fight_round,",
-  order: "",
+  field: "place.year,",
+  order: "-",
 });
 
 const matchModeOptions = ref([
@@ -71,15 +71,15 @@ const loadLazyData = () => {
         (filters.value["expand.opponent.vorname"].value || "") +
         '" && place.name ~ "' +
         (filters.value["expand.place.name"].value || "") +
-        /* '" && place.year ~ "' +
-        (filters.value["expand.place.year"].value || "") + */
+        '" && place.year ~ "' +
+        (filters.value["expand.place.year"].value || "") +
         '"',
       sort: sorts.value.order + sorts.value.field + "-created",
     })
     .then((data: { totalItems: number; items: any }) => {
-      /* data.items.forEach((item: { expand: { place: { year: string } } }) => {
-        item.expand.place.year = item.expand.place.year.split("-")[0];
-      }); */
+      data.items.forEach((item: { expand: { place: { year: string } } }) => {
+        item.expand.place.year = item.expand.place.year.split(" ")[0];
+      });
       records.value = data.items;
       totalRecords.value = data.totalItems;
       loading.value = false;
@@ -292,7 +292,7 @@ const onSort = (event: { sortField: string; sortOrder: number }) => {
           />
         </template>
       </Column>
-      <!-- <Column
+      <Column
         field="place_year"
         header="Jahr"
         filter-field="expand.place.year"
@@ -312,7 +312,7 @@ const onSort = (event: { sortField: string; sortOrder: number }) => {
             @input="filterCallback()"
           />
         </template>
-      </Column> -->
+      </Column>
     </DataTable>
   </div>
 </template>

@@ -26,8 +26,8 @@ const filters = ref({
 });
 
 const sorts = ref({
-  field: "rank,",
-  order: "",
+  field: "place.year,",
+  order: "-",
 });
 
 const matchModeOptions = ref([
@@ -60,17 +60,15 @@ const loadLazyData = () => {
         (filters.value["expand.wrestler.vorname"].value || "") +
         '" && place.name ~ "' +
         (filters.value["expand.place.name"].value || "") +
-        /* '" && place.year ~ "' +
-        (filters.value["expand.place.year"].value || "") + */
+        '" && place.year ~ "' +
+        (filters.value["expand.place.year"].value || "") +
         '"',
       sort: sorts.value.order + sorts.value.field + "-created",
     })
     .then((data: { totalItems: number; items: any }) => {
-      /* data.items.forEach((item: { expand: { place: { year: string } } }) => {
-        item.expand.place.year = item.expand.place.year.split("-")[0];
-      }); */
       records.value = data.items.map((item: any) => ({
         ...item,
+        year: item.expand.place.year.split(" ")[0],
         bouts: [],
       }));
       totalRecords.value = data.totalItems;
@@ -294,7 +292,7 @@ async function rowClick(event: any) {
           />
         </template>
       </Column>
-      <!-- <Column
+      <Column
         field="place_year"
         header="Jahr"
         filter-field="expand.place.year"
@@ -303,7 +301,7 @@ async function rowClick(event: any) {
         :filter-match-mode-options="matchModeOptions"
       >
         <template #body="{ data }">
-          {{ data.expand.place.year }}
+          {{ data.year }}
         </template>
         <template #filter="{ filterModel, filterCallback }">
           <InputText
@@ -314,7 +312,7 @@ async function rowClick(event: any) {
             @input="filterCallback()"
           />
         </template>
-      </Column> -->
+      </Column>
       <template #expansion="data">
         <div class="p-1">
           <DataTable :value="data.data.bouts">
