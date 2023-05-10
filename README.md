@@ -58,7 +58,7 @@ https://pocketbase.io/docs/going-to-production/ for more examples.
 
 ### Run
 
-`docker run --rm -p 8090:8090 0.0.1`
+`docker run --rm --env PB_ENCRYPTION=<redacted> -p 8090:8090 0.0.1`
 
 ## Acknowledgements
 

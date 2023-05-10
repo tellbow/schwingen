@@ -1,8 +1,4 @@
-<script setup lang="ts">
-const pocketbase = usePocketbase();
-
-const user = pocketbase.authStore.model;
-</script>
+<script setup lang="ts"></script>
 <template>
   <div
     class="justify-content-center align-content-center display: flex flex-wrap fill-height"
@@ -16,7 +12,6 @@ const user = pocketbase.authStore.model;
           11.02.2023).
         </p>
         <Button
-          v-if="user"
           label="Anzeigen"
           class="w-half mt-3 ml-3"
           @click="navigateTo('/wrestler')"
@@ -28,7 +23,6 @@ const user = pocketbase.authStore.model;
       <template #content>
         <p>Enthält alle Schwingfeste der Aktivschwinger aus dem Jahr 2022.</p>
         <Button
-          v-if="user"
           label="Anzeigen"
           class="w-half mt-3 ml-3"
           @click="navigateTo('/places')"

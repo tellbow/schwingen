@@ -37,11 +37,6 @@ const items = ref([
     icon: "statistics-icon",
     to: "/statistics",
   },
-  {
-    label: "Benutzerkonto",
-    icon: "account-icon",
-    to: "/account",
-  },
 ]);
 
 function home() {
@@ -72,9 +67,6 @@ function home() {
   width: 20px;
   height: 20px;
   opacity: 0.5;
-}
-:deep(.p-menuitem-icon.account-icon) {
-  background-image: url("/images/icons/account.svg");
 }
 :deep(.p-menuitem-icon.bouts-icon) {
   background-image: url("/images/icons/bouts.svg");

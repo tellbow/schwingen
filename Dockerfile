@@ -17,4 +17,4 @@ RUN go build -o pocketnuxt pocketbase/main.go
 FROM ubuntu:22.10
 COPY --from=golang /usr/src/app/pocketnuxt /pocketnuxt
 COPY pb_data/ /pb_data/
-CMD ["/pocketnuxt", "serve", "--http", "0.0.0.0:8090"]
+CMD ["/pocketnuxt", "serve", "--http", "0.0.0.0:8090", "--encryptionEnv", "PB_ENCRYPTION"]
