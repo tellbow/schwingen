@@ -32,6 +32,6 @@
   },
   "dependencies": {
     "chart.js": "^4.2.1",
-    "pocketbase": "^0.9.1"
+    "pocketbase": "^0.14.4"
   }
 }

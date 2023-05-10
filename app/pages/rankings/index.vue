@@ -135,10 +135,6 @@ const onRowCollapse = (event: {
   );
   records.value[objIndex].bouts = [];
 };
-
-async function rowClick(event: any) {
-  await navigateTo("/wrestler/" + event.data.expand.wrestler.id);
-}
 </script>
 <template>
   <div
@@ -166,7 +162,6 @@ async function rowClick(event: any) {
       @sort="onSort($event)"
       @row-expand="onRowExpand($event)"
       @row-collapse="onRowCollapse($event)"
-      @row-click="rowClick($event)"
     >
       <template #empty> Keine Ranglisten gefunden. </template>
       <template #loading> Ranglisten werden geladen. Bitte warten. </template>
