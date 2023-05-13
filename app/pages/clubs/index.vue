@@ -8,9 +8,9 @@ const loadingAssociation = ref(true);
 
 onMounted(async () => {
   await pocketbase
-    .collection("association")
+    .collection("wrestlersByAssociation")
     .getFullList(10 /* batch size */, {
-      sort: "name,-created",
+      sort: "name",
     })
     .then((data) => {
       associationData.value = data;
@@ -20,9 +20,9 @@ onMounted(async () => {
 
 const onTabOpen = async (event: { index: string | number }) => {
   await pocketbase
-    .collection("canton")
+    .collection("wrestlersByCanton")
     .getFullList(50 /* batch size */, {
-      sort: "name,-created",
+      sort: "name",
       filter:
         'association.id = "' + associationData.value[event.index].id + '"',
     })
@@ -33,9 +33,9 @@ const onTabOpen = async (event: { index: string | number }) => {
 
 const onSubTabOpen = async (event: { index: string | number }) => {
   await pocketbase
-    .collection("club")
+    .collection("wrestlersByClub")
     .getFullList(200 /* batch size */, {
-      sort: "name,-created",
+      sort: "name",
       filter: 'canton.id = "' + cantonData.value[event.index].id + '"',
     })
     .then((data) => {
@@ -57,17 +57,22 @@ const onSubTabOpen = async (event: { index: string | number }) => {
       <AccordionTab
         v-for="association in associationData"
         :key="association.id"
-        :header="association.abbreviation"
+        :header="
+          association.abbreviation +
+          ' (' +
+          association.wrestlerAmount +
+          ' Schwinger)'
+        "
       >
         <Accordion lazy @tab-open="onSubTabOpen($event)">
           <AccordionTab
             v-for="canton in cantonData"
             :key="canton.id"
-            :header="canton.name"
+            :header="canton.name + ' (' + canton.wrestlerAmount + ' Schwinger)'"
           >
             <ul>
               <li v-for="value in clubData" :key="value.id">
-                {{ value.name }}
+                {{ value.name }} ({{ value.wrestlerAmount }} Schwinger)
               </li>
             </ul>
           </AccordionTab>
