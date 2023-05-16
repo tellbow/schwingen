@@ -5,7 +5,7 @@ const loadingAverageRank = ref(true);
 const averageRank = ref();
 const loadingAveragePoints = ref(true);
 const averagePoints = ref();
-const selectedYear = ref({ year: 2022 });
+const selectedYear = ref({ year: 2023 });
 const years = ref([
   // { year: 1998 },
   // { year: 2000 },
