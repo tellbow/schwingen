@@ -7,13 +7,13 @@ This will run both a Nuxt3 dev server with hot reload and a pocketbase instance 
 Clone the project
 
 ```bash
-  git clone https://github.com/j-wil/pocket-nuxt
+  git clone https://github.com/tellbow/schwingen
 ```
 
 Go to the project directory
 
 ```bash
-  cd pocket-nuxt
+  cd schwingen
 ```
 
 Install dependencies
@@ -45,7 +45,7 @@ This will create a single binary containing Nuxt and PocketBase for deployment.
 ```
 
 ```bash
-  ./pocketnuxt serve --http "yourdomain.com:80" --https "yourdomain.com:443"
+  ./pocketnuxt serve --http "yourdomain.com:80" --https "yourdomain.com:443" --encryptionEnv=PB_ENCRYPTION
 ```
 
 https://pocketbase.io/docs/going-to-production/ for more examples.
@@ -64,3 +64,4 @@ https://pocketbase.io/docs/going-to-production/ for more examples.
 
 - [Pocket Nuxt](https://github.com/j-wil/pocket-nuxt)
 - [PocketBase](https://github.com/pocketbase/pocketbase)
+- [Nuxt](https://github.com/nuxt/nuxt)
