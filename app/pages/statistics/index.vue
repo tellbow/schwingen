@@ -72,16 +72,18 @@ async function yearSelected() {
 </script>
 <template>
   <div class="card">
-    <p class="mt-2 ml-2">Jahr:</p>
-    <Dropdown
-      v-model="selectedYear"
-      :options="years"
-      option-label="year"
-      placeholder="Wähle ein Jahr"
-      class="w-full md:w-14rem mt-1 ml-2"
-      @change="yearSelected()"
-    />
-    <Card class="mt-2">
+    <div class="flex items-center justify-start mt-2 md:mt-4">
+      <p class="ml-4 text-lg md:text-xl text-stone-700 font-bold">Jahr:</p>
+      <Dropdown
+        v-model="selectedYear"
+        :options="years"
+        option-label="year"
+        placeholder="Wähle ein Jahr"
+        class="w-fit ml-4 text-stone-700 font-bold"
+        @change="yearSelected()"
+      />
+    </div>
+    <Card class="ml-4 mt-2 mr-4">
       <template #title> Top 5 - ⌀ Rang (mit 5 Teilnahmen oder mehr) </template>
       <template #content>
         <ProgressSpinner v-if="loadingAverageRank" />
@@ -93,7 +95,7 @@ async function yearSelected() {
         </ul>
       </template>
     </Card>
-    <Card class="mt-2">
+    <Card class="ml-4 mt-2 mr-4">
       <template #title>
         Top 5 - ⌀ Punkte (mit 5 Teilnahmen oder mehr)
       </template>

@@ -45,7 +45,7 @@ const onSubTabOpen = async (event: { index: string | number }) => {
 </script>
 <template>
   <div
-    class="justify-content-center align-content-center display: flex flex-wrap fill-height mt-5"
+    class="justify-content-center align-content-center display: flex flex-wrap fill-height mt-3 md:mt-6"
   >
     <ProgressSpinner v-if="loadingAssociation" />
     <Accordion

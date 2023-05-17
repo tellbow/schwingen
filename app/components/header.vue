@@ -47,12 +47,12 @@ function home() {
 <template>
   <div class="mt-2 ml-2 flex">
     <img
-      class="cursor-pointer hover:bg-gray-500"
+      class="cursor-pointer hover:bg-gray-500 border-solid border-2 border-yellow-800 rounded-full"
       src="/images/logos/tellbow_cricle_crop.png"
       style="width: 48px; height: 48px"
       @click="home"
     />
-    <TabMenu :model="items" />
+    <TabMenu :model="items" class="bg-yellow-800" />
   </div>
 </template>
 

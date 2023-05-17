@@ -133,6 +133,7 @@ const findBouts = () => {
               type="button"
               label="Suchen"
               icon="pi pi-search"
+              class="bg-yellow-900 border-2 border-yellow-800"
               :loading="loadingBouts"
               @click="findBouts"
             />
