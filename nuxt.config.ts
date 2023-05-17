@@ -23,5 +23,10 @@ export default defineNuxtConfig({
     },
   },
   modules: ["@nuxtjs/tailwindcss"],
+  runtimeConfig: {
+    public: {
+      baseUrl: "https://schwingen.tellbow.ch",
+    },
+  },
   telemetry: false,
 });

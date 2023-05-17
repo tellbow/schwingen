@@ -7,8 +7,10 @@ pocketbase/.output
 node_modules
 # pocketnuxt binary
 pocketnuxt
-# import directory
-import
 # pocketbase directories
 pb_data
 pb_migrations
+# import directory
+import
+# .env
+.env
