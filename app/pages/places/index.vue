@@ -12,12 +12,12 @@ const filters = ref({
   number: { value: "", matchMode: FilterMatchMode.STARTS_WITH },
   name: { value: "", matchMode: FilterMatchMode.STARTS_WITH },
   location: { value: "", matchMode: FilterMatchMode.STARTS_WITH },
-  // year: { value: "", matchMode: FilterMatchMode.STARTS_WITH },
+  year: { value: "", matchMode: FilterMatchMode.STARTS_WITH },
 });
 
 const sorts = ref({
-  field: "number,",
-  order: "",
+  field: "year,",
+  order: "-",
 });
 
 const matchModeOptions = ref([
@@ -43,13 +43,15 @@ const loadLazyData = () => {
         (filters.value.name.value || "") +
         '" && location ~ "' +
         (filters.value.location.value || "") +
-        '" && year ~ "2022' +
-        /* '" && year ~ "' +
-        (filters.value.year.value || "") + */
+        '" && year ~ "' +
+        (filters.value.year.value || "") +
         '"',
       sort: sorts.value.order + sorts.value.field + "-created",
     })
     .then((data) => {
+      data.items.forEach((item) => {
+        item.year = item.year.split(" ")[0];
+      });
       records.value = data.items;
       totalRecords.value = data.totalItems;
       loading.value = false;
@@ -162,7 +164,7 @@ async function rowClick(event: any) {
           />
         </template>
       </Column>
-      <!-- <Column
+      <Column
         field="year"
         header="Jahr"
         style="min-width: 12rem; padding: 0.5rem"
@@ -181,7 +183,7 @@ async function rowClick(event: any) {
             @input="filterCallback()"
           />
         </template>
-      </Column> -->
+      </Column>
     </DataTable>
   </div>
 </template>
