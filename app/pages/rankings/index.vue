@@ -10,19 +10,37 @@ const totalRecords = ref(0);
 const expandedRows = ref();
 
 const filters = ref({
-  rank: { value: "", matchMode: FilterMatchMode.CONTAINS },
-  points: { value: "", matchMode: FilterMatchMode.CONTAINS },
-  result: { value: "", matchMode: FilterMatchMode.CONTAINS },
+  rank: { value: "", matchMode: FilterMatchMode.EQUALS, prefix: 'rank = "' },
+  points: {
+    value: "",
+    matchMode: FilterMatchMode.EQUALS,
+    prefix: 'points = "',
+  },
+  result: {
+    value: "",
+    matchMode: FilterMatchMode.CONTAINS,
+    prefix: 'result ~ "',
+  },
   "expand.wrestler.name": {
     value: "",
     matchMode: FilterMatchMode.CONTAINS,
+    prefix: 'wrestler.name ~ "',
   },
   "expand.wrestler.vorname": {
     value: "",
     matchMode: FilterMatchMode.CONTAINS,
+    prefix: 'wrestler.vorname ~ "',
   },
-  "expand.place.name": { value: "", matchMode: FilterMatchMode.CONTAINS },
-  "expand.place.year": { value: "", matchMode: FilterMatchMode.CONTAINS },
+  "expand.place.name": {
+    value: "",
+    matchMode: FilterMatchMode.CONTAINS,
+    prefix: 'place.name ~ "',
+  },
+  "expand.place.year": {
+    value: "",
+    matchMode: FilterMatchMode.CONTAINS,
+    prefix: 'place.year ~ "',
+  },
 });
 
 const sorts = ref({
@@ -47,22 +65,16 @@ const loadLazyData = () => {
     .collection("rankings")
     .getList(page.value, 15, {
       expand: "wrestler,place",
-      filter:
-        'rank ~ "' +
-        (filters.value.rank.value || "") +
-        '" && points ~ "' +
-        (filters.value.points.value || "") +
-        '" && result ~ "' +
-        (filters.value.result.value || "") +
-        '" && wrestler.name ~ "' +
-        (filters.value["expand.wrestler.name"].value || "") +
-        '" && wrestler.vorname ~ "' +
-        (filters.value["expand.wrestler.vorname"].value || "") +
-        '" && place.name ~ "' +
-        (filters.value["expand.place.name"].value || "") +
-        '" && place.year ~ "' +
-        (filters.value["expand.place.year"].value || "") +
-        '"',
+      filter: Object.values(filters.value)
+        .map((filter) => {
+          const { value, prefix } = filter;
+          if (value && value !== "") {
+            return prefix + value + '"';
+          }
+          return "";
+        })
+        .filter(Boolean)
+        .join(" && "),
       sort: sorts.value.order + sorts.value.field + "-created",
     })
     .then((data: { totalItems: number; items: any }) => {
@@ -170,7 +182,6 @@ const onRowCollapse = (event: {
         field="rank"
         header="Rang"
         style="min-width: 12rem; padding: 0.5rem"
-        sortable
         :filter-match-mode-options="matchModeOptions"
       >
         <template #body="{ data }">
