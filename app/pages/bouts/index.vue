@@ -96,7 +96,7 @@ const onFilter = () => {
 };
 
 const onSort = (event: { sortField: string; sortOrder: number }) => {
-  sorts.value.field = event.sortField.replace("_", ".") + ",";
+  sorts.value.field = event.sortField.replace("-", ".") + ",";
   sorts.value.order = event.sortOrder > 0 ? "" : "-";
   loadLazyData();
 };
@@ -129,7 +129,7 @@ const onSort = (event: { sortField: string; sortOrder: number }) => {
       <template #loading> Kämpfe werden geladen. Bitte warten. </template>
       <Column
         field="result"
-        header="Schwingerstatus"
+        header="Resultat"
         style="min-width: 12rem; padding: 0.5rem"
         sortable
         :filter-match-mode-options="matchModeOptions"
@@ -142,7 +142,7 @@ const onSort = (event: { sortField: string; sortOrder: number }) => {
             v-model="filterModel.value"
             type="text"
             class="p-column-filter"
-            placeholder="Filter Schwingerstatus"
+            placeholder="Filter Resultat"
             @input="filterCallback()"
           />
         </template>
@@ -188,7 +188,7 @@ const onSort = (event: { sortField: string; sortOrder: number }) => {
         </template>
       </Column>
       <Column
-        field="wrestler_name"
+        field="wrestler-name"
         header="Schwinger - Name"
         filter-field="expand.wrestler.name"
         style="min-width: 12rem; padding: 0.5rem"
@@ -209,7 +209,7 @@ const onSort = (event: { sortField: string; sortOrder: number }) => {
         </template>
       </Column>
       <Column
-        field="wrestler_vorname"
+        field="wrestler-vorname"
         header="Schwinger - Vorname"
         filter-field="expand.wrestler.vorname"
         style="min-width: 12rem; padding: 0.5rem"
@@ -230,7 +230,7 @@ const onSort = (event: { sortField: string; sortOrder: number }) => {
         </template>
       </Column>
       <Column
-        field="opponent_name"
+        field="opponent-name"
         header="Gegner - Name"
         filter-field="expand.opponent.name"
         style="min-width: 12rem; padding: 0.5rem"
@@ -251,7 +251,7 @@ const onSort = (event: { sortField: string; sortOrder: number }) => {
         </template>
       </Column>
       <Column
-        field="opponent_vorname"
+        field="opponent-vorname"
         header="Gegner - Vorname"
         filter-field="expand.opponent.vorname"
         style="min-width: 12rem; padding: 0.5rem"
@@ -272,7 +272,7 @@ const onSort = (event: { sortField: string; sortOrder: number }) => {
         </template>
       </Column>
       <Column
-        field="place_name"
+        field="place-name"
         header="Schwingfest"
         filter-field="expand.place.name"
         style="min-width: 12rem; padding: 0.5rem"
@@ -293,7 +293,7 @@ const onSort = (event: { sortField: string; sortOrder: number }) => {
         </template>
       </Column>
       <Column
-        field="place_year"
+        field="place-year"
         header="Jahr"
         filter-field="expand.place.year"
         style="min-width: 12rem; padding: 0.5rem"
