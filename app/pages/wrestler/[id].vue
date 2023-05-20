@@ -5,8 +5,15 @@ const route = useRoute();
 
 const wrestlerData = ref();
 const rankingsData = ref();
+const opponentsData = ref();
+const displayOpponent = (opponentsData: { name: string; vorname: string }) =>
+  opponentsData.name + " " + opponentsData.vorname;
+const selectedOpponent = ref();
+const boutsData = ref();
 const loadingWrestler = ref(true);
 const loadingRankings = ref(true);
+const loadingOpponents = ref(true);
+const loadingBouts = ref(false);
 
 onMounted(async () => {
   await pocketbase
@@ -26,11 +33,33 @@ onMounted(async () => {
     .getFullList(200 /* batch size */, {
       filter: 'wrestler.id = "' + route.params.id + '"',
       expand: "place",
-      sort: "-created",
+      sort: "-place.year,-created",
     })
     .then((data) => {
       rankingsData.value = data;
       loadingRankings.value = false;
+    });
+  await pocketbase
+    .collection("bouts")
+    .getFullList(200 /* batch size */, {
+      filter: 'wrestler.id = "' + route.params.id + '"',
+      expand: "opponent",
+      sort: "-created",
+    })
+    .then((data) => {
+      opponentsData.value = Array.from(
+        new Map(
+          data.map((obj: { expand: any }) => [
+            obj.expand.opponent.id,
+            {
+              id: obj.expand.opponent.id,
+              name: obj.expand.opponent.name,
+              vorname: obj.expand.opponent.vorname,
+            },
+          ])
+        ).values()
+      );
+      loadingOpponents.value = false;
     });
 });
 
@@ -127,6 +156,29 @@ const chartOptions = ref({
 async function rowClick(id: any) {
   await navigateTo("/rankings/" + id);
 }
+
+const findBouts = () => {
+  loadingBouts.value = true;
+  pocketbase
+    .collection("bouts")
+    .getFullList(200 /* batch size */, {
+      filter:
+        'wrestler.id = "' +
+        route.params.id +
+        '" && opponent.id = "' +
+        selectedOpponent.value +
+        '"',
+      expand: "place",
+      sort: "-place.year,-created",
+    })
+    .then((data) => {
+      data.forEach((item: { expand: any }) => {
+        item.expand.place.year = item.expand.place.year.split("-")[0];
+      });
+      boutsData.value = data;
+      loadingBouts.value = false;
+    });
+};
 </script>
 <template>
   <div>
@@ -135,7 +187,7 @@ async function rowClick(id: any) {
       v-else
       class="justify-content-center align-content-center display: flex mt-2"
     >
-      <Card class="w-9/12">
+      <Card class="w-11/12 md:w-9/12">
         <template #title>
           {{ wrestlerData.vorname }} {{ wrestlerData.name }}
         </template>
@@ -168,7 +220,7 @@ async function rowClick(id: any) {
       v-else
       class="justify-content-center align-content-center display: flex mt-2"
     >
-      <Card class="w-9/12">
+      <Card class="w-11/12 md:w-9/12">
         <template #title>Statistiken</template>
         <template #content>
           <p>Ø Rang: {{ averageRank }}</p>
@@ -188,7 +240,7 @@ async function rowClick(id: any) {
       v-else
       class="justify-content-center align-content-center display: flex mt-2"
     >
-      <Card class="w-9/12">
+      <Card class="w-11/12 md:w-9/12">
         <template #title>Resultate</template>
         <template #content>
           <DataView
@@ -198,33 +250,72 @@ async function rowClick(id: any) {
           >
             <template #list="slotProps">
               <div
-                class="col-7 hover:bg-gray-200 cursor-pointer"
+                class="col-12 hover:bg-gray-200 cursor-pointer"
                 @click="rowClick(slotProps.data.expand.place.id)"
               >
-                <div
-                  class="flex flex-column xl:flex-row xl:align-items-start p-1 gap-4"
-                >
-                  <div class="flex-1">
+                <div class="grid">
+                  <div class="col-5 md:col-8">
                     <p class="font-bold">
                       {{ slotProps.data.expand.place.name }}
                     </p>
                   </div>
-                  <div
-                    class="flex flex-column sm:flex-row justify-content-between align-items-center xl:align-items-start flex-1 gap-4"
-                  >
-                    <div
-                      class="flex flex-column align-items-center sm:align-items-start"
-                    >
-                      <p>{{ slotProps.data.rank }}</p>
-                      <p>{{ slotProps.data.points }}</p>
-                      <p>{{ slotProps.data.result }}</p>
-                    </div>
+                  <div class="col-1">
+                    <p>{{ slotProps.data.rank }}</p>
+                  </div>
+                  <div class="col-2 md:col-1">
+                    <p>{{ slotProps.data.points }}</p>
+                  </div>
+                  <div class="col-4 md:col-2">
+                    <p>{{ slotProps.data.result }}</p>
                   </div>
                 </div>
               </div>
             </template>
           </DataView>
           <p v-else>Keine Resultate vorhanden</p>
+        </template>
+      </Card>
+    </div>
+    <div class="justify-content-center align-content-center display: flex mt-2">
+      <Card class="w-11/12 md:w-9/12">
+        <template #title>1 vs. 1</template>
+        <template #content>
+          <Dropdown
+            v-model="selectedOpponent"
+            :options="opponentsData"
+            :option-label="displayOpponent"
+            option-value="id"
+            filter
+            :filter-fields="['name', 'vorname']"
+            :loading="loadingOpponents"
+            placeholder="Wähle einen Gegner"
+            empty-message="Keine Gegner gefunden"
+            class="w-full md:w-14rem"
+          />
+          <Button
+            type="button"
+            label="Suchen"
+            icon="pi pi-search"
+            class="ml-2 mt-2 md:mt-0 bg-yellow-900 border-2 border-yellow-800"
+            :loading="loadingBouts"
+            @click="findBouts"
+          />
+          <DataView :value="boutsData" data-key="id" class="mt-4">
+            <template #list="slotProps">
+              <div class="col-6">
+                <strong> {{ slotProps.data.expand.place.name }}</strong>
+              </div>
+              <div class="col-2">
+                <p>{{ slotProps.data.expand.place.year }}</p>
+              </div>
+              <div class="col-2">
+                <p>{{ slotProps.data.points }}</p>
+              </div>
+              <div class="col-2">
+                <p>{{ slotProps.data.result }}</p>
+              </div>
+            </template>
+          </DataView>
         </template>
       </Card>
     </div>

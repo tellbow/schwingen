@@ -54,28 +54,26 @@ async function rowClick(id: any) {
       v-else
       class="justify-content-center align-content-center display: flex mt-2"
     >
-      <Card class="w-9/12">
+      <Card class="w-11/12 md:w-9/12">
         <template #title> Rangliste </template>
         <template #content>
           <DataView :value="rankingsData" data-key="id">
             <template #list="slotProps">
               <div
-                class="col-7 hover:bg-gray-200 cursor-pointer"
+                class="col-12 hover:bg-gray-200 cursor-pointer"
                 @click="rowClick(slotProps.data.expand.wrestler.id)"
               >
-                <div
-                  class="flex flex-column sm:flex-row sm:align-items-start xl:flex-row xl:align-items-start"
-                >
-                  <div class="sm:w-4rem xl:w-4rem block mx-auto">
+                <div class="grid">
+                  <div class="col-1">
                     <p>{{ slotProps.data.rank }}</p>
                   </div>
-                  <div class="sm:w-4rem xl:w-4rem block mx-auto">
+                  <div class="col-2">
                     <p>{{ slotProps.data.points }}</p>
                   </div>
-                  <div class="sm:w-4rem xl:w-4rem block mx-auto">
+                  <div class="col-3">
                     <p>{{ slotProps.data.result }}</p>
                   </div>
-                  <div class="sm:w-8rem xl:w-16rem block mx-auto">
+                  <div class="col-6">
                     <p>
                       {{ slotProps.data.expand.wrestler.name }}
                       {{ slotProps.data.expand.wrestler.vorname }}
