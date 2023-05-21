@@ -25,7 +25,7 @@ onMounted(async () => {
       sort: "rank, -created",
     })
     .then((data) => {
-      rankingsData.value = data;
+      rankingsData.value = data.sort(compareByRank);
       loadingRankings.value = false;
     });
 });
@@ -33,6 +33,26 @@ onMounted(async () => {
 async function rowClick(id: any) {
   await navigateTo("/wrestler/" + id);
 }
+
+// Custom comparator function to sort by rank
+const compareByRank = (a: any, b: any) => {
+  const rankA = a.rank;
+  const rankB = b.rank;
+
+  // Extract numerical and alphabetical components
+  const numA = parseInt(rankA);
+  const numB = parseInt(rankB);
+  const alphaA = rankA.slice(-1);
+  const alphaB = rankB.slice(-1);
+
+  // Compare numerical components
+  if (numA !== numB) {
+    return numA - numB;
+  }
+
+  // If numerical components are equal, compare alphabetical components
+  return alphaA.localeCompare(alphaB);
+};
 </script>
 <template>
   <div>
@@ -41,7 +61,7 @@ async function rowClick(id: any) {
       v-else
       class="justify-content-center align-content-center display: flex mt-2"
     >
-      <Card class="w-9/12">
+      <Card class="w-11/12 md:w-9/12">
         <template #title> Schwingfest: {{ placeData.name }} </template>
         <template #content>
           <p>Ort: {{ placeData.location }}</p>
