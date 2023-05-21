@@ -9,10 +9,10 @@ const records = ref();
 const totalRecords = ref(0);
 
 const filters = ref({
-  number: { value: "", matchMode: FilterMatchMode.STARTS_WITH },
-  name: { value: "", matchMode: FilterMatchMode.STARTS_WITH },
-  location: { value: "", matchMode: FilterMatchMode.STARTS_WITH },
-  year: { value: "", matchMode: FilterMatchMode.STARTS_WITH },
+  number: { value: "", matchMode: FilterMatchMode.CONTAINS },
+  name: { value: "", matchMode: FilterMatchMode.CONTAINS },
+  location: { value: "", matchMode: FilterMatchMode.CONTAINS },
+  year: { value: "", matchMode: FilterMatchMode.CONTAINS },
 });
 
 const sorts = ref({
@@ -21,7 +21,7 @@ const sorts = ref({
 });
 
 const matchModeOptions = ref([
-  { label: "Contains", value: FilterMatchMode.CONTAINS },
+  { label: "Enthält", value: FilterMatchMode.CONTAINS },
 ]);
 
 /* eslint require-await: "off" */

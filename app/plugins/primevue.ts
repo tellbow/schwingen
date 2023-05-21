@@ -36,7 +36,16 @@ export default defineNuxtPlugin((nuxtApp) => {
   nuxtApp.vueApp.component("ProgressSpinner", ProgressSpinner);
   nuxtApp.vueApp.component("Chart", Chart);
 
-  nuxtApp.vueApp.use(PrimeVue, { ripple: true });
+  nuxtApp.vueApp.use(PrimeVue, {
+    locale: {
+      apply: "Anwenden",
+      clear: "Löschen",
+      contain: "Enthält",
+      equals: "Gleich",
+      noFilter: "Kein Filter",
+    },
+    ripple: true,
+  });
   nuxtApp.vueApp.use(ToastService);
   nuxtApp.vueApp.use(ConfirmationService);
 });

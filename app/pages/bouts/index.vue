@@ -38,7 +38,7 @@ const sorts = ref({
 });
 
 const matchModeOptions = ref([
-  { label: "Contains", value: FilterMatchMode.CONTAINS },
+  { label: "Enthält", value: FilterMatchMode.CONTAINS },
 ]);
 
 /* eslint require-await: "off" */

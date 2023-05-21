@@ -5,8 +5,12 @@ const items = ref([
     to: "/",
   },
   {
-    label: "Verbände & Klubs",
+    label: "Verbände",
     to: "/clubs",
+  },
+  {
+    label: "Schwinger",
+    to: "/wrestler",
   },
   {
     label: "Statistiken",

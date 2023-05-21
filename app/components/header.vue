@@ -3,7 +3,7 @@ import { ref } from "vue";
 
 const items = ref([
   {
-    label: "Verbände & Klubs",
+    label: "Verbände",
     icon: "clubs-icon",
     to: "/clubs",
   },
@@ -40,22 +40,30 @@ function home() {
 </script>
 
 <template>
-  <div class="mt-2 ml-2 flex">
+  <div class="flex bg-yellow-900">
     <img
-      class="cursor-pointer hover:bg-gray-500 border-solid border-2 border-yellow-800 rounded-full"
+      class="self-center mr-1 cursor-pointer hover:bg-yellow-800 border-solid border-2 border-yellow-800 rounded-full"
       src="/images/logos/tellbow_cricle_crop.png"
       style="width: 48px; height: 48px"
       @click="home"
     />
-    <TabMenu :model="items" class="bg-yellow-800" />
+    <TabMenu :model="items" />
   </div>
 </template>
 
 <style scoped>
-/* :deep(.p-tabmenu-nav) {
+:deep(.p-tabmenu .p-tabmenu-nav .p-tabmenuitem .p-menuitem-link:hover) {
+  background-color: var(--yellow-800) !important;
+}
+:deep(.p-tabmenu .p-tabmenu-nav .p-tabmenuitem .p-menuitem-link) {
+  background-color: var(--yellow-900);
   border: none;
-} */
+}
+:deep(.p-tabmenu-nav) {
+  background-color: var(--yellow-900);
+}
 :deep(.p-menuitem-text) {
+  color: #ffffff;
   font-size: 20px;
 }
 :deep(.p-menuitem-icon) {

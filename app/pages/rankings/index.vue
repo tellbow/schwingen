@@ -48,8 +48,11 @@ const sorts = ref({
   order: "-",
 });
 
-const matchModeOptions = ref([
-  { label: "Contains", value: FilterMatchMode.CONTAINS },
+const matchModeOptionEquals = ref([
+  { label: "Gleich", value: FilterMatchMode.EQUALS },
+]);
+const matchModeOptionContains = ref([
+  { label: "Enthält", value: FilterMatchMode.CONTAINS },
 ]);
 
 /* eslint require-await: "off" */
@@ -182,7 +185,7 @@ const onRowCollapse = (event: {
         field="rank"
         header="Rang"
         style="min-width: 12rem; padding: 0.5rem"
-        :filter-match-mode-options="matchModeOptions"
+        :filter-match-mode-options="matchModeOptionEquals"
       >
         <template #body="{ data }">
           {{ data.rank }}
@@ -201,7 +204,7 @@ const onRowCollapse = (event: {
         field="points"
         header="Punkte"
         style="min-width: 12rem; padding: 0.5rem"
-        :filter-match-mode-options="matchModeOptions"
+        :filter-match-mode-options="matchModeOptionEquals"
       >
         <template #body="{ data }">
           {{ data.points }}
@@ -220,7 +223,7 @@ const onRowCollapse = (event: {
         field="result"
         header="Resultat"
         style="min-width: 12rem; padding: 0.5rem"
-        :filter-match-mode-options="matchModeOptions"
+        :filter-match-mode-options="matchModeOptionContains"
       >
         <template #body="{ data }">
           {{ data.result }}
@@ -241,7 +244,7 @@ const onRowCollapse = (event: {
         filter-field="expand.wrestler.name"
         style="min-width: 12rem; padding: 0.5rem"
         sortable
-        :filter-match-mode-options="matchModeOptions"
+        :filter-match-mode-options="matchModeOptionContains"
       >
         <template #body="{ data }">
           {{ data.expand.wrestler.name }}
@@ -262,7 +265,7 @@ const onRowCollapse = (event: {
         filter-field="expand.wrestler.vorname"
         style="min-width: 12rem; padding: 0.5rem"
         sortable
-        :filter-match-mode-options="matchModeOptions"
+        :filter-match-mode-options="matchModeOptionContains"
       >
         <template #body="{ data }">
           {{ data.expand.wrestler.vorname }}
@@ -283,7 +286,7 @@ const onRowCollapse = (event: {
         filter-field="expand.place.name"
         style="min-width: 12rem; padding: 0.5rem"
         sortable
-        :filter-match-mode-options="matchModeOptions"
+        :filter-match-mode-options="matchModeOptionContains"
       >
         <template #body="{ data }">
           {{ data.expand.place.name }}
@@ -304,7 +307,7 @@ const onRowCollapse = (event: {
         filter-field="expand.place.year"
         style="min-width: 12rem; padding: 0.5rem"
         sortable
-        :filter-match-mode-options="matchModeOptions"
+        :filter-match-mode-options="matchModeOptionContains"
       >
         <template #body="{ data }">
           {{ data.year }}
