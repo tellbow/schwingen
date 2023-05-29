@@ -57,6 +57,7 @@ const loadLazyData = () => {
         (filters.value.category.value || "") +
         '"',
       sort: sorts.value.order + sorts.value.field + "-created",
+      fields: "id,name,vorname,year,category",
     })
     .then((data) => {
       data.items.forEach((item) => {

@@ -18,6 +18,8 @@ onMounted(async () => {
         '"',
       expand: "opponent,place",
       sort: "fight_round,-created",
+      fields:
+        "id,fight_round,result,points,expand.opponent.id,expand.opponent.name,expand.opponent.vorname,expand.place.id,expand.place.name",
     })
     .then((data) => {
       opponentsData.value = data;

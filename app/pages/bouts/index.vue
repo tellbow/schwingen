@@ -75,6 +75,8 @@ const loadLazyData = () => {
         (filters.value["expand.place.year"].value || "") +
         '"',
       sort: sorts.value.order + sorts.value.field + "-created",
+      fields:
+        "id,result,points,fight_round,expand.wrestler.id,expand.wrestler.name,expand.wrestler.vorname,expand.opponent.id,expand.opponent.name,expand.opponent.vorname,expand.place.id,expand.place.name,expand.place.year",
     })
     .then((data: { totalItems: number; items: any }) => {
       data.items.forEach((item: { expand: { place: { year: string } } }) => {

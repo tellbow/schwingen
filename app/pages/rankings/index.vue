@@ -79,6 +79,8 @@ const loadLazyData = () => {
         .filter(Boolean)
         .join(" && "),
       sort: sorts.value.order + sorts.value.field + "-created",
+      fields:
+        "id,rank,points,result,expand.wrestler.id,expand.wrestler.name,expand.wrestler.vorname,expand.place.id,expand.place.name,expand.place.year",
     })
     .then((data: { totalItems: number; items: any }) => {
       records.value = data.items.map((item: any) => ({
@@ -100,6 +102,8 @@ const loadLazySubData = (wrestlerId: string, placeId: string) => {
       filter:
         "wrestler.id = '" + wrestlerId + "' && place.id = '" + placeId + "'",
       sort: "fight_round,-created",
+      fields:
+        "id,result,points,fight_round,expand.opponent.id,expand.opponent.name,expand.opponent.vorname",
     })
     .then((data: { items: any }) => {
       records.value.forEach((item: any) => {

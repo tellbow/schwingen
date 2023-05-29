@@ -23,6 +23,8 @@ onMounted(async () => {
       filter: 'place.id = "' + route.params.id + '"',
       expand: "wrestler",
       sort: "rank, -created",
+      fields:
+        "id,rank,points,result,expand.wrestler.id,expand.wrestler.name,expand.wrestler.vorname",
     })
     .then((data) => {
       rankingsData.value = data.sort(compareByRank);

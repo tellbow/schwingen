@@ -20,6 +20,8 @@ onMounted(async () => {
     .collection("wrestler")
     .getFirstListItem('id="' + route.params.id + '"', {
       expand: "club,club.canton,club.canton.association",
+      fields:
+        "id,nummer,name,vorname,year,category,expand.club.name,expand.canton.name,expand.assosiaction.name",
     })
     .then((data) => {
       data.nummer = data.nummer === 0 ? "-" : data.nummer;
@@ -34,6 +36,7 @@ onMounted(async () => {
       filter: 'wrestler.id = "' + route.params.id + '"',
       expand: "place",
       sort: "-place.year,-created",
+      fields: "id,rank,points,result,expand.place.id,expand.place.name",
     })
     .then((data) => {
       rankingsData.value = data;
@@ -45,6 +48,8 @@ onMounted(async () => {
       filter: 'wrestler.id = "' + route.params.id + '"',
       expand: "opponent",
       sort: "-created",
+      fields:
+        "id,expand.opponent.id,expand.opponent.name,expand.opponent.vorname",
     })
     .then((data) => {
       opponentsData.value = Array.from(
@@ -170,6 +175,8 @@ const findBouts = () => {
         '"',
       expand: "place",
       sort: "-place.year,-created",
+      fields:
+        "id,result,points,expand.place.id,expand.place.name,expand.place.year",
     })
     .then((data) => {
       data.forEach((item: { expand: any }) => {
