@@ -42,7 +42,9 @@ onMounted(async () => {
 const loadData = async () => {
   await pocketbase
     .collection("averageRank" + selectedYear.value.year)
-    .getFullList()
+    .getFullList(5 /* batch size */, {
+      fields: "averageRank,name,vorname,year",
+    })
     .then((data) => {
       averageRank.value = data.map((item) => {
         return {
@@ -54,7 +56,9 @@ const loadData = async () => {
     });
   await pocketbase
     .collection("averagePoints" + selectedYear.value.year)
-    .getFullList()
+    .getFullList(5 /* batch size */, {
+      fields: "averagePoints,name,vorname,year",
+    })
     .then((data) => {
       averagePoints.value = data.map((item) => {
         return {

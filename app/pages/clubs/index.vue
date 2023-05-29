@@ -11,7 +11,7 @@ onMounted(async () => {
     .collection("wrestlersByAssociation")
     .getFullList(10 /* batch size */, {
       sort: "name",
-      // fields: "name,abbreviation,wrestlerAmount",
+      fields: "id,name,abbreviation,wrestlerAmount",
     })
     .then((data) => {
       associationData.value = data;
@@ -26,7 +26,7 @@ const onTabOpen = async (event: { index: string | number }) => {
       sort: "name",
       filter:
         'association.id = "' + associationData.value[event.index].id + '"',
-      // fields: "name,association,wrestlerAmount",
+      fields: "id,name,association,wrestlerAmount",
     })
     .then((data) => {
       cantonData.value = data;
@@ -39,7 +39,7 @@ const onSubTabOpen = async (event: { index: string | number }) => {
     .getFullList(200 /* batch size */, {
       sort: "name",
       filter: 'canton.id = "' + cantonData.value[event.index].id + '"',
-      // fields: "name,canton,wrestlerAmount",
+      fields: "id,name,canton,wrestlerAmount",
     })
     .then((data) => {
       clubData.value = data;
