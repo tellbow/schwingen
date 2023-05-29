@@ -22,7 +22,7 @@ export default defineNuxtConfig({
       vueTemplate: true,
     },
   },
-  modules: ["@nuxtjs/tailwindcss"],
+  modules: ["@nuxtjs/tailwindcss", "nuxt-security"],
   runtimeConfig: {
     public: {
       baseUrl: "https://schwingen.tellbow.ch",

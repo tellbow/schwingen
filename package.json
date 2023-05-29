@@ -24,6 +24,7 @@
     "eslint-plugin-vue": "^9.11.0",
     "husky": "^8.0.3",
     "nuxt": "^3.4.3",
+    "nuxt-security": "^0.13.0",
     "prettier": "^2.8.8",
     "primeflex": "^3.3.0",
     "primeicons": "^6.0.1",
@@ -32,6 +33,6 @@
   },
   "dependencies": {
     "chart.js": "^4.2.1",
-    "pocketbase": "^0.14.4"
+    "pocketbase": "^0.15.0"
   }
 }
