@@ -153,8 +153,8 @@ const chartOptions = ref({
   },
 });
 
-async function rowClick(id: any) {
-  await navigateTo("/rankings/" + id);
+async function rowClick(wid: any, pid: any) {
+  await navigateTo("/wrestler/" + wid + "-" + pid);
 }
 
 const findBouts = () => {
@@ -251,7 +251,9 @@ const findBouts = () => {
             <template #list="slotProps">
               <div
                 class="col-12 hover:bg-gray-200 cursor-pointer"
-                @click="rowClick(slotProps.data.expand.place.id)"
+                @click="
+                  rowClick(route.params.id, slotProps.data.expand.place.id)
+                "
               >
                 <div class="grid">
                   <div class="col-5 md:col-8">
