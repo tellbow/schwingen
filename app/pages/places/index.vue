@@ -8,6 +8,16 @@ const page = ref(1);
 const records = ref();
 const totalRecords = ref(0);
 
+const layout =
+  /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+    navigator.userAgent
+  )
+    ? "mobile"
+    : "default";
+
+const filterDisplay: any = layout === "mobile" ? "menu" : "row";
+const sort = layout !== "mobile";
+
 const filters = ref({
   number: { value: "", matchMode: FilterMatchMode.CONTAINS },
   name: { value: "", matchMode: FilterMatchMode.CONTAINS },
@@ -80,21 +90,22 @@ async function rowClick(event: any) {
 </script>
 <template>
   <div
-    class="justify-content-center align-content-center display: flex flex-wrap fill-height mt-5"
+    class="justify-content-center align-content-center display: flex flex-wrap fill-height mt-2 md:mt-5"
   >
     <DataTable
       v-model:filters="filters"
-      class="w-8 cursor-pointer"
+      class="w-11 md:w-7 cursor-pointer"
       :value="records"
       resizable-columns
       column-resize-mode="fit"
       show-gridlines
-      table-style="min-width: 50rem"
+      table-style="md:min-width: 50rem"
+      :page-link-size="4"
       lazy
       paginator
       :rows="15"
       data-key="id"
-      filter-display="row"
+      :filter-display="filterDisplay"
       :row-hover="true"
       :total-records="totalRecords"
       :loading="loading"
@@ -106,10 +117,11 @@ async function rowClick(event: any) {
       <template #empty> Keine Schwingfeste gefunden. </template>
       <template #loading> Schwingfeste werden geladen. Bitte warten. </template>
       <Column
+        v-if="layout === 'default'"
         field="number"
         header="Nummer"
-        style="min-width: 12rem; padding: 0.5rem"
-        sortable
+        style="padding: 0.5rem"
+        :sortable="sort"
         :filter-match-mode-options="matchModeOptions"
       >
         <template #body="{ data }">
@@ -128,8 +140,8 @@ async function rowClick(event: any) {
       <Column
         field="name"
         header="Name"
-        style="min-width: 12rem; padding: 0.5rem"
-        sortable
+        style="padding: 0.5rem"
+        :sortable="sort"
         :filter-match-mode-options="matchModeOptions"
       >
         <template #body="{ data }">
@@ -146,10 +158,11 @@ async function rowClick(event: any) {
         </template>
       </Column>
       <Column
+        v-if="layout === 'default'"
         field="location"
         header="Ort"
-        style="min-width: 12rem; padding: 0.5rem"
-        sortable
+        style="padding: 0.5rem"
+        :sortable="sort"
         :filter-match-mode-options="matchModeOptions"
       >
         <template #body="{ data }">
@@ -168,8 +181,8 @@ async function rowClick(event: any) {
       <Column
         field="year"
         header="Jahr"
-        style="min-width: 12rem; padding: 0.5rem"
-        sortable
+        style="padding: 0.5rem"
+        :sortable="sort"
         :filter-match-mode-options="matchModeOptions"
       >
         <template #body="{ data }">
