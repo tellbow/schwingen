@@ -14,6 +14,34 @@ const loadingWrestler = ref(true);
 const loadingRankings = ref(true);
 const loadingOpponents = ref(true);
 const loadingBouts = ref(false);
+const selectedYear = ref({ year: "Alle" });
+const years = ref([
+  // { year: 1998 },
+  // { year: 2000 },
+  // { year: 2001 },
+  // { year: 2002 },
+  // { year: 2003 },
+  // { year: 2004 },
+  // { year: 2005 },
+  // { year: 2006 },
+  // { year: 2007 },
+  // { year: 2008 },
+  // { year: 2009 },
+  // { year: 2010 },
+  // { year: 2011 },
+  // { year: 2012 },
+  // { year: 2013 },
+  // { year: 2014 },
+  // { year: 2015 },
+  // { year: 2016 },
+  // { year: 2017 },
+  // { year: 2018 },
+  // { year: 2019 },
+  // { year: 2021 },
+  { year: 2022 },
+  { year: 2023 },
+  { year: "Alle" },
+]);
 
 onMounted(async () => {
   await pocketbase
@@ -30,18 +58,7 @@ onMounted(async () => {
       wrestlerData.value = data;
       loadingWrestler.value = false;
     });
-  await pocketbase
-    .collection("rankings")
-    .getFullList(200 /* batch size */, {
-      filter: 'wrestler.id = "' + route.params.id + '"',
-      expand: "place",
-      sort: "-place.year,-created",
-      fields: "id,rank,points,result,expand.place.id,expand.place.name",
-    })
-    .then((data) => {
-      rankingsData.value = data;
-      loadingRankings.value = false;
-    });
+  await loadData();
   await pocketbase
     .collection("bouts")
     .getFullList(200 /* batch size */, {
@@ -67,6 +84,32 @@ onMounted(async () => {
       loadingOpponents.value = false;
     });
 });
+
+const loadData = async () => {
+  let customFilter;
+  if (selectedYear.value.year === "Alle") {
+    customFilter = 'wrestler.id = "' + route.params.id + '"';
+  } else {
+    customFilter =
+      'wrestler.id = "' +
+      route.params.id +
+      '" && place.year ~ "' +
+      selectedYear.value.year +
+      '"';
+  }
+  await pocketbase
+    .collection("rankings")
+    .getFullList(200 /* batch size */, {
+      filter: customFilter,
+      expand: "place",
+      sort: "-place.year,-created",
+      fields: "id,rank,points,result,expand.place.id,expand.place.name",
+    })
+    .then((data) => {
+      rankingsData.value = data;
+      loadingRankings.value = false;
+    });
+};
 
 const averageRank = computed({
   get: () => {
@@ -186,6 +229,10 @@ const findBouts = () => {
       loadingBouts.value = false;
     });
 };
+
+async function yearSelected() {
+  await loadData();
+}
 </script>
 <template>
   <div>
@@ -230,6 +277,15 @@ const findBouts = () => {
       <Card class="w-11/12 md:w-9/12">
         <template #title>Statistiken</template>
         <template #content>
+          <p class="text-lg md:text-xl text-stone-700 font-bold">Jahr:</p>
+          <Dropdown
+            v-model="selectedYear"
+            :options="years"
+            option-label="year"
+            placeholder="Wähle ein Jahr"
+            class="w-fit mb-2 text-stone-700 font-bold"
+            @change="yearSelected()"
+          />
           <p>Ø Rang: {{ averageRank }}</p>
           <p>Ø Punkte: {{ averagePoints }}</p>
           <Chart
@@ -330,3 +386,9 @@ const findBouts = () => {
     </div>
   </div>
 </template>
+
+<style scoped>
+:deep(.p-card-content) {
+  padding: 0;
+}
+</style>
