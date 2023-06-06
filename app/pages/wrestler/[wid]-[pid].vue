@@ -26,6 +26,10 @@ onMounted(async () => {
       loadingOpponents.value = false;
     });
 });
+
+async function rowClick(wid: any, pid: any) {
+  await navigateTo("/wrestler/" + wid + "-" + pid);
+}
 </script>
 <template>
   <div>
@@ -41,7 +45,15 @@ onMounted(async () => {
         <template #content>
           <DataView :value="opponentsData" data-key="id">
             <template #list="slotProps">
-              <div class="col-12">
+              <div
+                class="col-12 hover:bg-gray-200 cursor-pointer"
+                @click="
+                  rowClick(
+                    slotProps.data.expand.opponent.id,
+                    slotProps.data.expand.place.id
+                  )
+                "
+              >
                 <div class="grid">
                   <div class="col-1">
                     <p>{{ slotProps.data.fight_round }}</p>
