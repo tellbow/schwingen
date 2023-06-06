@@ -42,7 +42,7 @@ const loadData = async () => {
   await pocketbase
     .collection("averageRank" + selectedYear.value.year)
     .getFullList(5 /* batch size */, {
-      fields: "averageRank,name,vorname,year",
+      fields: "averageRank,wid,name,vorname,year",
     })
     .then((data) => {
       averageRank.value = data.map((item) => {
@@ -56,7 +56,7 @@ const loadData = async () => {
   await pocketbase
     .collection("averagePoints" + selectedYear.value.year)
     .getFullList(5 /* batch size */, {
-      fields: "averagePoints,name,vorname,year",
+      fields: "averagePoints,wid,name,vorname,year",
     })
     .then((data) => {
       averagePoints.value = data.map((item) => {
@@ -71,6 +71,10 @@ const loadData = async () => {
 
 async function yearSelected() {
   await loadData();
+}
+
+async function rowClick(wid: any) {
+  await navigateTo("/wrestler/" + wid);
 }
 </script>
 <template>
@@ -91,7 +95,12 @@ async function yearSelected() {
       <template #content>
         <ProgressSpinner v-if="loadingAverageRank" />
         <ul v-else>
-          <li v-for="(item, index) in averageRank" :key="item.id">
+          <li
+            v-for="(item, index) in averageRank"
+            :key="item.id"
+            class="hover:bg-gray-200 cursor-pointer"
+            @click="rowClick(item.wid)"
+          >
             {{ index + 1 }}: {{ item.name }} {{ item.vorname }} -
             {{ item.avgRank }}
           </li>
@@ -105,7 +114,12 @@ async function yearSelected() {
       <template #content>
         <ProgressSpinner v-if="loadingAveragePoints" />
         <ul v-else>
-          <li v-for="(item, index) in averagePoints" :key="item.id">
+          <li
+            v-for="(item, index) in averagePoints"
+            :key="item.id"
+            class="hover:bg-gray-200 cursor-pointer"
+            @click="rowClick(item.wid)"
+          >
             {{ index + 1 }}: {{ item.name }} {{ item.vorname }} -
             {{ item.avgPoints }}
           </li>
