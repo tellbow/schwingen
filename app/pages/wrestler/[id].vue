@@ -58,13 +58,28 @@ onMounted(async () => {
       wrestlerData.value = data;
       loadingWrestler.value = false;
     });
-  await loadData();
+  await loadRankingsData();
+  await loadBoutsData();
+});
+
+const loadBoutsData = async () => {
+  let customFilter;
+  if (selectedYear.value.year === "Alle") {
+    customFilter = 'wrestler.id = "' + route.params.id + '"';
+  } else {
+    customFilter =
+      'wrestler.id = "' +
+      route.params.id +
+      '" && place.year ~ "' +
+      selectedYear.value.year +
+      '"';
+  }
   await pocketbase
     .collection("bouts")
     .getFullList(200 /* batch size */, {
-      filter: 'wrestler.id = "' + route.params.id + '"',
+      filter: customFilter,
       expand: "opponent",
-      sort: "-created",
+      sort: "opponent.name,-created",
       fields:
         "id,expand.opponent.id,expand.opponent.name,expand.opponent.vorname",
     })
@@ -83,9 +98,9 @@ onMounted(async () => {
       );
       loadingOpponents.value = false;
     });
-});
+};
 
-const loadData = async () => {
+const loadRankingsData = async () => {
   let customFilter;
   if (selectedYear.value.year === "Alle") {
     customFilter = 'wrestler.id = "' + route.params.id + '"';
@@ -231,7 +246,8 @@ const findBouts = () => {
 };
 
 async function yearSelected() {
-  await loadData();
+  await loadRankingsData();
+  await loadBoutsData();
 }
 </script>
 <template>
