@@ -36,12 +36,19 @@ const years = ref([
   // { year: 2016 },
   // { year: 2017 },
   // { year: 2018 },
-  // { year: 2019 },
+  { year: 2019 },
   { year: 2021 },
   { year: 2022 },
   { year: 2023 },
   { year: "Alle" },
 ]);
+
+const layout =
+  /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+    navigator.userAgent
+  )
+    ? "mobile"
+    : "default";
 
 onMounted(async () => {
   await pocketbase
@@ -118,9 +125,13 @@ const loadRankingsData = async () => {
       filter: customFilter,
       expand: "place",
       sort: "-place.year,-created",
-      fields: "id,rank,points,result,expand.place.id,expand.place.name",
+      fields:
+        "id,rank,points,result,expand.place.id,expand.place.name,expand.place.year",
     })
     .then((data) => {
+      data.forEach((item: any) => {
+        item.expand.place.year = item.expand.place.year.split("-")[0];
+      });
       rankingsData.value = data;
       loadingRankings.value = false;
     });
@@ -335,9 +346,14 @@ async function yearSelected() {
                 "
               >
                 <div class="grid">
-                  <div class="col-5 md:col-8">
+                  <div class="col-4 md:col-6">
                     <p class="font-bold">
                       {{ slotProps.data.expand.place.name }}
+                    </p>
+                  </div>
+                  <div v-if="layout === 'default'" class="col-1 md:col-2">
+                    <p class="font-bold">
+                      {{ slotProps.data.expand.place.year }}
                     </p>
                   </div>
                   <div class="col-1">
