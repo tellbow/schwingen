@@ -23,6 +23,7 @@ const filters = ref({
   vorname: { value: "", matchMode: FilterMatchMode.CONTAINS },
   year: { value: "", matchMode: FilterMatchMode.CONTAINS },
   category: { value: "", matchMode: FilterMatchMode.CONTAINS },
+  club: { value: "", matchMode: FilterMatchMode.CONTAINS },
 });
 
 const sorts = ref({
@@ -46,6 +47,7 @@ const loadLazyData = () => {
   pocketbase
     .collection("wrestler")
     .getList(page.value, 15, {
+      expand: "club",
       filter:
         'name ~ "' +
         (filters.value.name.value || "") +
@@ -55,9 +57,11 @@ const loadLazyData = () => {
         (filters.value.year.value || "") +
         '" && category ~ "' +
         (filters.value.category.value || "") +
+        '" && club.name ~ "' +
+        (filters.value.club.value || "") +
         '"',
       sort: sorts.value.order + sorts.value.field + "-created",
-      fields: "id,name,vorname,year,category",
+      fields: "id,name,vorname,year,category,expand.club.id,expand.club.name",
     })
     .then((data) => {
       data.items.forEach((item) => {
@@ -193,6 +197,27 @@ async function rowClick(event: any) {
             type="text"
             class="p-column-filter"
             placeholder="Filter Kategorie"
+            @input="filterCallback()"
+          />
+        </template>
+      </Column>
+      <Column
+        v-if="layout === 'default'"
+        field="club"
+        header="Schwingklub"
+        style="padding: 0.5rem"
+        :sortable="sort"
+        :filter-match-mode-options="matchModeOptions"
+      >
+        <template #body="{ data }">
+          {{ data.expand.club.name }}
+        </template>
+        <template #filter="{ filterModel, filterCallback }">
+          <InputText
+            v-model="filterModel.value"
+            type="text"
+            class="p-column-filter"
+            placeholder="Filter Schwingklub"
             @input="filterCallback()"
           />
         </template>
