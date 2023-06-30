@@ -7,6 +7,20 @@ const layout =
   )
     ? "mobile"
     : "default";
+
+useHead({
+  title: "Tellbow",
+  meta: [{ name: "description", content: "Alles rund ums Schwingen." }],
+  htmlAttrs: { lang: "de" },
+});
+
+useSeoMeta({
+  title: "Tellbow",
+  ogTitle: "Tellbow",
+  description: "Alles rund ums Schwingen.",
+  ogDescription: "Alles rund ums Schwingen.",
+  ogImage: "https://schwingen.tellbow.ch/images/logos/tellbow.svg",
+});
 </script>
 
 <template>
