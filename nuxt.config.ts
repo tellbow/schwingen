@@ -7,17 +7,23 @@ export default defineNuxtConfig({
       title: "Tellbow",
     },
   },
-  ssr: false, // Must be false to be used served by pocketbase
+
+  // Must be false to be used served by pocketbase
+  ssr: false,
+
   srcDir: "app",
+
   css: [
     "primevue/resources/themes/saga-blue/theme.css",
     "primevue/resources/primevue.css",
     "primeicons/primeicons.css",
     "primeflex/primeflex.css",
   ],
+
   build: {
     transpile: ["primevue"],
   },
+
   hooks: {
     "pages:extend"(pages) {
       pages.push({
@@ -27,17 +33,32 @@ export default defineNuxtConfig({
       });
     },
   },
+
   imports: {
     autoImport: true,
     addons: {
       vueTemplate: true,
     },
   },
+
   modules: ["@nuxtjs/tailwindcss", "nuxt-security"],
+
+  security: {
+    headers: {
+      crossOriginEmbedderPolicy:
+        process.env.NODE_ENV === "development" ? "unsafe-none" : "require-corp",
+    },
+  },
+
   runtimeConfig: {
     public: {
       baseUrl: "https://schwingen.tellbow.ch",
     },
   },
+
   telemetry: false,
+
+  devtools: {
+    enabled: true,
+  },
 });
