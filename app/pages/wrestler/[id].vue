@@ -46,7 +46,7 @@ const years = ref([
 
 const layout =
   /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-    navigator.userAgent
+    navigator.userAgent,
   )
     ? "mobile"
     : "default";
@@ -101,8 +101,8 @@ const loadBoutsData = async () => {
               name: obj.expand.opponent.name,
               vorname: obj.expand.opponent.vorname,
             },
-          ])
-        ).values()
+          ]),
+        ).values(),
       );
       loadingOpponents.value = false;
     });
@@ -178,7 +178,7 @@ const ratioWinDrawLoss = computed({
     const countsArray = rankingsData.value.reduce(
       (
         accumulator: { win: number; draw: number; loss: number },
-        { result }: any
+        { result }: any,
       ) => {
         const win = result.split("+").length - 1;
         const draw = result.split("-").length - 1;
@@ -189,7 +189,7 @@ const ratioWinDrawLoss = computed({
           loss: accumulator.loss + loss,
         };
       },
-      { win: 0, draw: 0, loss: 0 }
+      { win: 0, draw: 0, loss: 0 },
     );
     if (Object.keys(rankingsData.value).length !== 0) {
       return {

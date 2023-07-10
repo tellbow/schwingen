@@ -150,7 +150,7 @@ const onRowCollapse = (event: {
   };
 }) => {
   const objIndex = records.value.findIndex(
-    (obj: { id: string }) => obj.id === event.data.id
+    (obj: { id: string }) => obj.id === event.data.id,
   );
   records.value[objIndex].bouts = [];
 };

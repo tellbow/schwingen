@@ -50,7 +50,7 @@ async function rowClick(wid: any, pid: any) {
                 @click="
                   rowClick(
                     slotProps.data.expand.opponent.id,
-                    slotProps.data.expand.place.id
+                    slotProps.data.expand.place.id,
                   )
                 "
               >

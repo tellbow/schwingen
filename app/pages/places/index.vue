@@ -10,7 +10,7 @@ const totalRecords = ref(0);
 
 const layout =
   /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-    navigator.userAgent
+    navigator.userAgent,
   )
     ? "mobile"
     : "default";
