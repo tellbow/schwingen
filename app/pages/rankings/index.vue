@@ -39,7 +39,7 @@ const filters = ref({
   "expand.place.year": {
     value: "",
     matchMode: FilterMatchMode.CONTAINS,
-    prefix: 'place.year ~ "',
+    prefix: 'place.year >= "2019" && place.year ~ "',
   },
 });
 

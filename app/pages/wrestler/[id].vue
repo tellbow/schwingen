@@ -55,9 +55,9 @@ onMounted(async () => {
   await pocketbase
     .collection("wrestler")
     .getFirstListItem('id="' + route.params.id + '"', {
-      expand: "club,club.canton,club.canton.association",
+      expand: "status,club,club.canton,club.canton.association",
       fields:
-        "id,nummer,name,vorname,year,category,expand.club.name,expand.canton.name,expand.assosiaction.name",
+        "id,nummer,name,vorname,year,category,expand.status.status,expand.club.name,expand.canton.name,expand.assosiaction.name",
     })
     .then((data) => {
       data.nummer = data.nummer === 0 ? "-" : data.nummer;
@@ -276,6 +276,9 @@ async function yearSelected() {
         <template #content>
           <p>Nummer: {{ wrestlerData.nummer }}</p>
           <p>Kategorie: {{ wrestlerData.category }}</p>
+          <p v-if="wrestlerData.expand.status">
+            Status: {{ wrestlerData.expand.status.status }}
+          </p>
           <p>Jahrgang: {{ wrestlerData.year }}</p>
           <p>Schwingklub: {{ wrestlerData.expand.club.name }}</p>
           <p v-if="wrestlerData.expand.club.expand.length">

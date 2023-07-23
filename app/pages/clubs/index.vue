@@ -75,7 +75,14 @@ const onSubTabOpen = async (event: { index: string | number }) => {
           >
             <ul>
               <li v-for="value in clubData" :key="value.id">
-                {{ value.name }} ({{ value.wrestlerAmount }} Schwinger)
+                <NuxtLink
+                  :to="'/clubs/' + value.id"
+                  class="cursor-pointer hover:bg-gray-200"
+                  >{{ value.name }} ({{
+                    value.wrestlerAmount
+                  }}
+                  Schwinger)</NuxtLink
+                >
               </li>
             </ul>
           </AccordionTab>

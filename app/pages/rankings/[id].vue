@@ -11,7 +11,7 @@ const loadingRankings = ref(true);
 onMounted(async () => {
   await pocketbase
     .collection("places")
-    .getFirstListItem('id="' + route.params.id + '"', {})
+    .getFirstListItem('id="' + route.params.id + '"', { expand: "placeType" })
     .then((data) => {
       data.year = data.year.split("-")[0];
       placeData.value = data;
@@ -67,7 +67,10 @@ const compareByRank = (a: any, b: any) => {
         <template #title> Schwingfest: {{ placeData.name }} </template>
         <template #content>
           <p>Ort: {{ placeData.location }}</p>
-          <p>Ort: {{ placeData.year }}</p>
+          <p>Jahr: {{ placeData.year }}</p>
+          <p v-if="placeData.expand.placeType">
+            Typ: {{ placeData.expand.placeType.type }}
+          </p>
         </template>
       </Card>
     </div>

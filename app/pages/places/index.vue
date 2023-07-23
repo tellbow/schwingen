@@ -53,6 +53,7 @@ const loadLazyData = () => {
         (filters.value.name.value || "") +
         '" && location ~ "' +
         (filters.value.location.value || "") +
+        '" && year >= "2019' +
         '" && year ~ "' +
         (filters.value.year.value || "") +
         '"',

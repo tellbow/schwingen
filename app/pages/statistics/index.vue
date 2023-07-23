@@ -146,17 +146,26 @@ async function rowClick(wid: any) {
       <template #title> Top 5 - ⌀ Rang (mit 5 Teilnahmen oder mehr) </template>
       <template #content>
         <ProgressSpinner v-if="loadingAverageRank" />
-        <ul v-else>
-          <li
-            v-for="(item, index) in averageRank"
-            :key="item.wid"
-            class="hover:bg-gray-200 cursor-pointer"
-            @click="rowClick(item.wid)"
-          >
-            {{ index + 1 }}: {{ item.name }} {{ item.vorname }} -
-            {{ item.avgRank }}
-          </li>
-        </ul>
+        <DataView v-else :value="averageRank" data-key="id">
+          <template #list="slotProps">
+            <div
+              class="col-12 hover:bg-gray-200 cursor-pointer"
+              @click="rowClick(slotProps.data.wid)"
+            >
+              <div class="grid">
+                <div class="col-1 md:col-1">
+                  <p>{{ slotProps.index + 1 }}</p>
+                </div>
+                <div class="col-8 md:col-2">
+                  <p>{{ slotProps.data.name }} {{ slotProps.data.vorname }}</p>
+                </div>
+                <div class="col-1 md:col-1">
+                  <p>{{ slotProps.data.avgRank }}</p>
+                </div>
+              </div>
+            </div>
+          </template>
+        </DataView>
       </template>
     </Card>
     <Card class="ml-4 mt-2 mr-4">
@@ -165,51 +174,78 @@ async function rowClick(wid: any) {
       </template>
       <template #content>
         <ProgressSpinner v-if="loadingAveragePoints" />
-        <ul v-else>
-          <li
-            v-for="(item, index) in averagePoints"
-            :key="item.wid"
-            class="hover:bg-gray-200 cursor-pointer"
-            @click="rowClick(item.wid)"
-          >
-            {{ index + 1 }}: {{ item.name }} {{ item.vorname }} -
-            {{ item.avgPoints }}
-          </li>
-        </ul>
+        <DataView v-else :value="averagePoints" data-key="id">
+          <template #list="slotProps">
+            <div
+              class="col-12 hover:bg-gray-200 cursor-pointer"
+              @click="rowClick(slotProps.data.wid)"
+            >
+              <div class="grid">
+                <div class="col-1 md:col-1">
+                  <p>{{ slotProps.index + 1 }}</p>
+                </div>
+                <div class="col-8 md:col-2">
+                  <p>{{ slotProps.data.name }} {{ slotProps.data.vorname }}</p>
+                </div>
+                <div class="col-1 md:col-1">
+                  <p>{{ slotProps.data.avgPoints }}</p>
+                </div>
+              </div>
+            </div>
+          </template>
+        </DataView>
       </template>
     </Card>
     <Card class="ml-4 mt-2 mr-4">
       <template #title> Top 5 - meiste Siege </template>
       <template #content>
         <ProgressSpinner v-if="loadingMostWins" />
-        <ul v-else>
-          <li
-            v-for="(item, index) in mostWins"
-            :key="item.id"
-            class="hover:bg-gray-200 cursor-pointer"
-            @click="rowClick(item.id)"
-          >
-            {{ index + 1 }}: {{ item.name }} {{ item.vorname }} -
-            {{ item.wins }}
-          </li>
-        </ul>
+        <DataView v-else :value="mostWins" data-key="id">
+          <template #list="slotProps">
+            <div
+              class="col-12 hover:bg-gray-200 cursor-pointer"
+              @click="rowClick(slotProps.data.wid)"
+            >
+              <div class="grid">
+                <div class="col-1 md:col-1">
+                  <p>{{ slotProps.index + 1 }}</p>
+                </div>
+                <div class="col-8 md:col-2">
+                  <p>{{ slotProps.data.name }} {{ slotProps.data.vorname }}</p>
+                </div>
+                <div class="col-1 md:col-1">
+                  <p>{{ slotProps.data.wins }}</p>
+                </div>
+              </div>
+            </div>
+          </template>
+        </DataView>
       </template>
     </Card>
     <Card class="ml-4 mt-2 mr-4">
       <template #title> Top 5 - meiste Teilnahmen </template>
       <template #content>
         <ProgressSpinner v-if="loadingMostPlacesAttended" />
-        <ul v-else>
-          <li
-            v-for="(item, index) in mostPlacesAttended"
-            :key="item.id"
-            class="hover:bg-gray-200 cursor-pointer"
-            @click="rowClick(item.id)"
-          >
-            {{ index + 1 }}: {{ item.name }} {{ item.vorname }} -
-            {{ item.placesAttended }}
-          </li>
-        </ul>
+        <DataView v-else :value="mostPlacesAttended" data-key="id">
+          <template #list="slotProps">
+            <div
+              class="col-12 hover:bg-gray-200 cursor-pointer"
+              @click="rowClick(slotProps.data.wid)"
+            >
+              <div class="grid">
+                <div class="col-1 md:col-1">
+                  <p>{{ slotProps.index + 1 }}</p>
+                </div>
+                <div class="col-8 md:col-2">
+                  <p>{{ slotProps.data.name }} {{ slotProps.data.vorname }}</p>
+                </div>
+                <div class="col-1 md:col-1">
+                  <p>{{ slotProps.data.placesAttended }}</p>
+                </div>
+              </div>
+            </div>
+          </template>
+        </DataView>
       </template>
     </Card>
     <Card class="ml-4 mt-2 mr-4">

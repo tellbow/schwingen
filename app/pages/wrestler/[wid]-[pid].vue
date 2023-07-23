@@ -16,10 +16,10 @@ onMounted(async () => {
         '" && place.id = "' +
         route.params.pid +
         '"',
-      expand: "opponent,place",
+      expand: "wrestler,opponent,place",
       sort: "fight_round,-created",
       fields:
-        "id,fight_round,result,points,expand.opponent.id,expand.opponent.name,expand.opponent.vorname,expand.place.id,expand.place.name",
+        "id,fight_round,result,points,expand.wrestler.id,expand.wrestler.name,expand.wrestler.vorname,expand.opponent.id,expand.opponent.name,expand.opponent.vorname,expand.place.id,expand.place.name",
     })
     .then((data) => {
       opponentsData.value = data;
@@ -40,7 +40,9 @@ async function rowClick(wid: any, pid: any) {
     >
       <Card class="w-11/12 md:w-9/12">
         <template #title>
-          {{ opponentsData[0].expand.place.name }}
+          {{ opponentsData[0].expand.place.name }} -
+          {{ opponentsData[0].expand.wrestler.name }}
+          {{ opponentsData[0].expand.wrestler.vorname }}
         </template>
         <template #content>
           <DataView :value="opponentsData" data-key="id">
