@@ -23,6 +23,7 @@ const filters = ref({
   name: { value: "", matchMode: FilterMatchMode.CONTAINS },
   location: { value: "", matchMode: FilterMatchMode.CONTAINS },
   year: { value: "", matchMode: FilterMatchMode.CONTAINS },
+  type: { value: "", matchMode: FilterMatchMode.CONTAINS },
 });
 
 const sorts = ref({
@@ -46,6 +47,7 @@ const loadLazyData = () => {
   pocketbase
     .collection("places")
     .getList(page.value, 15, {
+      expand: "placeType",
       filter:
         'number ~ "' +
         (filters.value.number.value || "") +
@@ -56,9 +58,11 @@ const loadLazyData = () => {
         '" && year >= "2019' +
         '" && year ~ "' +
         (filters.value.year.value || "") +
+        '" && placeType.type ~ "' +
+        (filters.value.type.value || "") +
         '"',
       sort: sorts.value.order + sorts.value.field + "-created",
-      fields: "id,number,name,location,year",
+      fields: "id,number,name,location,year,expand.placeType.type",
     })
     .then((data) => {
       data.items.forEach((item) => {
@@ -195,6 +199,27 @@ async function rowClick(event: any) {
             type="text"
             class="p-column-filter"
             placeholder="Filter Jahr"
+            @input="filterCallback()"
+          />
+        </template>
+      </Column>
+      <Column
+        v-if="layout === 'default'"
+        field="type"
+        header="Typ"
+        style="padding: 0.5rem"
+        :sortable="sort"
+        :filter-match-mode-options="matchModeOptions"
+      >
+        <template #body="{ data }">
+          {{ data.expand.placeType.type }}
+        </template>
+        <template #filter="{ filterModel, filterCallback }">
+          <InputText
+            v-model="filterModel.value"
+            type="text"
+            class="p-column-filter"
+            placeholder="Filter Typ"
             @input="filterCallback()"
           />
         </template>

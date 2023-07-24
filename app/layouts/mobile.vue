@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const appConfig = useAppConfig();
 const items = ref([
   {
     label: "Start",
