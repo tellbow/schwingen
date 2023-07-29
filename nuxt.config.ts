@@ -35,7 +35,7 @@ export default defineNuxtConfig({
     },
   },
 
-  modules: ["@nuxtjs/tailwindcss", "nuxt-security", "nuxt-icon"],
+  modules: ["@nuxtjs/tailwindcss", "nuxt-icon"],
 
   security: {
     headers: {
