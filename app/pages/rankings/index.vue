@@ -9,6 +9,13 @@ const records = ref();
 const totalRecords = ref(0);
 const expandedRows = ref();
 
+const layout =
+  /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+    navigator.userAgent,
+  )
+    ? "mobile"
+    : "default";
+
 const filters = ref({
   rank: { value: "", matchMode: FilterMatchMode.EQUALS, prefix: 'rank = "' },
   points: {
@@ -20,6 +27,11 @@ const filters = ref({
     value: "",
     matchMode: FilterMatchMode.CONTAINS,
     prefix: 'result ~ "',
+  },
+  wreath: {
+    value: "",
+    matchMode: FilterMatchMode.EQUALS,
+    prefix: "wreath = ",
   },
   "expand.wrestler.name": {
     value: "",
@@ -39,7 +51,7 @@ const filters = ref({
   "expand.place.year": {
     value: "",
     matchMode: FilterMatchMode.CONTAINS,
-    prefix: 'place.year >= "2019" && place.year ~ "',
+    prefix: 'place.year >= "2015" && place.year ~ "',
   },
 });
 
@@ -72,6 +84,9 @@ const loadLazyData = () => {
         .map((filter) => {
           const { value, prefix } = filter;
           if (value && value !== "") {
+            if (!prefix.includes('"')) {
+              return prefix + value;
+            }
             return prefix + value + '"';
           }
           return "";
@@ -80,7 +95,7 @@ const loadLazyData = () => {
         .join(" && "),
       sort: sorts.value.order + sorts.value.field + "-created",
       fields:
-        "id,rank,points,result,expand.wrestler.id,expand.wrestler.name,expand.wrestler.vorname,expand.place.id,expand.place.name,expand.place.year",
+        "id,rank,points,result,wreath,expand.wrestler.id,expand.wrestler.name,expand.wrestler.vorname,expand.place.id,expand.place.name,expand.place.year",
     })
     .then((data: { totalItems: number; items: any }) => {
       records.value = data.items.map((item: any) => ({
@@ -238,6 +253,24 @@ const onRowCollapse = (event: {
             type="text"
             class="p-column-filter"
             placeholder="Filter Resultat"
+            @input="filterCallback()"
+          />
+        </template>
+      </Column>
+      <Column
+        v-if="layout === 'default'"
+        field="wreath"
+        header="Kranz"
+        style="min-width: 12rem; padding: 0.5rem"
+        :filter-match-mode-options="matchModeOptionEquals"
+      >
+        <template #body="{ data }">
+          {{ data.wreath }}
+        </template>
+        <template #filter="{ filterModel, filterCallback }">
+          <Checkbox
+            v-model="filterModel.value"
+            :binary="true"
             @input="filterCallback()"
           />
         </template>

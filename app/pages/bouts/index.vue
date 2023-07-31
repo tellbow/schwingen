@@ -71,7 +71,7 @@ const loadLazyData = () => {
         (filters.value["expand.opponent.vorname"].value || "") +
         '" && place.name ~ "' +
         (filters.value["expand.place.name"].value || "") +
-        '" && place.year >= "2019' +
+        '" && place.year >= "2015' +
         '" && place.year ~ "' +
         (filters.value["expand.place.year"].value || "") +
         '"',

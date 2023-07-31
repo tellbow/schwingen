@@ -21,7 +21,7 @@
     <Card class="md:w-9/12 ml-4 mt-2 mr-4">
       <template #title> Schwingfeste </template>
       <template #content>
-        <p>Enthält alle Schwingfeste aus den Jahren 2019 - 2023.</p>
+        <p>Enthält alle Schwingfeste aus den Jahren 2015 - 2023.</p>
         <Button
           label="Anzeigen"
           class="w-half mt-3 bg-yellow-900 border-2 border-yellow-800"
