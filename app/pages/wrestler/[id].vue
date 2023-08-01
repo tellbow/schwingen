@@ -127,7 +127,7 @@ const loadRankingsData = async () => {
       expand: "place",
       sort: "-place.year,-created",
       fields:
-        "id,rank,points,result,expand.place.id,expand.place.name,expand.place.year",
+        "id,rank,rank2,points,final,result,wreath,expand.place.id,expand.place.name,expand.place.year",
     })
     .then((data) => {
       data.forEach((item: any) => {
@@ -341,7 +341,21 @@ async function yearSelected() {
             v-if="Object.keys(rankingsData).length !== 0"
             :value="rankingsData"
             data-key="id"
+            :pt="{
+              header: { class: 'p-0' },
+            }"
           >
+            <template #header>
+              <div class="grid mt-0">
+                <p class="col-4 md:col-4">Schwingfest</p>
+                <p v-if="layout === 'default'" class="col-1 md:col-2">Jahr</p>
+                <p class="col-2 md:col-1">Rang</p>
+                <p class="col-2 md:col-1">Punkte</p>
+                <p class="col-4 md:col-2">Resultat</p>
+                <p v-if="layout === 'default'" class="md:col-1">Schlussgang</p>
+                <p v-if="layout === 'default'" class="md:col-1">Kranz</p>
+              </div>
+            </template>
             <template #list="slotProps">
               <div
                 class="col-12 hover:bg-gray-200 cursor-pointer"
@@ -350,7 +364,7 @@ async function yearSelected() {
                 "
               >
                 <div class="grid">
-                  <div class="col-4 md:col-6">
+                  <div class="col-4 md:col-4">
                     <p class="font-bold">
                       {{ slotProps.data.expand.place.name }}
                     </p>
@@ -360,14 +374,23 @@ async function yearSelected() {
                       {{ slotProps.data.expand.place.year }}
                     </p>
                   </div>
-                  <div class="col-1">
-                    <p>{{ slotProps.data.rank }}</p>
+                  <div class="col-2 md:col-1">
+                    <p>{{ slotProps.data.rank }}{{ slotProps.data.rank2 }}</p>
                   </div>
                   <div class="col-2 md:col-1">
                     <p>{{ slotProps.data.points }}</p>
                   </div>
                   <div class="col-4 md:col-2">
                     <p>{{ slotProps.data.result }}</p>
+                  </div>
+                  <div v-if="layout === 'default'" class="md:col-1">
+                    <Icon v-if="slotProps.data.final" name="gis:flag-finish" />
+                  </div>
+                  <div v-if="layout === 'default'" class="md:col-1">
+                    <Icon
+                      v-if="slotProps.data.wreath"
+                      name="mingcute:wreath-fill"
+                    />
                   </div>
                 </div>
               </div>

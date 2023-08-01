@@ -23,6 +23,11 @@ const filters = ref({
     matchMode: FilterMatchMode.EQUALS,
     prefix: 'points = "',
   },
+  final: {
+    value: "",
+    matchMode: FilterMatchMode.EQUALS,
+    prefix: "final = ",
+  },
   result: {
     value: "",
     matchMode: FilterMatchMode.CONTAINS,
@@ -95,7 +100,7 @@ const loadLazyData = () => {
         .join(" && "),
       sort: sorts.value.order + sorts.value.field + "-created",
       fields:
-        "id,rank,points,result,wreath,expand.wrestler.id,expand.wrestler.name,expand.wrestler.vorname,expand.place.id,expand.place.name,expand.place.year",
+        "id,rank,rank2,points,final,result,wreath,expand.wrestler.id,expand.wrestler.name,expand.wrestler.vorname,expand.place.id,expand.place.name,expand.place.year",
     })
     .then((data: { totalItems: number; items: any }) => {
       records.value = data.items.map((item: any) => ({
@@ -206,9 +211,7 @@ const onRowCollapse = (event: {
         style="min-width: 12rem; padding: 0.5rem"
         :filter-match-mode-options="matchModeOptionEquals"
       >
-        <template #body="{ data }">
-          {{ data.rank }}
-        </template>
+        <template #body="{ data }"> {{ data.rank }}{{ data.rank2 }} </template>
         <template #filter="{ filterModel, filterCallback }">
           <InputText
             v-model="filterModel.value"
@@ -234,6 +237,24 @@ const onRowCollapse = (event: {
             type="text"
             class="p-column-filter"
             placeholder="Filter Punkte"
+            @input="filterCallback()"
+          />
+        </template>
+      </Column>
+      <Column
+        v-if="layout === 'default'"
+        field="final"
+        header="Schlussgang"
+        style="min-width: 12rem; padding: 0.5rem"
+        :filter-match-mode-options="matchModeOptionEquals"
+      >
+        <template #body="{ data }">
+          {{ data.final }}
+        </template>
+        <template #filter="{ filterModel, filterCallback }">
+          <Checkbox
+            v-model="filterModel.value"
+            :binary="true"
             @input="filterCallback()"
           />
         </template>
