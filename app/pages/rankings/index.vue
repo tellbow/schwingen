@@ -38,6 +38,11 @@ const filters = ref({
     matchMode: FilterMatchMode.EQUALS,
     prefix: "wreath = ",
   },
+  status: {
+    value: "",
+    matchMode: FilterMatchMode.CONTAINS,
+    prefix: 'status ~ "',
+  },
   "expand.wrestler.name": {
     value: "",
     matchMode: FilterMatchMode.CONTAINS,
@@ -100,7 +105,7 @@ const loadLazyData = () => {
         .join(" && "),
       sort: sorts.value.order + sorts.value.field + "-created",
       fields:
-        "id,rank,rank2,points,final,result,wreath,expand.wrestler.id,expand.wrestler.name,expand.wrestler.vorname,expand.place.id,expand.place.name,expand.place.year",
+        "id,rank,rank2,points,final,result,wreath,status,expand.wrestler.id,expand.wrestler.name,expand.wrestler.vorname,expand.place.id,expand.place.name,expand.place.year",
     })
     .then((data: { totalItems: number; items: any }) => {
       records.value = data.items.map((item: any) => ({
@@ -292,6 +297,26 @@ const onRowCollapse = (event: {
           <Checkbox
             v-model="filterModel.value"
             :binary="true"
+            @input="filterCallback()"
+          />
+        </template>
+      </Column>
+      <Column
+        v-if="layout === 'default'"
+        field="status"
+        header="Status"
+        style="min-width: 12rem; padding: 0.5rem"
+        :filter-match-mode-options="matchModeOptionEquals"
+      >
+        <template #body="{ data }">
+          {{ data.status }}
+        </template>
+        <template #filter="{ filterModel, filterCallback }">
+          <InputText
+            v-model="filterModel.value"
+            type="text"
+            class="p-column-filter"
+            placeholder="Filter Status"
             @input="filterCallback()"
           />
         </template>

@@ -31,7 +31,7 @@ onMounted(async () => {
       expand: "wrestler",
       sort: "rank, rank2, -created",
       fields:
-        "id,rank,rank2,points,final,result,wreath,expand.wrestler.id,expand.wrestler.name,expand.wrestler.vorname",
+        "id,rank,rank2,points,final,result,wreath,status,expand.wrestler.id,expand.wrestler.name,expand.wrestler.vorname",
     })
     .then((data) => {
       rankingsData.value = data.sort(compareByRank);
@@ -100,7 +100,9 @@ const compareByRank = (a: any, b: any) => {
                 <p class="col-3 md:col-2">Resultat</p>
                 <p class="col-5 md:col-4">Schwinger</p>
                 <p v-if="layout === 'default'" class="md:col-2">Schlussgang</p>
-                <p v-if="layout === 'default'" class="md:col-2">Kranz</p>
+                <p v-if="layout === 'default'" class="md:col-2">
+                  Kranz / Unfall
+                </p>
               </div>
             </template>
             <template #list="slotProps">
@@ -131,6 +133,10 @@ const compareByRank = (a: any, b: any) => {
                     <Icon
                       v-if="slotProps.data.wreath"
                       name="mingcute:wreath-fill"
+                    />
+                    <Icon
+                      v-if="slotProps.data.status === 'Unfall'"
+                      name="game-icons:arm-bandage"
                     />
                   </div>
                 </div>

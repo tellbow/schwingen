@@ -127,7 +127,7 @@ const loadRankingsData = async () => {
       expand: "place",
       sort: "-place.year,-created",
       fields:
-        "id,rank,rank2,points,final,result,wreath,expand.place.id,expand.place.name,expand.place.year",
+        "id,rank,rank2,points,final,result,wreath,status,expand.place.id,expand.place.name,expand.place.year",
     })
     .then((data) => {
       data.forEach((item: any) => {
@@ -353,7 +353,9 @@ async function yearSelected() {
                 <p class="col-2 md:col-1">Punkte</p>
                 <p class="col-4 md:col-2">Resultat</p>
                 <p v-if="layout === 'default'" class="md:col-1">Schlussgang</p>
-                <p v-if="layout === 'default'" class="md:col-1">Kranz</p>
+                <p v-if="layout === 'default'" class="md:col-1">
+                  Kranz / Unfall
+                </p>
               </div>
             </template>
             <template #list="slotProps">
@@ -390,6 +392,10 @@ async function yearSelected() {
                     <Icon
                       v-if="slotProps.data.wreath"
                       name="mingcute:wreath-fill"
+                    />
+                    <Icon
+                      v-if="slotProps.data.status === 'Unfall'"
+                      name="game-icons:arm-bandage"
                     />
                   </div>
                 </div>
