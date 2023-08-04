@@ -11,10 +11,11 @@ import DataView from "primevue/dataview";
 import Accordion from "primevue/accordion";
 import AccordionTab from "primevue/accordiontab";
 import Column from "primevue/column";
-import Avatar from "primevue/avatar";
 import ProgressSpinner from "primevue/progressspinner";
 import Chart from "primevue/chart";
 import ScrollTop from "primevue/scrolltop";
+import Badge from "primevue/badge";
+import OverlayPanel from "primevue/overlaypanel";
 import ConfirmationService from "primevue/confirmationservice";
 import ToastService from "primevue/toastservice";
 
@@ -32,9 +33,10 @@ export default defineNuxtPlugin((nuxtApp) => {
   nuxtApp.vueApp.component("AccordionTab", AccordionTab);
   nuxtApp.vueApp.component("Column", Column);
   nuxtApp.vueApp.component("ScrollTop", ScrollTop);
-  nuxtApp.vueApp.component("Avatar", Avatar);
   nuxtApp.vueApp.component("ProgressSpinner", ProgressSpinner);
   nuxtApp.vueApp.component("Chart", Chart);
+  nuxtApp.vueApp.component("Badge", Badge);
+  nuxtApp.vueApp.component("OverlayPanel", OverlayPanel);
 
   nuxtApp.vueApp.use(PrimeVue, {
     locale: {
