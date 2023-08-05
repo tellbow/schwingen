@@ -136,7 +136,7 @@ async function rowClick(wid: any) {
 </script>
 <template>
   <div class="card">
-    <div class="flex items-center justify-start mt-2 md:mt-4">
+    <div class="flex items-center justify-center mt-2 md:mt-4">
       <p class="ml-2 md:ml-4 text-lg md:text-xl text-stone-700 font-bold">
         Jahr:
       </p>
@@ -149,7 +149,9 @@ async function rowClick(wid: any) {
         @change="yearSelected()"
       />
     </div>
-    <div class="flex md:align-items-center align-items-stretch flex-wrap">
+    <div
+      class="justify-center flex md:align-items-center align-items-stretch flex-wrap"
+    >
       <Card
         class="ml-2 md:ml-4 mt-2 md:mt-2 mr-2 md:mr-4 md:w-5/12"
         :pt="{

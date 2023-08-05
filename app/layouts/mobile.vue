@@ -15,6 +15,10 @@ const items = ref([
     to: "/wrestler",
   },
   {
+    label: "Schwingfeste",
+    to: "/places",
+  },
+  {
     label: "Statistiken",
     to: "/statistics",
   },

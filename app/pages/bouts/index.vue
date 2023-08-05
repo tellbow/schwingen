@@ -7,11 +7,36 @@ const loading = ref(true);
 const page = ref(1);
 const records = ref();
 const totalRecords = ref(0);
+const result = ref(["o", "-", "+"]);
+const points = ref([
+  "0.25",
+  "8.25",
+  "8.50",
+  "8.75",
+  "9.00",
+  "9.25",
+  "9.50",
+  "9.75",
+  "10.00",
+  "10.25",
+]);
+const fightRound = ref(["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]);
+const year = ref([
+  "2015",
+  "2016",
+  "2017",
+  "2018",
+  "2019",
+  "2020",
+  "2021",
+  "2022",
+  "2023",
+]);
 
 const filters = ref({
-  result: { value: "", matchMode: FilterMatchMode.CONTAINS },
-  points: { value: "", matchMode: FilterMatchMode.CONTAINS },
-  fight_round: { value: "", matchMode: FilterMatchMode.CONTAINS },
+  result: { value: "", matchMode: FilterMatchMode.EQUALS },
+  points: { value: "", matchMode: FilterMatchMode.EQUALS },
+  fight_round: { value: "", matchMode: FilterMatchMode.EQUALS },
   "expand.wrestler.name": {
     value: "",
     matchMode: FilterMatchMode.CONTAINS,
@@ -37,7 +62,7 @@ const sorts = ref({
   order: "-",
 });
 
-const matchModeOptions = ref([
+const matchModeOptionContains = ref([
   { label: "Enthält", value: FilterMatchMode.CONTAINS },
 ]);
 
@@ -133,60 +158,75 @@ const onSort = (event: { sortField: string; sortOrder: number }) => {
       <Column
         field="result"
         header="Resultat"
-        style="min-width: 12rem; padding: 0.5rem"
+        style="min-width: 6rem; padding: 0.5rem"
         sortable
-        :filter-match-mode-options="matchModeOptions"
+        :show-filter-menu="false"
+        :show-clear-button="false"
+        :pt="{
+          filterInput: { class: 'w-fit' },
+        }"
       >
         <template #body="{ data }">
           {{ data.result }}
         </template>
         <template #filter="{ filterModel, filterCallback }">
-          <InputText
+          <Dropdown
             v-model="filterModel.value"
-            type="text"
-            class="p-column-filter"
+            :options="result"
             placeholder="Filter Resultat"
-            @input="filterCallback()"
+            class="p-column-filter"
+            :show-clear="true"
+            @change="filterCallback()"
           />
         </template>
       </Column>
       <Column
         field="points"
         header="Punkte"
-        style="min-width: 12rem; padding: 0.5rem"
+        style="min-width: 6rem; padding: 0.5rem"
         sortable
-        :filter-match-mode-options="matchModeOptions"
+        :show-filter-menu="false"
+        :show-clear-button="false"
+        :pt="{
+          filterInput: { class: 'w-fit' },
+        }"
       >
         <template #body="{ data }">
           {{ data.points }}
         </template>
         <template #filter="{ filterModel, filterCallback }">
-          <InputText
+          <Dropdown
             v-model="filterModel.value"
-            type="text"
-            class="p-column-filter"
+            :options="points"
             placeholder="Filter Punkte"
-            @input="filterCallback()"
+            class="p-column-filter"
+            :show-clear="true"
+            @change="filterCallback()"
           />
         </template>
       </Column>
       <Column
         field="fight_round"
         header="Gang"
-        style="min-width: 12rem; padding: 0.5rem"
+        style="min-width: 6rem; padding: 0.5rem"
         sortable
-        :filter-match-mode-options="matchModeOptions"
+        :show-filter-menu="false"
+        :show-clear-button="false"
+        :pt="{
+          filterInput: { class: 'w-fit' },
+        }"
       >
         <template #body="{ data }">
           {{ data.fight_round }}
         </template>
         <template #filter="{ filterModel, filterCallback }">
-          <InputText
+          <Dropdown
             v-model="filterModel.value"
-            type="text"
-            class="p-column-filter"
+            :options="fightRound"
             placeholder="Filter Gang"
-            @input="filterCallback()"
+            class="p-column-filter"
+            :show-clear="true"
+            @change="filterCallback()"
           />
         </template>
       </Column>
@@ -196,7 +236,11 @@ const onSort = (event: { sortField: string; sortOrder: number }) => {
         filter-field="expand.wrestler.name"
         style="min-width: 12rem; padding: 0.5rem"
         sortable
-        :filter-match-mode-options="matchModeOptions"
+        :filter-match-mode-options="matchModeOptionContains"
+        :show-filter-menu="false"
+        :pt="{
+          filterInput: { class: 'w-fit' },
+        }"
       >
         <template #body="{ data }">
           {{ data.expand.wrestler.name }}
@@ -217,7 +261,11 @@ const onSort = (event: { sortField: string; sortOrder: number }) => {
         filter-field="expand.wrestler.vorname"
         style="min-width: 12rem; padding: 0.5rem"
         sortable
-        :filter-match-mode-options="matchModeOptions"
+        :filter-match-mode-options="matchModeOptionContains"
+        :show-filter-menu="false"
+        :pt="{
+          filterInput: { class: 'w-fit' },
+        }"
       >
         <template #body="{ data }">
           {{ data.expand.wrestler.vorname }}
@@ -238,7 +286,11 @@ const onSort = (event: { sortField: string; sortOrder: number }) => {
         filter-field="expand.opponent.name"
         style="min-width: 12rem; padding: 0.5rem"
         sortable
-        :filter-match-mode-options="matchModeOptions"
+        :filter-match-mode-options="matchModeOptionContains"
+        :show-filter-menu="false"
+        :pt="{
+          filterInput: { class: 'w-fit' },
+        }"
       >
         <template #body="{ data }">
           {{ data.expand.opponent.name }}
@@ -259,7 +311,11 @@ const onSort = (event: { sortField: string; sortOrder: number }) => {
         filter-field="expand.opponent.vorname"
         style="min-width: 12rem; padding: 0.5rem"
         sortable
-        :filter-match-mode-options="matchModeOptions"
+        :filter-match-mode-options="matchModeOptionContains"
+        :show-filter-menu="false"
+        :pt="{
+          filterInput: { class: 'w-fit' },
+        }"
       >
         <template #body="{ data }">
           {{ data.expand.opponent.vorname }}
@@ -280,7 +336,11 @@ const onSort = (event: { sortField: string; sortOrder: number }) => {
         filter-field="expand.place.name"
         style="min-width: 12rem; padding: 0.5rem"
         sortable
-        :filter-match-mode-options="matchModeOptions"
+        :filter-match-mode-options="matchModeOptionContains"
+        :show-filter-menu="false"
+        :pt="{
+          filterInput: { class: 'w-fit' },
+        }"
       >
         <template #body="{ data }">
           {{ data.expand.place.name }}
@@ -299,20 +359,25 @@ const onSort = (event: { sortField: string; sortOrder: number }) => {
         field="place-year"
         header="Jahr"
         filter-field="expand.place.year"
-        style="min-width: 12rem; padding: 0.5rem"
+        style="min-width: 10rem; padding: 0.5rem"
         sortable
-        :filter-match-mode-options="matchModeOptions"
+        :show-filter-menu="false"
+        :show-clear-button="false"
+        :pt="{
+          filterInput: { class: 'w-fit' },
+        }"
       >
         <template #body="{ data }">
           {{ data.expand.place.year }}
         </template>
         <template #filter="{ filterModel, filterCallback }">
-          <InputText
+          <Dropdown
             v-model="filterModel.value"
-            type="text"
-            class="p-column-filter"
+            :options="year"
             placeholder="Filter Jahr"
-            @input="filterCallback()"
+            class="p-column-filter"
+            :show-clear="true"
+            @change="filterCallback()"
           />
         </template>
       </Column>

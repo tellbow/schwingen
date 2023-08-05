@@ -32,9 +32,6 @@ const sorts = ref({
   order: "",
 });
 
-const matchModeOptionEquals = ref([
-  { label: "Gleich", value: FilterMatchMode.EQUALS },
-]);
 const matchModeOptionContains = ref([
   { label: "Enthält", value: FilterMatchMode.CONTAINS },
 ]);
@@ -50,7 +47,7 @@ const loadLazyData = () => {
 
   pocketbase
     .collection("wrestler")
-    .getList(page.value, 15, {
+    .getList(page.value, numberOfRows.value, {
       expand: "club",
       filter:
         'name ~ "' +
@@ -95,6 +92,22 @@ const onSort = (event: { sortField: string; sortOrder: number }) => {
 async function rowClick(event: any) {
   await navigateTo("/wrestler/" + event.data.id);
 }
+
+const numberOfRows = computed(() => {
+  if (layout === "mobile") {
+    return 10;
+  } else {
+    return 15;
+  }
+});
+
+const numberOfPages = computed(() => {
+  if (layout === "mobile") {
+    return 3;
+  } else {
+    return 4;
+  }
+});
 </script>
 <template>
   <div
@@ -108,10 +121,10 @@ async function rowClick(event: any) {
       column-resize-mode="fit"
       show-gridlines
       table-style="md:min-width: 50rem"
-      :page-link-size="4"
+      :page-link-size="numberOfPages"
       lazy
       paginator
-      :rows="15"
+      :rows="numberOfRows"
       data-key="id"
       :filter-display="filterDisplay"
       :row-hover="true"
@@ -130,6 +143,7 @@ async function rowClick(event: any) {
         style="padding: 0.5rem"
         :sortable="sort"
         :filter-match-mode-options="matchModeOptionContains"
+        :show-filter-menu="false"
       >
         <template #body="{ data }">
           {{ data.name }}
@@ -150,6 +164,7 @@ async function rowClick(event: any) {
         style="padding: 0.5rem"
         :sortable="sort"
         :filter-match-mode-options="matchModeOptionContains"
+        :show-filter-menu="false"
       >
         <template #body="{ data }">
           {{ data.vorname }}
@@ -170,6 +185,7 @@ async function rowClick(event: any) {
         style="padding: 0.5rem"
         :sortable="sort"
         :filter-match-mode-options="matchModeOptionContains"
+        :show-filter-menu="false"
       >
         <template #body="{ data }">
           {{ data.year }}
@@ -190,7 +206,8 @@ async function rowClick(event: any) {
         header="Kategorie"
         style="padding: 0.5rem"
         :sortable="sort"
-        :filter-match-mode-options="matchModeOptionEquals"
+        :show-filter-menu="false"
+        :show-clear-button="false"
       >
         <template #body="{ data }">
           {{ data.category }}
@@ -201,6 +218,7 @@ async function rowClick(event: any) {
             :options="categories"
             placeholder="Filter Kategorie"
             class="p-column-filter"
+            :show-clear="true"
             @change="filterCallback()"
           />
         </template>
@@ -212,6 +230,7 @@ async function rowClick(event: any) {
         style="padding: 0.5rem"
         :sortable="sort"
         :filter-match-mode-options="matchModeOptionContains"
+        :show-filter-menu="false"
       >
         <template #body="{ data }">
           {{ data.expand.club.name }}

@@ -8,6 +8,17 @@ const page = ref(1);
 const records = ref();
 const totalRecords = ref(0);
 const expandedRows = ref();
+const year = ref([
+  "2015",
+  "2016",
+  "2017",
+  "2018",
+  "2019",
+  "2020",
+  "2021",
+  "2022",
+  "2023",
+]);
 
 const layout =
   /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
@@ -88,7 +99,7 @@ const loadLazyData = () => {
 
   pocketbase
     .collection("rankings")
-    .getList(page.value, 15, {
+    .getList(page.value, 10, {
       expand: "wrestler,place",
       filter: Object.values(filters.value)
         .map((filter) => {
@@ -122,7 +133,7 @@ const loadLazySubData = (wrestlerId: string, placeId: string) => {
   loading.value = true;
   pocketbase
     .collection("bouts")
-    .getList(page.value, 15, {
+    .getList(page.value, 10, {
       expand: "opponent",
       filter:
         "wrestler.id = '" + wrestlerId + "' && place.id = '" + placeId + "'",
@@ -195,7 +206,7 @@ const onRowCollapse = (event: {
       table-style="min-width: 50rem"
       lazy
       paginator
-      :rows="15"
+      :rows="10"
       data-key="id"
       filter-display="row"
       :row-hover="true"
@@ -209,12 +220,16 @@ const onRowCollapse = (event: {
     >
       <template #empty> Keine Ranglisten gefunden. </template>
       <template #loading> Ranglisten werden geladen. Bitte warten. </template>
-      <Column expander style="width: 5rem" />
+      <Column expander style="width: 4rem" />
       <Column
         field="rank"
         header="Rang"
-        style="min-width: 12rem; padding: 0.5rem"
+        style="min-width: 6rem; padding: 0.5rem"
         :filter-match-mode-options="matchModeOptionEquals"
+        :show-filter-menu="false"
+        :pt="{
+          filterInput: { class: 'w-fit' },
+        }"
       >
         <template #body="{ data }"> {{ data.rank }}{{ data.rank2 }} </template>
         <template #filter="{ filterModel, filterCallback }">
@@ -230,8 +245,12 @@ const onRowCollapse = (event: {
       <Column
         field="points"
         header="Punkte"
-        style="min-width: 12rem; padding: 0.5rem"
+        style="min-width: 6rem; padding: 0.5rem"
         :filter-match-mode-options="matchModeOptionEquals"
+        :show-filter-menu="false"
+        :pt="{
+          filterInput: { class: 'w-fit' },
+        }"
       >
         <template #body="{ data }">
           {{ data.points }}
@@ -250,11 +269,16 @@ const onRowCollapse = (event: {
         v-if="layout === 'default'"
         field="final"
         header="Schlussgang"
-        style="min-width: 12rem; padding: 0.5rem"
+        style="min-width: 6rem; padding: 0.5rem"
         :filter-match-mode-options="matchModeOptionEquals"
+        :show-filter-menu="false"
+        :show-clear-button="false"
+        :pt="{
+          filterInput: { class: 'w-fit' },
+        }"
       >
         <template #body="{ data }">
-          {{ data.final }}
+          <Icon v-if="data.final" name="gis:flag-finish" />
         </template>
         <template #filter="{ filterModel, filterCallback }">
           <Checkbox
@@ -267,8 +291,12 @@ const onRowCollapse = (event: {
       <Column
         field="result"
         header="Resultat"
-        style="min-width: 12rem; padding: 0.5rem"
+        style="min-width: 6rem; padding: 0.5rem"
         :filter-match-mode-options="matchModeOptionContains"
+        :show-filter-menu="false"
+        :pt="{
+          filterInput: { class: 'w-fit' },
+        }"
       >
         <template #body="{ data }">
           {{ data.result }}
@@ -287,11 +315,16 @@ const onRowCollapse = (event: {
         v-if="layout === 'default'"
         field="wreath"
         header="Kranz"
-        style="min-width: 12rem; padding: 0.5rem"
+        style="min-width: 6rem; padding: 0.5rem"
         :filter-match-mode-options="matchModeOptionEquals"
+        :show-filter-menu="false"
+        :show-clear-button="false"
+        :pt="{
+          filterInput: { class: 'w-fit' },
+        }"
       >
         <template #body="{ data }">
-          {{ data.wreath }}
+          <Icon v-if="data.wreath" name="mingcute:wreath-fill" />
         </template>
         <template #filter="{ filterModel, filterCallback }">
           <Checkbox
@@ -305,8 +338,12 @@ const onRowCollapse = (event: {
         v-if="layout === 'default'"
         field="status"
         header="Status"
-        style="min-width: 12rem; padding: 0.5rem"
+        style="min-width: 6rem; padding: 0.5rem"
         :filter-match-mode-options="matchModeOptionEquals"
+        :show-filter-menu="false"
+        :pt="{
+          filterInput: { class: 'w-fit' },
+        }"
       >
         <template #body="{ data }">
           {{ data.status }}
@@ -328,6 +365,10 @@ const onRowCollapse = (event: {
         style="min-width: 12rem; padding: 0.5rem"
         sortable
         :filter-match-mode-options="matchModeOptionContains"
+        :show-filter-menu="false"
+        :pt="{
+          filterInput: { class: 'w-fit' },
+        }"
       >
         <template #body="{ data }">
           {{ data.expand.wrestler.name }}
@@ -349,6 +390,10 @@ const onRowCollapse = (event: {
         style="min-width: 12rem; padding: 0.5rem"
         sortable
         :filter-match-mode-options="matchModeOptionContains"
+        :show-filter-menu="false"
+        :pt="{
+          filterInput: { class: 'w-fit' },
+        }"
       >
         <template #body="{ data }">
           {{ data.expand.wrestler.vorname }}
@@ -370,6 +415,10 @@ const onRowCollapse = (event: {
         style="min-width: 12rem; padding: 0.5rem"
         sortable
         :filter-match-mode-options="matchModeOptionContains"
+        :show-filter-menu="false"
+        :pt="{
+          filterInput: { class: 'w-fit' },
+        }"
       >
         <template #body="{ data }">
           {{ data.expand.place.name }}
@@ -388,20 +437,25 @@ const onRowCollapse = (event: {
         field="place_year"
         header="Jahr"
         filter-field="expand.place.year"
-        style="min-width: 12rem; padding: 0.5rem"
+        style="min-width: 10rem; padding: 0.5rem"
         sortable
-        :filter-match-mode-options="matchModeOptionContains"
+        :show-filter-menu="false"
+        :show-clear-button="false"
+        :pt="{
+          filterInput: { class: 'w-fit' },
+        }"
       >
         <template #body="{ data }">
           {{ data.year }}
         </template>
         <template #filter="{ filterModel, filterCallback }">
-          <InputText
+          <Dropdown
             v-model="filterModel.value"
-            type="text"
-            class="p-column-filter"
+            :options="year"
             placeholder="Filter Jahr"
-            @input="filterCallback()"
+            class="p-column-filter"
+            :show-clear="true"
+            @change="filterCallback()"
           />
         </template>
       </Column>

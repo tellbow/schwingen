@@ -7,6 +7,27 @@ const loading = ref(true);
 const page = ref(1);
 const records = ref();
 const totalRecords = ref(0);
+const year = ref([
+  "2015",
+  "2016",
+  "2017",
+  "2018",
+  "2019",
+  "2020",
+  "2021",
+  "2022",
+  "2023",
+]);
+const placeType = ref([
+  "Sonstige",
+  "Gauverband",
+  "Regional",
+  "mit eidgenössischem Charakter",
+  "Eidgenössisch",
+  "Teilverband",
+  "Kantonal",
+  "Berg",
+]);
 
 const layout =
   /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
@@ -23,7 +44,7 @@ const filters = ref({
   name: { value: "", matchMode: FilterMatchMode.CONTAINS },
   location: { value: "", matchMode: FilterMatchMode.CONTAINS },
   year: { value: "", matchMode: FilterMatchMode.CONTAINS },
-  type: { value: "", matchMode: FilterMatchMode.CONTAINS },
+  type: { value: "", matchMode: FilterMatchMode.EQUALS },
 });
 
 const sorts = ref({
@@ -46,7 +67,7 @@ const loadLazyData = () => {
 
   pocketbase
     .collection("places")
-    .getList(page.value, 15, {
+    .getList(page.value, numberOfRows.value, {
       expand: "placeType",
       filter:
         'number ~ "' +
@@ -92,6 +113,30 @@ const onSort = (event: { sortField: string; sortOrder: number }) => {
 async function rowClick(event: any) {
   await navigateTo("/rankings/" + event.data.id);
 }
+
+const numberOfRows = computed(() => {
+  if (layout === "mobile") {
+    return 10;
+  } else {
+    return 15;
+  }
+});
+
+const numberOfPages = computed(() => {
+  if (layout === "mobile") {
+    return 3;
+  } else {
+    return 4;
+  }
+});
+
+function displayYear(year: string) {
+  if (layout === "mobile") {
+    return year.split("-")[0];
+  } else {
+    return year;
+  }
+}
 </script>
 <template>
   <div
@@ -105,10 +150,10 @@ async function rowClick(event: any) {
       column-resize-mode="fit"
       show-gridlines
       table-style="md:min-width: 50rem"
-      :page-link-size="4"
+      :page-link-size="numberOfPages"
       lazy
       paginator
-      :rows="15"
+      :rows="numberOfRows"
       data-key="id"
       :filter-display="filterDisplay"
       :row-hover="true"
@@ -128,6 +173,7 @@ async function rowClick(event: any) {
         style="padding: 0.5rem"
         :sortable="sort"
         :filter-match-mode-options="matchModeOptions"
+        :show-filter-menu="false"
       >
         <template #body="{ data }">
           {{ data.number }}
@@ -148,6 +194,7 @@ async function rowClick(event: any) {
         style="padding: 0.5rem"
         :sortable="sort"
         :filter-match-mode-options="matchModeOptions"
+        :show-filter-menu="false"
       >
         <template #body="{ data }">
           {{ data.name }}
@@ -169,6 +216,7 @@ async function rowClick(event: any) {
         style="padding: 0.5rem"
         :sortable="sort"
         :filter-match-mode-options="matchModeOptions"
+        :show-filter-menu="false"
       >
         <template #body="{ data }">
           {{ data.location }}
@@ -188,18 +236,20 @@ async function rowClick(event: any) {
         header="Jahr"
         style="padding: 0.5rem"
         :sortable="sort"
-        :filter-match-mode-options="matchModeOptions"
+        :show-filter-menu="false"
+        :show-clear-button="false"
       >
         <template #body="{ data }">
-          {{ data.year }}
+          <p>{{ displayYear(data.year) }}</p>
         </template>
         <template #filter="{ filterModel, filterCallback }">
-          <InputText
+          <Dropdown
             v-model="filterModel.value"
-            type="text"
-            class="p-column-filter"
+            :options="year"
             placeholder="Filter Jahr"
-            @input="filterCallback()"
+            class="p-column-filter"
+            :show-clear="true"
+            @change="filterCallback()"
           />
         </template>
       </Column>
@@ -209,18 +259,20 @@ async function rowClick(event: any) {
         header="Typ"
         style="padding: 0.5rem"
         :sortable="sort"
-        :filter-match-mode-options="matchModeOptions"
+        :show-filter-menu="false"
+        :show-clear-button="false"
       >
         <template #body="{ data }">
           {{ data.expand.placeType.type }}
         </template>
         <template #filter="{ filterModel, filterCallback }">
-          <InputText
+          <Dropdown
             v-model="filterModel.value"
-            type="text"
-            class="p-column-filter"
+            :options="placeType"
             placeholder="Filter Typ"
-            @input="filterCallback()"
+            class="p-column-filter"
+            :show-clear="true"
+            @change="filterCallback()"
           />
         </template>
       </Column>
