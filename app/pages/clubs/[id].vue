@@ -9,6 +9,7 @@ const loading = ref(true);
 const page = ref(1);
 const records = ref();
 const totalRecords = ref(0);
+const categories = ref(["A", "B", "C", "J"]);
 
 const layout =
   /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
@@ -24,7 +25,7 @@ const filters = ref({
   name: { value: "", matchMode: FilterMatchMode.CONTAINS },
   vorname: { value: "", matchMode: FilterMatchMode.CONTAINS },
   year: { value: "", matchMode: FilterMatchMode.CONTAINS },
-  category: { value: "", matchMode: FilterMatchMode.CONTAINS },
+  category: { value: "", matchMode: FilterMatchMode.EQUALS },
 });
 
 const sorts = ref({
@@ -32,7 +33,10 @@ const sorts = ref({
   order: "",
 });
 
-const matchModeOptions = ref([
+const matchModeOptionEquals = ref([
+  { label: "Gleich", value: FilterMatchMode.EQUALS },
+]);
+const matchModeOptionContains = ref([
   { label: "Enthält", value: FilterMatchMode.CONTAINS },
 ]);
 
@@ -125,7 +129,7 @@ async function rowClick(event: any) {
         header="Name"
         style="padding: 0.5rem"
         :sortable="sort"
-        :filter-match-mode-options="matchModeOptions"
+        :filter-match-mode-options="matchModeOptionContains"
       >
         <template #body="{ data }">
           {{ data.name }}
@@ -145,7 +149,7 @@ async function rowClick(event: any) {
         header="Vorname"
         style="padding: 0.5rem"
         :sortable="sort"
-        :filter-match-mode-options="matchModeOptions"
+        :filter-match-mode-options="matchModeOptionContains"
       >
         <template #body="{ data }">
           {{ data.vorname }}
@@ -165,7 +169,7 @@ async function rowClick(event: any) {
         header="Jahrgang"
         style="padding: 0.5rem"
         :sortable="sort"
-        :filter-match-mode-options="matchModeOptions"
+        :filter-match-mode-options="matchModeOptionContains"
       >
         <template #body="{ data }">
           {{ data.year }}
@@ -186,18 +190,18 @@ async function rowClick(event: any) {
         header="Kategorie"
         style="padding: 0.5rem"
         :sortable="sort"
-        :filter-match-mode-options="matchModeOptions"
+        :filter-match-mode-options="matchModeOptionEquals"
       >
         <template #body="{ data }">
           {{ data.category }}
         </template>
         <template #filter="{ filterModel, filterCallback }">
-          <InputText
+          <Dropdown
             v-model="filterModel.value"
-            type="text"
-            class="p-column-filter"
+            :options="categories"
             placeholder="Filter Kategorie"
-            @input="filterCallback()"
+            class="p-column-filter"
+            @change="filterCallback()"
           />
         </template>
       </Column>

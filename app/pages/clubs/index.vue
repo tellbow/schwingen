@@ -11,7 +11,7 @@ onMounted(async () => {
     .collection("wrestlersByAssociation")
     .getFullList(10 /* batch size */, {
       sort: "name",
-      fields: "id,name,abbreviation,wrestlerAmount",
+      fields: "id,name,abbreviation,wrestlerAmount,wrestlerActive",
     })
     .then((data) => {
       associationData.value = data;
@@ -26,7 +26,7 @@ const onTabOpen = async (event: { index: string | number }) => {
       sort: "name",
       filter:
         'association.id = "' + associationData.value[event.index].id + '"',
-      fields: "id,name,association,wrestlerAmount",
+      fields: "id,name,association,wrestlerAmount,wrestlerActive",
     })
     .then((data) => {
       cantonData.value = data;
@@ -39,7 +39,7 @@ const onSubTabOpen = async (event: { index: string | number }) => {
     .getFullList(200 /* batch size */, {
       sort: "name",
       filter: 'canton.id = "' + cantonData.value[event.index].id + '"',
-      fields: "id,name,canton,wrestlerAmount",
+      fields: "id,name,canton,wrestlerAmount,wrestlerActive",
     })
     .then((data) => {
       clubData.value = data;
@@ -63,25 +63,34 @@ const onSubTabOpen = async (event: { index: string | number }) => {
         :header="
           association.abbreviation +
           ' (' +
+          association.wrestlerActive +
+          '/' +
           association.wrestlerAmount +
-          ' Schwinger)'
+          ' aktive Schwinger)'
         "
       >
         <Accordion lazy @tab-open="onSubTabOpen($event)">
           <AccordionTab
             v-for="canton in cantonData"
             :key="canton.id"
-            :header="canton.name + ' (' + canton.wrestlerAmount + ' Schwinger)'"
+            :header="
+              canton.name +
+              ' (' +
+              canton.wrestlerActive +
+              '/' +
+              canton.wrestlerAmount +
+              ' aktive Schwinger)'
+            "
           >
             <ul>
               <li v-for="value in clubData" :key="value.id">
                 <NuxtLink
                   :to="'/clubs/' + value.id"
                   class="cursor-pointer hover:bg-gray-200"
-                  >{{ value.name }} ({{
+                  >{{ value.name }} ({{ value.wrestlerActive }}/{{
                     value.wrestlerAmount
                   }}
-                  Schwinger)</NuxtLink
+                  aktive Schwinger)</NuxtLink
                 >
               </li>
             </ul>
