@@ -33,7 +33,10 @@
     "typescript": "^5.0.4"
   },
   "dependencies": {
+    "@types/geojson": "^7946.0.10",
     "chart.js": "^4.2.1",
+    "chartjs-chart-geo": "^4.2.4",
+    "chartjs-plugin-datalabels": "^2.2.0",
     "pocketbase": "^0.15.0"
   }
 }

@@ -45,6 +45,7 @@ function home() {
       class="self-center mr-1 cursor-pointer hover:bg-yellow-800 border-solid border-2 border-yellow-800 rounded-full"
       src="/images/logos/tellbow_cricle_crop.png"
       style="width: 48px; height: 48px"
+      alt="Tellbow"
       @click="home"
     />
     <TabMenu :model="items" />
