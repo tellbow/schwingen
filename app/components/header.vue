@@ -5,7 +5,7 @@ const items = ref([
   {
     label: "Verbände",
     icon: "clubs-icon",
-    to: "/clubs",
+    to: "/associations",
   },
   {
     label: "Schwinger",

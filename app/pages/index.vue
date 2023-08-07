@@ -23,7 +23,7 @@ const layout =
         <Button
           label="Anzeigen"
           class="w-half mt-3 bg-yellow-900 border-2 border-yellow-800"
-          @click="navigateTo('/clubs')"
+          @click="navigateTo('/associations')"
         />
       </template>
     </Card>

@@ -8,7 +8,7 @@ const items = ref([
   },
   {
     label: "Verbände",
-    to: "/clubs",
+    to: "/associations",
   },
   {
     label: "Schwinger",

@@ -137,6 +137,25 @@ onMounted(async () => {
               },
             },
           },
+          onClick: (evt: any) => {
+            const res = chartCanton.value.getElementsAtEventForMode(
+              evt,
+              "nearest",
+              { intersect: true },
+              true,
+            );
+            if (res.length !== 0) {
+              let route: string;
+              if (res[0].element.feature.properties.name === "Bern") {
+                route =
+                  "/associations/association/" +
+                  res[0].element.feature.association;
+              } else {
+                route = "/associations/canton/" + res[0].element.feature.id;
+              }
+              navigateTo(route);
+            }
+          },
           scales: {
             projection: {
               axis: "x",
@@ -233,7 +252,7 @@ function getCantons(associationId: string) {
               <ul>
                 <li v-for="value in clubData" :key="value.id">
                   <NuxtLink
-                    :to="'/clubs/' + value.id"
+                    :to="'/associations/club/' + value.id"
                     class="cursor-pointer hover:bg-gray-200"
                     >{{ value.name }} ({{ value.wrestlerActive }}/{{
                       value.wrestlerAmount
