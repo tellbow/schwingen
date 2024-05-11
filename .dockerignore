@@ -12,5 +12,7 @@ pb_data/*
 !pb_data/data.db
 # import directory
 import
+# yarn
+.yarn/install-state.gz
 # .env
 .env

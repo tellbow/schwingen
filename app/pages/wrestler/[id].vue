@@ -57,7 +57,7 @@ onMounted(async () => {
     .getFirstListItem('id="' + route.params.id + '"', {
       expand: "status,club,club.canton,club.canton.association",
       fields:
-        "id,nummer,name,vorname,year,category,expand.status.status,expand.club.name,expand.canton.name,expand.assosiaction.name",
+        "id,nummer,name,vorname,year,category,expand.status.status,expand.club.name,expand.club.expand.canton.name,expand.club.expand.canton.expand.association.name,expand.club.expand.canton.expand.association.abbreviation",
     })
     .then((data) => {
       data.nummer = data.nummer === 0 ? "-" : data.nummer;

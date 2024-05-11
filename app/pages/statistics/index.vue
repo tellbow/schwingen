@@ -62,65 +62,59 @@ const loadData = async () => {
   }
   await pocketbase
     .collection("averageRank" + loadYear)
-    .getFullList(5 /* batch size */, {
+    .getList(1, 5, {
       fields: "averageRank,wid,name,vorname,year",
     })
     .then((data) => {
-      averageRank.value = data.map((item) => {
-        return {
-          ...item,
-          avgRank: Math.round(item.averageRank * 100) / 100,
-        };
+      data.items.forEach((item) => {
+        item.avgRank = Math.round(item.averageRank * 100) / 100;
       });
+      averageRank.value = data.items;
       loadingAverageRank.value = false;
     });
   await pocketbase
     .collection("averagePoints" + loadYear)
-    .getFullList(5 /* batch size */, {
+    .getList(1, 5, {
       fields: "averagePoints,wid,name,vorname,year",
     })
     .then((data) => {
-      averagePoints.value = data.map((item) => {
-        return {
-          ...item,
-          avgPoints: Math.round(item.averagePoints * 100) / 100,
-        };
+      data.items.forEach((item) => {
+        item.avgPoints = Math.round(item.averagePoints * 100) / 100;
       });
+      averagePoints.value = data.items;
       loadingAveragePoints.value = false;
     });
   await pocketbase
     .collection("mostWins" + loadYear)
-    .getFullList(5 /* batch size */, {
+    .getList(1, 5, {
       fields: "wins,wreath,id,name,vorname",
     })
     .then((data) => {
-      mostWins.value = data;
+      mostWins.value = data.items;
       loadingMostWins.value = false;
     });
   await pocketbase
     .collection("mostPlacesAttended" + loadYear)
-    .getFullList(5 /* batch size */, {
+    .getList(1, 5, {
       fields: "placesAttended,id,name,vorname,year",
     })
     .then((data) => {
-      mostPlacesAttended.value = data;
+      mostPlacesAttended.value = data.items;
       loadingMostPlacesAttended.value = false;
     });
   await pocketbase
     .collection("drawDecisionRatio")
-    .getFullList(1 /* batch size */, {
+    .getList(1, 24, {
       filter: "yearFormat ~ '" + yearFormatFilter + "'",
       fields: "countDraw,countAll,yearFormat",
     })
     .then((data) => {
-      const sumDraw = data.reduce((accumulator, object) => {
-        const valueDraw = object.countDraw;
-        return accumulator + valueDraw;
-      }, 0);
-      const sumAll = data.reduce((accumulator, object) => {
-        const valueAll = object.countAll;
-        return accumulator + valueAll;
-      }, 0);
+      let sumAll = 0;
+      let sumDraw = 0;
+      data.items.forEach((item) => {
+        sumDraw += item.countDraw;
+        sumAll += item.countAll;
+      });
       drawDecisionRatio.value = Math.round((sumDraw / sumAll) * 100);
       loadingDrawDecisionRatio.value = false;
     });

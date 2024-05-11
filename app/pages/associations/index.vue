@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // import { ChartConfiguration } from "chart.js";
 import { Chart } from "chart.js";
-import { Feature } from "geojson";
+import type { Feature } from "geojson";
 import {
   ChoroplethController,
   GeoFeature,
@@ -10,7 +10,7 @@ import {
   topojson,
 } from "chartjs-chart-geo";
 import ChartDataLabels from "chartjs-plugin-datalabels";
-import { GeometryCollection, Topology } from "topojson-specification";
+import type { GeometryCollection, Topology } from "topojson-specification";
 import maps from "~/public/topo/swiss-maps-modified.json";
 
 const pocketbase = usePocketbase();

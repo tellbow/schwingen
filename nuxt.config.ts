@@ -39,6 +39,8 @@ export default defineNuxtConfig({
 
   security: {
     headers: {
+      // ToDo: Configure contentSecurityPolicy correctly
+      contentSecurityPolicy: false,
       crossOriginEmbedderPolicy:
         process.env.NODE_ENV === "development" ? "unsafe-none" : "require-corp",
     },
@@ -53,6 +55,6 @@ export default defineNuxtConfig({
   telemetry: false,
 
   devtools: {
-    enabled: true,
+    enabled: false,
   },
 });
