@@ -1,5 +1,5 @@
 # generate static files
-FROM node:19.8 AS node
+FROM node:20 AS node
 WORKDIR /app
 COPY package.json ./
 RUN yarn install
