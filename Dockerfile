@@ -20,7 +20,7 @@ RUN go build -o pocketnuxt pocketbase/main.go
 
 # download database
 FROM curlimages/curl:latest AS downloader
-RUN curl -o data.db https://github.com/tellbow/schwingen/releases/latest/download/data.db
+RUN curl -L -o data.db https://github.com/tellbow/schwingen/releases/latest/download/data.db
 
 #build docker image
 FROM ubuntu:22.10
