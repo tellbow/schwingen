@@ -18,8 +18,12 @@ COPY . .
 COPY --from=node /app/pocketbase/.output /usr/src/app/pocketbase/.output
 RUN go build -o pocketnuxt pocketbase/main.go
 
+# download database
+FROM curlimages/curl:latest AS downloader
+RUN curl -o data.db https://github.com/tellbow/schwingen/releases/latest/download/data.db
+
 #build docker image
 FROM ubuntu:22.10
 COPY --from=golang /usr/src/app/pocketnuxt /pocketnuxt
-COPY pb_data/ /pb_data/
+COPY --from=downloader /home/curl_user/data.db /pb_data/
 CMD ["/pocketnuxt", "serve", "--http", "0.0.0.0:8090", "--encryptionEnv", "PB_ENCRYPTION"]
