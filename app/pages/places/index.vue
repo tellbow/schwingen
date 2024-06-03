@@ -17,6 +17,7 @@ const year = ref([
   "2021",
   "2022",
   "2023",
+  "2024",
 ]);
 const placeType = ref([
   "Sonstige",

@@ -39,7 +39,7 @@ const layout =
         <p>
           Enthält alle aktiven Schwinger aus der
           <a href="https://esv.ch/hkesv/datenbank/">Datenbank des ESV</a>(Stand
-          05.08.2023).
+          02.06.2023).
         </p>
         <Button
           label="Anzeigen"
@@ -57,7 +57,7 @@ const layout =
     >
       <template #title> Schwingfeste </template>
       <template #content>
-        <p>Enthält alle Schwingfeste aus den Jahren 2015 - 2023.</p>
+        <p>Enthält alle Schwingfeste aus den Jahren 2015 - 2024.</p>
         <Button
           label="Anzeigen"
           class="w-half mt-3 bg-yellow-900 border-2 border-yellow-800"
@@ -76,7 +76,7 @@ const layout =
       <template #title> Ranglisten </template>
       <template #content>
         <p>
-          Enthält Ränge aus über 2'500 Ranglisten aus den Jahren 2015 - 2023.
+          Enthält Ränge aus über 2'500 Ranglisten aus den Jahren 2015 - 2024.
         </p>
         <Button
           label="Anzeigen"
