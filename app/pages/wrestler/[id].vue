@@ -227,10 +227,15 @@ const chartOptions = ref({
       },
     },
   },
+  responsive: true,
 });
 
-async function rowClick(wid: any, pid: any) {
+async function wrestlerRowClick(wid: any, pid: any) {
   await navigateTo("/wrestler/" + wid + "-" + pid);
+}
+
+async function placeRowClick(pid: any) {
+  await navigateTo("/rankings/" + pid);
 }
 
 const findBouts = () => {
@@ -301,15 +306,10 @@ async function yearSelected() {
         </template>
       </Card>
     </div>
-    <ProgressSpinner v-if="loadingRankings" />
-    <div
-      v-else
-      class="justify-content-center align-content-center display: flex mt-2"
-    >
+    <div class="justify-content-center align-content-center display: flex mt-2">
       <Card class="w-11/12 md:w-9/12">
-        <template #title>Statistiken</template>
+        <template #title>Jahr</template>
         <template #content>
-          <p class="text-lg md:text-xl text-stone-700 font-bold">Jahr:</p>
           <Dropdown
             v-model="selectedYear"
             :options="years"
@@ -318,15 +318,27 @@ async function yearSelected() {
             class="w-fit mb-2 text-stone-700 font-bold"
             @change="yearSelected()"
           />
+        </template>
+      </Card>
+    </div>
+    <ProgressSpinner v-if="loadingRankings" />
+    <div
+      v-else
+      class="justify-content-center align-content-center display: flex mt-2"
+    >
+      <Card class="w-11/12 md:w-9/12">
+        <template #title>Statistiken</template>
+        <template #content>
           <p>Ø Rang: {{ averageRank }}</p>
           <p>Ø Punkte: {{ averagePoints }}</p>
-          <Chart
-            v-if="ratioWinDrawLoss"
-            type="pie"
-            :data="ratioWinDrawLoss"
-            :options="chartOptions"
-            class="w-full md:w-15rem"
-          />
+          <div class="relative w-full md:max-w-80 md:min-w-80">
+            <Chart
+              v-if="ratioWinDrawLoss"
+              type="pie"
+              :data="ratioWinDrawLoss"
+              :options="chartOptions"
+            />
+          </div>
         </template>
       </Card>
     </div>
@@ -341,6 +353,8 @@ async function yearSelected() {
           <DataView
             v-if="Object.keys(rankingsData).length !== 0"
             :value="rankingsData"
+            paginator
+            :rows="10"
             data-key="id"
             :pt="{
               header: { class: 'p-0' },
@@ -363,7 +377,10 @@ async function yearSelected() {
               <div
                 class="col-12 hover:bg-gray-200 cursor-pointer"
                 @click="
-                  rowClick(route.params.id, slotProps.data.expand.place.id)
+                  wrestlerRowClick(
+                    route.params.id,
+                    slotProps.data.expand.place.id,
+                  )
                 "
               >
                 <div class="grid">
@@ -433,17 +450,24 @@ async function yearSelected() {
           />
           <DataView :value="boutsData" data-key="id" class="mt-4">
             <template #list="slotProps">
-              <div class="col-6">
-                <strong> {{ slotProps.data.expand.place.name }}</strong>
-              </div>
-              <div class="col-2">
-                <p>{{ slotProps.data.expand.place.year }}</p>
-              </div>
-              <div class="col-2">
-                <p>{{ slotProps.data.points }}</p>
-              </div>
-              <div class="col-2">
-                <p>{{ slotProps.data.result }}</p>
+              <div
+                class="col-12 hover:bg-gray-200 cursor-pointer"
+                @click="placeRowClick(slotProps.data.expand.place.id)"
+              >
+                <div class="grid">
+                  <div class="col-4 md:col-4">
+                    <strong> {{ slotProps.data.expand.place.name }}</strong>
+                  </div>
+                  <div class="col-4 md:col-2">
+                    <p>{{ slotProps.data.expand.place.year }}</p>
+                  </div>
+                  <div class="col-4 md:col-2">
+                    <p>{{ slotProps.data.points }}</p>
+                  </div>
+                  <div class="col-4 md:col-2">
+                    <p>{{ slotProps.data.result }}</p>
+                  </div>
+                </div>
               </div>
             </template>
           </DataView>

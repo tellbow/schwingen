@@ -18,16 +18,6 @@ const items = ref([
     to: "/places",
   },
   {
-    label: "Ranglisten",
-    icon: "rankings-icon",
-    to: "/rankings",
-  },
-  {
-    label: "Kämpfe",
-    icon: "bouts-icon",
-    to: "/bouts",
-  },
-  {
     label: "Statistiken",
     icon: "statistics-icon",
     to: "/statistics",

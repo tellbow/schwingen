@@ -134,6 +134,7 @@ const loadLazySubData = (wrestlerId: string, placeId: string) => {
   loading.value = true;
   pocketbase
     .collection("bouts")
+    // might be a bug to set page.value here
     .getList(page.value, 10, {
       expand: "opponent",
       filter:

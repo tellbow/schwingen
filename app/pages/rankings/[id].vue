@@ -7,13 +7,8 @@ const placeData = ref();
 const rankingsData = ref();
 const loadingPlace = ref(true);
 const loadingRankings = ref(true);
-
-const layout =
-  /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-    navigator.userAgent,
-  )
-    ? "mobile"
-    : "default";
+const loadingBouts = ref(true);
+const expandedRows = ref();
 
 onMounted(async () => {
   await pocketbase
@@ -28,10 +23,10 @@ onMounted(async () => {
     .collection("rankings")
     .getFullList(200 /* batch size */, {
       filter: 'place.id = "' + route.params.id + '"',
-      expand: "wrestler",
+      expand: "place,wrestler",
       sort: "rank, rank2, -created",
       fields:
-        "id,rank,rank2,points,final,result,wreath,status,expand.wrestler.id,expand.wrestler.name,expand.wrestler.vorname",
+        "id,rank,rank2,points,final,result,wreath,status,expand.place.id,expand.wrestler.id,expand.wrestler.name,expand.wrestler.vorname",
     })
     .then((data) => {
       rankingsData.value = data.sort(compareByRank);
@@ -39,9 +34,30 @@ onMounted(async () => {
     });
 });
 
-async function rowClick(id: any) {
-  await navigateTo("/wrestler/" + id);
-}
+const loadLazySubData = (wrestlerId: string, placeId: string) => {
+  loadingBouts.value = true;
+  pocketbase
+    .collection("bouts")
+    .getList(1, 10, {
+      expand: "opponent,opponent.status",
+      filter:
+        "wrestler.id = '" + wrestlerId + "' && place.id = '" + placeId + "'",
+      sort: "fight_round,-created",
+      fields:
+        "id,result,points,fight_round,expand.opponent.id,expand.opponent.name,expand.opponent.vorname,expand.opponent.expand.status.status",
+    })
+    .then((data: { items: any }) => {
+      rankingsData.value.forEach((item: any) => {
+        if (
+          item.expand.wrestler.id === wrestlerId &&
+          item.expand.place.id === placeId
+        ) {
+          item.bouts = data.items;
+        }
+      });
+      loadingBouts.value = false;
+    });
+};
 
 // Custom comparator function to sort by rank
 const compareByRank = (a: any, b: any) => {
@@ -58,6 +74,28 @@ const compareByRank = (a: any, b: any) => {
 
   // If numerical components are equal, compare alphabetical components
   return alphaA.localeCompare(alphaB);
+};
+
+const onRowExpand = (event: {
+  data: {
+    expand: {
+      wrestler: { id: string };
+      place: { id: string };
+    };
+  };
+}) => {
+  loadLazySubData(event.data.expand.wrestler.id, route.params.id.toString());
+};
+
+const onRowCollapse = (event: {
+  data: {
+    id: string;
+  };
+}) => {
+  const objIndex = rankingsData.value.findIndex(
+    (obj: { id: string }) => obj.id === event.data.id,
+  );
+  rankingsData.value[objIndex].bouts = [];
 };
 </script>
 <template>
@@ -84,65 +122,124 @@ const compareByRank = (a: any, b: any) => {
       class="justify-content-center align-content-center display: flex mt-2"
     >
       <Card class="w-11/12 md:w-9/12">
-        <template #title> Rangliste </template>
+        <template #title> Rangliste Neu</template>
         <template #content>
-          <DataView
+          <DataTable
+            v-model:expanded-rows="expandedRows"
             :value="rankingsData"
+            column-resize-mode="fit"
+            show-gridlines
+            table-style="min-width: 50rem"
+            size="small"
             data-key="id"
             :pt="{
               header: { class: 'p-0' },
             }"
+            :row-hover="true"
+            @row-expand="onRowExpand($event)"
+            @row-collapse="onRowCollapse($event)"
           >
-            <template #header>
-              <div class="grid mt-0">
-                <p class="col-2 md:col-1">Rang</p>
-                <p class="col-2 md:col-1">Punkte</p>
-                <p class="col-3 md:col-2">Resultat</p>
-                <p class="col-5 md:col-4">Schwinger</p>
-                <p v-if="layout === 'default'" class="md:col-2">Schlussgang</p>
-                <p v-if="layout === 'default'" class="md:col-2">
-                  Kranz / Unfall
-                </p>
+            <template #empty> Keine Ranglisten gefunden. </template>
+            <template #loading>
+              Ranglisten werden geladen. Bitte warten.
+            </template>
+            <Column expander style="width: 4rem" />
+            <Column
+              field="rank"
+              header="Rang"
+              style="min-width: 6rem; padding: 0.5rem"
+              :pt="{
+                filterInput: { class: 'w-fit' },
+              }"
+            >
+              <template #body="{ data }">
+                {{ data.rank }}{{ data.rank2 }}
+              </template>
+            </Column>
+            <Column
+              field="points"
+              header="Punkte"
+              style="min-width: 6rem; padding: 0.5rem"
+              :pt="{
+                filterInput: { class: 'w-fit' },
+              }"
+            >
+              <template #body="{ data }">
+                {{ data.points }}
+              </template>
+            </Column>
+            <Column
+              field="result"
+              header="Resultat"
+              style="min-width: 6rem; padding: 0.5rem"
+              :pt="{
+                filterInput: { class: 'w-fit' },
+              }"
+            >
+              <template #body="{ data }">
+                {{ data.result }}
+              </template>
+            </Column>
+            <Column
+              field="wrestler"
+              header="Schwinger"
+              style="min-width: 6rem; padding: 0.5rem"
+              :pt="{
+                filterInput: { class: 'w-fit' },
+              }"
+            >
+              <template #body="{ data }">
+                {{ data.expand.wrestler.name }}
+                {{ data.expand.wrestler.vorname }}
+              </template>
+            </Column>
+            <Column
+              field="final"
+              header="Schlussgang"
+              style="min-width: 6rem; padding: 0.5rem"
+              :pt="{
+                filterInput: { class: 'w-fit' },
+              }"
+            >
+              <template #body="{ data }">
+                <Icon v-if="data.final" name="gis:flag-finish" />
+              </template>
+            </Column>
+            <Column
+              field="wreath_accident"
+              header="Kranz / Unfall"
+              style="min-width: 6rem; padding: 0.5rem"
+              :pt="{
+                filterInput: { class: 'w-fit' },
+              }"
+            >
+              <template #body="{ data }">
+                <Icon v-if="data.wreath" name="mingcute:wreath-fill" />
+                <Icon
+                  v-if="data.status === 'Unfall'"
+                  name="game-icons:arm-bandage"
+                />
+              </template>
+            </Column>
+            <template #expansion="data">
+              <div class="p-1">
+                <DataTable :value="data.data.bouts">
+                  <Column field="result" header="R"></Column>
+                  <Column field="points" header="P"></Column>
+                  <Column field="fight_round" header="G"></Column>
+                  <Column field="expand.opponent.name" header="Name"></Column>
+                  <Column
+                    field="expand.opponent.vorname"
+                    header="Vorname"
+                  ></Column>
+                  <Column
+                    field="expand.opponent.expand.status.status"
+                    header="Status"
+                  ></Column>
+                </DataTable>
               </div>
             </template>
-            <template #list="slotProps">
-              <div
-                class="col-12 hover:bg-gray-200 cursor-pointer"
-                @click="rowClick(slotProps.data.expand.wrestler.id)"
-              >
-                <div class="grid">
-                  <div class="col-2 md:col-1">
-                    <p>{{ slotProps.data.rank }}{{ slotProps.data.rank2 }}</p>
-                  </div>
-                  <div class="col-2 md:col-1">
-                    <p>{{ slotProps.data.points }}</p>
-                  </div>
-                  <div class="col-3 md:col-2">
-                    <p>{{ slotProps.data.result }}</p>
-                  </div>
-                  <div class="col-5 md:col-4">
-                    <p>
-                      {{ slotProps.data.expand.wrestler.name }}
-                      {{ slotProps.data.expand.wrestler.vorname }}
-                    </p>
-                  </div>
-                  <div v-if="layout === 'default'" class="md:col-2">
-                    <Icon v-if="slotProps.data.final" name="gis:flag-finish" />
-                  </div>
-                  <div v-if="layout === 'default'" class="md:col-2">
-                    <Icon
-                      v-if="slotProps.data.wreath"
-                      name="mingcute:wreath-fill"
-                    />
-                    <Icon
-                      v-if="slotProps.data.status === 'Unfall'"
-                      name="game-icons:arm-bandage"
-                    />
-                  </div>
-                </div>
-              </div>
-            </template>
-          </DataView>
+          </DataTable>
         </template>
       </Card>
     </div>

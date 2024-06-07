@@ -7,7 +7,11 @@ const loading = ref(true);
 const page = ref(1);
 const records = ref();
 const totalRecords = ref(0);
-const categories = ref(["A", "B", "C", "J"]);
+const status = ref([
+  "Kantonal- und Gauverbandskranzer",
+  "Teilverbands- und Bergkranzer",
+  "Eidgenoss",
+]);
 
 const layout =
   /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
@@ -16,20 +20,20 @@ const layout =
     ? "mobile"
     : "default";
 
-const filterDisplay: any = layout === "mobile" ? "menu" : "row";
+const filterDisplay = "row";
 const sort = layout !== "mobile";
 
 const filters = ref({
   name: { value: "", matchMode: FilterMatchMode.CONTAINS },
   vorname: { value: "", matchMode: FilterMatchMode.CONTAINS },
   year: { value: "", matchMode: FilterMatchMode.CONTAINS },
-  category: { value: "", matchMode: FilterMatchMode.EQUALS },
   club: { value: "", matchMode: FilterMatchMode.CONTAINS },
+  status: { value: "", matchMode: FilterMatchMode.EQUALS },
 });
 
 const sorts = ref({
-  field: "name,",
-  order: "",
+  field: "status.symbol,name,",
+  order: "-",
 });
 
 const matchModeOptionContains = ref([
@@ -48,7 +52,7 @@ const loadLazyData = () => {
   pocketbase
     .collection("wrestler")
     .getList(page.value, numberOfRows.value, {
-      expand: "club",
+      expand: "club,status",
       filter:
         'name ~ "' +
         (filters.value.name.value || "") +
@@ -56,13 +60,14 @@ const loadLazyData = () => {
         (filters.value.vorname.value || "") +
         '" && year ~ "' +
         (filters.value.year.value || "") +
-        '" && category ~ "' +
-        (filters.value.category.value || "") +
         '" && club.name ~ "' +
         (filters.value.club.value || "") +
+        '" && status.symbol ~ "' +
+        (filters.value.status.value || "") +
         '"',
       sort: sorts.value.order + sorts.value.field + "-created",
-      fields: "id,name,vorname,year,category,expand.club.id,expand.club.name",
+      fields:
+        "id,name,vorname,year,expand.club.id,expand.club.name,expand.status.symbol",
     })
     .then((data) => {
       data.items.forEach((item) => {
@@ -153,7 +158,7 @@ const numberOfPages = computed(() => {
             v-model="filterModel.value"
             type="text"
             class="p-column-filter"
-            placeholder="Filter Name"
+            placeholder="Suche"
             @input="filterCallback()"
           />
         </template>
@@ -174,8 +179,31 @@ const numberOfPages = computed(() => {
             v-model="filterModel.value"
             type="text"
             class="p-column-filter"
-            placeholder="Filter Vorname"
+            placeholder="Suche"
             @input="filterCallback()"
+          />
+        </template>
+      </Column>
+      <Column
+        v-if="layout === 'default'"
+        field="status"
+        header="Status"
+        style="padding: 0.5rem"
+        :sortable="sort"
+        :show-filter-menu="false"
+        :show-clear-button="false"
+      >
+        <template #body="{ data }">
+          {{ data.expand.status.symbol }}
+        </template>
+        <template #filter="{ filterModel, filterCallback }">
+          <Dropdown
+            v-model="filterModel.value"
+            :options="status"
+            placeholder="Suche"
+            class="p-column-filter"
+            :show-clear="true"
+            @change="filterCallback()"
           />
         </template>
       </Column>
@@ -195,31 +223,8 @@ const numberOfPages = computed(() => {
             v-model="filterModel.value"
             type="text"
             class="p-column-filter"
-            placeholder="Filter Jahrgang"
+            placeholder="Suche"
             @input="filterCallback()"
-          />
-        </template>
-      </Column>
-      <Column
-        v-if="layout === 'default'"
-        field="category"
-        header="Kategorie"
-        style="padding: 0.5rem"
-        :sortable="sort"
-        :show-filter-menu="false"
-        :show-clear-button="false"
-      >
-        <template #body="{ data }">
-          {{ data.category }}
-        </template>
-        <template #filter="{ filterModel, filterCallback }">
-          <Dropdown
-            v-model="filterModel.value"
-            :options="categories"
-            placeholder="Filter Kategorie"
-            class="p-column-filter"
-            :show-clear="true"
-            @change="filterCallback()"
           />
         </template>
       </Column>
@@ -240,7 +245,7 @@ const numberOfPages = computed(() => {
             v-model="filterModel.value"
             type="text"
             class="p-column-filter"
-            placeholder="Filter Schwingklub"
+            placeholder="Suche"
             @input="filterCallback()"
           />
         </template>

@@ -280,7 +280,7 @@ async function rowClick(wid: any) {
             <template #list="slotProps">
               <div
                 class="col-12 hover:bg-gray-200 cursor-pointer"
-                @click="rowClick(slotProps.data.wid)"
+                @click="rowClick(slotProps.data.id)"
               >
                 <div class="grid">
                   <div class="col-1 md:col-1 flex justify-center items-center">
@@ -331,7 +331,7 @@ async function rowClick(wid: any) {
             <template #list="slotProps">
               <div
                 class="col-12 hover:bg-gray-200 cursor-pointer"
-                @click="rowClick(slotProps.data.wid)"
+                @click="rowClick(slotProps.data.id)"
               >
                 <div class="grid">
                   <div class="col-1 md:col-1 flex justify-center items-center">
