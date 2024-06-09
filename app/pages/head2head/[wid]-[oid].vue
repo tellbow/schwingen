@@ -1,0 +1,334 @@
+<script setup lang="ts">
+interface Wrestler {
+  name: string;
+  vorname: string;
+}
+
+interface Place {
+  name: string;
+  year: string;
+}
+
+interface Expand {
+  place: Place;
+  wrestler: Wrestler;
+}
+
+interface DataEntry {
+  expand: Expand;
+  final: boolean;
+  id: string;
+  points: string;
+  rank: string;
+  rank2: string;
+  result: string;
+  status: string;
+  wreath: boolean;
+}
+
+interface GroupedData {
+  [key: string]: DataEntry[];
+}
+
+const pocketbase = usePocketbase();
+
+const route = useRoute();
+
+const statisticsData = ref();
+const boutsData = ref();
+const loadingStatistics = ref(false);
+const loadingBouts = ref(false);
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const layout =
+  /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+    navigator.userAgent,
+  )
+    ? "mobile"
+    : "default";
+
+onMounted(async () => {
+  await loadStatisticsData();
+  await loadBoutsData();
+});
+
+const loadStatisticsData = async () => {
+  const customFilter =
+    '(wrestler.id = "' +
+    route.params.wid +
+    '") || (wrestler.id = "' +
+    route.params.oid +
+    '")';
+  await pocketbase
+    .collection("rankings")
+    .getFullList(200 /* batch size */, {
+      filter: customFilter,
+      expand: "wrestler,place",
+      sort: "-place.year,-created",
+      fields:
+        "id,rank,rank2,points,final,result,wreath,status,expand.wrestler.name,expand.wrestler.vorname,expand.place.name,expand.place.year",
+    })
+    .then((data) => {
+      // Grouping data by wrestler name and vorname
+      const groupedData: { [key: string]: DataEntry[] } = data.reduce(
+        (acc: GroupedData, curr: any) => {
+          if (!curr.expand) {
+            return acc; // Skip this entry if wrestler or place is undefined
+          }
+          const { name, vorname } = curr.expand.wrestler;
+          const key = `${name} ${vorname}`;
+          if (!acc[key]) {
+            acc[key] = [];
+          }
+          acc[key].push(curr);
+          return acc;
+        },
+        {},
+      );
+      // Calculating statistics for each wrestler
+      const statistics = Object.entries(groupedData).map(([key, value]) => {
+        const [name, vorname] = key.split(" ");
+        const averageRank = (
+          value.reduce((sum, entry) => sum + parseInt(entry.rank), 0) /
+          value.length
+        ).toFixed(2);
+        const averagePoints = (
+          value.reduce((sum, entry) => sum + parseFloat(entry.points), 0) /
+          value.length
+        ).toFixed(2);
+        const countWreaths = value.filter((entry) => entry.wreath).length;
+        const countFinals = value.filter((entry) => entry.final).length;
+        return {
+          name,
+          vorname,
+          averageRank,
+          averagePoints,
+          countWreaths,
+          countFinals,
+        };
+      });
+      statisticsData.value = statistics;
+      loadingStatistics.value = false;
+    });
+};
+
+const loadBoutsData = async () => {
+  const customFilter =
+    '(wrestler.id = "' +
+    route.params.wid +
+    '" && opponent.id ~ "' +
+    route.params.oid +
+    '") || (wrestler.id = "' +
+    route.params.oid +
+    '" && opponent.id ~ "' +
+    route.params.wid +
+    '")';
+  await pocketbase
+    .collection("bouts")
+    .getFullList(200 /* batch size */, {
+      filter: customFilter,
+      expand: "wrestler,opponent,place",
+      sort: "-place.year,-created",
+      fields:
+        "id,result,points,expand.wrestler.name,expand.wrestler.vorname,expand.opponent.name,expand.opponent.vorname,expand.place.name,expand.place.year",
+    })
+    .then((data) => {
+      const groupedData: any = {};
+      data.forEach((entry) => {
+        if (
+          !entry.expand ||
+          !entry.expand.place ||
+          !entry.expand.wrestler ||
+          !entry.expand.opponent
+        ) {
+          return;
+        }
+        const placeName = entry.expand.place.name;
+        const year = entry.expand.place.year.split("-")[0];
+        const key = `${placeName}-${year}`;
+        if (!groupedData[key]) {
+          groupedData[key] = {
+            place: {
+              name: entry.expand.place.name,
+              year: entry.expand.place.year.split("-")[0],
+            },
+            entries: [],
+          };
+        }
+        groupedData[key].entries.push({
+          id: entry.id,
+          points: entry.points,
+          result: entry.result,
+          wrestler: entry.expand.wrestler,
+          opponent: entry.expand.opponent,
+        });
+      });
+      boutsData.value = Object.values(groupedData);
+      loadingBouts.value = false;
+    });
+};
+
+function isHigher(stat: any, type: string, _reverse = false) {
+  // Find the entry with the highest value
+  const highest = statisticsData.value.reduce(
+    (acc: { [x: string]: string }, curr: { [x: string]: string }) => {
+      return parseFloat(curr[type]) > parseFloat(acc[type]) ? curr : acc;
+    },
+  );
+  // Compare current entry with the highest
+  if (_reverse) {
+    return !(stat === highest[type]);
+  }
+  return stat === highest[type];
+}
+</script>
+<template>
+  <div>
+    <div class="justify-content-center align-content-center display: flex mt-2">
+      <Card class="w-11/12 md:w-9/12">
+        <template #title> Statistiken </template>
+        <template #content>
+          <ProgressSpinner v-if="loadingStatistics" />
+          <DataView
+            v-else
+            :value="statisticsData"
+            data-key="id"
+            :pt="{
+              header: { class: 'p-0' },
+            }"
+          >
+            <template #header>
+              <div class="grid mt-0">
+                <p class="col md:col-5">Schwinger</p>
+                <p class="col md:col">⌀ Rang</p>
+                <p class="col md:col">⌀ Punkte</p>
+                <p class="col md:col">Kränze</p>
+                <p class="col md:col">Schlussgänge</p>
+              </div>
+            </template>
+            <template #list="slotProps">
+              <div class="col-12 hover:bg-gray-200">
+                <div class="grid">
+                  <div class="col md:col-5">
+                    <p>
+                      {{ slotProps.data.name }} {{ slotProps.data.vorname }}
+                    </p>
+                  </div>
+                  <div class="col md:col">
+                    <b
+                      v-if="
+                        isHigher(
+                          slotProps.data.averageRank,
+                          'averageRank',
+                          true,
+                        )
+                      "
+                    >
+                      {{ slotProps.data.averageRank }}
+                    </b>
+                    <p v-else>
+                      {{ slotProps.data.averageRank }}
+                    </p>
+                  </div>
+                  <div class="col md:col">
+                    <b
+                      v-if="
+                        isHigher(slotProps.data.averagePoints, 'averagePoints')
+                      "
+                    >
+                      {{ slotProps.data.averagePoints }}
+                    </b>
+                    <p v-else>
+                      {{ slotProps.data.averagePoints }}
+                    </p>
+                  </div>
+                  <div class="col md:col">
+                    <b
+                      v-if="
+                        isHigher(slotProps.data.countWreaths, 'countWreaths')
+                      "
+                    >
+                      {{ slotProps.data.countWreaths }}
+                    </b>
+                    <p v-else>
+                      {{ slotProps.data.countWreaths }}
+                    </p>
+                  </div>
+                  <div class="col md:col">
+                    <b
+                      v-if="isHigher(slotProps.data.countFinals, 'countFinals')"
+                    >
+                      {{ slotProps.data.countFinals }}
+                    </b>
+                    <p v-else>
+                      {{ slotProps.data.countFinals }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </template>
+          </DataView>
+        </template>
+      </Card>
+    </div>
+    <div class="justify-content-center align-content-center display: flex mt-2">
+      <Card class="w-11/12 md:w-9/12">
+        <template #title> Aufeinandertreffen </template>
+        <template #content>
+          <ProgressSpinner v-if="loadingBouts" />
+          <DataView
+            v-else
+            :value="boutsData"
+            data-key="id"
+            :pt="{
+              header: { class: 'p-0' },
+            }"
+          >
+            <template #header>
+              <div class="grid mt-0">
+                <p class="col md:col-7">Schwingfest (Jahr)</p>
+                <p v-if="boutsData" class="col md:col text-center">
+                  {{ boutsData[0].entries[0].wrestler.name }}
+                  {{ boutsData[0].entries[0].wrestler.vorname }}
+                </p>
+                <p v-if="boutsData" class="col md:col text-center">
+                  {{ boutsData[0].entries[1].wrestler.name }}
+                  {{ boutsData[0].entries[1].wrestler.vorname }}
+                </p>
+              </div>
+            </template>
+            <template #list="slotProps">
+              <div class="col-12 hover:bg-gray-200">
+                <div class="grid">
+                  <div class="col md:col-7">
+                    <p>
+                      {{ slotProps.data.place.name }} ({{
+                        slotProps.data.place.year
+                      }})
+                    </p>
+                  </div>
+                  <div class="col md:col text-center">
+                    <b v-if="slotProps.data.entries[0].result === '+'">{{
+                      slotProps.data.entries[0].points
+                    }}</b>
+                    <p v-else>
+                      {{ slotProps.data.entries[0].points }}
+                    </p>
+                  </div>
+                  <div class="col md:col text-center">
+                    <b v-if="slotProps.data.entries[1].result === '+'">{{
+                      slotProps.data.entries[1].points
+                    }}</b>
+                    <p v-else>
+                      {{ slotProps.data.entries[1].points }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </template>
+          </DataView>
+        </template>
+      </Card>
+    </div>
+  </div>
+</template>
