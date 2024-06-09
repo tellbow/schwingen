@@ -10,6 +10,8 @@ const loadingMostWins = ref(true);
 const mostWins = ref();
 const loadingMostPlacesAttended = ref(true);
 const mostPlacesAttended = ref();
+const loadingMostWreaths = ref(true);
+const mostWreaths = ref();
 const loadingDrawDecisionRatio = ref(true);
 const drawDecisionRatio = ref();
 const selectedYear = ref({ year: "Alle" });
@@ -102,6 +104,15 @@ const loadData = async () => {
     .then((data) => {
       mostPlacesAttended.value = data.items;
       loadingMostPlacesAttended.value = false;
+    });
+  await pocketbase
+    .collection("mostWreaths")
+    .getList(1, 5, {
+      fields: "wreath,id,name,vorname",
+    })
+    .then((data) => {
+      mostWreaths.value = data.items;
+      loadingMostWreaths.value = false;
     });
   await pocketbase
     .collection("drawDecisionRatio")
@@ -295,6 +306,54 @@ async function rowClick(wid: any) {
                     <p>{{ slotProps.data.wins }}</p>
                   </div>
                   <div class="col-3 md:col-3">
+                    <p>{{ slotProps.data.wreath }}</p>
+                  </div>
+                </div>
+              </div>
+            </template>
+          </DataView>
+        </template>
+      </Card>
+      <Card
+        class="ml-2 md:ml-4 mt-2 md:mt-2 mr-2 md:mr-4 md:w-5/12"
+        :pt="{
+          body: { class: 'pt-2 md:pt-3 pb-2 md:pb-3' },
+          content: { class: 'p-1 md:p-2' },
+        }"
+      >
+        <template #title> Top 5 - meiste Kränze </template>
+        <template #content>
+          <ProgressSpinner v-if="loadingMostWreaths" />
+          <DataView
+            v-else
+            :value="mostWreaths"
+            data-key="id"
+            :pt="{
+              header: { class: 'p-0' },
+            }"
+          >
+            <template #header>
+              <div class="grid mt-0">
+                <p class="col-1 md:col-1 flex justify-center items-center">#</p>
+                <p class="col-7 md:col-6">Schwinger</p>
+                <p class="col-2 md:col-1">Kränze</p>
+              </div>
+            </template>
+            <template #list="slotProps">
+              <div
+                class="col-12 hover:bg-gray-200 cursor-pointer"
+                @click="rowClick(slotProps.data.id)"
+              >
+                <div class="grid">
+                  <div class="col-1 md:col-1 flex justify-center items-center">
+                    <p>{{ slotProps.index + 1 }}</p>
+                  </div>
+                  <div class="col-7 md:col-6">
+                    <p>
+                      {{ slotProps.data.name }} {{ slotProps.data.vorname }}
+                    </p>
+                  </div>
+                  <div class="col-2 md:col-1">
                     <p>{{ slotProps.data.wreath }}</p>
                   </div>
                 </div>
