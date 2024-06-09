@@ -37,7 +37,7 @@ const layout =
     ? "mobile"
     : "default";
 
-const filterDisplay: any = layout === "mobile" ? "menu" : "row";
+const filterDisplay = "row";
 const sort = layout !== "mobile";
 
 const filters = ref({
@@ -145,7 +145,7 @@ function displayYear(year: string) {
   >
     <DataTable
       v-model:filters="filters"
-      class="w-11 md:w-7 cursor-pointer"
+      class="w-11 md:w-9 cursor-pointer"
       :value="records"
       resizable-columns
       column-resize-mode="fit"
