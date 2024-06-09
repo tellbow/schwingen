@@ -216,6 +216,101 @@ const ratioWinDrawLoss = computed({
   set: () => {},
 });
 
+const graphWinDrawLoss = computed({
+  get: () => {
+    const documentStyle = getComputedStyle(document.body);
+    const graphArray = rankingsData.value.reduce(
+      (
+        accumulator: {
+          [year: string]: {
+            win: number;
+            draw: number;
+            loss: number;
+            total: number;
+            winPercentage?: number;
+            drawPercentage?: number;
+            lossPercentage?: number;
+          };
+        },
+        { result, expand }: any,
+      ) => {
+        const year = expand.place.year;
+        const win = (result.match(/\+/g) || []).length;
+        const draw = (result.match(/-/g) || []).length;
+        const loss = (result.match(/o/g) || []).length;
+
+        if (!accumulator[year]) {
+          accumulator[year] = { win: 0, draw: 0, loss: 0, total: 0 };
+        }
+
+        accumulator[year].win += win;
+        accumulator[year].draw += draw;
+        accumulator[year].loss += loss;
+        accumulator[year].total += win + draw + loss;
+        return accumulator;
+      },
+      {},
+    );
+    Object.keys(graphArray).forEach((year) => {
+      const yearData = graphArray[year];
+      yearData.winPercentage = (yearData.win / yearData.total) * 100;
+      yearData.drawPercentage = (yearData.draw / yearData.total) * 100;
+      yearData.lossPercentage = (yearData.loss / yearData.total) * 100;
+    });
+    if (Object.keys(rankingsData.value).length !== 0) {
+      return {
+        labels: Object.keys(graphArray),
+        datasets: [
+          {
+            label: "Sieg",
+            data: Object.values(graphArray).map((object: any) => ({
+              winPercentage: object.winPercentage,
+              win: object.win,
+            })),
+            parsing: {
+              xAxisKey: "win",
+              yAxisKey: "winPercentage",
+            },
+            backgroundColor: [documentStyle.getPropertyValue("--green-500")],
+            hoverBackgroundColor: [
+              documentStyle.getPropertyValue("--green-400"),
+            ],
+          },
+          {
+            label: "Gestellt",
+            data: Object.values(graphArray).map((object: any) => ({
+              drawPercentage: object.drawPercentage,
+              draw: object.draw,
+            })),
+            parsing: {
+              xAxisKey: "draw",
+              yAxisKey: "drawPercentage",
+            },
+            backgroundColor: [documentStyle.getPropertyValue("--yellow-500")],
+            hoverBackgroundColor: [
+              documentStyle.getPropertyValue("--yellow-400"),
+            ],
+          },
+          {
+            label: "Niederlage",
+            data: Object.values(graphArray).map((object: any) => ({
+              lossPercentage: object.lossPercentage,
+              loss: object.loss,
+            })),
+            parsing: {
+              xAxisKey: "loss",
+              yAxisKey: "lossPercentage",
+            },
+            backgroundColor: [documentStyle.getPropertyValue("--red-500")],
+            hoverBackgroundColor: [documentStyle.getPropertyValue("--red-400")],
+          },
+        ],
+      };
+    }
+  },
+  set: () => {},
+});
+
 const chartOptions = ref({
   animation: {
     animateRotate: false,
@@ -228,6 +323,49 @@ const chartOptions = ref({
     },
   },
   responsive: true,
+});
+
+const addLabel = (tooltipItems: any) => {
+  let amount;
+
+  if ("win" in tooltipItems.raw) {
+    amount = tooltipItems.raw.win;
+  } else if ("draw" in tooltipItems.raw) {
+    amount = tooltipItems.raw.draw;
+  } else if ("loss" in tooltipItems.raw) {
+    amount = tooltipItems.raw.loss;
+  } else {
+    amount = "0";
+  }
+  return "Anzahl: " + amount;
+};
+
+const addHeader = (tooltipItems: any) => {
+  let amount;
+
+  if ("winPercentage" in tooltipItems[0].raw) {
+    amount = tooltipItems[0].raw.winPercentage.toFixed(0);
+  } else if ("drawPercentage" in tooltipItems[0].raw) {
+    amount = tooltipItems[0].raw.drawPercentage.toFixed(0);
+  } else if ("lossPercentage" in tooltipItems[0].raw) {
+    amount = tooltipItems[0].raw.lossPercentage.toFixed(0);
+  } else {
+    amount = "0";
+  }
+  return "Prozent: " + amount + "%";
+};
+
+const graphOptions = ref({
+  maintainAspectRatio: false,
+  aspectRatio: 0.6,
+  plugins: {
+    tooltip: {
+      callbacks: {
+        title: addHeader,
+        label: addLabel,
+      },
+    },
+  },
 });
 
 async function wrestlerRowClick(wid: any, pid: any) {
@@ -324,9 +462,9 @@ async function yearSelected() {
     <ProgressSpinner v-if="loadingRankings" />
     <div
       v-else
-      class="justify-content-center align-content-center display: flex mt-2"
+      class="justify-center flex md:align-items-center align-items-stretch flex-wrap"
     >
-      <Card class="w-11/12 md:w-9/12">
+      <Card class="w-11/12 md:w-9/12 lg:w-22rem mt-2 md:mr-2">
         <template #title>Statistiken</template>
         <template #content>
           <p>Ø Rang: {{ averageRank }}</p>
@@ -337,6 +475,19 @@ async function yearSelected() {
               type="pie"
               :data="ratioWinDrawLoss"
               :options="chartOptions"
+            />
+          </div>
+        </template>
+      </Card>
+      <Card class="w-11/12 md:w-7/12 mt-2 md:mr-2">
+        <template #title></template>
+        <template #content>
+          <div>
+            <Chart
+              type="line"
+              :data="graphWinDrawLoss"
+              :options="graphOptions"
+              class="h-20rem"
             />
           </div>
         </template>
