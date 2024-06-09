@@ -17,7 +17,9 @@ const pocketbase = usePocketbase();
 
 const chartCanton = shallowRef();
 const fullCantonData = ref();
+const currentCanton = ref();
 const associationData = ref();
+const currentAssociation = ref();
 const clubData = ref();
 const loadingAssociation = ref(true);
 
@@ -190,12 +192,19 @@ onMounted(async () => {
     });
 });
 
+const onTabOpen = (event: { index: string | number }) => {
+  currentAssociation.value = associationData.value[event.index].id;
+};
+
 const onSubTabOpen = async (event: { index: string | number }) => {
+  currentCanton.value = fullCantonData.value.filter(
+    (canton: any) => canton.association === currentAssociation.value,
+  )[event.index];
   await pocketbase
     .collection("wrestlersByClub")
     .getFullList(200 /* batch size */, {
       sort: "name",
-      filter: 'canton.id = "' + fullCantonData.value[event.index].id + '"',
+      filter: 'canton.id = "' + currentCanton.value.id + '"',
       fields: "id,name,canton,wrestlerAmount,wrestlerActive",
     })
     .then((data) => {
@@ -223,7 +232,12 @@ function getCantons(associationId: string) {
       class="justify-content-center align-content-center display: flex flex-wrap fill-height mt-3 md:mt-6"
     >
       <ProgressSpinner v-if="loadingAssociation" />
-      <Accordion v-else lazy class="w-12 sm:w-10 md:w-8 lg:w-6 xl:w-4">
+      <Accordion
+        v-else
+        lazy
+        class="w-12 sm:w-10 md:w-8 lg:w-6 xl:w-4"
+        @tab-open="onTabOpen($event)"
+      >
         <AccordionTab
           v-for="association in associationData"
           :key="association.id"
