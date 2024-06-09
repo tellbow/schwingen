@@ -15,13 +15,16 @@ import maps from "~/public/topo/swiss-maps-modified.json";
 
 const pocketbase = usePocketbase();
 
-const chartCanton = shallowRef();
-const fullCantonData = ref();
-const currentCanton = ref();
+const chart = shallowRef();
+const currentSelection = ref("Teilverband");
 const associationData = ref();
+const mergedAssociations = ref();
 const currentAssociation = ref();
+const fullCantonData = ref();
+const mergedCantons = ref();
+const currentCanton = ref();
 const clubData = ref();
-const loadingAssociation = ref(true);
+const loadingData = ref(true);
 
 onMounted(async () => {
   const nation: Feature = topojson.feature(
@@ -40,7 +43,85 @@ onMounted(async () => {
     })
     .then((data) => {
       associationData.value = data;
-      loadingAssociation.value = false;
+
+      const mergedData: any = {};
+
+      // Merge first dataset based on name
+      for (const item of cantons) {
+        if (item.properties) {
+          const name = item.properties.name;
+          mergedData[name] = { ...mergedData[name], ...item };
+        }
+      }
+
+      // Merge second dataset based on name
+      for (const item of associationData.value) {
+        const abbreviation = item.abbreviation;
+        switch (abbreviation) {
+          case "BKSV":
+            mergedData.Bern = { ...mergedData.Bern, ...item };
+            break;
+          case "ISV": {
+            const isv = [
+              "Luzern",
+              "Nidwalden",
+              "Obwalden",
+              "Schwyz",
+              "Tessin",
+              "Uri",
+              "Zug",
+            ];
+            isv.forEach((canton) => {
+              mergedData[canton].wrestlerActive = item.wrestlerActive;
+              mergedData[canton].id = item.id;
+            });
+            break;
+          }
+          case "NOSV": {
+            const nosv = [
+              "Appenzell Ausserrhoden",
+              "Appenzell Innerrhoden",
+              "Glarus",
+              "Graubünden",
+              "Schaffhausen",
+              "St. Gallen",
+              "Thurgau",
+              "Zürich",
+            ];
+            nosv.forEach((canton) => {
+              mergedData[canton].wrestlerActive = item.wrestlerActive;
+              mergedData[canton].id = item.id;
+            });
+            break;
+          }
+          case "NWSV": {
+            const nwsv = ["Aargau", "Basel-Stadt", "Baselland", "Solothurn"];
+            nwsv.forEach((canton) => {
+              mergedData[canton].wrestlerActive = item.wrestlerActive;
+              mergedData[canton].id = item.id;
+            });
+            break;
+          }
+          case "SWSV": {
+            const swsv = [
+              "Fribourgeoise",
+              "Genevoise",
+              "Jura",
+              "Neuchâteloise",
+              "Valaisanne",
+              "Vaudoise",
+            ];
+            swsv.forEach((canton) => {
+              mergedData[canton].wrestlerActive = item.wrestlerActive;
+              mergedData[canton].id = item.id;
+            });
+            break;
+          }
+        }
+      }
+
+      // Convert the merged object back to an array if needed
+      mergedAssociations.value = Object.values(mergedData);
     });
   await pocketbase
     .collection("wrestlersByCanton")
@@ -97,103 +178,149 @@ onMounted(async () => {
       }
 
       // Convert the merged object back to an array if needed
-      const mergedArray = Object.values(mergedData);
-
-      const config = {
-        type: "choropleth",
-        data: {
-          labels: mergedArray.map((d: any) => d.properties.name),
-          datasets: [
-            {
-              label: "Kantone",
-              outline: nation,
-              showOutline: true,
-              data: mergedArray.map((d: any) => ({
-                feature: d,
-                value: d.wrestlerActive,
-              })),
-            },
-          ],
-        },
-        options: {
-          plugins: {
-            legend: {
-              display: false,
-            },
-            datalabels: {
-              align: "center",
-              color: "#000",
-              font: {
-                size: "12",
-                weight: "bold",
-              },
-              textShadowBlur: 10,
-              textShadowColor: "#000",
-              formatter: (v: any) => {
-                return (
-                  v.feature.properties.name + ": " + v.feature.wrestlerActive
-                );
-              },
-              display: function (context: any) {
-                return context.active;
-              },
-            },
-          },
-          onClick: (evt: any) => {
-            const res = chartCanton.value.getElementsAtEventForMode(
-              evt,
-              "nearest",
-              { intersect: true },
-              true,
-            );
-            if (res.length !== 0) {
-              let route: string;
-              if (res[0].element.feature.properties.name === "Bern") {
-                route =
-                  "/associations/association/" +
-                  res[0].element.feature.association;
-              } else {
-                route = "/associations/canton/" + res[0].element.feature.id;
-              }
-              navigateTo(route);
-            }
-          },
-          scales: {
-            projection: {
-              axis: "x",
-              projection: "mercator",
-              projectionOffset: [-30, 0],
-            },
-            color: {
-              axis: "x",
-              quantize: 10,
-              interpolate: "oranges",
-            },
-          },
-        },
-      };
-
-      Chart.register(
-        ChoroplethController,
-        GeoFeature,
-        ColorScale,
-        ProjectionScale,
-        ChartDataLabels,
-      );
-      const canvasCanton = document.getElementById(
-        "canvasCanton",
-      ) as HTMLCanvasElement;
-      const ctxCanton = canvasCanton.getContext("2d");
-      if (!ctxCanton || !(ctxCanton instanceof CanvasRenderingContext2D)) {
-        navigateTo("/error");
-      } else {
-        chartCanton.value = new Chart(ctxCanton, config as any);
-      }
+      mergedCantons.value = Object.values(mergedData);
     });
+  const config = {
+    type: "choropleth",
+    data: {
+      labels: mergedAssociations.value.map((d: any) => d.properties.name),
+      datasets: [
+        {
+          label: "Teilverbände",
+          outline: nation,
+          showOutline: true,
+          data: mergedAssociations.value.map((d: any) => ({
+            feature: d,
+            value: d.wrestlerActive,
+          })),
+        },
+      ],
+    },
+    options: {
+      plugins: {
+        legend: {
+          display: false,
+        },
+        datalabels: {
+          align: "center",
+          color: "#000",
+          font: {
+            size: "12",
+            weight: "bold",
+          },
+          textShadowBlur: 10,
+          textShadowColor: "#000",
+          formatter: (v: any) => {
+            return v.feature.properties.name + ": " + v.feature.wrestlerActive;
+          },
+          display: function (context: any) {
+            return context.active;
+          },
+        },
+      },
+      onClick: (evt: any) => {
+        const res = chart.value.getElementsAtEventForMode(
+          evt,
+          "nearest",
+          { intersect: true },
+          true,
+        );
+        if (res.length !== 0) {
+          const route =
+            "/associations/association/" + res[0].element.feature.id;
+          navigateTo(route);
+        }
+      },
+
+      scales: {
+        projection: {
+          axis: "x",
+          projection: "mercator",
+          projectionOffset: [-30, 0],
+        },
+        color: {
+          axis: "x",
+          quantize: 10,
+          interpolate: "oranges",
+        },
+      },
+    },
+  };
+
+  Chart.register(
+    ChoroplethController,
+    GeoFeature,
+    ColorScale,
+    ProjectionScale,
+    ChartDataLabels,
+  );
+  const canvasData = document.getElementById("canvasData") as HTMLCanvasElement;
+  const ctxData = canvasData.getContext("2d");
+  if (!ctxData || !(ctxData instanceof CanvasRenderingContext2D)) {
+    navigateTo("/error");
+  } else {
+    chart.value = new Chart(ctxData, config as any);
+  }
+  loadingData.value = false;
 });
 
 const onTabOpen = (event: { index: string | number }) => {
   currentAssociation.value = associationData.value[event.index].id;
+  currentSelection.value = "Kanton";
+  chart.value.data.labels = mergedCantons.value.map(
+    (d: any) => d.properties.name,
+  );
+  chart.value.data.datasets[0].label = "Kantone";
+  chart.value.data.datasets[0].data = mergedCantons.value.map((d: any) => ({
+    feature: d,
+    value: d.wrestlerActive,
+  }));
+  chart.value.options.onClick = (evt: any) => {
+    const res = chart.value.getElementsAtEventForMode(
+      evt,
+      "nearest",
+      { intersect: true },
+      true,
+    );
+    if (res.length !== 0) {
+      let route: string;
+      if (res[0].element.feature.properties.name === "Bern") {
+        route =
+          "/associations/association/" + res[0].element.feature.association;
+      } else {
+        route = "/associations/canton/" + res[0].element.feature.id;
+      }
+      navigateTo(route);
+    }
+  };
+  chart.value.update();
+};
+
+const onTabClose = () => {
+  currentSelection.value = "Teilverband";
+  chart.value.data.labels = mergedAssociations.value.map(
+    (d: any) => d.properties.name,
+  );
+  chart.value.data.datasets[0].label = "Teilverbände";
+  chart.value.data.datasets[0].data = mergedAssociations.value.map(
+    (d: any) => ({
+      feature: d,
+      value: d.wrestlerActive,
+    }),
+  );
+  chart.value.options.onClick = (evt: any) => {
+    const res = chart.value.getElementsAtEventForMode(
+      evt,
+      "nearest",
+      { intersect: true },
+      true,
+    );
+    if (res.length !== 0) {
+      const route = "/associations/association/" + res[0].element.feature.id;
+      navigateTo(route);
+    }
+  };
+  chart.value.update();
 };
 
 const onSubTabOpen = async (event: { index: string | number }) => {
@@ -223,20 +350,21 @@ function getCantons(associationId: string) {
     <div class="flex justify-center">
       <div class="h-fit w-screen md:w-4">
         <p class="text-xl font-bold mt-1 md:mt-2 mb-1 md:mb-2 text-center">
-          Anzahl Schwinger pro Kanton
+          Anzahl Schwinger pro {{ currentSelection }}
         </p>
-        <canvas id="canvasCanton" ref="canvasCanton"></canvas>
+        <canvas id="canvasData" ref="canvasData"></canvas>
       </div>
     </div>
     <div
       class="justify-content-center align-content-center display: flex flex-wrap fill-height mt-3 md:mt-6"
     >
-      <ProgressSpinner v-if="loadingAssociation" />
+      <ProgressSpinner v-if="loadingData" />
       <Accordion
         v-else
         lazy
         class="w-12 sm:w-10 md:w-8 lg:w-6 xl:w-4"
         @tab-open="onTabOpen($event)"
+        @tab-close="onTabClose()"
       >
         <AccordionTab
           v-for="association in associationData"
