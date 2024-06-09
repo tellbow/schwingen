@@ -48,7 +48,10 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
-      baseUrl: "https://schwingen.tellbow.ch",
+      baseUrl:
+        process.env.NODE_ENV === "development"
+          ? "http://localhost:8090"
+          : "https://schwingen.tellbow.ch",
     },
   },
 

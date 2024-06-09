@@ -24,6 +24,7 @@ RUN curl -L -o data.db https://github.com/tellbow/schwingen/releases/latest/down
 
 #build docker image
 FROM ubuntu:22.10
+ENV NODE_ENV production
 COPY --from=golang /usr/src/app/pocketnuxt /pocketnuxt
 COPY --from=downloader /home/curl_user/data.db /pb_data/
 CMD ["/pocketnuxt", "serve", "--http", "0.0.0.0:8090", "--encryptionEnv", "PB_ENCRYPTION"]
