@@ -5,7 +5,7 @@ export default <RouterConfig>{
   routes: (_routes) => [
     {
       name: "home",
-      path: "/blub",
+      path: "/home",
       component: () => import("~/pages/index.vue").then((r) => r.default || r),
     },
   ],
