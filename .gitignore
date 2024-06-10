@@ -7,9 +7,8 @@ pocketbase/.output
 node_modules
 # pocketnuxt binary
 pocketnuxt
-# pocketbase files
-pb_data/*
-!pb_data/data.db
+# pocketbase directories
+pb_data
 # import directory
 import
 # yarn
