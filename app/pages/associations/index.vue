@@ -349,7 +349,9 @@ function getCantons(associationId: string) {
   <div>
     <div class="flex justify-center">
       <div class="h-fit w-screen md:w-4">
-        <p class="text-xl font-bold mt-1 md:mt-2 mb-1 md:mb-2 text-center">
+        <p
+          class="text-xl font-bold mt-1 md:mt-2 mb-1 md:mb-2 text-center text-stone-800"
+        >
           Anzahl Schwinger pro {{ currentSelection }}
         </p>
         <canvas id="canvasData" ref="canvasData"></canvas>

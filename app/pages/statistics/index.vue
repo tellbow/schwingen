@@ -106,7 +106,7 @@ const loadData = async () => {
       loadingMostPlacesAttended.value = false;
     });
   await pocketbase
-    .collection("mostWreaths")
+    .collection("mostWreaths" + loadYear)
     .getList(1, 5, {
       fields: "wreath,id,name,vorname",
     })
