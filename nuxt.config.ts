@@ -35,7 +35,7 @@ export default defineNuxtConfig({
     },
   },
 
-  modules: ["@nuxtjs/tailwindcss", "nuxt-icon", "@nuxtjs/seo"],
+  modules: ["@nuxtjs/tailwindcss", "nuxt-icon", "@nuxtjs/seo", "@nuxt/eslint"],
 
   security: {
     headers: {
@@ -44,6 +44,10 @@ export default defineNuxtConfig({
       crossOriginEmbedderPolicy:
         process.env.NODE_ENV === "development" ? "unsafe-none" : "require-corp",
     },
+  },
+
+  eslint: {
+    // options here
   },
 
   linkChecker: {

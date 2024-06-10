@@ -480,7 +480,7 @@ async function yearSelected() {
         </template>
       </Card>
       <Card class="w-11/12 md:w-7/12 mt-2 md:mr-2">
-        <template #title></template>
+        <template #title/>
         <template #content>
           <div>
             <Chart

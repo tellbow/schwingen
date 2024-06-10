@@ -167,7 +167,7 @@ async function rowClick(wid: any) {
       >
         <template #title>
           Top 5 - ⌀ Rang
-          <Badge value="?" @click="toggle"></Badge>
+          <Badge value="?" @click="toggle"/>
           <OverlayPanel ref="op">5 Teilnahmen pro Jahr oder mehr</OverlayPanel>
         </template>
         <template #content>
@@ -219,7 +219,7 @@ async function rowClick(wid: any) {
       >
         <template #title>
           Top 5 - ⌀ Punkte
-          <Badge value="?" @click="toggle"></Badge>
+          <Badge value="?" @click="toggle"/>
           <OverlayPanel ref="op">5 Teilnahmen pro Jahr oder mehr</OverlayPanel>
         </template>
         <template #content>

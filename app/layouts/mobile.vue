@@ -45,7 +45,7 @@ function toggleNavigation() {
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
-    />
+    >
     <!-- Top Navigation Menu -->
     <div class="relative overflow-hidden bg-yellow-900 topnav">
       <div class="inline-flex bg-yellow-900">
@@ -55,7 +55,7 @@ function toggleNavigation() {
           style="width: 48px; height: 48px"
           alt="Tellbow"
           @click="home"
-        />
+        >
         <NuxtLink to="/">Tellbow</NuxtLink>
       </div>
       <!-- Navigation links (hidden by default) -->
@@ -77,7 +77,7 @@ function toggleNavigation() {
         class="bg-yellow-950 icon"
         @click="toggleNavigation"
       >
-        <i class="fa fa-bars"></i>
+        <i class="fa fa-bars"/>
       </a>
     </div>
     <slot />
