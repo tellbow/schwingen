@@ -10,7 +10,7 @@ const layout =
 
 useHead({
   title: "Tellbow",
-  meta: [{ name: "description", content: "Alles rund ums Schwingen." }],
+  meta: [{ name: "description", content: "Alles rund ums Schwingen!" }],
   htmlAttrs: { lang: "de" },
   link: [
     {
@@ -24,8 +24,8 @@ useHead({
 useSeoMeta({
   title: "Tellbow",
   ogTitle: "Tellbow",
-  description: "Alles rund ums Schwingen.",
-  ogDescription: "Alles rund ums Schwingen.",
+  description: "Alles rund ums Schwingen!",
+  ogDescription: "Alles rund ums Schwingen!",
   ogImage: "https://schwingen.tellbow.ch/images/logos/tellbow_cricle_crop.png",
   ogUrl: "https://schwingen.tellbow.ch/wrestler/5h1fij68r6jh8ut",
   twitterTitle: "Tellbow",

@@ -35,7 +35,7 @@ export default defineNuxtConfig({
     },
   },
 
-  modules: ["@nuxtjs/tailwindcss", "nuxt-icon"],
+  modules: ["@nuxtjs/tailwindcss", "nuxt-icon", "@nuxtjs/seo"],
 
   security: {
     headers: {
@@ -44,6 +44,29 @@ export default defineNuxtConfig({
       crossOriginEmbedderPolicy:
         process.env.NODE_ENV === "development" ? "unsafe-none" : "require-corp",
     },
+  },
+
+  linkChecker: {
+    enabled: false,
+  },
+
+  ogImage: {
+    enabled: false,
+  },
+
+  schemaOrg: {
+    enabled: false,
+  },
+
+  seoExperiments: {
+    enabled: false,
+  },
+
+  site: {
+    url: "https://schwingen.tellbow.ch/",
+    name: "Tellbow",
+    description: "Alles rund ums Schwingen!",
+    defaultLocale: "de",
   },
 
   runtimeConfig: {
