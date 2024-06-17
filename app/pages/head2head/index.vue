@@ -9,19 +9,23 @@ const selectedOpponent = ref();
 const loadingWrestlers = ref(true);
 
 onMounted(async () => {
+  loadWrestlers();
+});
+
+const loadWrestlers = async () => {
   const customFilter = 'status != ""';
   await pocketbase
     .collection("wrestler")
     .getFullList(200 /* batch size */, {
       filter: customFilter,
-      sort: "-created",
+      sort: "-status.symbol,name,-created",
       fields: "id,name,vorname",
     })
     .then((data) => {
       wrestlersData.value = data;
       loadingWrestlers.value = false;
     });
-});
+};
 
 async function navigateHead2Head() {
   await navigateTo(
@@ -45,7 +49,7 @@ async function navigateHead2Head() {
             :loading="loadingWrestlers"
             placeholder="Wähle einen Schwinger"
             empty-message="Keine Schwinger gefunden"
-            class="w-full md:w-14rem"
+            class="m-1 w-full md:w-14rem"
           />
           <Dropdown
             v-model="selectedOpponent"
@@ -57,7 +61,7 @@ async function navigateHead2Head() {
             :loading="loadingWrestlers"
             placeholder="Wähle einen Gegner"
             empty-message="Keine Gegner gefunden"
-            class="w-full md:w-14rem"
+            class="m-1 w-full md:w-14rem"
           />
           <Button
             type="button"

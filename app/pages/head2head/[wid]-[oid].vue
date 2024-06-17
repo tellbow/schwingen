@@ -197,6 +197,9 @@ function isHigher(stat: any, type: string, _reverse = false) {
               header: { class: 'p-0' },
             }"
           >
+            <template #empty>
+              Keine Statistiken zu diesen Schwingern.
+            </template>
             <template #header>
               <div class="grid mt-0">
                 <p class="col md:col-5">Schwinger</p>
@@ -284,6 +287,9 @@ function isHigher(stat: any, type: string, _reverse = false) {
               header: { class: 'p-0' },
             }"
           >
+            <template #empty>
+              Keine Aufeinandertreffen dieser Schwingern.
+            </template>
             <template #header>
               <div class="grid mt-0">
                 <p class="col md:col-7">Schwingfest (Jahr)</p>
@@ -308,17 +314,19 @@ function isHigher(stat: any, type: string, _reverse = false) {
                     </p>
                   </div>
                   <div class="col md:col text-center">
-                    <b v-if="slotProps.data.entries[0].result === '+'">{{
-                      slotProps.data.entries[0].points
-                    }}</b>
+                    <div v-if="slotProps.data.entries[0].result === '+'">
+                      <Icon name="mdi:crown" />
+                      <b>{{ slotProps.data.entries[0].points }}</b>
+                    </div>
                     <p v-else>
                       {{ slotProps.data.entries[0].points }}
                     </p>
                   </div>
                   <div class="col md:col text-center">
-                    <b v-if="slotProps.data.entries[1].result === '+'">{{
-                      slotProps.data.entries[1].points
-                    }}</b>
+                    <div v-if="slotProps.data.entries[1].result === '+'">
+                      <Icon name="mdi:crown" />
+                      <b>{{ slotProps.data.entries[1].points }}</b>
+                    </div>
                     <p v-else>
                       {{ slotProps.data.entries[1].points }}
                     </p>

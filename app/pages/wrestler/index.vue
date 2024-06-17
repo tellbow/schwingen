@@ -8,9 +8,9 @@ const page = ref(1);
 const records = ref();
 const totalRecords = ref(0);
 const status = ref([
-  "Kantonal- und Gauverbandskranzer",
-  "Teilverbands- und Bergkranzer",
-  "Eidgenoss",
+  { name: "Eidgenoss", value: "***" },
+  { name: "Teilverbands- und Bergkranzer", value: "**" },
+  { name: "Kantonal- und Gauverbandskranzer", value: "*" },
 ]);
 
 const layout =
@@ -49,6 +49,8 @@ onMounted(async () => {
 const loadLazyData = () => {
   loading.value = true;
 
+  const statusFilterOperand = filters.value.status.value ? "=" : "~";
+
   pocketbase
     .collection("wrestler")
     .getList(page.value, numberOfRows.value, {
@@ -62,7 +64,9 @@ const loadLazyData = () => {
         (filters.value.year.value || "") +
         '" && club.name ~ "' +
         (filters.value.club.value || "") +
-        '" && status.symbol ~ "' +
+        '" && status.symbol ' +
+        statusFilterOperand +
+        ' "' +
         (filters.value.status.value || "") +
         '"',
       sort: sorts.value.order + sorts.value.field + "-created",
@@ -200,6 +204,8 @@ const numberOfPages = computed(() => {
           <Dropdown
             v-model="filterModel.value"
             :options="status"
+            option-label="name"
+            option-value="value"
             placeholder="Suche"
             class="p-column-filter"
             :show-clear="true"
