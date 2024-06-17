@@ -354,7 +354,7 @@ function getCantons(associationId: string) {
         >
           Anzahl Schwinger pro {{ currentSelection }}
         </p>
-        <canvas id="canvasData" ref="canvasData"/>
+        <canvas id="canvasData" ref="canvasData" />
       </div>
     </div>
     <div

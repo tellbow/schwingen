@@ -37,7 +37,7 @@ function home() {
       style="width: 48px; height: 48px"
       alt="Tellbow"
       @click="home"
-    >
+    />
     <TabMenu :model="items" />
   </div>
 </template>

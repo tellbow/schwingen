@@ -211,6 +211,8 @@ const ratioWinDrawLoss = computed({
           },
         ],
       };
+    } else {
+      return {};
     }
   },
   set: () => {},
@@ -306,6 +308,8 @@ const graphWinDrawLoss = computed({
           },
         ],
       };
+    } else {
+      return {};
     }
   },
   set: () => {},
@@ -480,7 +484,7 @@ async function yearSelected() {
         </template>
       </Card>
       <Card class="w-11/12 md:w-7/12 mt-2 md:mr-2">
-        <template #title/>
+        <template #title />
         <template #content>
           <div>
             <Chart

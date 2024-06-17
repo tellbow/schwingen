@@ -464,9 +464,9 @@ const onRowCollapse = (event: {
       <template #expansion="data">
         <div class="p-1">
           <DataTable :value="data.data.bouts">
-            <Column field="result" header="Resultat"/>
-            <Column field="points" header="Punkte" sortable/>
-            <Column field="fight_round" header="Gang" sortable/>
+            <Column field="result" header="Resultat" />
+            <Column field="points" header="Punkte" sortable />
+            <Column field="fight_round" header="Gang" sortable />
             <Column
               field="expand.opponent.name"
               header="Gegner - Name"

@@ -1,5 +1,3 @@
-import { resolve } from "path";
-
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   // Must be false to be used served by pocketbase
@@ -16,16 +14,6 @@ export default defineNuxtConfig({
 
   build: {
     transpile: ["primevue"],
-  },
-
-  hooks: {
-    "pages:extend"(pages) {
-      pages.push({
-        name: "home",
-        path: "/index.html",
-        file: resolve(__dirname, "/pages/index.vue"),
-      });
-    },
   },
 
   imports: {
