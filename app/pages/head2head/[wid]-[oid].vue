@@ -210,62 +210,48 @@ function isHigher(stat: any, type: string, _reverse = false) {
               </div>
             </template>
             <template #list="slotProps">
-              <div class="col-12 hover:bg-gray-200">
-                <div class="grid">
-                  <div class="col md:col-5">
-                    <p>
-                      {{ slotProps.data.name }} {{ slotProps.data.vorname }}
-                    </p>
-                  </div>
-                  <div class="col md:col">
-                    <b
-                      v-if="
-                        isHigher(
-                          slotProps.data.averageRank,
-                          'averageRank',
-                          true,
-                        )
-                      "
-                    >
-                      {{ slotProps.data.averageRank }}
-                    </b>
-                    <p v-else>
-                      {{ slotProps.data.averageRank }}
-                    </p>
-                  </div>
-                  <div class="col md:col">
-                    <b
-                      v-if="
-                        isHigher(slotProps.data.averagePoints, 'averagePoints')
-                      "
-                    >
-                      {{ slotProps.data.averagePoints }}
-                    </b>
-                    <p v-else>
-                      {{ slotProps.data.averagePoints }}
-                    </p>
-                  </div>
-                  <div class="col md:col">
-                    <b
-                      v-if="
-                        isHigher(slotProps.data.countWreaths, 'countWreaths')
-                      "
-                    >
-                      {{ slotProps.data.countWreaths }}
-                    </b>
-                    <p v-else>
-                      {{ slotProps.data.countWreaths }}
-                    </p>
-                  </div>
-                  <div class="col md:col">
-                    <b
-                      v-if="isHigher(slotProps.data.countFinals, 'countFinals')"
-                    >
-                      {{ slotProps.data.countFinals }}
-                    </b>
-                    <p v-else>
-                      {{ slotProps.data.countFinals }}
-                    </p>
+              <div class="grid grid-nogutter">
+                <div
+                  v-for="(item, index) in slotProps.items"
+                  :key="index"
+                  class="col-12 hover:bg-gray-200"
+                >
+                  <div class="grid">
+                    <div class="col md:col-5">
+                      <p>{{ item.name }} {{ item.vorname }}</p>
+                    </div>
+                    <div class="col md:col">
+                      <b v-if="isHigher(item.averageRank, 'averageRank', true)">
+                        {{ item.averageRank }}
+                      </b>
+                      <p v-else>
+                        {{ item.averageRank }}
+                      </p>
+                    </div>
+                    <div class="col md:col">
+                      <b v-if="isHigher(item.averagePoints, 'averagePoints')">
+                        {{ item.averagePoints }}
+                      </b>
+                      <p v-else>
+                        {{ item.averagePoints }}
+                      </p>
+                    </div>
+                    <div class="col md:col">
+                      <b v-if="isHigher(item.countWreaths, 'countWreaths')">
+                        {{ item.countWreaths }}
+                      </b>
+                      <p v-else>
+                        {{ item.countWreaths }}
+                      </p>
+                    </div>
+                    <div class="col md:col">
+                      <b v-if="isHigher(item.countFinals, 'countFinals')">
+                        {{ item.countFinals }}
+                      </b>
+                      <p v-else>
+                        {{ item.countFinals }}
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -304,32 +290,34 @@ function isHigher(stat: any, type: string, _reverse = false) {
               </div>
             </template>
             <template #list="slotProps">
-              <div class="col-12 hover:bg-gray-200">
-                <div class="grid">
-                  <div class="col md:col-7">
-                    <p>
-                      {{ slotProps.data.place.name }} ({{
-                        slotProps.data.place.year
-                      }})
-                    </p>
-                  </div>
-                  <div class="col md:col text-center">
-                    <div v-if="slotProps.data.entries[0].result === '+'">
-                      <Icon name="mdi:crown" />
-                      <b>{{ slotProps.data.entries[0].points }}</b>
+              <div class="grid grid-nogutter">
+                <div
+                  v-for="(item, index) in slotProps.items"
+                  :key="index"
+                  class="col-12 hover:bg-gray-200"
+                >
+                  <div class="grid">
+                    <div class="col md:col-7">
+                      <p>{{ item.place.name }} ({{ item.place.year }})</p>
                     </div>
-                    <p v-else>
-                      {{ slotProps.data.entries[0].points }}
-                    </p>
-                  </div>
-                  <div class="col md:col text-center">
-                    <div v-if="slotProps.data.entries[1].result === '+'">
-                      <Icon name="mdi:crown" />
-                      <b>{{ slotProps.data.entries[1].points }}</b>
+                    <div class="col md:col text-center">
+                      <div v-if="item.entries[0].result === '+'">
+                        <Icon name="mdi:crown" />
+                        <b>{{ item.entries[0].points }}</b>
+                      </div>
+                      <p v-else>
+                        {{ item.entries[0].points }}
+                      </p>
                     </div>
-                    <p v-else>
-                      {{ slotProps.data.entries[1].points }}
-                    </p>
+                    <div class="col md:col text-center">
+                      <div v-if="item.entries[1].result === '+'">
+                        <Icon name="mdi:crown" />
+                        <b>{{ item.entries[1].points }}</b>
+                      </div>
+                      <p v-else>
+                        {{ item.entries[1].points }}
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>

@@ -47,30 +47,31 @@ async function rowClick(wid: any, pid: any) {
         <template #content>
           <DataView :value="opponentsData" data-key="id">
             <template #list="slotProps">
-              <div
-                class="col-12 hover:bg-gray-200 cursor-pointer"
-                @click="
-                  rowClick(
-                    slotProps.data.expand.opponent.id,
-                    slotProps.data.expand.place.id,
-                  )
-                "
-              >
-                <div class="grid">
-                  <div class="col-1">
-                    <p>{{ slotProps.data.fight_round }}</p>
-                  </div>
-                  <div class="col-2">
-                    <p>{{ slotProps.data.result }}</p>
-                  </div>
-                  <div class="col-3">
-                    <p>{{ slotProps.data.points }}</p>
-                  </div>
-                  <div class="col-6">
-                    <p>
-                      {{ slotProps.data.expand.opponent.name }}
-                      {{ slotProps.data.expand.opponent.vorname }}
-                    </p>
+              <div class="grid grid-nogutter">
+                <div
+                  v-for="(item, index) in slotProps.items"
+                  :key="index"
+                  class="col-12 hover:bg-gray-200 cursor-pointer"
+                  @click="
+                    rowClick(item.expand.opponent.id, item.expand.place.id)
+                  "
+                >
+                  <div class="grid">
+                    <div class="col-1">
+                      <p>{{ item.fight_round }}</p>
+                    </div>
+                    <div class="col-2">
+                      <p>{{ item.result }}</p>
+                    </div>
+                    <div class="col-3">
+                      <p>{{ item.points }}</p>
+                    </div>
+                    <div class="col-6">
+                      <p>
+                        {{ item.expand.opponent.name }}
+                        {{ item.expand.opponent.vorname }}
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>

@@ -188,21 +188,25 @@ async function rowClick(wid: any) {
               </div>
             </template>
             <template #list="slotProps">
-              <div
-                class="col-12 hover:bg-gray-200 cursor-pointer"
-                @click="rowClick(slotProps.data.wid)"
-              >
-                <div class="grid">
-                  <div class="col-1 md:col-1 flex justify-center items-center">
-                    <p>{{ slotProps.index + 1 }}</p>
-                  </div>
-                  <div class="col-8 md:col-6">
-                    <p>
-                      {{ slotProps.data.name }} {{ slotProps.data.vorname }}
-                    </p>
-                  </div>
-                  <div class="col-1 md:col-1">
-                    <p>{{ slotProps.data.avgRank }}</p>
+              <div class="grid grid-nogutter">
+                <div
+                  v-for="(item, index) in slotProps.items"
+                  :key="index"
+                  class="col-12 hover:bg-gray-200 cursor-pointer"
+                  @click="rowClick(item.wid)"
+                >
+                  <div class="grid">
+                    <div
+                      class="col-1 md:col-1 flex justify-center items-center"
+                    >
+                      <p>{{ index + 1 }}</p>
+                    </div>
+                    <div class="col-8 md:col-6">
+                      <p>{{ item.name }} {{ item.vorname }}</p>
+                    </div>
+                    <div class="col-1 md:col-1">
+                      <p>{{ item.avgRank }}</p>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -240,21 +244,25 @@ async function rowClick(wid: any) {
               </div>
             </template>
             <template #list="slotProps">
-              <div
-                class="col-12 hover:bg-gray-200 cursor-pointer"
-                @click="rowClick(slotProps.data.wid)"
-              >
-                <div class="grid">
-                  <div class="col-1 md:col-1 flex justify-center items-center">
-                    <p>{{ slotProps.index + 1 }}</p>
-                  </div>
-                  <div class="col-8 md:col-6">
-                    <p>
-                      {{ slotProps.data.name }} {{ slotProps.data.vorname }}
-                    </p>
-                  </div>
-                  <div class="col-1 md:col-1">
-                    <p>{{ slotProps.data.avgPoints }}</p>
+              <div class="grid grid-nogutter">
+                <div
+                  v-for="(item, index) in slotProps.items"
+                  :key="index"
+                  class="col-12 hover:bg-gray-200 cursor-pointer"
+                  @click="rowClick(item.wid)"
+                >
+                  <div class="grid">
+                    <div
+                      class="col-1 md:col-1 flex justify-center items-center"
+                    >
+                      <p>{{ index + 1 }}</p>
+                    </div>
+                    <div class="col-8 md:col-6">
+                      <p>{{ item.name }} {{ item.vorname }}</p>
+                    </div>
+                    <div class="col-1 md:col-1">
+                      <p>{{ item.avgPoints }}</p>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -289,24 +297,28 @@ async function rowClick(wid: any) {
               </div>
             </template>
             <template #list="slotProps">
-              <div
-                class="col-12 hover:bg-gray-200 cursor-pointer"
-                @click="rowClick(slotProps.data.id)"
-              >
-                <div class="grid">
-                  <div class="col-1 md:col-1 flex justify-center items-center">
-                    <p>{{ slotProps.index + 1 }}</p>
-                  </div>
-                  <div class="col-6 md:col-6">
-                    <p>
-                      {{ slotProps.data.name }} {{ slotProps.data.vorname }}
-                    </p>
-                  </div>
-                  <div class="col-2 md:col-1">
-                    <p>{{ slotProps.data.wins }}</p>
-                  </div>
-                  <div class="col-3 md:col-3">
-                    <p>{{ slotProps.data.wreath }}</p>
+              <div class="grid grid-nogutter">
+                <div
+                  v-for="(item, index) in slotProps.items"
+                  :key="index"
+                  class="col-12 hover:bg-gray-200 cursor-pointer"
+                  @click="rowClick(item.id)"
+                >
+                  <div class="grid">
+                    <div
+                      class="col-1 md:col-1 flex justify-center items-center"
+                    >
+                      <p>{{ index + 1 }}</p>
+                    </div>
+                    <div class="col-6 md:col-6">
+                      <p>{{ item.name }} {{ item.vorname }}</p>
+                    </div>
+                    <div class="col-2 md:col-1">
+                      <p>{{ item.wins }}</p>
+                    </div>
+                    <div class="col-3 md:col-3">
+                      <p>{{ item.wreath }}</p>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -340,21 +352,25 @@ async function rowClick(wid: any) {
               </div>
             </template>
             <template #list="slotProps">
-              <div
-                class="col-12 hover:bg-gray-200 cursor-pointer"
-                @click="rowClick(slotProps.data.id)"
-              >
-                <div class="grid">
-                  <div class="col-1 md:col-1 flex justify-center items-center">
-                    <p>{{ slotProps.index + 1 }}</p>
-                  </div>
-                  <div class="col-7 md:col-6">
-                    <p>
-                      {{ slotProps.data.name }} {{ slotProps.data.vorname }}
-                    </p>
-                  </div>
-                  <div class="col-2 md:col-1">
-                    <p>{{ slotProps.data.wreath }}</p>
+              <div class="grid grid-nogutter">
+                <div
+                  v-for="(item, index) in slotProps.items"
+                  :key="index"
+                  class="col-12 hover:bg-gray-200 cursor-pointer"
+                  @click="rowClick(item.id)"
+                >
+                  <div class="grid">
+                    <div
+                      class="col-1 md:col-1 flex justify-center items-center"
+                    >
+                      <p>{{ index + 1 }}</p>
+                    </div>
+                    <div class="col-7 md:col-6">
+                      <p>{{ item.name }} {{ item.vorname }}</p>
+                    </div>
+                    <div class="col-2 md:col-1">
+                      <p>{{ item.wreath }}</p>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -388,21 +404,25 @@ async function rowClick(wid: any) {
               </div>
             </template>
             <template #list="slotProps">
-              <div
-                class="col-12 hover:bg-gray-200 cursor-pointer"
-                @click="rowClick(slotProps.data.id)"
-              >
-                <div class="grid">
-                  <div class="col-1 md:col-1 flex justify-center items-center">
-                    <p>{{ slotProps.index + 1 }}</p>
-                  </div>
-                  <div class="col-7 md:col-6">
-                    <p>
-                      {{ slotProps.data.name }} {{ slotProps.data.vorname }}
-                    </p>
-                  </div>
-                  <div class="col-2 md:col-1">
-                    <p>{{ slotProps.data.placesAttended }}</p>
+              <div class="grid grid-nogutter">
+                <div
+                  v-for="(item, index) in slotProps.items"
+                  :key="index"
+                  class="col-12 hover:bg-gray-200 cursor-pointer"
+                  @click="rowClick(item.id)"
+                >
+                  <div class="grid">
+                    <div
+                      class="col-1 md:col-1 flex justify-center items-center"
+                    >
+                      <p>{{ index + 1 }}</p>
+                    </div>
+                    <div class="col-7 md:col-6">
+                      <p>{{ item.name }} {{ item.vorname }}</p>
+                    </div>
+                    <div class="col-2 md:col-1">
+                      <p>{{ item.placesAttended }}</p>
+                    </div>
                   </div>
                 </div>
               </div>

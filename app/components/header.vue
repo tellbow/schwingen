@@ -5,22 +5,22 @@ const items = ref([
   {
     label: "Verbände",
     icon: "clubs-icon",
-    to: "/associations",
+    route: "/associations",
   },
   {
     label: "Schwinger",
     icon: "wrestler-icon",
-    to: "/wrestler",
+    route: "/wrestler",
   },
   {
     label: "Schwingfeste",
     icon: "festival-icon",
-    to: "/places",
+    route: "/places",
   },
   {
     label: "Statistiken",
     icon: "statistics-icon",
-    to: "/statistics",
+    route: "/statistics",
   },
 ]);
 
@@ -36,9 +36,23 @@ function home() {
       src="/images/logos/tellbow-192x192.png"
       style="width: 48px; height: 48px"
       alt="Tellbow"
-      @click="home"
+      @click="home()"
     />
-    <TabMenu :model="items" />
+    <TabMenu :model="items">
+      <template #item="{ item, props }">
+        <router-link
+          v-if="item.route"
+          v-slot="{ href, navigate }"
+          :to="item.route"
+          custom
+        >
+          <a v-ripple :href="href" v-bind="props.action" @click="navigate">
+            <span v-bind="props.icon" />
+            <span v-bind="props.label">{{ item.label }}</span>
+          </a>
+        </router-link>
+      </template>
+    </TabMenu>
   </div>
 </template>
 

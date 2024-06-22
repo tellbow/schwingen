@@ -529,47 +529,45 @@ async function yearSelected() {
               </div>
             </template>
             <template #list="slotProps">
-              <div
-                class="col-12 hover:bg-gray-200 cursor-pointer"
-                @click="
-                  wrestlerRowClick(
-                    route.params.id,
-                    slotProps.data.expand.place.id,
-                  )
-                "
-              >
-                <div class="grid">
-                  <div class="col-4 md:col-4">
-                    <p class="font-bold">
-                      {{ slotProps.data.expand.place.name }}
-                    </p>
-                  </div>
-                  <div v-if="layout === 'default'" class="col-1 md:col-2">
-                    <p class="font-bold">
-                      {{ slotProps.data.expand.place.year }}
-                    </p>
-                  </div>
-                  <div class="col-2 md:col-1">
-                    <p>{{ slotProps.data.rank }}{{ slotProps.data.rank2 }}</p>
-                  </div>
-                  <div class="col-2 md:col-1">
-                    <p>{{ slotProps.data.points }}</p>
-                  </div>
-                  <div class="col-4 md:col-2">
-                    <p>{{ slotProps.data.result }}</p>
-                  </div>
-                  <div v-if="layout === 'default'" class="md:col-1">
-                    <Icon v-if="slotProps.data.final" name="gis:flag-finish" />
-                  </div>
-                  <div v-if="layout === 'default'" class="md:col-1">
-                    <Icon
-                      v-if="slotProps.data.wreath"
-                      name="mingcute:wreath-fill"
-                    />
-                    <Icon
-                      v-if="slotProps.data.status === 'Unfall'"
-                      name="game-icons:arm-bandage"
-                    />
+              <div class="grid grid-nogutter">
+                <div
+                  v-for="(item, index) in slotProps.items"
+                  :key="index"
+                  class="col-12 hover:bg-gray-200 cursor-pointer"
+                  @click="
+                    wrestlerRowClick(route.params.id, item.expand.place.id)
+                  "
+                >
+                  <div class="grid">
+                    <div class="col-4 md:col-4">
+                      <p class="font-bold">
+                        {{ item.expand.place.name }}
+                      </p>
+                    </div>
+                    <div v-if="layout === 'default'" class="col-1 md:col-2">
+                      <p class="font-bold">
+                        {{ item.expand.place.year }}
+                      </p>
+                    </div>
+                    <div class="col-2 md:col-1">
+                      <p>{{ item.rank }}{{ item.rank2 }}</p>
+                    </div>
+                    <div class="col-2 md:col-1">
+                      <p>{{ item.points }}</p>
+                    </div>
+                    <div class="col-4 md:col-2">
+                      <p>{{ item.result }}</p>
+                    </div>
+                    <div v-if="layout === 'default'" class="md:col-1">
+                      <Icon v-if="item.final" name="gis:flag-finish" />
+                    </div>
+                    <div v-if="layout === 'default'" class="md:col-1">
+                      <Icon v-if="item.wreath" name="mingcute:wreath-fill" />
+                      <Icon
+                        v-if="item.status === 'Unfall'"
+                        name="game-icons:arm-bandage"
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -605,22 +603,26 @@ async function yearSelected() {
           />
           <DataView :value="boutsData" data-key="id" class="mt-4">
             <template #list="slotProps">
-              <div
-                class="col-12 hover:bg-gray-200 cursor-pointer"
-                @click="placeRowClick(slotProps.data.expand.place.id)"
-              >
-                <div class="grid">
-                  <div class="col-4 md:col-4">
-                    <strong> {{ slotProps.data.expand.place.name }}</strong>
-                  </div>
-                  <div class="col-4 md:col-2">
-                    <p>{{ slotProps.data.expand.place.year }}</p>
-                  </div>
-                  <div class="col-4 md:col-2">
-                    <p>{{ slotProps.data.points }}</p>
-                  </div>
-                  <div class="col-4 md:col-2">
-                    <p>{{ slotProps.data.result }}</p>
+              <div class="grid grid-nogutter">
+                <div
+                  v-for="(item, index) in slotProps.items"
+                  :key="index"
+                  class="col-12 hover:bg-gray-200 cursor-pointer"
+                  @click="placeRowClick(item.expand.place.id)"
+                >
+                  <div class="grid">
+                    <div class="col-4 md:col-4">
+                      <strong> {{ item.expand.place.name }}</strong>
+                    </div>
+                    <div class="col-4 md:col-2">
+                      <p>{{ item.expand.place.year }}</p>
+                    </div>
+                    <div class="col-4 md:col-2">
+                      <p>{{ item.points }}</p>
+                    </div>
+                    <div class="col-4 md:col-2">
+                      <p>{{ item.result }}</p>
+                    </div>
                   </div>
                 </div>
               </div>

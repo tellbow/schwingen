@@ -30,8 +30,7 @@ useSeoMeta({
   ogUrl: "https://schwingen.tellbow.ch/wrestler/5h1fij68r6jh8ut",
   twitterTitle: "Tellbow",
   twitterDescription: "Alles rund ums Schwingen.",
-  twitterImage:
-    "https://schwingen.tellbow.ch/images/logos/tellbow_circle.png",
+  twitterImage: "https://schwingen.tellbow.ch/images/logos/tellbow_circle.png",
   twitterCard: "summary",
 });
 </script>
