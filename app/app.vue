@@ -26,20 +26,19 @@ useSeoMeta({
   ogTitle: "Tellbow",
   description: "Alles rund ums Schwingen!",
   ogDescription: "Alles rund ums Schwingen!",
-  ogImage: "https://schwingen.tellbow.ch/images/logos/tellbow_cricle_crop.png",
+  ogImage: "https://schwingen.tellbow.ch/images/logos/tellbow_circle.png",
   ogUrl: "https://schwingen.tellbow.ch/wrestler/5h1fij68r6jh8ut",
   twitterTitle: "Tellbow",
   twitterDescription: "Alles rund ums Schwingen.",
   twitterImage:
-    "https://schwingen.tellbow.ch/images/logos/tellbow_cricle_crop.png",
+    "https://schwingen.tellbow.ch/images/logos/tellbow_circle.png",
   twitterCard: "summary",
 });
 </script>
 
 <template>
   <div>
-    <Toast />
-    <Toast position="bottom-right" group="br" />
+    <NuxtPwaManifest />
     <NuxtLayout v-show="ready" :name="layout">
       <NuxtLoadingIndicator />
       <NuxtPage />

@@ -1,3 +1,7 @@
+import process from 'node:process'
+
+const sw = process.env.SW === 'true'
+
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   // Must be false to be used served by pocketbase
@@ -23,7 +27,14 @@ export default defineNuxtConfig({
     },
   },
 
-  modules: ["@nuxtjs/tailwindcss", "nuxt-icon", "@nuxtjs/seo", "@nuxt/eslint"],
+  modules: [
+    "@nuxtjs/tailwindcss",
+    "nuxt-icon",
+    "@nuxtjs/seo",
+    "@nuxt/eslint",
+    "@vite-pwa/nuxt",
+    "@nuxtjs/fontaine"
+  ],
 
   security: {
     headers: {
@@ -74,5 +85,58 @@ export default defineNuxtConfig({
 
   devtools: {
     enabled: false,
+  },
+
+  nitro: {
+    compressPublicAssets: true,
+  },
+
+  pwa: {
+    strategies: sw ? 'injectManifest' : 'generateSW',
+    srcDir: sw ? 'service-worker' : undefined,
+    filename: sw ? 'sw.ts' : undefined,
+    registerType: 'autoUpdate',
+    manifest: {
+      name: 'Nuxt Vite PWA',
+      short_name: 'NuxtVitePWA',
+      theme_color: '#ffffff',
+      icons: [
+        {
+          src: 'images/logos/tellbow-192x192.png',
+          sizes: '192x192',
+          type: 'image/png',
+        },
+        {
+          src: 'images/logos/tellbow-512x512.png',
+          sizes: '512x512',
+          type: 'image/png',
+        },
+        {
+          src: 'images/logos/tellbow-512x512.png',
+          sizes: '512x512',
+          type: 'image/png',
+          purpose: 'any maskable',
+        },
+      ],
+    },
+    workbox: {
+      globPatterns: ['**/*.{js,css,html,png,svg,ico}'],
+    },
+    injectManifest: {
+      globPatterns: ['**/*.{js,css,html,png,svg,ico}'],
+    },
+    client: {
+      installPrompt: true,
+      // you don't need to include this: only for testing purposes
+      // if enabling periodic sync for update use 1 hour or so (periodicSyncForUpdates: 3600)
+      periodicSyncForUpdates: 20,
+    },
+    devOptions: {
+      enabled: true,
+      suppressWarnings: false,
+      navigateFallback: '/',
+      navigateFallbackAllowlist: [/^\/$/],
+      type: 'module',
+    },
   },
 });
