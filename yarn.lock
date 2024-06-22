@@ -13948,12 +13948,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"primevue@npm:3.34.1":
-  version: 3.34.1
-  resolution: "primevue@npm:3.34.1"
+"primevue@npm:3.36.0":
+  version: 3.36.0
+  resolution: "primevue@npm:3.36.0"
   peerDependencies:
     vue: ^3.0.0
-  checksum: 10c0/b29b1f54e4d01d76aae3b256020a92794a2954e50ff0653fb073bf0652e51ecd08ff87fc4bb34388ca58a25d111c6d8c3c8bd661073437a78237baaf8d5cdeb7
+  checksum: 10c0/5893adcd9dcc2255c89823a0b1747980287bfcb1aad0b3af86d5d374ec9cb3f6fb8c11b4ac63955d72c0640993c26054dafea2cacbc15906f89db1072c70d303
   languageName: node
   linkType: hard
 
@@ -14633,7 +14633,7 @@ __metadata:
     prettier: "npm:^3.3.2"
     primeflex: "npm:^3.3.1"
     primeicons: "npm:^7.0.0"
-    primevue: "npm:3.34.1"
+    primevue: "npm:3.36.0"
     typescript: "npm:^5.5.2"
   languageName: unknown
   linkType: soft
