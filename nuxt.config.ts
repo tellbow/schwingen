@@ -33,6 +33,8 @@ export default defineNuxtConfig({
     "@nuxt/eslint",
     "@vite-pwa/nuxt",
     "@nuxtjs/fontaine",
+    "@nuxt/devtools",
+    "nuxt-security",
   ],
 
   security: {

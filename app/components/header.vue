@@ -46,7 +46,7 @@ function home() {
           :to="item.route"
           custom
         >
-          <a v-ripple :href="href" v-bind="props.action" @click="navigate">
+          <a :href="href" v-bind="props.action" @click="navigate">
             <span v-bind="props.icon" />
             <span v-bind="props.label">{{ item.label }}</span>
           </a>

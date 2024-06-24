@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-const ready = true;
-
 const layout =
   /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
     navigator.userAgent,
@@ -38,7 +36,7 @@ useSeoMeta({
 <template>
   <div>
     <NuxtPwaManifest />
-    <NuxtLayout v-show="ready" :name="layout">
+    <NuxtLayout :name="layout">
       <NuxtLoadingIndicator />
       <NuxtPage />
     </NuxtLayout>
