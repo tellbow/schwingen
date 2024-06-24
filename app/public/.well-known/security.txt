@@ -1,0 +1,3 @@
+Contact: mailto:support@tellbow.ch
+Expires: 2030-12-30T23:00:00.000Z
+Preferred-Languages: de, en
