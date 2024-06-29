@@ -7,6 +7,12 @@ export default defineNuxtConfig({
   ...(process.env.NODE_ENV !== "development" && {
     app: {
       head: {
+        meta: [
+          {
+            "name": "google-site-verification",
+            "content": "3yA7b1xo5M3eQ_QOpOHA5sZeUe6hHItJK2M27aAdq_k",
+          },
+        ],
         script: [
           {
             src: "https://stats.mcathome.ch/script.js",
