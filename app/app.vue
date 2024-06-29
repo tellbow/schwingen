@@ -8,7 +8,8 @@ const layout =
 
 useHead({
   title: "Tellbow",
-  meta: [{ name: "description", content: "Alles rund ums Schwingen!" }],
+  meta: [{ name: "description", content: "Alles rund ums Schwingen!" },
+         { name: "google-site-verification", content: "3yA7b1xo5M3eQ_QOpOHA5sZeUe6hHItJK2M27aAdq_k" },],
   htmlAttrs: { lang: "de" },
   link: [
     {
