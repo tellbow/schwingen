@@ -4,6 +4,19 @@ const sw = process.env.SW === "true";
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
+  ...(process.env.NODE_ENV !== "development" && {
+    app: {
+      head: {
+        script: [
+          {
+            src: "https://stats.mcathome.ch/script.js",
+            "data-website-id": "ace4da01-246d-4efd-bccf-3d39ee00c864",
+          },
+        ],
+      },
+    },
+  }),
+
   // Must be false to be used served by pocketbase
   ssr: false,
 
