@@ -22,6 +22,11 @@ const items = ref([
     icon: "statistics-icon",
     route: "/statistics",
   },
+  {
+    label: "Direktvergleich",
+    icon: "bouts-icon",
+    route: "/head2head",
+  },
 ]);
 
 function home() {

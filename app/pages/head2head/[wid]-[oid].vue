@@ -66,7 +66,7 @@ const loadStatisticsData = async () => {
       expand: "wrestler,place",
       sort: "-place.year,-created",
       fields:
-        "id,rank,rank2,points,final,result,wreath,status,expand.wrestler.name,expand.wrestler.vorname,expand.place.name,expand.place.year",
+        "id,rank,rank2,points,final,result,wreath,status,expand.wrestler.id,expand.wrestler.name,expand.wrestler.vorname,expand.place.name,expand.place.year",
     })
     .then((data) => {
       // Grouping data by wrestler name and vorname
@@ -75,8 +75,8 @@ const loadStatisticsData = async () => {
           if (!curr.expand) {
             return acc; // Skip this entry if wrestler or place is undefined
           }
-          const { name, vorname } = curr.expand.wrestler;
-          const key = `${name} ${vorname}`;
+          const { id, name, vorname } = curr.expand.wrestler;
+          const key = `${id} ${name} ${vorname}`;
           if (!acc[key]) {
             acc[key] = [];
           }
@@ -87,7 +87,7 @@ const loadStatisticsData = async () => {
       );
       // Calculating statistics for each wrestler
       const statistics = Object.entries(groupedData).map(([key, value]) => {
-        const [name, vorname] = key.split(" ");
+        const [id, name, vorname] = key.split(" ");
         const averageRank = (
           value.reduce((sum, entry) => sum + parseInt(entry.rank), 0) /
           value.length
@@ -99,6 +99,7 @@ const loadStatisticsData = async () => {
         const countWreaths = value.filter((entry) => entry.wreath).length;
         const countFinals = value.filter((entry) => entry.final).length;
         return {
+          id,
           name,
           vorname,
           averageRank,
@@ -130,7 +131,7 @@ const loadBoutsData = async () => {
       expand: "wrestler,opponent,place",
       sort: "-place.year,-created",
       fields:
-        "id,result,points,expand.wrestler.name,expand.wrestler.vorname,expand.opponent.name,expand.opponent.vorname,expand.place.name,expand.place.year",
+        "id,result,points,expand.wrestler.name,expand.wrestler.vorname,expand.opponent.name,expand.opponent.vorname,expand.place.id,expand.place.name,expand.place.year",
     })
     .then((data) => {
       const groupedData: any = {};
@@ -143,12 +144,14 @@ const loadBoutsData = async () => {
         ) {
           return;
         }
+        const placeId = entry.expand.place.id;
         const placeName = entry.expand.place.name;
         const year = entry.expand.place.year.split("-")[0];
-        const key = `${placeName}-${year}`;
+        const key = `${placeId}-${placeName}-${year}`;
         if (!groupedData[key]) {
           groupedData[key] = {
             place: {
+              id: entry.expand.place.id,
               name: entry.expand.place.name,
               year: entry.expand.place.year.split("-")[0],
             },
@@ -180,6 +183,14 @@ function isHigher(stat: any, type: string, _reverse = false) {
     return !(stat === highest[type]);
   }
   return stat === highest[type];
+}
+
+async function rowRClick(rid: any) {
+  await navigateTo("/rankings/" + rid);
+}
+
+async function rowWClick(wid: any) {
+  await navigateTo("/wrestler/" + wid);
 }
 </script>
 <template>
@@ -215,6 +226,7 @@ function isHigher(stat: any, type: string, _reverse = false) {
                   v-for="(item, index) in slotProps.items"
                   :key="index"
                   class="col-12 hover:bg-gray-200"
+                  @click="rowWClick(item.id)"
                 >
                   <div class="grid">
                     <div class="col md:col-5">
@@ -295,6 +307,7 @@ function isHigher(stat: any, type: string, _reverse = false) {
                   v-for="(item, index) in slotProps.items"
                   :key="index"
                   class="col-12 hover:bg-gray-200"
+                  @click="rowRClick(item.place.id)"
                 >
                   <div class="grid">
                     <div class="col md:col-7">
