@@ -47,7 +47,7 @@ export default defineNuxtConfig({
 
   modules: [
     "@nuxtjs/tailwindcss",
-    "nuxt-icon",
+    "@nuxt/icon",
     "@nuxtjs/seo",
     "@nuxt/eslint",
     "@vite-pwa/nuxt",
