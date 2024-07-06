@@ -42,7 +42,7 @@
     "chart.js": "^4.4.3",
     "chartjs-chart-geo": "^4.3.1",
     "chartjs-plugin-datalabels": "^2.2.0",
-    "pocketbase": "0.20.3"
+    "pocketbase": "0.21.3"
   },
   "resolutions": {
     "ufo": "1.5.3"

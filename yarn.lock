@@ -13684,10 +13684,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"pocketbase@npm:0.20.3":
-  version: 0.20.3
-  resolution: "pocketbase@npm:0.20.3"
-  checksum: 10c0/7f370cde5ad48159202f2b63459ca38b690ac0bf5f2313e08d12b52f73a8e41c12c647304ef854f14b1b0ca529b5bed8fa9d19cbae6f7ccafe7750f27e0b3f59
+"pocketbase@npm:0.21.3":
+  version: 0.21.3
+  resolution: "pocketbase@npm:0.21.3"
+  checksum: 10c0/8753b3a577f1b205d2639630b6a0808ef10ab66982a67ef7cfeaa5c069f3674e04690f92c09297da8876a66370dbb5735831098fd570c54dd3ad158386e70bc2
   languageName: node
   linkType: hard
 
@@ -14853,7 +14853,7 @@ __metadata:
     husky: "npm:^9.0.11"
     nuxt: "npm:^3.12.3"
     nuxt-security: "npm:^2.0.0-rc.9"
-    pocketbase: "npm:0.20.3"
+    pocketbase: "npm:0.21.3"
     prettier: "npm:^3.3.2"
     primeflex: "npm:^3.3.1"
     primeicons: "npm:^7.0.0"
