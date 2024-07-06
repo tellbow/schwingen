@@ -34,7 +34,9 @@ const pocketbase = usePocketbase();
 
 const route = useRoute();
 
+const op = ref();
 const statisticsData = ref();
+const comparsionData = ref();
 const boutsData = ref();
 const loadingStatistics = ref(false);
 const loadingBouts = ref(false);
@@ -52,13 +54,17 @@ onMounted(async () => {
   await loadBoutsData();
 });
 
+const toggle = (event: any) => {
+  op.value.toggle(event);
+};
+
 const loadStatisticsData = async () => {
   const customFilter =
-    '(wrestler.id = "' +
+    '((wrestler.id = "' +
     route.params.wid +
     '") || (wrestler.id = "' +
     route.params.oid +
-    '")';
+    '")) && (status != "Unfall" && points <= 60)';
   await pocketbase
     .collection("rankings")
     .getFullList(200 /* batch size */, {
@@ -89,11 +95,15 @@ const loadStatisticsData = async () => {
       const statistics = Object.entries(groupedData).map(([key, value]) => {
         const [id, name, vorname] = key.split(" ");
         const averageRank = (
-          value.reduce((sum, entry) => sum + parseInt(entry.rank), 0) /
+          value
+            .filter(({ result }) => result.length > 4)
+            .reduce((sum, entry) => sum + parseInt(entry.rank), 0) /
           value.length
         ).toFixed(2);
         const averagePoints = (
-          value.reduce((sum, entry) => sum + parseFloat(entry.points), 0) /
+          value
+            .filter(({ result }) => result.length > 4)
+            .reduce((sum, entry) => sum + parseFloat(entry.points), 0) /
           value.length
         ).toFixed(2);
         const countWreaths = value.filter((entry) => entry.wreath).length;
@@ -110,6 +120,66 @@ const loadStatisticsData = async () => {
       });
       statisticsData.value = statistics;
       loadingStatistics.value = false;
+
+      // Step 1: Group data by wrestler
+      const groupedByWrestler: any = {};
+
+      data.forEach((entry) => {
+        if (entry.expand && entry.expand.wrestler) {
+          const wrestler = entry.expand.wrestler;
+          const fullName = `${wrestler.name} ${wrestler.vorname}`;
+          if (!groupedByWrestler[fullName]) {
+            groupedByWrestler[fullName] = {
+              name: wrestler.name,
+              vorname: wrestler.vorname,
+              bubbles: [],
+            };
+          }
+          groupedByWrestler[fullName].bubbles.push(entry);
+        }
+      });
+
+      // Step 2: Process each wrestler's data
+      const output = Object.values(groupedByWrestler).map((wrestler: any) => {
+        const counts: any = {};
+
+        wrestler.bubbles.forEach((entry: any) => {
+          if (entry.result.length > 4) {
+            const points = parseFloat(entry.points);
+            const rank = parseInt(entry.rank);
+            const key = `${points},${rank}`;
+            if (counts[key]) {
+              counts[key]++;
+            } else {
+              counts[key] = 1;
+            }
+          }
+        });
+
+        wrestler.bubbles = Object.keys(counts).map((key) => {
+          const [x, y] = key.split(",").map(Number);
+          return { x, y, r: counts[key] };
+        });
+
+        return wrestler;
+      });
+
+      comparsionData.value = {
+        datasets: [
+          {
+            label: output[0].name + " " + output[0].vorname,
+            data: output[0].bubbles,
+            backgroundColor: "rgba(255, 99, 132, 0.5)",
+            borderColor: "rgba(255, 99, 132, 0.9)",
+          },
+          {
+            label: output[1].name + " " + output[1].vorname,
+            data: output[1].bubbles,
+            backgroundColor: "rgba(0, 99, 132, 0.5)",
+            borderColor: "rgba(0, 99, 132, 0.9)",
+          },
+        ],
+      };
     });
 };
 
@@ -185,6 +255,30 @@ function isHigher(stat: any, type: string, _reverse = false) {
   return stat === highest[type];
 }
 
+const chartOptions = ref({
+  plugins: {
+    legend: {
+      position: "top",
+    },
+  },
+  scales: {
+    y: {
+      reverse: true,
+      title: {
+        display: true,
+        text: "Rang",
+      },
+    },
+    x: {
+      title: {
+        display: true,
+        text: "Punkte",
+      },
+    },
+  },
+  responsive: true,
+});
+
 async function rowRClick(rid: any) {
   await navigateTo("/rankings/" + rid);
 }
@@ -197,7 +291,14 @@ async function rowWClick(wid: any) {
   <div>
     <div class="justify-content-center align-content-center display: flex mt-2">
       <Card class="w-11/12 md:w-9/12">
-        <template #title> Statistiken </template>
+        <template #title>
+          Statistiken
+          <Badge value="?" @click="toggle" />
+          <OverlayPanel ref="op"
+            >Nur mit Ausstich, ohne eidgenössische Feste, ohne
+            Unfälle</OverlayPanel
+          >
+        </template>
         <template #content>
           <ProgressSpinner v-if="loadingStatistics" />
           <DataView
@@ -336,6 +437,27 @@ async function rowWClick(wid: any) {
               </div>
             </template>
           </DataView>
+        </template>
+      </Card>
+    </div>
+    <div class="justify-content-center align-content-center display: flex mt-2">
+      <Card class="w-11/12 md:w-9/12">
+        <template #title>
+          Graph
+          <Badge value="?" @click="toggle" />
+          <OverlayPanel ref="op"
+            >Nur mit Ausstich, ohne eidgenössische Feste, ohne
+            Unfälle</OverlayPanel
+          >
+        </template>
+        <template #content>
+          <ProgressSpinner v-if="loadingBouts" />
+          <Chart
+            v-else
+            type="bubble"
+            :data="comparsionData"
+            :options="chartOptions"
+          />
         </template>
       </Card>
     </div>
