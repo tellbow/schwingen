@@ -117,8 +117,8 @@ export default defineNuxtConfig({
     filename: sw ? "sw.ts" : undefined,
     registerType: "autoUpdate",
     manifest: {
-      name: "Nuxt Vite PWA",
-      short_name: "NuxtVitePWA",
+      name: "Tellbow",
+      short_name: "Tellbow",
       theme_color: "#ffffff",
       icons: [
         {
