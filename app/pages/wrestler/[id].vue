@@ -10,6 +10,9 @@ const displayOpponent = (opponentsData: { name: string; vorname: string }) =>
   opponentsData.name + " " + opponentsData.vorname;
 const selectedOpponent = ref();
 const boutsData = ref();
+const wreath1 = ref(0);
+const wreath2 = ref(0);
+const wreath3 = ref(0);
 const ratioWinDrawLoss = ref();
 const graphWinDrawLoss = ref();
 const loadingWrestler = ref(true);
@@ -125,13 +128,28 @@ const loadRankingsData = async () => {
     .collection("rankings")
     .getFullList(200 /* batch size */, {
       filter: customFilter,
-      expand: "place",
+      expand: "place,place.placeType",
       sort: "-place.year,-created",
       fields:
-        "id,rank,rank2,points,final,result,wreath,status,expand.place.id,expand.place.name,expand.place.year",
+        "id,rank,rank2,points,final,result,wreath,status,expand.place.id,expand.place.name,expand.place.year,expand.place.expand.placeType.type",
     })
     .then((data) => {
       data.forEach((item: any) => {
+        if (item.wreath) {
+          switch (item.expand.place.expand.placeType.type) {
+            case "Gauverband":
+            case "Kantonal":
+              wreath1.value++;
+              break;
+            case "Teilverband":
+            case "Berg":
+              wreath2.value++;
+              break;
+            case "Eidgenössisch":
+              wreath3.value++;
+              break;
+          }
+        }
         item.expand.place.year = item.expand.place.year.split("-")[0];
       });
       rankingsData.value = data;
@@ -419,7 +437,8 @@ async function yearSelected() {
     >
       <Card class="w-11/12 md:w-9/12">
         <template #title>
-          {{ wrestlerData.vorname }} {{ wrestlerData.name }}
+          {{ wrestlerData.vorname }} {{ wrestlerData.name }} ({{ wreath1 }}* /
+          {{ wreath2 }}** / {{ wreath3 }}***)
         </template>
         <template #content>
           <div v-if="wrestlerData.expand.status">
@@ -432,13 +451,13 @@ async function yearSelected() {
           </div>
           <p>Jahrgang: {{ wrestlerData.year }}</p>
           <p>Schwingklub: {{ wrestlerData.expand.club.name }}</p>
-          <p v-if="wrestlerData.expand.club.expand.length">
+          <p v-if="wrestlerData.expand.club.expand">
             Gauverband: {{ wrestlerData.expand.club.expand.canton.name }}
           </p>
           <p
             v-if="
-              wrestlerData.expand.club.expand.length &&
-              wrestlerData.expand.club.expand.canton.expand.length
+              wrestlerData.expand.club.expand &&
+              wrestlerData.expand.club.expand.canton.expand
             "
           >
             Schwingerverband:
