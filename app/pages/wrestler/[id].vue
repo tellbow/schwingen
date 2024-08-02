@@ -60,12 +60,10 @@ onMounted(async () => {
     .getFirstListItem('id="' + route.params.id + '"', {
       expand: "status,club,club.canton,club.canton.association",
       fields:
-        "id,nummer,name,vorname,year,category,expand.status.status,expand.club.name,expand.club.expand.canton.name,expand.club.expand.canton.expand.association.name,expand.club.expand.canton.expand.association.abbreviation",
+        "id,name,vorname,year,category,expand.status.status,expand.club.name,expand.club.expand.canton.name,expand.club.expand.canton.expand.association.name,expand.club.expand.canton.expand.association.abbreviation",
     })
     .then((data) => {
-      data.nummer = data.nummer === 0 ? "-" : data.nummer;
       data.year = data.year ? data.year.split("-")[0] : "-";
-      data.category = data.category ? data.category : "-";
       wrestlerData.value = data;
       loadingWrestler.value = false;
     });
@@ -424,11 +422,14 @@ async function yearSelected() {
           {{ wrestlerData.vorname }} {{ wrestlerData.name }}
         </template>
         <template #content>
-          <p>Nummer: {{ wrestlerData.nummer }}</p>
-          <p>Kategorie: {{ wrestlerData.category }}</p>
-          <p v-if="wrestlerData.expand.status">
-            Status: {{ wrestlerData.expand.status.status }}
-          </p>
+          <div v-if="wrestlerData.expand.status">
+            <p v-if="wrestlerData.category">
+              Status: {{ wrestlerData.expand.status.status }} (aktiv)
+            </p>
+            <p v-else>
+              Status: {{ wrestlerData.expand.status.status }} (inaktiv)
+            </p>
+          </div>
           <p>Jahrgang: {{ wrestlerData.year }}</p>
           <p>Schwingklub: {{ wrestlerData.expand.club.name }}</p>
           <p v-if="wrestlerData.expand.club.expand.length">

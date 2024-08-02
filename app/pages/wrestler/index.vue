@@ -8,9 +8,13 @@ const page = ref(1);
 const records = ref();
 const totalRecords = ref(0);
 const status = ref([
-  { name: "Eidgenoss", value: "***" },
-  { name: "Teilverbands- und Bergkranzer", value: "**" },
-  { name: "Kantonal- und Gauverbandskranzer", value: "*" },
+  { name: "Eidgenoss", value: " && status.symbol = '***'" },
+  { name: "Teilverbands- und Bergkranzer", value: " && status.symbol = '**'" },
+  {
+    name: "Kantonal- und Gauverbandskranzer",
+    value: " && status.symbol = '*'",
+  },
+  { name: "Ohne Kranz", value: " && status.symbol = ''" },
 ]);
 
 const layout =
@@ -28,7 +32,10 @@ const filters = ref({
   vorname: { value: "", matchMode: FilterMatchMode.CONTAINS },
   year: { value: "", matchMode: FilterMatchMode.CONTAINS },
   club: { value: "", matchMode: FilterMatchMode.CONTAINS },
-  status: { value: "", matchMode: FilterMatchMode.EQUALS },
+  status: {
+    value: " && (status.symbol ~ '' || status.symbol = '')",
+    matchMode: FilterMatchMode.EQUALS,
+  },
 });
 
 const sorts = ref({
@@ -49,8 +56,6 @@ onMounted(async () => {
 const loadLazyData = () => {
   loading.value = true;
 
-  const statusFilterOperand = filters.value.status.value ? "=" : "~";
-
   pocketbase
     .collection("wrestler")
     .getList(page.value, numberOfRows.value, {
@@ -64,11 +69,8 @@ const loadLazyData = () => {
         (filters.value.year.value || "") +
         '" && club.name ~ "' +
         (filters.value.club.value || "") +
-        '" && status.symbol ' +
-        statusFilterOperand +
-        ' "' +
-        (filters.value.status.value || "") +
-        '"',
+        '"' +
+        (filters.value.status.value || ""),
       sort: sorts.value.order + sorts.value.field + "-created",
       fields:
         "id,name,vorname,year,expand.club.id,expand.club.name,expand.status.symbol",
@@ -198,7 +200,8 @@ const numberOfPages = computed(() => {
         :show-clear-button="false"
       >
         <template #body="{ data }">
-          {{ data.expand.status.symbol }}
+          <p v-if="data.expand.status">{{ data.expand.status.symbol }}</p>
+          <p v-else>-</p>
         </template>
         <template #filter="{ filterModel, filterCallback }">
           <Dropdown
