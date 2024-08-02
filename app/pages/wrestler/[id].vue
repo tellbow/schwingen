@@ -10,6 +10,8 @@ const displayOpponent = (opponentsData: { name: string; vorname: string }) =>
   opponentsData.name + " " + opponentsData.vorname;
 const selectedOpponent = ref();
 const boutsData = ref();
+const ratioWinDrawLoss = ref();
+const graphWinDrawLoss = ref();
 const loadingWrestler = ref(true);
 const loadingRankings = ref(true);
 const loadingOpponents = ref(true);
@@ -173,7 +175,7 @@ const averagePoints = computed({
   set: () => {},
 });
 
-const ratioWinDrawLoss = computed({
+ratioWinDrawLoss.value = computed({
   get: () => {
     const documentStyle = getComputedStyle(document.body);
     const countsArray = rankingsData.value.reduce(
@@ -212,13 +214,13 @@ const ratioWinDrawLoss = computed({
         ],
       };
     } else {
-      return {};
+      return null;
     }
   },
   set: () => {},
 });
 
-const graphWinDrawLoss = computed({
+graphWinDrawLoss.value = computed({
   get: () => {
     const documentStyle = getComputedStyle(document.body);
     const graphArray = rankingsData.value.reduce(
@@ -309,7 +311,7 @@ const graphWinDrawLoss = computed({
         ],
       };
     } else {
-      return {};
+      return null;
     }
   },
   set: () => {},
@@ -468,28 +470,33 @@ async function yearSelected() {
       v-else
       class="justify-center flex md:align-items-center align-items-stretch flex-wrap"
     >
-      <Card class="w-11/12 md:w-9/12 lg:w-22rem mt-2 md:mr-2">
+      <Card
+        v-if="ratioWinDrawLoss.value"
+        class="w-11/12 md:w-9/12 lg:w-22rem mt-2 md:mr-2"
+      >
         <template #title>Statistiken</template>
         <template #content>
           <p>Ø Rang: {{ averageRank }}</p>
           <p>Ø Punkte: {{ averagePoints }}</p>
           <div class="relative w-full md:max-w-80 md:min-w-80">
             <Chart
-              v-if="ratioWinDrawLoss"
               type="pie"
-              :data="ratioWinDrawLoss"
+              :data="ratioWinDrawLoss.value"
               :options="chartOptions"
             />
           </div>
         </template>
       </Card>
-      <Card class="w-11/12 md:w-7/12 mt-2 md:mr-2">
+      <Card
+        v-if="graphWinDrawLoss.value"
+        class="w-11/12 md:w-7/12 mt-2 md:mr-2"
+      >
         <template #title />
         <template #content>
           <div>
             <Chart
               type="line"
-              :data="graphWinDrawLoss"
+              :data="graphWinDrawLoss.value"
               :options="graphOptions"
               class="h-20rem"
             />
