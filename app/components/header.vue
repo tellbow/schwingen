@@ -43,6 +43,7 @@ function home() {
       alt="Tellbow"
       @click="home()"
     />
+    <!-- TabMenu deprecated (https://primevue.org/guides/migration/v4/) -->
     <TabMenu :model="items">
       <template #item="{ item, props }">
         <router-link

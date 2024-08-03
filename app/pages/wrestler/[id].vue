@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import Chart from "primevue/chart";
+
 const pocketbase = usePocketbase();
 
 const route = useRoute();

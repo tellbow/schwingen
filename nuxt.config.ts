@@ -54,6 +54,7 @@ export default defineNuxtConfig({
     "@nuxtjs/fontaine",
     "@nuxt/devtools",
     "nuxt-security",
+    "nuxt-primevue",
   ],
 
   security: {

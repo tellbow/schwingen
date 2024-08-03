@@ -3131,7 +3131,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nuxt/kit@npm:3.12.4, @nuxt/kit@npm:^3.12.3, @nuxt/kit@npm:^3.12.4":
+"@nuxt/kit@npm:3.12.4, @nuxt/kit@npm:^3.12.3, @nuxt/kit@npm:^3.12.4, @nuxt/kit@npm:^3.7.3":
   version: 3.12.4
   resolution: "@nuxt/kit@npm:3.12.4"
   dependencies:
@@ -11540,6 +11540,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"nuxt-primevue@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "nuxt-primevue@npm:3.0.0"
+  dependencies:
+    "@nuxt/kit": "npm:^3.7.3"
+    pathe: "npm:^1.1.2"
+    primevue: "npm:^3.51.0"
+  checksum: 10c0/023d99c32df6451c0b9e2f4db1d984b673d869dac361000c429f879e401412ab8c5bfbdb7dbd925672e60f7ff3ee04ec78e8327b3afc053e05932a273b9424bf
+  languageName: node
+  linkType: hard
+
 "nuxt-schema-org@npm:^3.3.9":
   version: 3.3.9
   resolution: "nuxt-schema-org@npm:3.3.9"
@@ -12857,7 +12868,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"primevue@npm:3.53.0":
+"primevue@npm:^3.51.0":
   version: 3.53.0
   resolution: "primevue@npm:3.53.0"
   peerDependencies:
@@ -13505,12 +13516,12 @@ __metadata:
     eslint-plugin-prettier: "npm:^5.2.1"
     husky: "npm:^9.1.4"
     nuxt: "npm:^3.12.4"
+    nuxt-primevue: "npm:^3.0.0"
     nuxt-security: "npm:^2.0.0-rc.9"
     pocketbase: "npm:0.21.4"
     prettier: "npm:^3.3.3"
     primeflex: "npm:^3.3.1"
     primeicons: "npm:^7.0.0"
-    primevue: "npm:3.53.0"
     typescript: "npm:^5.5.4"
   languageName: unknown
   linkType: soft
