@@ -1,4 +1,5 @@
 import process from "node:process";
+import Aura from "@primevue/themes/aura";
 
 const sw = process.env.SW === "true";
 
@@ -110,6 +111,22 @@ export default defineNuxtConfig({
 
   nitro: {
     compressPublicAssets: true,
+  },
+
+  primevue: {
+    options: {
+      locale: {
+        apply: "Anwenden",
+        clear: "Löschen",
+        contain: "Enthält",
+        equals: "Gleich",
+        noFilter: "Kein Filter",
+      },
+      theme: {
+        preset: Aura,
+      },
+      ripple: true,
+    },
   },
 
   pwa: {

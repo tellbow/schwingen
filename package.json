@@ -38,6 +38,7 @@
     "typescript": "^5.5.4"
   },
   "dependencies": {
+    "@primevue/themes": "^4.0.4",
     "@types/geojson": "^7946.0.14",
     "chart.js": "^4.4.3",
     "chartjs-chart-geo": "^4.3.1",

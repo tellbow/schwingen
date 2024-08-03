@@ -3682,6 +3682,31 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@primeuix/styled@npm:^0.0.5":
+  version: 0.0.5
+  resolution: "@primeuix/styled@npm:0.0.5"
+  dependencies:
+    "@primeuix/utils": "npm:^0.0.5"
+  checksum: 10c0/bbf267d121deb053ea211ad5102ff6b4b6319f91909f667504fe0ad6522e5e3c3b6afacde413a5e341adffa36b283857b37d1cfe59777c96cb5e2676f419dd7e
+  languageName: node
+  linkType: hard
+
+"@primeuix/utils@npm:^0.0.5":
+  version: 0.0.5
+  resolution: "@primeuix/utils@npm:0.0.5"
+  checksum: 10c0/3310be6c730fe4049b8367dea41e23a678f64c4ea4df14bbce158e2e5914d19125ed21804da1697495417bcb072c76491ae3801fd9f295e54b4fb0d255e41814
+  languageName: node
+  linkType: hard
+
+"@primevue/themes@npm:^4.0.4":
+  version: 4.0.4
+  resolution: "@primevue/themes@npm:4.0.4"
+  dependencies:
+    "@primeuix/styled": "npm:^0.0.5"
+  checksum: 10c0/18eaf7117473be7d13b12199cb5701d5398c824137e47aedbd2884973d27d3149e92cd021ff36e19c847dbd8109e4f21d340cefa46a816cc279702263d9b564c
+  languageName: node
+  linkType: hard
+
 "@resvg/resvg-js-android-arm-eabi@npm:2.6.2":
   version: 2.6.2
   resolution: "@resvg/resvg-js-android-arm-eabi@npm:2.6.2"
@@ -13502,6 +13527,7 @@ __metadata:
     "@nuxtjs/fontaine": "npm:^0.4.3"
     "@nuxtjs/seo": "npm:^2.0.0-rc.16"
     "@nuxtjs/tailwindcss": "npm:^6.12.1"
+    "@primevue/themes": "npm:^4.0.4"
     "@types/geojson": "npm:^7946.0.14"
     "@typescript-eslint/eslint-plugin": "npm:^8.0.0"
     "@typescript-eslint/parser": "npm:^8.0.0"
