@@ -439,9 +439,11 @@ async function yearSelected() {
     >
       <Card class="w-11/12 md:w-9/12">
         <template #title>
-          {{ wrestlerData.vorname }} {{ wrestlerData.name }} ({{ wreath1 }}* /
-          {{ wreath2 }}** / {{ wreath3 }}***)
+          {{ wrestlerData.vorname }} {{ wrestlerData.name }}
         </template>
+        <template #subtitle
+          >{{ wreath1 }}* / {{ wreath2 }}** / {{ wreath3 }}***</template
+        >
         <template #content>
           <div v-if="wrestlerData.expand.status">
             <p v-if="wrestlerData.category">
