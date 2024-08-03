@@ -65,10 +65,12 @@ function home() {
 <style scoped>
 :deep(.p-tabmenu .p-tabmenu-nav .p-tabmenuitem .p-menuitem-link:hover) {
   background-color: var(--yellow-800) !important;
+  border-radius: 0px;
 }
 :deep(.p-tabmenu .p-tabmenu-nav .p-tabmenuitem .p-menuitem-link) {
   background-color: var(--yellow-900);
   border: none;
+  transition: none;
 }
 :deep(.p-tabmenu-nav) {
   background-color: var(--yellow-900);
