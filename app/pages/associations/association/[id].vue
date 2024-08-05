@@ -9,7 +9,15 @@ const loading = ref(true);
 const page = ref(1);
 const records = ref();
 const totalRecords = ref(0);
-const categories = ref(["A", "B", "C", "J"]);
+const status = ref([
+  { name: "Eidgenoss", value: " && status.symbol = '***'" },
+  { name: "Teilverbands- und Bergkranzer", value: " && status.symbol = '**'" },
+  {
+    name: "Kantonal- und Gauverbandskranzer",
+    value: " && status.symbol = '*'",
+  },
+  { name: "Ohne Kranz", value: " && status.symbol = ''" },
+]);
 
 const layout =
   /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
@@ -18,24 +26,24 @@ const layout =
     ? "mobile"
     : "default";
 
-const filterDisplay: any = layout === "mobile" ? "menu" : "row";
+const filterDisplay = "row";
 const sort = layout !== "mobile";
 
 const filters = ref({
   name: { value: "", matchMode: FilterMatchMode.CONTAINS },
   vorname: { value: "", matchMode: FilterMatchMode.CONTAINS },
   year: { value: "", matchMode: FilterMatchMode.CONTAINS },
-  category: { value: "", matchMode: FilterMatchMode.EQUALS },
+  status: {
+    value: " && (status.symbol ~ '' || status.symbol = '')",
+    matchMode: FilterMatchMode.EQUALS,
+  },
 });
 
 const sorts = ref({
-  field: "name,",
-  order: "",
+  field: "status.symbol,name,",
+  order: "-",
 });
 
-const matchModeOptionEquals = ref([
-  { label: "Gleich", value: FilterMatchMode.EQUALS },
-]);
 const matchModeOptionContains = ref([
   { label: "Enthält", value: FilterMatchMode.CONTAINS },
 ]);
@@ -51,7 +59,8 @@ const loadLazyData = () => {
 
   pocketbase
     .collection("wrestler")
-    .getList(page.value, 15, {
+    .getList(page.value, numberOfRows.value, {
+      expand: "status",
       filter:
         'name ~ "' +
         (filters.value.name.value || "") +
@@ -59,13 +68,13 @@ const loadLazyData = () => {
         (filters.value.vorname.value || "") +
         '" && year ~ "' +
         (filters.value.year.value || "") +
-        '" && category ~ "' +
-        (filters.value.category.value || "") +
-        '" && club.canton.association ~ "' +
+        '"' +
+        (filters.value.status.value || "") +
+        ' && club.canton.association ~ "' +
         route.params.id +
         '"',
       sort: sorts.value.order + sorts.value.field + "-created",
-      fields: "id,name,vorname,year,category",
+      fields: "id,name,vorname,year,expand.status.symbol",
     })
     .then((data) => {
       data.items.forEach((item) => {
@@ -95,6 +104,22 @@ const onSort = (event: { sortField: string; sortOrder: number }) => {
 async function rowClick(event: any) {
   await navigateTo("/wrestler/" + event.data.id);
 }
+
+const numberOfRows = computed(() => {
+  if (layout === "mobile") {
+    return 10;
+  } else {
+    return 15;
+  }
+});
+
+const numberOfPages = computed(() => {
+  if (layout === "mobile") {
+    return 3;
+  } else {
+    return 4;
+  }
+});
 </script>
 <template>
   <div
@@ -108,10 +133,10 @@ async function rowClick(event: any) {
       column-resize-mode="fit"
       show-gridlines
       table-style="md:min-width: 50rem"
-      :page-link-size="4"
+      :page-link-size="numberOfPages"
       lazy
       paginator
-      :rows="15"
+      :rows="numberOfRows"
       data-key="id"
       :filter-display="filterDisplay"
       :row-hover="true"
@@ -165,6 +190,32 @@ async function rowClick(event: any) {
         </template>
       </Column>
       <Column
+        v-if="layout === 'default'"
+        field="status"
+        header="Status"
+        style="padding: 0.5rem"
+        :sortable="sort"
+        :show-filter-menu="false"
+        :show-clear-button="false"
+      >
+        <template #body="{ data }">
+          <p v-if="data.expand.status">{{ data.expand.status.symbol }}</p>
+          <p v-else>-</p>
+        </template>
+        <template #filter="{ filterModel, filterCallback }">
+          <Dropdown
+            v-model="filterModel.value"
+            :options="status"
+            option-label="name"
+            option-value="value"
+            placeholder="Suche"
+            class="p-column-filter"
+            :show-clear="true"
+            @change="filterCallback()"
+          />
+        </template>
+      </Column>
+      <Column
         field="year"
         header="Jahrgang"
         style="padding: 0.5rem"
@@ -181,27 +232,6 @@ async function rowClick(event: any) {
             class="p-column-filter"
             placeholder="Filter Jahrgang"
             @input="filterCallback()"
-          />
-        </template>
-      </Column>
-      <Column
-        v-if="layout === 'default'"
-        field="category"
-        header="Kategorie"
-        style="padding: 0.5rem"
-        :sortable="sort"
-        :filter-match-mode-options="matchModeOptionEquals"
-      >
-        <template #body="{ data }">
-          {{ data.category }}
-        </template>
-        <template #filter="{ filterModel, filterCallback }">
-          <Dropdown
-            v-model="filterModel.value"
-            :options="categories"
-            placeholder="Filter Kategorie"
-            class="p-column-filter"
-            @change="filterCallback()"
           />
         </template>
       </Column>
