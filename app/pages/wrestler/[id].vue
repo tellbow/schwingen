@@ -465,11 +465,10 @@ async function yearSelected() {
             "
           >
             Schwingerverband:
-            {{ wrestlerData.expand.club.expand.canton.expand.association.name }}
-            ({{
+            {{
               wrestlerData.expand.club.expand.canton.expand.association
                 .abbreviation
-            }})
+            }}
           </p>
         </template>
       </Card>
