@@ -2,6 +2,9 @@
 const pocketbase = usePocketbase();
 
 const op = ref();
+const op2 = ref();
+const loadingElo = ref(true);
+const eloData = ref();
 const loadingAverageRank = ref(true);
 const averageRank = ref();
 const loadingAveragePoints = ref(true);
@@ -54,6 +57,10 @@ const toggle = (event: any) => {
   op.value.toggle(event);
 };
 
+const toggle2 = (event: any) => {
+  op2.value.toggle(event);
+};
+
 const loadData = async () => {
   let loadYear, yearFormatFilter;
   if (selectedYear.value.year === "Alle") {
@@ -63,6 +70,18 @@ const loadData = async () => {
     loadYear = selectedYear.value.year;
     yearFormatFilter = selectedYear.value.year;
   }
+  await pocketbase
+    .collection("elo")
+    .getList(1, 5, {
+      expand: "wrestler",
+      sort: "-rating,-created",
+      fields:
+        "id,rating,expand.wrestler.id,expand.wrestler.name,expand.wrestler.vorname",
+    })
+    .then((data) => {
+      eloData.value = data.items;
+      loadingElo.value = false;
+    });
   await pocketbase
     .collection("averageRank" + loadYear)
     .getList(1, 5, {
@@ -158,6 +177,65 @@ async function rowClick(wid: any) {
     <div
       class="justify-center flex md:align-items-center align-items-stretch flex-wrap"
     >
+      <Card
+        class="ml-2 md:ml-4 mt-2 md:mt-2 mr-2 md:mr-4 md:w-5/12"
+        :pt="{
+          body: { class: 'pt-2 md:pt-3 pb-2 md:pb-3' },
+          content: { class: 'p-1 md:p-2' },
+        }"
+      >
+        <template #title>
+          Top 5 - Elo-Rating
+          <Badge value="?" @click="toggle2" />
+          <OverlayPanel ref="op2">Aktuell nur aus dem Jahr 2024</OverlayPanel>
+        </template>
+        <template #content>
+          <ProgressSpinner v-if="loadingElo" />
+          <DataView
+            v-else
+            :value="eloData"
+            data-key="id"
+            :pt="{
+              header: { class: 'p-0' },
+            }"
+          >
+            <template #header>
+              <div class="grid mt-0">
+                <p class="col-1 md:col-1 flex justify-center items-center">#</p>
+                <p class="col-8 md:col-6">Schwinger</p>
+                <p class="col-1 md:col-1">Rating</p>
+              </div>
+            </template>
+            <template #list="slotProps">
+              <div class="grid grid-nogutter">
+                <div
+                  v-for="(item, index) in slotProps.items"
+                  :key="index"
+                  class="col-12 hover:bg-gray-200 cursor-pointer"
+                  @click="rowClick(item.expand.wrestler.id)"
+                >
+                  <div class="grid">
+                    <div
+                      class="col-1 md:col-1 flex justify-center items-center"
+                    >
+                      <p>{{ index + 1 }}</p>
+                    </div>
+                    <div class="col-8 md:col-6">
+                      <p>
+                        {{ item.expand.wrestler.name }}
+                        {{ item.expand.wrestler.vorname }}
+                      </p>
+                    </div>
+                    <div class="col-1 md:col-1">
+                      <p>{{ item.rating }}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </template>
+          </DataView>
+        </template>
+      </Card>
       <Card
         class="ml-2 md:ml-4 mt-2 md:mt-2 mr-2 md:mr-4 md:w-5/12"
         :pt="{

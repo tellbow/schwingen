@@ -6,6 +6,7 @@ const pocketbase = usePocketbase();
 const route = useRoute();
 
 const wrestlerData = ref();
+const eloData = ref();
 const rankingsData = ref();
 const opponentsData = ref();
 const displayOpponent = (opponentsData: { name: string; vorname: string }) =>
@@ -70,6 +71,14 @@ onMounted(async () => {
     .then((data) => {
       data.year = data.year ? data.year.split("-")[0] : "-";
       wrestlerData.value = data;
+    });
+  await pocketbase
+    .collection("elo")
+    .getFirstListItem('wrestler.id="' + route.params.id + '"', {
+      fields: "id,rating",
+    })
+    .then((data) => {
+      eloData.value = data;
       loadingWrestler.value = false;
     });
   await loadRankingsData();
@@ -442,7 +451,8 @@ async function yearSelected() {
           {{ wrestlerData.vorname }} {{ wrestlerData.name }}
         </template>
         <template #subtitle
-          >{{ wreath1 }}* / {{ wreath2 }}** / {{ wreath3 }}***</template
+          >Kränze: {{ wreath1 }}* / {{ wreath2 }}** / {{ wreath3 }}***
+          <br />Elo-Rating: {{ eloData.rating }}</template
         >
         <template #content>
           <div v-if="wrestlerData.expand.status">
