@@ -122,7 +122,7 @@ const onRowCollapse = (event: {
       class="justify-content-center align-content-center display: flex mt-2"
     >
       <Card class="w-11/12 md:w-9/12">
-        <template #title> Rangliste Neu</template>
+        <template #title> Rangliste</template>
         <template #content>
           <DataTable
             v-model:expanded-rows="expandedRows"

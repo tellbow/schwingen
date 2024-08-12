@@ -1,6 +1,7 @@
 <script setup lang="ts">
 const pocketbase = usePocketbase();
 
+const messageVisible = ref(false);
 const wrestlersData = ref();
 const displayWrestler = (wrestlersData: { name: string; vorname: string }) =>
   wrestlersData.name + " " + wrestlersData.vorname;
@@ -28,9 +29,17 @@ const loadWrestlers = async () => {
 };
 
 async function navigateHead2Head() {
-  await navigateTo(
-    "/head2head/" + selectedWrestler.value + "-" + selectedOpponent.value,
-  );
+  if (selectedWrestler.value && selectedOpponent.value) {
+    if (selectedWrestler.value != selectedOpponent.value) {
+      await navigateTo(
+        "/head2head/" + selectedWrestler.value + "-" + selectedOpponent.value,
+      );
+    }
+  }
+  messageVisible.value = true;
+  setTimeout(() => {
+    messageVisible.value = false;
+  }, 3500);
 }
 </script>
 <template>
@@ -70,6 +79,9 @@ async function navigateHead2Head() {
             class="ml-2 mt-2 md:mt-0 bg-yellow-900 border-2 border-yellow-800"
             @click="navigateHead2Head()"
           />
+          <Message v-if="messageVisible" severity="warn" :life="3000"
+            >Es müssen 2 individuelle Schwinger ausgewählt werden</Message
+          >
         </template>
       </Card>
     </div>

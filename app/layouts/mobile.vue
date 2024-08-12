@@ -22,6 +22,10 @@ const items = ref([
     label: "Statistiken",
     to: "/statistics",
   },
+  {
+    label: "Direktvergleich",
+    to: "/head2head",
+  },
 ]);
 
 function home() {

@@ -5,5 +5,4 @@
 @import "tailwindcss/utilities.css" layer(tailwind);
 
 @import "primevue/resources/themes/aura-light-noir/theme.css" layer(theme);
-@import "primeicons/primeicons.css" layer(theme);
 @import "primeflex/primeflex.css" layer(theme);

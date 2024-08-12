@@ -1,12 +1,8 @@
 <template>
-  <div>
-    <p class="m-5 text-center">
-      ©Tellbow
-      <a
-        href="https://github.com/tellbow/schwingen"
-        target="_blank"
-        class="pi pi-github"
-      ></a>
-    </p>
+  <div class="flex justify-center m-2">
+    <p class="mr-1">©Tellbow</p>
+    <a href="https://github.com/tellbow/schwingen" target="_blank"
+      ><Icon name="mdi:github"
+    /></a>
   </div>
 </template>

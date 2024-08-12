@@ -114,6 +114,25 @@ export default defineNuxtConfig({
   },
 
   primevue: {
+    components: {
+      include: [
+        "Accordion",
+        "AccordionTab",
+        "Badge",
+        "Button",
+        "Column",
+        "Card",
+        "DataView",
+        "DataTable",
+        "Dropdown",
+        "InputText",
+        "Message",
+        "OverlayPanel",
+        "ProgressSpinner",
+        "ScrollTop",
+        "TabMenu",
+      ],
+    },
     options: {
       locale: {
         apply: "Anwenden",
@@ -127,6 +146,10 @@ export default defineNuxtConfig({
       },
       ripple: true,
     },
+  },
+
+  experimental: {
+    payloadExtraction: false,
   },
 
   pwa: {
