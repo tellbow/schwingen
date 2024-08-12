@@ -187,7 +187,7 @@ async function rowClick(wid: any) {
         <template #title>
           Top 5 - Elo-Rating
           <Badge value="?" @click="toggle2" />
-          <OverlayPanel ref="op2">Aktuell nur aus dem Jahr 2024</OverlayPanel>
+          <OverlayPanel ref="op2">Jeweils vom aktuellen Jahr</OverlayPanel>
         </template>
         <template #content>
           <ProgressSpinner v-if="loadingElo" />

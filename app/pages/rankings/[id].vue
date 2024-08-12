@@ -202,7 +202,11 @@ const onRowCollapse = (event: {
               }"
             >
               <template #body="{ data }">
-                <Icon v-if="data.final" name="gis:flag-finish" />
+                <Icon
+                  v-if="data.final"
+                  class="flex content-center"
+                  name="gis:flag-finish"
+                />
               </template>
             </Column>
             <Column
@@ -214,9 +218,14 @@ const onRowCollapse = (event: {
               }"
             >
               <template #body="{ data }">
-                <Icon v-if="data.wreath" name="mingcute:wreath-fill" />
+                <Icon
+                  v-if="data.wreath"
+                  class="flex content-center"
+                  name="mingcute:wreath-fill"
+                />
                 <Icon
                   v-if="data.status === 'Unfall'"
+                  class="flex content-center"
                   name="game-icons:arm-bandage"
                 />
               </template>

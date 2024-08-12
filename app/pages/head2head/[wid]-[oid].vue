@@ -389,7 +389,7 @@ async function rowWClick(wid: any) {
             }"
           >
             <template #empty>
-              Keine Aufeinandertreffen dieser Schwingern.
+              Keine Aufeinandertreffen dieser Schwinger.
             </template>
             <template #header>
               <div class="grid mt-0">
@@ -417,7 +417,10 @@ async function rowWClick(wid: any) {
                       <p>{{ item.place.name }} ({{ item.place.year }})</p>
                     </div>
                     <div class="col md:col text-center">
-                      <div v-if="item.entries[0].result === '+'">
+                      <div
+                        v-if="item.entries[0].result === '+'"
+                        class="flex justify-center"
+                      >
                         <Icon name="mdi:crown" />
                         <b>{{ item.entries[0].points }}</b>
                       </div>
@@ -426,7 +429,10 @@ async function rowWClick(wid: any) {
                       </p>
                     </div>
                     <div class="col md:col text-center">
-                      <div v-if="item.entries[1].result === '+'">
+                      <div
+                        v-if="item.entries[1].result === '+'"
+                        class="flex justify-center"
+                      >
                         <Icon name="mdi:crown" />
                         <b>{{ item.entries[1].points }}</b>
                       </div>

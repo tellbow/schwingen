@@ -567,9 +567,9 @@ async function yearSelected() {
                 <p v-if="layout === 'default'" class="col-1 md:col-2">Jahr</p>
                 <p class="col-2 md:col-1">Rang</p>
                 <p class="col-2 md:col-1">Punkte</p>
-                <p class="col-4 md:col-2">Resultat</p>
+                <p class="col-4 md:col-1">Resultat</p>
                 <p v-if="layout === 'default'" class="md:col-1">Schlussgang</p>
-                <p v-if="layout === 'default'" class="md:col-1">
+                <p v-if="layout === 'default'" class="md:col-2">
                   Kranz / Unfall
                 </p>
               </div>
@@ -601,16 +601,25 @@ async function yearSelected() {
                     <div class="col-2 md:col-1">
                       <p>{{ item.points }}</p>
                     </div>
-                    <div class="col-4 md:col-2">
+                    <div class="col-4 md:col-1">
                       <p>{{ item.result }}</p>
                     </div>
                     <div v-if="layout === 'default'" class="md:col-1">
-                      <Icon v-if="item.final" name="gis:flag-finish" />
+                      <Icon
+                        v-if="item.final"
+                        class="flex content-center"
+                        name="gis:flag-finish"
+                      />
                     </div>
-                    <div v-if="layout === 'default'" class="md:col-1">
-                      <Icon v-if="item.wreath" name="mingcute:wreath-fill" />
+                    <div v-if="layout === 'default'" class="md:col-2">
+                      <Icon
+                        v-if="item.wreath"
+                        class="flex content-center"
+                        name="mingcute:wreath-fill"
+                      />
                       <Icon
                         v-if="item.status === 'Unfall'"
+                        class="flex content-center"
                         name="game-icons:arm-bandage"
                       />
                     </div>
