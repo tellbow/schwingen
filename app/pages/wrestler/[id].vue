@@ -72,15 +72,21 @@ onMounted(async () => {
       data.year = data.year ? data.year.split("-")[0] : "-";
       wrestlerData.value = data;
     });
-  await pocketbase
-    .collection("elo")
-    .getFirstListItem('wrestler.id="' + route.params.id + '"', {
-      fields: "id,rating",
-    })
-    .then((data) => {
-      eloData.value = data;
-      loadingWrestler.value = false;
-    });
+  try {
+    await pocketbase
+      .collection("elo")
+      .getFirstListItem('wrestler.id="' + route.params.id + '"', {
+        fields: "id,rating",
+      })
+      .then((data) => {
+        console.log(data);
+        eloData.value = data;
+        loadingWrestler.value = false;
+      });
+  } catch (error) {
+    eloData.value = { rating: "-" };
+    loadingWrestler.value = false;
+  }
   await loadRankingsData();
   await loadBoutsData();
 });

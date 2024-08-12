@@ -31,7 +31,7 @@
         <p>
           Enthält alle aktiven Schwinger aus der
           <a href="https://esv.ch/hkesv/datenbank/">Datenbank des ESV</a>(Stand
-          02.08.2024).
+          12.08.2024).
         </p>
         <Button
           label="Anzeigen"
