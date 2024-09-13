@@ -79,7 +79,6 @@ onMounted(async () => {
         fields: "id,rating",
       })
       .then((data) => {
-        console.log(data);
         eloData.value = data;
         loadingWrestler.value = false;
       });
