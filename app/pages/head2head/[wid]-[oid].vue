@@ -201,9 +201,9 @@ const loadBoutsData = async () => {
     .getFullList(200 /* batch size */, {
       filter: customFilter,
       expand: "wrestler,opponent,place",
-      sort: "-place.year,-created",
+      sort: "-place.year,-wrestler.name,-created",
       fields:
-        "id,result,points,expand.wrestler.name,expand.wrestler.vorname,expand.opponent.name,expand.opponent.vorname,expand.place.id,expand.place.name,expand.place.year",
+        "id,result,points,fight_round,expand.wrestler.name,expand.wrestler.vorname,expand.opponent.name,expand.opponent.vorname,expand.place.id,expand.place.name,expand.place.year",
     })
     .then((data) => {
       const groupedData: any = {};
@@ -219,7 +219,7 @@ const loadBoutsData = async () => {
         const placeId = entry.expand.place.id;
         const placeName = entry.expand.place.name;
         const year = entry.expand.place.year.split("-")[0];
-        const key = `${placeId}-${placeName}-${year}`;
+        const key = `${placeId}-${placeName}-${year}-${entry.fight_round}`;
         if (!groupedData[key]) {
           groupedData[key] = {
             place: {
