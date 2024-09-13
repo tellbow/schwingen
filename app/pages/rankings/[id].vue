@@ -23,12 +23,25 @@ onMounted(async () => {
     .collection("rankings")
     .getFullList(200 /* batch size */, {
       filter: 'place.id = "' + route.params.id + '"',
-      expand: "place,wrestler",
+      expand: "place,wrestler,wrestler.status",
       sort: "rank, rank2, -created",
       fields:
-        "id,rank,rank2,points,final,result,wreath,status,expand.place.id,expand.wrestler.id,expand.wrestler.name,expand.wrestler.vorname",
+        "id,rank,rank2,points,final,result,wreath,status,expand.place.id,expand.wrestler.id,expand.wrestler.name,expand.wrestler.vorname,expand.wrestler.expand.status.status",
     })
     .then((data) => {
+      data.forEach((entry) => {
+        if (
+          !entry.expand ||
+          !entry.expand.wrestler ||
+          !entry.expand.wrestler.expand ||
+          !entry.expand.wrestler.expand.status ||
+          !entry.expand.wrestler.expand.status.status
+        ) {
+          entry.wstatus = "-";
+        } else {
+          entry.wstatus = entry.expand.wrestler.expand.status.status;
+        }
+      });
       rankingsData.value = data.sort(compareByRank);
       loadingRankings.value = false;
     });
@@ -191,6 +204,18 @@ const onRowCollapse = (event: {
               <template #body="{ data }">
                 {{ data.expand.wrestler.name }}
                 {{ data.expand.wrestler.vorname }}
+              </template>
+            </Column>
+            <Column
+              field="status"
+              header="Status"
+              style="min-width: 6rem; padding: 0.5rem"
+              :pt="{
+                filterInput: { class: 'w-fit' },
+              }"
+            >
+              <template #body="{ data }">
+                {{ data.wstatus }}
               </template>
             </Column>
             <Column
