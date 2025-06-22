@@ -50,6 +50,7 @@ const years = ref([
   { year: 2022 },
   { year: 2023 },
   { year: 2024 },
+  { year: 2025 },
   { year: "Alle" },
 ]);
 

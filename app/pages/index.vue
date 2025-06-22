@@ -31,7 +31,7 @@
         <p>
           Enthält alle aktiven Schwinger aus der
           <a href="https://esv.ch/hkesv/datenbank/">Datenbank des ESV</a>(Stand
-          09.09.2024).
+          19.06.2025).
         </p>
         <Button
           label="Anzeigen"
@@ -49,7 +49,7 @@
     >
       <template #title> Schwingfeste </template>
       <template #content>
-        <p>Enthält alle Schwingfeste der Aktiven aus den Jahren 2015 - 2024.</p>
+        <p>Enthält alle Schwingfeste der Aktiven aus den Jahren 2015 - 2025.</p>
         <Button
           label="Anzeigen"
           class="w-half mt-3 bg-yellow-900 border-2 border-yellow-800"
