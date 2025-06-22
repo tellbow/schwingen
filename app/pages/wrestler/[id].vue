@@ -12,6 +12,7 @@ const opponentsData = ref();
 const displayOpponent = (opponentsData: { name: string; vorname: string }) =>
   opponentsData.name + " " + opponentsData.vorname;
 const selectedOpponent = ref();
+const topOpponentsData = ref();
 const boutsData = ref();
 const wreath1 = ref(0);
 const wreath2 = ref(0);
@@ -21,6 +22,7 @@ const graphWinDrawLoss = ref();
 const loadingWrestler = ref(true);
 const loadingRankings = ref(true);
 const loadingOpponents = ref(true);
+const loadingTopOpponents = ref(true);
 const loadingBouts = ref(false);
 const selectedYear = ref({ year: "Alle" });
 const years = ref([
@@ -407,13 +409,57 @@ const graphOptions = ref({
   },
 });
 
-async function wrestlerRowClick(wid: any, pid: any) {
+async function wrestlerRowClick(wid: any) {
+  await navigateTo("/wrestler/" + wid);
+}
+
+async function wrestlerPlaceRowClick(wid: any, pid: any) {
   await navigateTo("/wrestler/" + wid + "-" + pid);
 }
 
 async function placeRowClick(pid: any) {
   await navigateTo("/rankings/" + pid);
 }
+
+const findTopOpponents = () => {
+  loadingTopOpponents.value = true;
+  pocketbase
+    .collection("bouts")
+    .getFullList(200 /* batch size */, {
+      filter: 'wrestler.id = "' + route.params.id + '" && result = "o"',
+      expand: "opponent,place",
+      sort: "-place.year,-created",
+      fields:
+        "id,result,points,expand.opponent.id,expand.opponent.name,expand.opponent.vorname,expand.place.id,expand.place.name,expand.place.year",
+    })
+    .then((data) => {
+      // Group by opponent.id and count occurrences while storing name and vorname
+      const result = data.reduce((acc, item) => {
+        const opponentId = item.expand.opponent.id;
+        const { name, vorname } = item.expand.opponent;
+
+        if (acc[opponentId]) {
+          acc[opponentId].count++;
+        } else {
+          acc[opponentId] = {
+            count: 1,
+            name: name,
+            vorname: vorname,
+          };
+        }
+        return acc;
+      }, {});
+      // Convert the result object to an array and sort by count in descending order
+      topOpponentsData.value = Object.entries(result)
+        .sort((a, b) => b[1].count - a[1].count) // Sort by count in descending order
+        .slice(0, 5) // Take the top 5
+        .map(([id, opponentData]) => ({
+          id: id,
+          ...opponentData,
+        }));
+      loadingTopOpponents.value = false;
+    });
+};
 
 const findBouts = () => {
   loadingBouts.value = true;
@@ -486,6 +532,34 @@ async function yearSelected() {
                 .abbreviation
             }}
           </p>
+        </template>
+      </Card>
+    </div>
+    <div class="justify-content-center align-content-center display: flex mt-2">
+      <Card class="w-11/12 md:w-9/12">
+        <template #title> Top 5 Gegner </template>
+        <template #content>
+          <Button
+            v-if="loadingTopOpponents"
+            type="button"
+            label="Laden"
+            icon="pi pi-search"
+            class="ml-2 mt-2 md:mt-0 bg-yellow-900 border-2 border-yellow-800"
+            :loading="loadingBouts"
+            @click="findTopOpponents"
+          />
+          <ul v-else>
+            <li
+              v-for="(value, key) in topOpponentsData"
+              :key="value.id"
+              @click="wrestlerRowClick(value.id)"
+            >
+              {{ key + 1 }}: {{ value.name }} {{ value.vorname }} ({{
+                value.count
+              }}
+              verloren)
+            </li>
+          </ul>
         </template>
       </Card>
     </div>
@@ -581,7 +655,7 @@ async function yearSelected() {
                   :key="index"
                   class="col-12 hover:bg-gray-200 cursor-pointer"
                   @click="
-                    wrestlerRowClick(route.params.id, item.expand.place.id)
+                    wrestlerPlaceRowClick(route.params.id, item.expand.place.id)
                   "
                 >
                   <div class="grid">
