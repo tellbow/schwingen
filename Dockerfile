@@ -12,7 +12,7 @@ COPY . .
 RUN yarn generate
 
 # build go binary
-FROM golang:1.21 AS golang
+FROM golang:1.23 AS golang
 WORKDIR /usr/src/app
 COPY . .
 COPY --from=node /app/pocketbase/.output /usr/src/app/pocketbase/.output
