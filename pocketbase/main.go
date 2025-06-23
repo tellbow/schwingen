@@ -15,7 +15,7 @@ func main() {
 	app.OnServe().BindFunc(func(se *core.ServeEvent) error {
     	se.Router.GET(
         	"/{path...}",
-        	apis.Static(os.DirFS(".output/public"), false),
+        	apis.Static(os.DirFS(".output/public"), true),
     	)
     	return se.Next()
 	})

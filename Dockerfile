@@ -15,7 +15,6 @@ RUN yarn generate
 FROM golang:1.23 AS golang
 WORKDIR /usr/src/app
 COPY . .
-COPY --from=node /app/pocketbase/.output /usr/src/app/pocketbase/.output
 RUN go build -o pocketnuxt pocketbase/main.go
 
 # download database
@@ -27,5 +26,6 @@ FROM ubuntu:22.10
 ENV NODE_ENV production
 ENV GO_ENV production
 COPY --from=golang /usr/src/app/pocketnuxt /pocketnuxt
+COPY --from=node /app/pocketbase/.output /.output
 COPY --from=downloader /home/curl_user/data.db /pb_data/
 CMD ["/pocketnuxt", "serve", "--http", "0.0.0.0:8090", "--encryptionEnv", "PB_ENCRYPTION"]
