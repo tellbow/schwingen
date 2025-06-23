@@ -1,5 +1,4 @@
 import process from "node:process";
-import Aura from "@primevue/themes/aura";
 
 const sw = process.env.SW === "true";
 
@@ -83,10 +82,6 @@ export default defineNuxtConfig({
     enabled: false,
   },
 
-  seoExperiments: {
-    enabled: false,
-  },
-
   site: {
     url: "https://schwingen.tellbow.ch/",
     name: "Tellbow",
@@ -137,12 +132,15 @@ export default defineNuxtConfig({
       locale: {
         apply: "Anwenden",
         clear: "Löschen",
-        contain: "Enthält",
+        contains: "Enthält",
         equals: "Gleich",
         noFilter: "Kein Filter",
-      },
-      theme: {
-        preset: Aura,
+        fileSizeTypes: [],
+        dayNames: [],
+        dayNamesShort: [],
+        dayNamesMin: [],
+        monthNames: [],
+        monthNamesShort: [],
       },
       ripple: true,
     },

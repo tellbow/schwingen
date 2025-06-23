@@ -86,6 +86,7 @@ onMounted(async () => {
         loadingWrestler.value = false;
       });
   } catch (error) {
+    console.error(error);
     eloData.value = { rating: "-" };
     loadingWrestler.value = false;
   }
