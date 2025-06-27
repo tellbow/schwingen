@@ -1,165 +1,237 @@
 <script setup lang="ts">
+// Types
+interface YearOption {
+  year: string | number;
+}
+
+interface EloData {
+  id: string;
+  rating: number;
+  expand: {
+    wrestler: {
+      id: string;
+      name: string;
+      vorname: string;
+    };
+  };
+}
+
+interface AverageRankData {
+  id: string;
+  wid: string;
+  name: string;
+  vorname: string;
+  year: string;
+  averageRank: number;
+  avgRank?: number;
+}
+
+interface AveragePointsData {
+  id: string;
+  wid: string;
+  name: string;
+  vorname: string;
+  year: string;
+  averagePoints: number;
+  avgPoints?: number;
+}
+
+interface MostWinsData {
+  id: string;
+  name: string;
+  vorname: string;
+  wins: number;
+  wreath: number;
+}
+
+interface MostPlacesAttendedData {
+  id: string;
+  name: string;
+  vorname: string;
+  year: string;
+  placesAttended: number;
+}
+
+interface MostWreathsData {
+  id: string;
+  name: string;
+  vorname: string;
+  wreath: number;
+}
+
+interface DrawDecisionRatioData {
+  countDraw: number;
+  countAll: number;
+  yearFormat: string;
+}
+
+// Composables
 const pocketbase = usePocketbase();
 
+// Reactive state
 const op = ref();
 const op2 = ref();
 const loadingElo = ref(true);
-const eloData = ref();
+const eloData = ref<EloData[]>([]);
 const loadingAverageRank = ref(true);
-const averageRank = ref();
+const averageRank = ref<AverageRankData[]>([]);
 const loadingAveragePoints = ref(true);
-const averagePoints = ref();
+const averagePoints = ref<AveragePointsData[]>([]);
 const loadingMostWins = ref(true);
-const mostWins = ref();
+const mostWins = ref<MostWinsData[]>([]);
 const loadingMostPlacesAttended = ref(true);
-const mostPlacesAttended = ref();
+const mostPlacesAttended = ref<MostPlacesAttendedData[]>([]);
 const loadingMostWreaths = ref(true);
-const mostWreaths = ref();
+const mostWreaths = ref<MostWreathsData[]>([]);
 const loadingDrawDecisionRatio = ref(true);
-const drawDecisionRatio = ref();
-const selectedYear = ref({ year: "Alle" });
-const years = ref([
-  // { year: 1998 },
-  // { year: 2000 },
-  // { year: 2001 },
-  // { year: 2002 },
-  // { year: 2003 },
-  // { year: 2004 },
-  // { year: 2005 },
-  // { year: 2006 },
-  // { year: 2007 },
-  // { year: 2008 },
-  // { year: 2009 },
-  // { year: 2010 },
-  // { year: 2011 },
-  // { year: 2012 },
-  // { year: 2013 },
-  // { year: 2014 },
+const drawDecisionRatio = ref<number>(0);
+
+// Year selection
+const selectedYear = ref<YearOption>({ year: "Alle" });
+const years: YearOption[] = [
   { year: 2015 },
   { year: 2016 },
   { year: 2017 },
   { year: 2018 },
   { year: 2019 },
-  // { year: 2020 },
   { year: 2021 },
   { year: 2022 },
   { year: 2023 },
   { year: 2024 },
   { year: 2025 },
   { year: "Alle" },
-]);
+];
 
-/* eslint require-await: "off" */
-onMounted(async () => {
-  await loadData();
-});
-
-const toggle = (event: any) => {
+// Methods
+const toggle = (event: Event): void => {
   op.value.toggle(event);
 };
 
-const toggle2 = (event: any) => {
+const toggle2 = (event: Event): void => {
   op2.value.toggle(event);
 };
 
-const loadData = async () => {
-  let loadYear, yearFormatFilter;
-  if (selectedYear.value.year === "Alle") {
-    loadYear = "Overall";
-    yearFormatFilter = "%";
-  } else {
-    loadYear = selectedYear.value.year;
-    yearFormatFilter = selectedYear.value.year;
-  }
-  await pocketbase
-    .collection("elo")
-    .getList(1, 5, {
+const loadData = async (): Promise<void> => {
+  try {
+    let loadYear: string;
+    let yearFormatFilter: string;
+
+    if (selectedYear.value.year === "Alle") {
+      loadYear = "Overall";
+      yearFormatFilter = "%";
+    } else {
+      loadYear = selectedYear.value.year.toString();
+      yearFormatFilter = selectedYear.value.year.toString();
+    }
+
+    // Load ELO data
+    const eloResponse = await pocketbase.collection("elo").getList(1, 5, {
       expand: "wrestler",
       sort: "-rating,-created",
       fields:
         "id,rating,expand.wrestler.id,expand.wrestler.name,expand.wrestler.vorname",
-    })
-    .then((data) => {
-      eloData.value = data.items;
-      loadingElo.value = false;
     });
-  await pocketbase
-    .collection("averageRank" + loadYear)
-    .getList(1, 5, {
-      fields: "averageRank,wid,name,vorname,year",
-    })
-    .then((data) => {
-      data.items.forEach((item) => {
-        item.avgRank = Math.round(item.averageRank * 100) / 100;
+    eloData.value = eloResponse.items;
+    loadingElo.value = false;
+
+    // Load average rank data
+    const averageRankResponse = await pocketbase
+      .collection("averageRank" + loadYear)
+      .getList(1, 5, {
+        fields: "averageRank,wid,name,vorname,year",
       });
-      averageRank.value = data.items;
-      loadingAverageRank.value = false;
+    averageRankResponse.items.forEach((item: AverageRankData) => {
+      item.avgRank = Math.round(item.averageRank * 100) / 100;
     });
-  await pocketbase
-    .collection("averagePoints" + loadYear)
-    .getList(1, 5, {
-      fields: "averagePoints,wid,name,vorname,year",
-    })
-    .then((data) => {
-      data.items.forEach((item) => {
-        item.avgPoints = Math.round(item.averagePoints * 100) / 100;
+    averageRank.value = averageRankResponse.items;
+    loadingAverageRank.value = false;
+
+    // Load average points data
+    const averagePointsResponse = await pocketbase
+      .collection("averagePoints" + loadYear)
+      .getList(1, 5, {
+        fields: "averagePoints,wid,name,vorname,year",
       });
-      averagePoints.value = data.items;
-      loadingAveragePoints.value = false;
+    averagePointsResponse.items.forEach((item: AveragePointsData) => {
+      item.avgPoints = Math.round(item.averagePoints * 100) / 100;
     });
-  await pocketbase
-    .collection("mostWins" + loadYear)
-    .getList(1, 5, {
-      sort: "-wins,-wreath",
-      fields: "wins,wreath,id,name,vorname",
-    })
-    .then((data) => {
-      mostWins.value = data.items;
-      loadingMostWins.value = false;
-    });
-  await pocketbase
-    .collection("mostPlacesAttended" + loadYear)
-    .getList(1, 5, {
-      fields: "placesAttended,id,name,vorname,year",
-    })
-    .then((data) => {
-      mostPlacesAttended.value = data.items;
-      loadingMostPlacesAttended.value = false;
-    });
-  await pocketbase
-    .collection("mostWreaths" + loadYear)
-    .getList(1, 5, {
-      fields: "wreath,id,name,vorname",
-    })
-    .then((data) => {
-      mostWreaths.value = data.items;
-      loadingMostWreaths.value = false;
-    });
-  await pocketbase
-    .collection("drawDecisionRatio")
-    .getList(1, 24, {
-      filter: "yearFormat ~ '" + yearFormatFilter + "'",
-      fields: "countDraw,countAll,yearFormat",
-    })
-    .then((data) => {
-      let sumAll = 0;
-      let sumDraw = 0;
-      data.items.forEach((item) => {
-        sumDraw += item.countDraw;
-        sumAll += item.countAll;
+    averagePoints.value = averagePointsResponse.items;
+    loadingAveragePoints.value = false;
+
+    // Load most wins data
+    const mostWinsResponse = await pocketbase
+      .collection("mostWins" + loadYear)
+      .getList(1, 5, {
+        sort: "-wins,-wreath",
+        fields: "wins,wreath,id,name,vorname",
       });
-      drawDecisionRatio.value = Math.round((sumDraw / sumAll) * 100);
-      loadingDrawDecisionRatio.value = false;
+    mostWins.value = mostWinsResponse.items;
+    loadingMostWins.value = false;
+
+    // Load most places attended data
+    const mostPlacesAttendedResponse = await pocketbase
+      .collection("mostPlacesAttended" + loadYear)
+      .getList(1, 5, {
+        fields: "placesAttended,id,name,vorname,year",
+      });
+    mostPlacesAttended.value = mostPlacesAttendedResponse.items;
+    loadingMostPlacesAttended.value = false;
+
+    // Load most wreaths data
+    const mostWreathsResponse = await pocketbase
+      .collection("mostWreaths" + loadYear)
+      .getList(1, 5, {
+        fields: "wreath,id,name,vorname",
+      });
+    mostWreaths.value = mostWreathsResponse.items;
+    loadingMostWreaths.value = false;
+
+    // Load draw decision ratio data
+    const drawDecisionRatioResponse = await pocketbase
+      .collection("drawDecisionRatio")
+      .getList(1, 24, {
+        filter: `yearFormat ~ '${yearFormatFilter}'`,
+        fields: "countDraw,countAll,yearFormat",
+      });
+
+    let sumAll = 0;
+    let sumDraw = 0;
+    drawDecisionRatioResponse.items.forEach((item: DrawDecisionRatioData) => {
+      sumDraw += item.countDraw;
+      sumAll += item.countAll;
     });
+    drawDecisionRatio.value =
+      sumAll > 0 ? Math.round((sumDraw / sumAll) * 100) : 0;
+    loadingDrawDecisionRatio.value = false;
+  } catch (error) {
+    console.error("Error loading statistics data:", error);
+    // Reset loading states on error
+    loadingElo.value = false;
+    loadingAverageRank.value = false;
+    loadingAveragePoints.value = false;
+    loadingMostWins.value = false;
+    loadingMostPlacesAttended.value = false;
+    loadingMostWreaths.value = false;
+    loadingDrawDecisionRatio.value = false;
+  }
 };
 
-async function yearSelected() {
+const yearSelected = async (): Promise<void> => {
   await loadData();
-}
+};
 
-async function rowClick(wid: any) {
-  await navigateTo("/wrestler/" + wid);
-}
+const rowClick = async (wid: string): Promise<void> => {
+  try {
+    await navigateTo(`/wrestler/${wid}`);
+  } catch (error) {
+    console.error("Navigation error:", error);
+  }
+};
+
+// Lifecycle
+onMounted(async () => {
+  await loadData();
+});
 </script>
 <template>
   <div class="card">

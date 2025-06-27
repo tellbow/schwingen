@@ -2,8 +2,8 @@
 import { FilterMatchMode } from "primevue/api";
 
 const pocketbase = usePocketbase();
-
 const route = useRoute();
+const { layout, numberOfRows, numberOfPages } = useLayout();
 
 const loading = ref(true);
 const page = ref(1);
@@ -18,13 +18,6 @@ const status = ref([
   },
   { name: "Ohne Kranz", value: " && status.symbol = ''" },
 ]);
-
-const layout =
-  /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-    navigator.userAgent,
-  )
-    ? "mobile"
-    : "default";
 
 const filterDisplay = "row";
 const sort = layout !== "mobile";
@@ -104,22 +97,6 @@ const onSort = (event: { sortField: string; sortOrder: number }) => {
 async function rowClick(event: any) {
   await navigateTo("/wrestler/" + event.data.id);
 }
-
-const numberOfRows = computed(() => {
-  if (layout === "mobile") {
-    return 10;
-  } else {
-    return 15;
-  }
-});
-
-const numberOfPages = computed(() => {
-  if (layout === "mobile") {
-    return 3;
-  } else {
-    return 4;
-  }
-});
 </script>
 <template>
   <div

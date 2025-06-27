@@ -1,12 +1,58 @@
 <script setup lang="ts">
 import { FilterMatchMode } from "primevue/api";
+import { escapeFilterValue } from "~/utils/filterUtils";
 
+// Types
+interface PlaceData {
+  id: string;
+  number: string;
+  name: string;
+  location: string;
+  year: string;
+  expand: {
+    placeType: {
+      type: string;
+    };
+  };
+}
+
+interface FilterState {
+  number: { value: string; matchMode: FilterMatchMode };
+  name: { value: string; matchMode: FilterMatchMode };
+  location: { value: string; matchMode: FilterMatchMode };
+  year: { value: string; matchMode: FilterMatchMode };
+  type: { value: string; matchMode: FilterMatchMode };
+}
+
+interface SortState {
+  field: string;
+  order: string;
+}
+
+interface PageEvent {
+  page: number;
+}
+
+interface SortEvent {
+  sortField: string;
+  sortOrder: number;
+}
+
+interface RowClickEvent {
+  data: PlaceData;
+}
+
+// Composables
 const pocketbase = usePocketbase();
+const { layout, numberOfRows, numberOfPages } = useLayout();
 
+// Reactive state
 const loading = ref(true);
 const page = ref(1);
-const records = ref();
+const records = ref<PlaceData[]>([]);
 const totalRecords = ref(0);
+
+// Filter options
 const year = ref([
   "2015",
   "2016",
@@ -31,17 +77,11 @@ const placeType = ref([
   "Berg",
 ]);
 
-const layout =
-  /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-    navigator.userAgent,
-  )
-    ? "mobile"
-    : "default";
-
 const filterDisplay = "row";
-const sort = layout !== "mobile";
+const sort = computed(() => layout.value !== "mobile");
 
-const filters = ref({
+// Filters and sorting
+const filters = ref<FilterState>({
   number: { value: "", matchMode: FilterMatchMode.CONTAINS },
   name: { value: "", matchMode: FilterMatchMode.CONTAINS },
   location: { value: "", matchMode: FilterMatchMode.CONTAINS },
@@ -49,7 +89,7 @@ const filters = ref({
   type: { value: "", matchMode: FilterMatchMode.EQUALS },
 });
 
-const sorts = ref({
+const sorts = ref<SortState>({
   field: "year,",
   order: "-",
 });
@@ -58,87 +98,89 @@ const matchModeOptions = ref([
   { label: "Enthält", value: FilterMatchMode.CONTAINS },
 ]);
 
-/* eslint require-await: "off" */
-onMounted(async () => {
-  loading.value = true;
-  loadLazyData();
-});
+// Methods
+const buildSafeFilterString = (): string => {
+  const filterParts = [
+    `number ~ "${escapeFilterValue(filters.value.number.value)}"`,
+    `name ~ "${escapeFilterValue(filters.value.name.value)}"`,
+    `location ~ "${escapeFilterValue(filters.value.location.value)}"`,
+    `year >= "2015"`,
+    `year ~ "${escapeFilterValue(filters.value.year.value)}"`,
+    `placeType.type ~ "${escapeFilterValue(filters.value.type.value)}"`,
+  ];
 
-const loadLazyData = () => {
-  loading.value = true;
-
-  pocketbase
-    .collection("places")
-    .getList(page.value, numberOfRows.value, {
-      expand: "placeType",
-      filter:
-        'number ~ "' +
-        (filters.value.number.value || "") +
-        '" && name ~ "' +
-        (filters.value.name.value || "") +
-        '" && location ~ "' +
-        (filters.value.location.value || "") +
-        '" && year >= "2015' +
-        '" && year ~ "' +
-        (filters.value.year.value || "") +
-        '" && placeType.type ~ "' +
-        (filters.value.type.value || "") +
-        '"',
-      sort: sorts.value.order + sorts.value.field + "-created",
-      fields: "id,number,name,location,year,expand.placeType.type",
-    })
-    .then((data) => {
-      data.items.forEach((item) => {
-        item.year = item.year.split(" ")[0];
-      });
-      records.value = data.items;
-      totalRecords.value = data.totalItems;
-      loading.value = false;
-    });
+  return filterParts.join(" && ");
 };
 
-const onPage = (event: { page: number }) => {
+const loadLazyData = async (): Promise<void> => {
+  try {
+    loading.value = true;
+
+    const filterString = buildSafeFilterString();
+
+    const data = await pocketbase
+      .collection("places")
+      .getList(page.value, numberOfRows.value, {
+        expand: "placeType",
+        filter: filterString,
+        sort: sorts.value.order + sorts.value.field + "-created",
+        fields: "id,number,name,location,year,expand.placeType.type",
+      });
+
+    // Process data
+    data.items.forEach((item: PlaceData) => {
+      if (item.year) {
+        item.year = item.year.split(" ")[0];
+      }
+    });
+
+    records.value = data.items;
+    totalRecords.value = data.totalItems;
+  } catch (error) {
+    console.error("Error loading places data:", error);
+    records.value = [];
+    totalRecords.value = 0;
+  } finally {
+    loading.value = false;
+  }
+};
+
+const onPage = (event: PageEvent): void => {
   page.value = event.page + 1;
   loadLazyData();
 };
 
-const onFilter = () => {
+const onFilter = (): void => {
+  page.value = 1; // Reset to first page when filtering
   loadLazyData();
 };
 
-const onSort = (event: { sortField: string; sortOrder: number }) => {
+const onSort = (event: SortEvent): void => {
   sorts.value.field = event.sortField + ",";
   sorts.value.order = event.sortOrder > 0 ? "" : "-";
   loadLazyData();
 };
 
-async function rowClick(event: any) {
-  await navigateTo("/rankings/" + event.data.id);
-}
-
-const numberOfRows = computed(() => {
-  if (layout === "mobile") {
-    return 10;
-  } else {
-    return 15;
+const rowClick = async (event: RowClickEvent): Promise<void> => {
+  try {
+    await navigateTo(`/rankings/${event.data.id}`);
+  } catch (error) {
+    console.error("Navigation error:", error);
   }
-});
+};
 
-const numberOfPages = computed(() => {
-  if (layout === "mobile") {
-    return 3;
-  } else {
-    return 4;
-  }
-});
-
-function displayYear(year: string) {
-  if (layout === "mobile") {
+const displayYear = (year: string): string => {
+  if (layout.value === "mobile") {
     return year.split("-")[0];
   } else {
     return year;
   }
-}
+};
+
+// Lifecycle
+onMounted(async () => {
+  await loadLazyData();
+});
 </script>
 <template>
   <div

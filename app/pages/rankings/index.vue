@@ -1,13 +1,112 @@
 <script setup lang="ts">
 import { FilterMatchMode } from "primevue/api";
+import { escapeFilterValue } from "~/utils/filterUtils";
 
+// Types
+interface RankingData {
+  id: string;
+  rank: string;
+  rank2: string;
+  points: string;
+  final: boolean;
+  result: string;
+  wreath: boolean;
+  status: string;
+  year?: string;
+  bouts?: BoutData[];
+  expand: {
+    wrestler: {
+      id: string;
+      name: string;
+      vorname: string;
+    };
+    place: {
+      id: string;
+      name: string;
+      year: string;
+    };
+  };
+}
+
+interface BoutData {
+  id: string;
+  result: string;
+  points: string;
+  fight_round: string;
+  expand: {
+    opponent: {
+      id: string;
+      name: string;
+      vorname: string;
+    };
+  };
+}
+
+interface FilterState {
+  rank: { value: string; matchMode: FilterMatchMode; prefix: string };
+  points: { value: string; matchMode: FilterMatchMode; prefix: string };
+  final: { value: string; matchMode: FilterMatchMode; prefix: string };
+  result: { value: string; matchMode: FilterMatchMode; prefix: string };
+  wreath: { value: string; matchMode: FilterMatchMode; prefix: string };
+  status: { value: string; matchMode: FilterMatchMode; prefix: string };
+  "expand.wrestler.name": {
+    value: string;
+    matchMode: FilterMatchMode;
+    prefix: string;
+  };
+  "expand.wrestler.vorname": {
+    value: string;
+    matchMode: FilterMatchMode;
+    prefix: string;
+  };
+  "expand.place.name": {
+    value: string;
+    matchMode: FilterMatchMode;
+    prefix: string;
+  };
+  "expand.place.year": {
+    value: string;
+    matchMode: FilterMatchMode;
+    prefix: string;
+  };
+}
+
+interface SortState {
+  field: string;
+  order: string;
+}
+
+interface PageEvent {
+  page: number;
+}
+
+interface SortEvent {
+  sortField: string;
+  sortOrder: number;
+}
+
+interface RowExpandEvent {
+  data: RankingData;
+}
+
+interface RowCollapseEvent {
+  data: {
+    id: string;
+  };
+}
+
+// Composables
 const pocketbase = usePocketbase();
+const { layout, numberOfRows, numberOfPages } = useLayout();
 
+// Reactive state
 const loading = ref(true);
 const page = ref(1);
-const records = ref();
+const records = ref<RankingData[]>([]);
 const totalRecords = ref(0);
 const expandedRows = ref();
+
+// Filter options
 const year = ref([
   "2015",
   "2016",
@@ -22,14 +121,8 @@ const year = ref([
   "2025",
 ]);
 
-const layout =
-  /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-    navigator.userAgent,
-  )
-    ? "mobile"
-    : "default";
-
-const filters = ref({
+// Filters and sorting
+const filters = ref<FilterState>({
   rank: { value: "", matchMode: FilterMatchMode.EQUALS, prefix: 'rank = "' },
   points: {
     value: "",
@@ -78,7 +171,7 @@ const filters = ref({
   },
 });
 
-const sorts = ref({
+const sorts = ref<SortState>({
   field: "place.year,",
   order: "-",
 });
@@ -90,109 +183,119 @@ const matchModeOptionContains = ref([
   { label: "Enthält", value: FilterMatchMode.CONTAINS },
 ]);
 
-/* eslint require-await: "off" */
-onMounted(async () => {
-  loading.value = true;
-  loadLazyData();
-});
-
-const loadLazyData = () => {
-  loading.value = true;
-
-  pocketbase
-    .collection("rankings")
-    .getList(page.value, 10, {
-      expand: "wrestler,place",
-      filter: Object.values(filters.value)
-        .map((filter) => {
-          const { value, prefix } = filter;
-          if (value && value !== "") {
-            if (!prefix.includes('"')) {
-              return prefix + value;
-            }
-            return prefix + value + '"';
-          }
-          return "";
-        })
-        .filter(Boolean)
-        .join(" && "),
-      sort: sorts.value.order + sorts.value.field + "-created",
-      fields:
-        "id,rank,rank2,points,final,result,wreath,status,expand.wrestler.id,expand.wrestler.name,expand.wrestler.vorname,expand.place.id,expand.place.name,expand.place.year",
+// Methods
+const buildSafeFilterString = (): string => {
+  return Object.values(filters.value)
+    .map((filter) => {
+      const { value, prefix } = filter;
+      if (value && value !== "") {
+        const escapedValue = escapeFilterValue(value);
+        if (!prefix.includes('"')) {
+          return prefix + escapedValue;
+        }
+        return prefix + escapedValue + '"';
+      }
+      return "";
     })
-    .then((data: { totalItems: number; items: any }) => {
-      records.value = data.items.map((item: any) => ({
-        ...item,
-        year: item.expand.place.year.split(" ")[0],
-        bouts: [],
-      }));
-      totalRecords.value = data.totalItems;
-      loading.value = false;
-    });
+    .filter(Boolean)
+    .join(" && ");
 };
 
-const loadLazySubData = (wrestlerId: string, placeId: string) => {
-  loading.value = true;
-  pocketbase
-    .collection("bouts")
-    // might be a bug to set page.value here
-    .getList(page.value, 10, {
+const loadLazyData = async (): Promise<void> => {
+  try {
+    loading.value = true;
+
+    const filterString = buildSafeFilterString();
+
+    const data = await pocketbase
+      .collection("rankings")
+      .getList(page.value, numberOfRows.value, {
+        expand: "wrestler,place",
+        filter: filterString,
+        sort: sorts.value.order + sorts.value.field + "-created",
+        fields:
+          "id,rank,rank2,points,final,result,wreath,status,expand.wrestler.id,expand.wrestler.name,expand.wrestler.vorname,expand.place.id,expand.place.name,expand.place.year",
+      });
+
+    records.value = data.items.map((item: RankingData) => ({
+      ...item,
+      year: item.expand.place.year.split(" ")[0],
+      bouts: [],
+    }));
+    totalRecords.value = data.totalItems;
+  } catch (error) {
+    console.error("Error loading rankings data:", error);
+    records.value = [];
+    totalRecords.value = 0;
+  } finally {
+    loading.value = false;
+  }
+};
+
+const loadLazySubData = async (
+  wrestlerId: string,
+  placeId: string,
+): Promise<void> => {
+  try {
+    loading.value = true;
+
+    const data = await pocketbase.collection("bouts").getList(page.value, 10, {
       expand: "opponent",
-      filter:
-        "wrestler.id = '" + wrestlerId + "' && place.id = '" + placeId + "'",
+      filter: `wrestler.id = '${escapeFilterValue(wrestlerId)}' && place.id = '${escapeFilterValue(placeId)}'`,
       sort: "fight_round,-created",
       fields:
         "id,result,points,fight_round,expand.opponent.id,expand.opponent.name,expand.opponent.vorname",
-    })
-    .then((data: { items: any }) => {
-      records.value.forEach((item: any) => {
-        if (
-          item.expand.wrestler.id === wrestlerId &&
-          item.expand.place.id === placeId
-        ) {
-          item.bouts = data.items;
-        }
-      });
-      loading.value = false;
     });
+
+    records.value.forEach((item: RankingData) => {
+      if (
+        item.expand.wrestler.id === wrestlerId &&
+        item.expand.place.id === placeId
+      ) {
+        item.bouts = data.items;
+      }
+    });
+  } catch (error) {
+    console.error("Error loading sub data:", error);
+  } finally {
+    loading.value = false;
+  }
 };
 
-const onPage = (event: { page: number }) => {
+const onPage = (event: PageEvent): void => {
   page.value = event.page + 1;
   loadLazyData();
 };
 
-const onFilter = () => {
+const onFilter = (): void => {
+  page.value = 1; // Reset to first page when filtering
   loadLazyData();
 };
 
-const onSort = (event: { sortField: string; sortOrder: number }) => {
+const onSort = (event: SortEvent): void => {
   sorts.value.field = event.sortField.replace("_", ".") + ",";
   sorts.value.order = event.sortOrder > 0 ? "" : "-";
   loadLazyData();
 };
 
-const onRowExpand = (event: {
-  data: {
-    expand: {
-      wrestler: { id: string };
-      place: { id: string };
-    };
-  };
-}) => {
-  loadLazySubData(event.data.expand.wrestler.id, event.data.expand.place.id);
+const onRowExpand = (event: RowExpandEvent): void => {
+  const { wrestler, place } = event.data.expand;
+  loadLazySubData(wrestler.id, place.id);
 };
 
-const onRowCollapse = (event: {
-  data: {
-    id: string;
-  };
-}) => {
+const onRowCollapse = (event: RowCollapseEvent): void => {
   const objIndex = records.value.findIndex(
-    (obj: { id: string }) => obj.id === event.data.id,
+    (obj: RankingData) => obj.id === event.data.id,
   );
-  records.value[objIndex].bouts = [];
+  if (objIndex !== -1) {
+    records.value[objIndex].bouts = [];
+  }
 };
+
+// Lifecycle
+onMounted(async () => {
+  await loadLazyData();
+});
 </script>
 <template>
   <div
@@ -207,9 +310,10 @@ const onRowCollapse = (event: {
       column-resize-mode="fit"
       show-gridlines
       table-style="min-width: 50rem"
+      :page-link-size="numberOfPages"
       lazy
       paginator
-      :rows="10"
+      :rows="numberOfRows"
       data-key="id"
       filter-display="row"
       :row-hover="true"

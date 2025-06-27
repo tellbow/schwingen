@@ -1,47 +1,170 @@
 <script setup lang="ts">
 import Chart from "primevue/chart";
+import { validateRouteParam } from "~/utils/filterUtils";
 
+// Types
+interface WrestlerData {
+  id: string;
+  name: string;
+  vorname: string;
+  year: string;
+  category?: string;
+  expand?: {
+    status?: {
+      status: string;
+    };
+    club?: {
+      name: string;
+      expand?: {
+        canton?: {
+          name: string;
+          expand?: {
+            association?: {
+              name: string;
+              abbreviation: string;
+            };
+          };
+        };
+      };
+    };
+  };
+}
+
+interface EloData {
+  id: string;
+  rating: string | number;
+}
+
+interface RankingData {
+  id: string;
+  rank: string;
+  rank2: string;
+  points: string;
+  final: boolean;
+  result: string;
+  wreath: boolean;
+  status: string;
+  expand: {
+    place: {
+      id: string;
+      name: string;
+      year: string;
+      originalDate?: string;
+      expand: {
+        placeType: {
+          type: string;
+        };
+      };
+    };
+  };
+}
+
+interface OpponentData {
+  id: string;
+  name: string;
+  vorname: string;
+}
+
+interface TopOpponentData {
+  id: string;
+  name: string;
+  vorname: string;
+  count: number;
+}
+
+interface BoutData {
+  id: string;
+  result: string;
+  points: string;
+  expand: {
+    place: {
+      id: string;
+      name: string;
+      year: string;
+    };
+  };
+}
+
+interface YearOption {
+  year: string | number;
+}
+
+interface ChartData {
+  labels: string[];
+  datasets: Array<{
+    data: number[];
+    backgroundColor: string[];
+    hoverBackgroundColor: string[];
+  }>;
+}
+
+interface GraphData {
+  labels: string[];
+  datasets: Array<{
+    label: string;
+    data: Array<{
+      winPercentage?: number;
+      drawPercentage?: number;
+      lossPercentage?: number;
+      win?: number;
+      draw?: number;
+      loss?: number;
+    }>;
+    parsing: {
+      xAxisKey: string;
+      yAxisKey: string;
+    };
+    backgroundColor: string[];
+    hoverBackgroundColor: string[];
+  }>;
+}
+
+// Composables
 const pocketbase = usePocketbase();
-
 const route = useRoute();
+const { layout } = useLayout();
 
-const wrestlerData = ref();
-const eloData = ref();
-const rankingsData = ref();
-const opponentsData = ref();
-const displayOpponent = (opponentsData: { name: string; vorname: string }) =>
-  opponentsData.name + " " + opponentsData.vorname;
-const selectedOpponent = ref();
-const topOpponentsData = ref();
-const boutsData = ref();
+// Validate route parameter
+const wrestlerId = computed(() => {
+  try {
+    return validateRouteParam(route.params.id);
+  } catch (error) {
+    console.error("Invalid wrestler ID:", error);
+    throw createError({
+      statusCode: 400,
+      statusMessage: "Invalid wrestler ID",
+    });
+  }
+});
+
+// Reactive state
+const wrestlerData = ref<WrestlerData | null>(null);
+const eloData = ref<EloData | null>(null);
+const rankingsData = ref<RankingData[]>([]);
+const opponentsData = ref<OpponentData[]>([]);
+const selectedOpponent = ref<string | null>(null);
+const topOpponentsData = ref<TopOpponentData[]>([]);
+const boutsData = ref<BoutData[]>([]);
+
+// Wreath counters
 const wreath1 = ref(0);
 const wreath2 = ref(0);
 const wreath3 = ref(0);
-const ratioWinDrawLoss = ref();
-const graphWinDrawLoss = ref();
+
+// Chart data
+const ratioWinDrawLoss = ref<ChartData | null>(null);
+const graphWinDrawLoss = ref<GraphData | null>(null);
+
+// Loading states
 const loadingWrestler = ref(true);
 const loadingRankings = ref(true);
 const loadingOpponents = ref(true);
 const loadingTopOpponents = ref(true);
 const loadingBouts = ref(false);
-const selectedYear = ref({ year: "Alle" });
-const years = ref([
-  // { year: 1998 },
-  // { year: 2000 },
-  // { year: 2001 },
-  // { year: 2002 },
-  // { year: 2003 },
-  // { year: 2004 },
-  // { year: 2005 },
-  // { year: 2006 },
-  // { year: 2007 },
-  // { year: 2008 },
-  // { year: 2009 },
-  // { year: 2010 },
-  // { year: 2011 },
-  // { year: 2012 },
-  // { year: 2013 },
-  // { year: 2014 },
+
+// Year selection
+const selectedYear = ref<YearOption>({ year: "Alle" });
+const years: YearOption[] = [
   { year: 2015 },
   { year: 2016 },
   { year: 2017 },
@@ -54,305 +177,448 @@ const years = ref([
   { year: 2024 },
   { year: 2025 },
   { year: "Alle" },
-]);
+];
 
-const layout =
-  /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-    navigator.userAgent,
-  )
-    ? "mobile"
-    : "default";
+// Computed properties
+const averageRank = computed(() => {
+  if (!rankingsData.value.length) return "-";
 
-onMounted(async () => {
-  await pocketbase
-    .collection("wrestler")
-    .getFirstListItem('id="' + route.params.id + '"', {
-      expand: "status,club,club.canton,club.canton.association",
-      fields:
-        "id,name,vorname,year,category,expand.status.status,expand.club.name,expand.club.expand.canton.name,expand.club.expand.canton.expand.association.name,expand.club.expand.canton.expand.association.abbreviation",
-    })
-    .then((data) => {
-      data.year = data.year ? data.year.split("-")[0] : "-";
-      wrestlerData.value = data;
-    });
-  try {
-    await pocketbase
-      .collection("elo")
-      .getFirstListItem('wrestler.id="' + route.params.id + '"', {
-        fields: "id,rating",
-      })
-      .then((data) => {
-        eloData.value = data;
-        loadingWrestler.value = false;
-      });
-  } catch (error) {
-    console.error(error);
-    eloData.value = { rating: "-" };
-    loadingWrestler.value = false;
-  }
-  await loadRankingsData();
-  await loadBoutsData();
+  const totalRank = rankingsData.value
+    .map((item) => parseInt(item.rank.replace(/\D/g, "")) || 0)
+    .reduce((sum, rank) => sum + rank, 0);
+
+  const average = totalRank / rankingsData.value.length;
+  return isNaN(average) ? "-" : average.toFixed(2);
 });
 
-const loadBoutsData = async () => {
-  let customFilter;
-  if (selectedYear.value.year === "Alle") {
-    customFilter = 'wrestler.id = "' + route.params.id + '"';
-  } else {
-    customFilter =
-      'wrestler.id = "' +
-      route.params.id +
-      '" && place.year ~ "' +
-      selectedYear.value.year +
-      '"';
+const averagePoints = computed(() => {
+  if (!rankingsData.value.length) return "-";
+
+  const totalPoints = rankingsData.value
+    .map((item) => parseInt(item.points) || 0)
+    .reduce((sum, points) => sum + points, 0);
+
+  const average = totalPoints / rankingsData.value.length;
+  return isNaN(average) ? "-" : average.toFixed(2);
+});
+
+// Methods
+const displayOpponent = (opponent: OpponentData): string => {
+  return `${opponent.name} ${opponent.vorname}`;
+};
+
+const loadWrestlerData = async (): Promise<void> => {
+  try {
+    const data = await pocketbase
+      .collection("wrestler")
+      .getFirstListItem(`id="${wrestlerId.value}"`, {
+        expand: "status,club,club.canton,club.canton.association",
+        fields:
+          "id,name,vorname,year,category,expand.status.status,expand.club.name,expand.club.expand.canton.name,expand.club.expand.canton.expand.association.name,expand.club.expand.canton.expand.association.abbreviation",
+      });
+
+    data.year = data.year ? data.year.split("-")[0] : "-";
+    wrestlerData.value = data;
+  } catch (error) {
+    console.error("Error loading wrestler data:", error);
+    throw error;
   }
-  await pocketbase
-    .collection("bouts")
-    .getFullList(200 /* batch size */, {
+};
+
+const loadEloData = async (): Promise<void> => {
+  try {
+    const data = await pocketbase
+      .collection("elo")
+      .getFirstListItem(`wrestler.id="${wrestlerId.value}"`, {
+        fields: "id,rating",
+      });
+
+    eloData.value = data;
+  } catch (error) {
+    console.error("Error loading ELO data:", error);
+    eloData.value = { id: "", rating: "-" };
+  }
+};
+
+const loadBoutsData = async (): Promise<void> => {
+  try {
+    const customFilter =
+      selectedYear.value.year === "Alle"
+        ? `wrestler.id = "${wrestlerId.value}"`
+        : `wrestler.id = "${wrestlerId.value}" && place.year ~ "${selectedYear.value.year}"`;
+
+    const data = await pocketbase.collection("bouts").getFullList(200, {
       filter: customFilter,
       expand: "opponent",
       sort: "opponent.name,-created",
       fields:
         "id,expand.opponent.id,expand.opponent.name,expand.opponent.vorname",
-    })
-    .then((data) => {
-      opponentsData.value = Array.from(
-        new Map(
-          data.map((obj: { expand: any }) => [
-            obj.expand.opponent.id,
-            {
-              id: obj.expand.opponent.id,
-              name: obj.expand.opponent.name,
-              vorname: obj.expand.opponent.vorname,
-            },
-          ]),
-        ).values(),
-      );
-      loadingOpponents.value = false;
     });
+
+    // Deduplicate opponents
+    const opponentMap = new Map<string, OpponentData>();
+    data.forEach((obj: any) => {
+      const opponent = obj.expand.opponent;
+      opponentMap.set(opponent.id, {
+        id: opponent.id,
+        name: opponent.name,
+        vorname: opponent.vorname,
+      });
+    });
+
+    opponentsData.value = Array.from(opponentMap.values());
+  } catch (error) {
+    console.error("Error loading bouts data:", error);
+    opponentsData.value = [];
+  } finally {
+    loadingOpponents.value = false;
+  }
 };
 
-const loadRankingsData = async () => {
-  let customFilter;
-  if (selectedYear.value.year === "Alle") {
-    customFilter = 'wrestler.id = "' + route.params.id + '"';
-  } else {
-    customFilter =
-      'wrestler.id = "' +
-      route.params.id +
-      '" && place.year ~ "' +
-      selectedYear.value.year +
-      '"';
-  }
-  await pocketbase
-    .collection("rankings")
-    .getFullList(200 /* batch size */, {
+const loadRankingsData = async (): Promise<void> => {
+  try {
+    const customFilter =
+      selectedYear.value.year === "Alle"
+        ? `wrestler.id = "${wrestlerId.value}"`
+        : `wrestler.id = "${wrestlerId.value}" && place.year ~ "${selectedYear.value.year}"`;
+
+    const data = await pocketbase.collection("rankings").getFullList(200, {
       filter: customFilter,
       expand: "place,place.placeType",
       sort: "-place.year,-created",
       fields:
         "id,rank,rank2,points,final,result,wreath,status,expand.place.id,expand.place.name,expand.place.year,expand.place.expand.placeType.type",
-    })
-    .then((data) => {
-      data.forEach((item: any) => {
-        if (item.wreath) {
-          switch (item.expand.place.expand.placeType.type) {
-            case "Gauverband":
-            case "Kantonal":
-              wreath1.value++;
-              break;
-            case "Teilverband":
-            case "Berg":
-              wreath2.value++;
-              break;
-            case "Eidgenössisch":
-              wreath3.value++;
-              break;
-          }
-        }
-        item.expand.place.year = item.expand.place.year.split("-")[0];
-      });
-      rankingsData.value = data;
-      loadingRankings.value = false;
     });
+
+    // Reset wreath counters
+    wreath1.value = 0;
+    wreath2.value = 0;
+    wreath3.value = 0;
+
+    data.forEach((item: RankingData) => {
+      if (item.wreath) {
+        const placeType = item.expand.place.expand.placeType.type;
+        switch (placeType) {
+          case "Gauverband":
+          case "Kantonal":
+            wreath1.value++;
+            break;
+          case "Teilverband":
+          case "Berg":
+            wreath2.value++;
+            break;
+          case "Eidgenössisch":
+            wreath3.value++;
+            break;
+        }
+      }
+      // Store the original date for charting purposes
+      item.expand.place.originalDate = item.expand.place.year;
+      item.expand.place.year = item.expand.place.year.split("-")[0];
+    });
+
+    rankingsData.value = data;
+  } catch (error) {
+    console.error("Error loading rankings data:", error);
+    rankingsData.value = [];
+  } finally {
+    loadingRankings.value = false;
+  }
 };
 
-const averageRank = computed({
-  get: () => {
-    const ar = (
-      rankingsData.value
-        .map((item: { rank: string }) => item.rank.replace(/\D/g, ""))
-        .reduce((a: number, b: string) => a + parseInt(b), 0) /
-      rankingsData.value.length
-    ).toFixed(2);
-    if (isNaN(parseFloat(ar))) {
-      return "-";
-    } else {
-      return ar;
-    }
-  },
-  set: () => {},
-});
+const calculateWinDrawLossRatio = (): ChartData | null => {
+  if (!rankingsData.value.length) return null;
 
-const averagePoints = computed({
-  get: () => {
-    const ap = (
-      rankingsData.value
-        .map((item: { points: string }) => item.points)
-        .reduce((a: number, b: string) => a + parseInt(b), 0) /
-      rankingsData.value.length
-    ).toFixed(2);
-    if (isNaN(parseFloat(ap))) {
-      return "-";
-    } else {
-      return ap;
-    }
-  },
-  set: () => {},
-});
+  const documentStyle = getComputedStyle(document.body);
+  const counts = rankingsData.value.reduce(
+    (acc, { result }) => {
+      const win = (result.match(/\+/g) || []).length;
+      const draw = (result.match(/-/g) || []).length;
+      const loss = (result.match(/o/g) || []).length;
 
-ratioWinDrawLoss.value = computed({
-  get: () => {
-    const documentStyle = getComputedStyle(document.body);
-    const countsArray = rankingsData.value.reduce(
-      (
-        accumulator: { win: number; draw: number; loss: number },
-        { result }: any,
-      ) => {
-        const win = result.split("+").length - 1;
-        const draw = result.split("-").length - 1;
-        const loss = result.split("o").length - 1;
-        return {
-          win: accumulator.win + win,
-          draw: accumulator.draw + draw,
-          loss: accumulator.loss + loss,
-        };
-      },
-      { win: 0, draw: 0, loss: 0 },
-    );
-    if (Object.keys(rankingsData.value).length !== 0) {
       return {
-        labels: ["Sieg", "Gestellt", "Niederlage"],
-        datasets: [
-          {
-            data: Object.values(countsArray),
-            backgroundColor: [
-              documentStyle.getPropertyValue("--green-500"),
-              documentStyle.getPropertyValue("--yellow-500"),
-              documentStyle.getPropertyValue("--red-500"),
-            ],
-            hoverBackgroundColor: [
-              documentStyle.getPropertyValue("--green-400"),
-              documentStyle.getPropertyValue("--yellow-400"),
-              documentStyle.getPropertyValue("--red-400"),
-            ],
-          },
-        ],
+        win: acc.win + win,
+        draw: acc.draw + draw,
+        loss: acc.loss + loss,
       };
-    } else {
-      return null;
-    }
-  },
-  set: () => {},
-});
+    },
+    { win: 0, draw: 0, loss: 0 },
+  );
 
-graphWinDrawLoss.value = computed({
-  get: () => {
-    const documentStyle = getComputedStyle(document.body);
-    const graphArray = rankingsData.value.reduce(
-      (
-        accumulator: {
-          [year: string]: {
-            win: number;
-            draw: number;
-            loss: number;
-            total: number;
-            winPercentage?: number;
-            drawPercentage?: number;
-            lossPercentage?: number;
-          };
-        },
-        { result, expand }: any,
-      ) => {
-        const year = expand.place.year;
-        const win = (result.match(/\+/g) || []).length;
-        const draw = (result.match(/-/g) || []).length;
-        const loss = (result.match(/o/g) || []).length;
-
-        if (!accumulator[year]) {
-          accumulator[year] = { win: 0, draw: 0, loss: 0, total: 0 };
-        }
-
-        accumulator[year].win += win;
-        accumulator[year].draw += draw;
-        accumulator[year].loss += loss;
-        accumulator[year].total += win + draw + loss;
-        return accumulator;
+  return {
+    labels: ["Sieg", "Gestellt", "Niederlage"],
+    datasets: [
+      {
+        data: [counts.win, counts.draw, counts.loss],
+        backgroundColor: [
+          documentStyle.getPropertyValue("--green-500"),
+          documentStyle.getPropertyValue("--yellow-500"),
+          documentStyle.getPropertyValue("--red-500"),
+        ],
+        hoverBackgroundColor: [
+          documentStyle.getPropertyValue("--green-400"),
+          documentStyle.getPropertyValue("--yellow-400"),
+          documentStyle.getPropertyValue("--red-400"),
+        ],
       },
-      {},
-    );
-    Object.keys(graphArray).forEach((year) => {
-      const yearData = graphArray[year];
+    ],
+  };
+};
+
+const calculateWinDrawLossGraph = (): GraphData | null => {
+  if (!rankingsData.value.length) return null;
+
+  const documentStyle = getComputedStyle(document.body);
+  const graphArray = rankingsData.value.reduce(
+    (accumulator, { result, expand }) => {
+      let key: string;
+
+      if (selectedYear.value.year === "Alle") {
+        // When "Alle" is selected, group by year only
+        key = expand.place.year;
+      } else {
+        // When a specific year is selected, group by individual places with date
+        const originalDate = expand.place.originalDate || expand.place.year;
+        // Format date as "MM.YYYY" or just use the place name if date is not available
+        if (originalDate && originalDate.includes("-")) {
+          const dateParts = originalDate.split("-");
+          if (dateParts.length >= 2) {
+            const month = dateParts[1];
+            const year = dateParts[0];
+            key = `${month}.${year}`;
+          } else {
+            key = expand.place.name;
+          }
+        } else {
+          key = expand.place.name;
+        }
+      }
+
+      const win = (result.match(/\+/g) || []).length;
+      const draw = (result.match(/-/g) || []).length;
+      const loss = (result.match(/o/g) || []).length;
+
+      if (!accumulator[key]) {
+        accumulator[key] = { win: 0, draw: 0, loss: 0, total: 0 };
+      }
+
+      accumulator[key].win += win;
+      accumulator[key].draw += draw;
+      accumulator[key].loss += loss;
+      accumulator[key].total += win + draw + loss;
+      return accumulator;
+    },
+    {} as Record<
+      string,
+      {
+        win: number;
+        draw: number;
+        loss: number;
+        total: number;
+        winPercentage?: number;
+        drawPercentage?: number;
+        lossPercentage?: number;
+      }
+    >,
+  );
+
+  // Calculate percentages
+  Object.values(graphArray).forEach((yearData) => {
+    if (yearData.total > 0) {
       yearData.winPercentage = (yearData.win / yearData.total) * 100;
       yearData.drawPercentage = (yearData.draw / yearData.total) * 100;
       yearData.lossPercentage = (yearData.loss / yearData.total) * 100;
-    });
-    if (Object.keys(rankingsData.value).length !== 0) {
-      return {
-        labels: Object.keys(graphArray),
-        datasets: [
-          {
-            label: "Sieg",
-            data: Object.values(graphArray).map((object: any) => ({
-              winPercentage: object.winPercentage,
-              win: object.win,
-            })),
-            parsing: {
-              xAxisKey: "win",
-              yAxisKey: "winPercentage",
-            },
-            backgroundColor: [documentStyle.getPropertyValue("--green-500")],
-            hoverBackgroundColor: [
-              documentStyle.getPropertyValue("--green-400"),
-            ],
-          },
-          {
-            label: "Gestellt",
-            data: Object.values(graphArray).map((object: any) => ({
-              drawPercentage: object.drawPercentage,
-              draw: object.draw,
-            })),
-            parsing: {
-              xAxisKey: "draw",
-              yAxisKey: "drawPercentage",
-            },
-            backgroundColor: [documentStyle.getPropertyValue("--yellow-500")],
-            hoverBackgroundColor: [
-              documentStyle.getPropertyValue("--yellow-400"),
-            ],
-          },
-          {
-            label: "Niederlage",
-            data: Object.values(graphArray).map((object: any) => ({
-              lossPercentage: object.lossPercentage,
-              loss: object.loss,
-            })),
-            parsing: {
-              xAxisKey: "loss",
-              yAxisKey: "lossPercentage",
-            },
-            backgroundColor: [documentStyle.getPropertyValue("--red-500")],
-            hoverBackgroundColor: [documentStyle.getPropertyValue("--red-400")],
-          },
-        ],
-      };
-    } else {
-      return null;
     }
-  },
-  set: () => {},
-});
+  });
 
+  // Use fallback colors if CSS variables are not available
+  const green500 = documentStyle.getPropertyValue("--green-500") || "#22c55e";
+  const yellow500 = documentStyle.getPropertyValue("--yellow-500") || "#eab308";
+  const red500 = documentStyle.getPropertyValue("--red-500") || "#ef4444";
+  const green400 = documentStyle.getPropertyValue("--green-400") || "#4ade80";
+  const yellow400 = documentStyle.getPropertyValue("--yellow-400") || "#facc15";
+  const red400 = documentStyle.getPropertyValue("--red-400") || "#f87171";
+
+  // Sort labels chronologically when a specific year is selected
+  let sortedLabels = Object.keys(graphArray);
+  if (selectedYear.value.year !== "Alle") {
+    sortedLabels = sortedLabels.sort((a, b) => {
+      // If both are date formats (MM.YYYY), sort chronologically
+      if (a.includes(".") && b.includes(".")) {
+        const [monthA, yearA] = a.split(".");
+        const [monthB, yearB] = b.split(".");
+        if (yearA === yearB) {
+          return parseInt(monthA) - parseInt(monthB);
+        }
+        return parseInt(yearA) - parseInt(yearB);
+      }
+      // If one is a date format and the other isn't, put dates first
+      if (a.includes(".") && !b.includes(".")) return -1;
+      if (!a.includes(".") && b.includes(".")) return 1;
+      // Otherwise sort alphabetically
+      return a.localeCompare(b);
+    });
+  }
+
+  return {
+    labels: sortedLabels,
+    datasets: [
+      {
+        label: "Sieg",
+        data: sortedLabels.map((key) => {
+          const object = graphArray[key];
+          return {
+            winPercentage: object.winPercentage,
+            win: object.win,
+          };
+        }),
+        parsing: {
+          xAxisKey: "win",
+          yAxisKey: "winPercentage",
+        },
+        backgroundColor: [green500],
+        hoverBackgroundColor: [green400],
+      },
+      {
+        label: "Gestellt",
+        data: sortedLabels.map((key) => {
+          const object = graphArray[key];
+          return {
+            drawPercentage: object.drawPercentage,
+            draw: object.draw,
+          };
+        }),
+        parsing: {
+          xAxisKey: "draw",
+          yAxisKey: "drawPercentage",
+        },
+        backgroundColor: [yellow500],
+        hoverBackgroundColor: [yellow400],
+      },
+      {
+        label: "Niederlage",
+        data: sortedLabels.map((key) => {
+          const object = graphArray[key];
+          return {
+            lossPercentage: object.lossPercentage,
+            loss: object.loss,
+          };
+        }),
+        parsing: {
+          xAxisKey: "loss",
+          yAxisKey: "lossPercentage",
+        },
+        backgroundColor: [red500],
+        hoverBackgroundColor: [red400],
+      },
+    ],
+  };
+};
+
+const findTopOpponents = async (): Promise<void> => {
+  try {
+    loadingTopOpponents.value = true;
+
+    const data = await pocketbase.collection("bouts").getFullList(200, {
+      filter: `wrestler.id = "${wrestlerId.value}" && result = "o"`,
+      expand: "opponent,place",
+      sort: "-place.year,-created",
+      fields:
+        "id,result,points,expand.opponent.id,expand.opponent.name,expand.opponent.vorname,expand.place.id,expand.place.name,expand.place.year",
+    });
+
+    // Group by opponent and count losses
+    const opponentCounts = data.reduce(
+      (acc, item) => {
+        const opponentId = item.expand.opponent.id;
+        const { name, vorname } = item.expand.opponent;
+
+        if (acc[opponentId]) {
+          acc[opponentId].count++;
+        } else {
+          acc[opponentId] = { count: 1, name, vorname };
+        }
+        return acc;
+      },
+      {} as Record<string, { count: number; name: string; vorname: string }>,
+    );
+
+    // Convert to array and sort by count
+    topOpponentsData.value = Object.entries(opponentCounts)
+      .sort((a, b) => b[1].count - a[1].count)
+      .slice(0, 5)
+      .map(([id, opponentData]) => ({
+        id,
+        ...opponentData,
+      }));
+  } catch (error) {
+    console.error("Error finding top opponents:", error);
+    topOpponentsData.value = [];
+  } finally {
+    loadingTopOpponents.value = false;
+  }
+};
+
+const findBouts = async (): Promise<void> => {
+  if (!selectedOpponent.value) return;
+
+  try {
+    loadingBouts.value = true;
+
+    const data = await pocketbase.collection("bouts").getFullList(200, {
+      filter: `wrestler.id = "${wrestlerId.value}" && opponent.id = "${selectedOpponent.value}"`,
+      expand: "place",
+      sort: "-place.year,-created",
+      fields:
+        "id,result,points,expand.place.id,expand.place.name,expand.place.year",
+    });
+
+    data.forEach((item: BoutData) => {
+      item.expand.place.year = item.expand.place.year.split("-")[0];
+    });
+
+    boutsData.value = data;
+  } catch (error) {
+    console.error("Error finding bouts:", error);
+    boutsData.value = [];
+  } finally {
+    loadingBouts.value = false;
+  }
+};
+
+const yearSelected = async (): Promise<void> => {
+  await Promise.all([loadRankingsData(), loadBoutsData()]);
+};
+
+// Navigation functions
+const wrestlerRowClick = async (wid: string): Promise<void> => {
+  try {
+    await navigateTo(`/wrestler/${wid}`);
+  } catch (error) {
+    console.error("Navigation error:", error);
+  }
+};
+
+const wrestlerPlaceRowClick = async (
+  wid: string,
+  pid: string,
+): Promise<void> => {
+  try {
+    await navigateTo(`/wrestler/${wid}-${pid}`);
+  } catch (error) {
+    console.error("Navigation error:", error);
+  }
+};
+
+const placeRowClick = async (pid: string): Promise<void> => {
+  try {
+    await navigateTo(`/rankings/${pid}`);
+  } catch (error) {
+    console.error("Navigation error:", error);
+  }
+};
+
+// Chart options
 const chartOptions = ref({
   animation: {
     animateRotate: false,
@@ -367,23 +633,22 @@ const chartOptions = ref({
   responsive: true,
 });
 
-const addLabel = (tooltipItems: any) => {
-  let amount;
+const addLabel = (tooltipItems: any): string => {
+  let amount = "0";
 
   if ("win" in tooltipItems.raw) {
-    amount = tooltipItems.raw.win;
+    amount = tooltipItems.raw.win.toString();
   } else if ("draw" in tooltipItems.raw) {
-    amount = tooltipItems.raw.draw;
+    amount = tooltipItems.raw.draw.toString();
   } else if ("loss" in tooltipItems.raw) {
-    amount = tooltipItems.raw.loss;
-  } else {
-    amount = "0";
+    amount = tooltipItems.raw.loss.toString();
   }
-  return "Anzahl: " + amount;
+
+  return `Anzahl: ${amount}`;
 };
 
-const addHeader = (tooltipItems: any) => {
-  let amount;
+const addHeader = (tooltipItems: any): string => {
+  let amount = "0";
 
   if ("winPercentage" in tooltipItems[0].raw) {
     amount = tooltipItems[0].raw.winPercentage.toFixed(0);
@@ -391,10 +656,9 @@ const addHeader = (tooltipItems: any) => {
     amount = tooltipItems[0].raw.drawPercentage.toFixed(0);
   } else if ("lossPercentage" in tooltipItems[0].raw) {
     amount = tooltipItems[0].raw.lossPercentage.toFixed(0);
-  } else {
-    amount = "0";
   }
-  return "Prozent: " + amount + "%";
+
+  return `Prozent: ${amount}%`;
 };
 
 const graphOptions = ref({
@@ -410,88 +674,30 @@ const graphOptions = ref({
   },
 });
 
-async function wrestlerRowClick(wid: any) {
-  await navigateTo("/wrestler/" + wid);
-}
+// Watch for data changes to update charts
+watch(
+  rankingsData,
+  () => {
+    ratioWinDrawLoss.value = calculateWinDrawLossRatio();
+    graphWinDrawLoss.value = calculateWinDrawLossGraph();
+  },
+  { deep: true, immediate: true },
+);
 
-async function wrestlerPlaceRowClick(wid: any, pid: any) {
-  await navigateTo("/wrestler/" + wid + "-" + pid);
-}
+// Lifecycle
+onMounted(async () => {
+  try {
+    await Promise.all([loadWrestlerData(), loadEloData()]);
+    loadingWrestler.value = false;
 
-async function placeRowClick(pid: any) {
-  await navigateTo("/rankings/" + pid);
-}
-
-const findTopOpponents = () => {
-  loadingTopOpponents.value = true;
-  pocketbase
-    .collection("bouts")
-    .getFullList(200 /* batch size */, {
-      filter: 'wrestler.id = "' + route.params.id + '" && result = "o"',
-      expand: "opponent,place",
-      sort: "-place.year,-created",
-      fields:
-        "id,result,points,expand.opponent.id,expand.opponent.name,expand.opponent.vorname,expand.place.id,expand.place.name,expand.place.year",
-    })
-    .then((data) => {
-      // Group by opponent.id and count occurrences while storing name and vorname
-      const result = data.reduce((acc, item) => {
-        const opponentId = item.expand.opponent.id;
-        const { name, vorname } = item.expand.opponent;
-
-        if (acc[opponentId]) {
-          acc[opponentId].count++;
-        } else {
-          acc[opponentId] = {
-            count: 1,
-            name: name,
-            vorname: vorname,
-          };
-        }
-        return acc;
-      }, {});
-      // Convert the result object to an array and sort by count in descending order
-      topOpponentsData.value = Object.entries(result)
-        .sort((a, b) => b[1].count - a[1].count) // Sort by count in descending order
-        .slice(0, 5) // Take the top 5
-        .map(([id, opponentData]) => ({
-          id: id,
-          ...opponentData,
-        }));
-      loadingTopOpponents.value = false;
-    });
-};
-
-const findBouts = () => {
-  loadingBouts.value = true;
-  pocketbase
-    .collection("bouts")
-    .getFullList(200 /* batch size */, {
-      filter:
-        'wrestler.id = "' +
-        route.params.id +
-        '" && opponent.id = "' +
-        selectedOpponent.value +
-        '"',
-      expand: "place",
-      sort: "-place.year,-created",
-      fields:
-        "id,result,points,expand.place.id,expand.place.name,expand.place.year",
-    })
-    .then((data) => {
-      data.forEach((item: { expand: any }) => {
-        item.expand.place.year = item.expand.place.year.split("-")[0];
-      });
-      boutsData.value = data;
-      loadingBouts.value = false;
-    });
-};
-
-async function yearSelected() {
-  await loadRankingsData();
-  await loadBoutsData();
-}
+    await Promise.all([loadRankingsData(), loadBoutsData()]);
+  } catch (error) {
+    console.error("Error in component mount:", error);
+    loadingWrestler.value = false;
+  }
+});
 </script>
+
 <template>
   <div>
     <ProgressSpinner v-if="loadingWrestler" />
@@ -585,7 +791,7 @@ async function yearSelected() {
       class="justify-center flex md:align-items-center align-items-stretch flex-wrap"
     >
       <Card
-        v-if="ratioWinDrawLoss.value"
+        v-if="ratioWinDrawLoss"
         class="w-11/12 md:w-9/12 lg:w-22rem mt-2 md:mr-2"
       >
         <template #title>Statistiken</template>
@@ -595,22 +801,19 @@ async function yearSelected() {
           <div class="relative w-full md:max-w-80 md:min-w-80">
             <Chart
               type="pie"
-              :data="ratioWinDrawLoss.value"
+              :data="ratioWinDrawLoss"
               :options="chartOptions"
             />
           </div>
         </template>
       </Card>
-      <Card
-        v-if="graphWinDrawLoss.value"
-        class="w-11/12 md:w-7/12 mt-2 md:mr-2"
-      >
+      <Card v-if="graphWinDrawLoss" class="w-11/12 md:w-7/12 mt-2 md:mr-2">
         <template #title />
         <template #content>
           <div>
             <Chart
               type="line"
-              :data="graphWinDrawLoss.value"
+              :data="graphWinDrawLoss"
               :options="graphOptions"
               class="h-20rem"
             />

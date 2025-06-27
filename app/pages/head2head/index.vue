@@ -1,46 +1,74 @@
 <script setup lang="ts">
+// Types
+interface WrestlerData {
+  id: string;
+  name: string;
+  vorname: string;
+}
+
+// Composables
 const pocketbase = usePocketbase();
 
+// Reactive state
 const messageVisible = ref(false);
-const wrestlersData = ref();
-const displayWrestler = (wrestlersData: { name: string; vorname: string }) =>
-  wrestlersData.name + " " + wrestlersData.vorname;
-const selectedWrestler = ref();
-const selectedOpponent = ref();
+const wrestlersData = ref<WrestlerData[]>([]);
+const selectedWrestler = ref<string | null>(null);
+const selectedOpponent = ref<string | null>(null);
 const loadingWrestlers = ref(true);
 
-onMounted(async () => {
-  loadWrestlers();
-});
+// Methods
+const displayWrestler = (wrestler: WrestlerData): string => {
+  return `${wrestler.name} ${wrestler.vorname}`;
+};
 
-const loadWrestlers = async () => {
-  const customFilter = 'status != ""';
-  await pocketbase
-    .collection("wrestler")
-    .getFullList(200 /* batch size */, {
+const loadWrestlers = async (): Promise<void> => {
+  try {
+    const customFilter = 'status != ""';
+    const data = await pocketbase.collection("wrestler").getFullList(200, {
       filter: customFilter,
       sort: "-status.symbol,name,-created",
       fields: "id,name,vorname",
-    })
-    .then((data) => {
-      wrestlersData.value = data;
-      loadingWrestlers.value = false;
     });
+
+    wrestlersData.value = data;
+  } catch (error) {
+    console.error("Error loading wrestlers data:", error);
+    wrestlersData.value = [];
+  } finally {
+    loadingWrestlers.value = false;
+  }
 };
 
-async function navigateHead2Head() {
-  if (selectedWrestler.value && selectedOpponent.value) {
-    if (selectedWrestler.value != selectedOpponent.value) {
-      await navigateTo(
-        "/head2head/" + selectedWrestler.value + "-" + selectedOpponent.value,
-      );
-    }
+const navigateHead2Head = async (): Promise<void> => {
+  if (!selectedWrestler.value || !selectedOpponent.value) {
+    messageVisible.value = true;
+    setTimeout(() => {
+      messageVisible.value = false;
+    }, 3500);
+    return;
   }
-  messageVisible.value = true;
-  setTimeout(() => {
-    messageVisible.value = false;
-  }, 3500);
-}
+
+  if (selectedWrestler.value === selectedOpponent.value) {
+    messageVisible.value = true;
+    setTimeout(() => {
+      messageVisible.value = false;
+    }, 3500);
+    return;
+  }
+
+  try {
+    await navigateTo(
+      `/head2head/${selectedWrestler.value}-${selectedOpponent.value}`,
+    );
+  } catch (error) {
+    console.error("Navigation error:", error);
+  }
+};
+
+// Lifecycle
+onMounted(async () => {
+  await loadWrestlers();
+});
 </script>
 <template>
   <div>

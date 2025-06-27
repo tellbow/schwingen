@@ -2,21 +2,14 @@
 import { FilterMatchMode } from "primevue/api";
 
 const pocketbase = usePocketbase();
-
 const route = useRoute();
+const { layout, numberOfRows, numberOfPages } = useLayout();
 
 const loading = ref(true);
 const page = ref(1);
 const records = ref();
 const totalRecords = ref(0);
 const categories = ref(["A", "B", "C", "J"]);
-
-const layout =
-  /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-    navigator.userAgent,
-  )
-    ? "mobile"
-    : "default";
 
 const filterDisplay: any = layout === "mobile" ? "menu" : "row";
 const sort = layout !== "mobile";
@@ -51,7 +44,7 @@ const loadLazyData = () => {
 
   pocketbase
     .collection("wrestler")
-    .getList(page.value, 15, {
+    .getList(page.value, numberOfRows.value, {
       filter:
         'name ~ "' +
         (filters.value.name.value || "") +
@@ -108,10 +101,10 @@ async function rowClick(event: any) {
       column-resize-mode="fit"
       show-gridlines
       table-style="md:min-width: 50rem"
-      :page-link-size="4"
+      :page-link-size="numberOfPages"
       lazy
       paginator
-      :rows="15"
+      :rows="numberOfRows"
       data-key="id"
       :filter-display="filterDisplay"
       :row-hover="true"

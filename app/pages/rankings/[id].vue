@@ -1,79 +1,186 @@
 <script setup lang="ts">
-const pocketbase = usePocketbase();
+import { validateRouteParam, escapeFilterValue } from "~/utils/filterUtils";
 
+// Types
+interface PlaceData {
+  id: string;
+  name: string;
+  location: string;
+  year: string;
+  expand: {
+    placeType: {
+      type: string;
+    };
+  };
+}
+
+interface RankingData {
+  id: string;
+  rank: string;
+  rank2: string;
+  points: string;
+  final: boolean;
+  result: string;
+  wreath: boolean;
+  status: string;
+  wstatus?: string;
+  bouts?: BoutData[];
+  expand: {
+    place: {
+      id: string;
+    };
+    wrestler: {
+      id: string;
+      name: string;
+      vorname: string;
+      expand: {
+        status: {
+          status: string;
+        };
+      };
+    };
+  };
+}
+
+interface BoutData {
+  id: string;
+  result: string;
+  points: string;
+  fight_round: string;
+  expand: {
+    opponent: {
+      id: string;
+      name: string;
+      vorname: string;
+      expand: {
+        status: {
+          status: string;
+        };
+      };
+    };
+  };
+}
+
+interface RowExpandEvent {
+  data: RankingData;
+}
+
+interface RowCollapseEvent {
+  data: {
+    id: string;
+  };
+}
+
+// Composables
+const pocketbase = usePocketbase();
 const route = useRoute();
 
-const placeData = ref();
-const rankingsData = ref();
+// Validate route parameter
+const placeId = computed(() => {
+  try {
+    return validateRouteParam(route.params.id);
+  } catch (error) {
+    console.error("Invalid place ID:", error);
+    throw createError({
+      statusCode: 400,
+      statusMessage: "Invalid place ID",
+    });
+  }
+});
+
+// Reactive state
+const placeData = ref<PlaceData | null>(null);
+const rankingsData = ref<RankingData[]>([]);
 const loadingPlace = ref(true);
 const loadingRankings = ref(true);
 const loadingBouts = ref(true);
 const expandedRows = ref();
 
-onMounted(async () => {
-  await pocketbase
-    .collection("places")
-    .getFirstListItem('id="' + route.params.id + '"', { expand: "placeType" })
-    .then((data) => {
-      data.year = data.year.split("-")[0];
-      placeData.value = data;
-      loadingPlace.value = false;
+// Methods
+const loadPlaceData = async (): Promise<void> => {
+  try {
+    const data = await pocketbase
+      .collection("places")
+      .getFirstListItem(`id="${placeId.value}"`, { expand: "placeType" });
+
+    data.year = data.year.split("-")[0];
+    placeData.value = data;
+  } catch (error) {
+    console.error("Error loading place data:", error);
+    throw createError({
+      statusCode: 404,
+      statusMessage: "Place not found",
     });
-  await pocketbase
-    .collection("rankings")
-    .getFullList(200 /* batch size */, {
-      filter: 'place.id = "' + route.params.id + '"',
+  } finally {
+    loadingPlace.value = false;
+  }
+};
+
+const loadRankingsData = async (): Promise<void> => {
+  try {
+    const data = await pocketbase.collection("rankings").getFullList(200, {
+      filter: `place.id = "${placeId.value}"`,
       expand: "place,wrestler,wrestler.status",
       sort: "rank, rank2, -created",
       fields:
         "id,rank,rank2,points,final,result,wreath,status,expand.place.id,expand.wrestler.id,expand.wrestler.name,expand.wrestler.vorname,expand.wrestler.expand.status.status",
-    })
-    .then((data) => {
-      data.forEach((entry) => {
-        if (
-          !entry.expand ||
-          !entry.expand.wrestler ||
-          !entry.expand.wrestler.expand ||
-          !entry.expand.wrestler.expand.status ||
-          !entry.expand.wrestler.expand.status.status
-        ) {
-          entry.wstatus = "-";
-        } else {
-          entry.wstatus = entry.expand.wrestler.expand.status.status;
-        }
-      });
-      rankingsData.value = data.sort(compareByRank);
-      loadingRankings.value = false;
     });
-});
 
-const loadLazySubData = (wrestlerId: string, placeId: string) => {
-  loadingBouts.value = true;
-  pocketbase
-    .collection("bouts")
-    .getList(1, 10, {
+    data.forEach((entry: RankingData) => {
+      if (
+        !entry.expand ||
+        !entry.expand.wrestler ||
+        !entry.expand.wrestler.expand ||
+        !entry.expand.wrestler.expand.status ||
+        !entry.expand.wrestler.expand.status.status
+      ) {
+        entry.wstatus = "-";
+      } else {
+        entry.wstatus = entry.expand.wrestler.expand.status.status;
+      }
+    });
+
+    rankingsData.value = data.sort(compareByRank);
+  } catch (error) {
+    console.error("Error loading rankings data:", error);
+    rankingsData.value = [];
+  } finally {
+    loadingRankings.value = false;
+  }
+};
+
+const loadLazySubData = async (
+  wrestlerId: string,
+  placeId: string,
+): Promise<void> => {
+  try {
+    loadingBouts.value = true;
+
+    const data = await pocketbase.collection("bouts").getList(1, 10, {
       expand: "opponent,opponent.status",
-      filter:
-        "wrestler.id = '" + wrestlerId + "' && place.id = '" + placeId + "'",
+      filter: `wrestler.id = '${escapeFilterValue(wrestlerId)}' && place.id = '${escapeFilterValue(placeId)}'`,
       sort: "fight_round,-created",
       fields:
         "id,result,points,fight_round,expand.opponent.id,expand.opponent.name,expand.opponent.vorname,expand.opponent.expand.status.status",
-    })
-    .then((data: { items: any }) => {
-      rankingsData.value.forEach((item: any) => {
-        if (
-          item.expand.wrestler.id === wrestlerId &&
-          item.expand.place.id === placeId
-        ) {
-          item.bouts = data.items;
-        }
-      });
-      loadingBouts.value = false;
     });
+
+    rankingsData.value.forEach((item: RankingData) => {
+      if (
+        item.expand.wrestler.id === wrestlerId &&
+        item.expand.place.id === placeId
+      ) {
+        item.bouts = data.items;
+      }
+    });
+  } catch (error) {
+    console.error("Error loading sub data:", error);
+  } finally {
+    loadingBouts.value = false;
+  }
 };
 
 // Custom comparator function to sort by rank
-const compareByRank = (a: any, b: any) => {
+const compareByRank = (a: RankingData, b: RankingData): number => {
   // Extract numerical and alphabetical components
   const numA = parseInt(a.rank);
   const numB = parseInt(b.rank);
@@ -89,27 +196,28 @@ const compareByRank = (a: any, b: any) => {
   return alphaA.localeCompare(alphaB);
 };
 
-const onRowExpand = (event: {
-  data: {
-    expand: {
-      wrestler: { id: string };
-      place: { id: string };
-    };
-  };
-}) => {
-  loadLazySubData(event.data.expand.wrestler.id, route.params.id.toString());
+const onRowExpand = (event: RowExpandEvent): void => {
+  const { wrestler } = event.data.expand;
+  loadLazySubData(wrestler.id, placeId.value);
 };
 
-const onRowCollapse = (event: {
-  data: {
-    id: string;
-  };
-}) => {
+const onRowCollapse = (event: RowCollapseEvent): void => {
   const objIndex = rankingsData.value.findIndex(
-    (obj: { id: string }) => obj.id === event.data.id,
+    (obj: RankingData) => obj.id === event.data.id,
   );
-  rankingsData.value[objIndex].bouts = [];
+  if (objIndex !== -1) {
+    rankingsData.value[objIndex].bouts = [];
+  }
 };
+
+// Lifecycle
+onMounted(async () => {
+  try {
+    await Promise.all([loadPlaceData(), loadRankingsData()]);
+  } catch (error) {
+    console.error("Error in component mount:", error);
+  }
+});
 </script>
 <template>
   <div>

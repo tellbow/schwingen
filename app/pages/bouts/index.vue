@@ -1,12 +1,69 @@
 <script setup lang="ts">
 import { FilterMatchMode } from "primevue/api";
+import { escapeFilterValue } from "~/utils/filterUtils";
 
+// Types
+interface BoutData {
+  id: string;
+  result: string;
+  points: string;
+  fight_round: string;
+  expand: {
+    wrestler: {
+      id: string;
+      name: string;
+      vorname: string;
+    };
+    opponent: {
+      id: string;
+      name: string;
+      vorname: string;
+    };
+    place: {
+      id: string;
+      name: string;
+      year: string;
+    };
+  };
+}
+
+interface FilterState {
+  result: { value: string; matchMode: FilterMatchMode };
+  points: { value: string; matchMode: FilterMatchMode };
+  fight_round: { value: string; matchMode: FilterMatchMode };
+  "expand.wrestler.name": { value: string; matchMode: FilterMatchMode };
+  "expand.wrestler.vorname": { value: string; matchMode: FilterMatchMode };
+  "expand.opponent.name": { value: string; matchMode: FilterMatchMode };
+  "expand.opponent.vorname": { value: string; matchMode: FilterMatchMode };
+  "expand.place.name": { value: string; matchMode: FilterMatchMode };
+  "expand.place.year": { value: string; matchMode: FilterMatchMode };
+}
+
+interface SortState {
+  field: string;
+  order: string;
+}
+
+interface PageEvent {
+  page: number;
+}
+
+interface SortEvent {
+  sortField: string;
+  sortOrder: number;
+}
+
+// Composables
 const pocketbase = usePocketbase();
+const { numberOfRows, numberOfPages } = useLayout();
 
+// Reactive state
 const loading = ref(true);
 const page = ref(1);
-const records = ref();
+const records = ref<BoutData[]>([]);
 const totalRecords = ref(0);
+
+// Filter options
 const result = ref(["o", "-", "+"]);
 const points = ref([
   "0.25",
@@ -35,7 +92,8 @@ const year = ref([
   "2025",
 ]);
 
-const filters = ref({
+// Filters and sorting
+const filters = ref<FilterState>({
   result: { value: "", matchMode: FilterMatchMode.EQUALS },
   points: { value: "", matchMode: FilterMatchMode.EQUALS },
   fight_round: { value: "", matchMode: FilterMatchMode.EQUALS },
@@ -59,7 +117,7 @@ const filters = ref({
   "expand.place.year": { value: "", matchMode: FilterMatchMode.CONTAINS },
 });
 
-const sorts = ref({
+const sorts = ref<SortState>({
   field: "place.year,",
   order: "-",
 });
@@ -68,68 +126,78 @@ const matchModeOptionContains = ref([
   { label: "Enthält", value: FilterMatchMode.CONTAINS },
 ]);
 
-/* eslint require-await: "off" */
-onMounted(async () => {
-  loading.value = true;
-  loadLazyData();
-});
+// Methods
+const buildSafeFilterString = (): string => {
+  const filterParts = [
+    `result ~ "${escapeFilterValue(filters.value.result.value)}"`,
+    `points ~ "${escapeFilterValue(filters.value.points.value)}"`,
+    `fight_round ~ "${escapeFilterValue(filters.value.fight_round.value)}"`,
+    `wrestler.name ~ "${escapeFilterValue(filters.value["expand.wrestler.name"].value)}"`,
+    `wrestler.vorname ~ "${escapeFilterValue(filters.value["expand.wrestler.vorname"].value)}"`,
+    `opponent.name ~ "${escapeFilterValue(filters.value["expand.opponent.name"].value)}"`,
+    `opponent.vorname ~ "${escapeFilterValue(filters.value["expand.opponent.vorname"].value)}"`,
+    `place.name ~ "${escapeFilterValue(filters.value["expand.place.name"].value)}"`,
+    `place.year >= "2015"`,
+    `place.year ~ "${escapeFilterValue(filters.value["expand.place.year"].value)}"`,
+  ];
 
-const loadLazyData = () => {
-  loading.value = true;
-
-  pocketbase
-    .collection("bouts")
-    .getList(page.value, 15, {
-      expand: "wrestler,opponent,place",
-      filter:
-        'result ~ "' +
-        (filters.value.result.value || "") +
-        '" && points ~ "' +
-        (filters.value.points.value || "") +
-        '" && fight_round ~ "' +
-        (filters.value.fight_round.value || "") +
-        '" && wrestler.name ~ "' +
-        (filters.value["expand.wrestler.name"].value || "") +
-        '" && wrestler.vorname ~ "' +
-        (filters.value["expand.wrestler.vorname"].value || "") +
-        '" && opponent.name ~ "' +
-        (filters.value["expand.opponent.name"].value || "") +
-        '" && opponent.vorname ~ "' +
-        (filters.value["expand.opponent.vorname"].value || "") +
-        '" && place.name ~ "' +
-        (filters.value["expand.place.name"].value || "") +
-        '" && place.year >= "2015' +
-        '" && place.year ~ "' +
-        (filters.value["expand.place.year"].value || "") +
-        '"',
-      sort: sorts.value.order + sorts.value.field + "-created",
-      fields:
-        "id,result,points,fight_round,expand.wrestler.id,expand.wrestler.name,expand.wrestler.vorname,expand.opponent.id,expand.opponent.name,expand.opponent.vorname,expand.place.id,expand.place.name,expand.place.year",
-    })
-    .then((data: { totalItems: number; items: any }) => {
-      data.items.forEach((item: { expand: { place: { year: string } } }) => {
-        item.expand.place.year = item.expand.place.year.split(" ")[0];
-      });
-      records.value = data.items;
-      totalRecords.value = data.totalItems;
-      loading.value = false;
-    });
+  return filterParts.join(" && ");
 };
 
-const onPage = (event: { page: number }) => {
+const loadLazyData = async (): Promise<void> => {
+  try {
+    loading.value = true;
+
+    const filterString = buildSafeFilterString();
+
+    const data = await pocketbase
+      .collection("bouts")
+      .getList(page.value, numberOfRows.value, {
+        expand: "wrestler,opponent,place",
+        filter: filterString,
+        sort: sorts.value.order + sorts.value.field + "-created",
+        fields:
+          "id,result,points,fight_round,expand.wrestler.id,expand.wrestler.name,expand.wrestler.vorname,expand.opponent.id,expand.opponent.name,expand.opponent.vorname,expand.place.id,expand.place.name,expand.place.year",
+      });
+
+    // Process data
+    data.items.forEach((item: BoutData) => {
+      if (item.expand.place.year) {
+        item.expand.place.year = item.expand.place.year.split(" ")[0];
+      }
+    });
+
+    records.value = data.items;
+    totalRecords.value = data.totalItems;
+  } catch (error) {
+    console.error("Error loading bouts data:", error);
+    records.value = [];
+    totalRecords.value = 0;
+  } finally {
+    loading.value = false;
+  }
+};
+
+const onPage = (event: PageEvent): void => {
   page.value = event.page + 1;
   loadLazyData();
 };
 
-const onFilter = () => {
+const onFilter = (): void => {
+  page.value = 1; // Reset to first page when filtering
   loadLazyData();
 };
 
-const onSort = (event: { sortField: string; sortOrder: number }) => {
+const onSort = (event: SortEvent): void => {
   sorts.value.field = event.sortField.replace("-", ".") + ",";
   sorts.value.order = event.sortOrder > 0 ? "" : "-";
   loadLazyData();
 };
+
+// Lifecycle
+onMounted(async () => {
+  await loadLazyData();
+});
 </script>
 <template>
   <div
@@ -143,9 +211,10 @@ const onSort = (event: { sortField: string; sortOrder: number }) => {
       column-resize-mode="fit"
       show-gridlines
       table-style="min-width: 50rem"
+      :page-link-size="numberOfPages"
       lazy
       paginator
-      :rows="15"
+      :rows="numberOfRows"
       data-key="id"
       filter-display="row"
       :row-hover="true"

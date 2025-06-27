@@ -1,12 +1,16 @@
 <script setup lang="ts">
 import Chart from "primevue/chart";
+import { validateRouteParam } from "~/utils/filterUtils";
 
+// Types
 interface Wrestler {
+  id: string;
   name: string;
   vorname: string;
 }
 
 interface Place {
+  id: string;
   name: string;
   year: string;
 }
@@ -14,12 +18,13 @@ interface Place {
 interface Expand {
   place: Place;
   wrestler: Wrestler;
+  opponent: Wrestler;
 }
 
 interface DataEntry {
+  id: string;
   expand: Expand;
   final: boolean;
-  id: string;
   points: string;
   rank: string;
   rank2: string;
@@ -32,230 +37,291 @@ interface GroupedData {
   [key: string]: DataEntry[];
 }
 
-const pocketbase = usePocketbase();
+interface StatisticsData {
+  id: string;
+  name: string;
+  vorname: string;
+  averageRank: string;
+  averagePoints: string;
+  countWreaths: number;
+  countFinals: number;
+}
 
+interface BoutsData {
+  place: {
+    id: string;
+    name: string;
+    year: string;
+  };
+  entries: Array<{
+    id: string;
+    points: string;
+    result: string;
+    wrestler: Wrestler;
+    opponent: Wrestler;
+  }>;
+}
+
+interface ChartData {
+  datasets: Array<{
+    label: string;
+    data: Array<{
+      x: number;
+      y: number;
+      r: number;
+    }>;
+    backgroundColor: string;
+    borderColor: string;
+  }>;
+}
+
+// Composables
+const pocketbase = usePocketbase();
 const route = useRoute();
 
-const op = ref();
-const statisticsData = ref();
-const comparsionData = ref();
-const boutsData = ref();
-const loadingStatistics = ref(false);
-const loadingBouts = ref(false);
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const layout =
-  /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-    navigator.userAgent,
-  )
-    ? "mobile"
-    : "default";
-
-onMounted(async () => {
-  await loadStatisticsData();
-  await loadBoutsData();
+// Validate route parameters
+const wrestlerId = computed(() => {
+  try {
+    return validateRouteParam(route.params.wid);
+  } catch (error) {
+    console.error("Invalid wrestler ID:", error);
+    throw createError({
+      statusCode: 400,
+      statusMessage: "Invalid wrestler ID",
+    });
+  }
 });
 
-const toggle = (event: any) => {
+const opponentId = computed(() => {
+  try {
+    return validateRouteParam(route.params.oid);
+  } catch (error) {
+    console.error("Invalid opponent ID:", error);
+    throw createError({
+      statusCode: 400,
+      statusMessage: "Invalid opponent ID",
+    });
+  }
+});
+
+// Reactive state
+const op = ref();
+const statisticsData = ref<StatisticsData[]>([]);
+const comparsionData = ref<ChartData | null>(null);
+const boutsData = ref<BoutsData[]>([]);
+const loadingStatistics = ref(true);
+const loadingBouts = ref(true);
+
+// Methods
+const toggle = (event: Event): void => {
   op.value.toggle(event);
 };
 
-const loadStatisticsData = async () => {
-  const customFilter =
-    '((wrestler.id = "' +
-    route.params.wid +
-    '") || (wrestler.id = "' +
-    route.params.oid +
-    '")) && (status != "Unfall" && points <= 60)';
-  await pocketbase
-    .collection("rankings")
-    .getFullList(200 /* batch size */, {
+const loadStatisticsData = async (): Promise<void> => {
+  try {
+    const customFilter = `((wrestler.id = "${wrestlerId.value}") || (wrestler.id = "${opponentId.value}")) && (status != "Unfall" && points <= 60)`;
+
+    const data = await pocketbase.collection("rankings").getFullList(200, {
       filter: customFilter,
       expand: "wrestler,place",
       sort: "-place.year,-created",
       fields:
         "id,rank,rank2,points,final,result,wreath,status,expand.wrestler.id,expand.wrestler.name,expand.wrestler.vorname,expand.place.name,expand.place.year",
-    })
-    .then((data) => {
-      // Grouping data by wrestler name and vorname
-      const groupedData: { [key: string]: DataEntry[] } = data.reduce(
-        (acc: GroupedData, curr: any) => {
-          if (!curr.expand) {
-            return acc; // Skip this entry if wrestler or place is undefined
-          }
-          const { id, name, vorname } = curr.expand.wrestler;
-          const key = `${id} ${name} ${vorname}`;
-          if (!acc[key]) {
-            acc[key] = [];
-          }
-          acc[key].push(curr);
-          return acc;
-        },
-        {},
-      );
-      // Calculating statistics for each wrestler
-      const statistics = Object.entries(groupedData).map(([key, value]) => {
-        const [id, name, vorname] = key.split(" ");
-        const averageRank = (
-          value
-            .filter(({ result }) => result.length > 4)
-            .reduce((sum, entry) => sum + parseInt(entry.rank), 0) /
-          value.length
-        ).toFixed(2);
-        const averagePoints = (
-          value
-            .filter(({ result }) => result.length > 4)
-            .reduce((sum, entry) => sum + parseFloat(entry.points), 0) /
-          value.length
-        ).toFixed(2);
-        const countWreaths = value.filter((entry) => entry.wreath).length;
-        const countFinals = value.filter((entry) => entry.final).length;
-        return {
-          id,
-          name,
-          vorname,
-          averageRank,
-          averagePoints,
-          countWreaths,
-          countFinals,
-        };
-      });
-      statisticsData.value = statistics;
-      loadingStatistics.value = false;
+    });
 
-      // Step 1: Group data by wrestler
-      const groupedByWrestler: any = {};
+    // Grouping data by wrestler name and vorname
+    const groupedData: GroupedData = data.reduce(
+      (acc: GroupedData, curr: DataEntry) => {
+        if (!curr.expand) {
+          return acc; // Skip this entry if wrestler or place is undefined
+        }
+        const { id, name, vorname } = curr.expand.wrestler;
+        const key = `${id} ${name} ${vorname}`;
+        if (!acc[key]) {
+          acc[key] = [];
+        }
+        acc[key].push(curr);
+        return acc;
+      },
+      {},
+    );
 
-      data.forEach((entry) => {
-        if (entry.expand && entry.expand.wrestler) {
-          const wrestler = entry.expand.wrestler;
-          const fullName = `${wrestler.name} ${wrestler.vorname}`;
-          if (!groupedByWrestler[fullName]) {
-            groupedByWrestler[fullName] = {
-              name: wrestler.name,
-              vorname: wrestler.vorname,
-              bubbles: [],
-            };
-          }
-          groupedByWrestler[fullName].bubbles.push(entry);
+    // Calculating statistics for each wrestler
+    const statistics = Object.entries(groupedData).map(([key, value]) => {
+      const [id, name, vorname] = key.split(" ");
+      const validEntries = value.filter(({ result }) => result.length > 4);
+
+      const averageRank =
+        validEntries.length > 0
+          ? (
+              validEntries.reduce(
+                (sum, entry) => sum + parseInt(entry.rank),
+                0,
+              ) / validEntries.length
+            ).toFixed(2)
+          : "0.00";
+
+      const averagePoints =
+        validEntries.length > 0
+          ? (
+              validEntries.reduce(
+                (sum, entry) => sum + parseFloat(entry.points),
+                0,
+              ) / validEntries.length
+            ).toFixed(2)
+          : "0.00";
+
+      const countWreaths = value.filter((entry) => entry.wreath).length;
+      const countFinals = value.filter((entry) => entry.final).length;
+
+      return {
+        id,
+        name,
+        vorname,
+        averageRank,
+        averagePoints,
+        countWreaths,
+        countFinals,
+      };
+    });
+
+    statisticsData.value = statistics;
+    loadingStatistics.value = false;
+
+    // Step 1: Group data by wrestler
+    const groupedByWrestler: Record<string, any> = {};
+
+    data.forEach((entry) => {
+      if (entry.expand && entry.expand.wrestler) {
+        const wrestler = entry.expand.wrestler;
+        const fullName = `${wrestler.name} ${wrestler.vorname}`;
+        if (!groupedByWrestler[fullName]) {
+          groupedByWrestler[fullName] = {
+            name: wrestler.name,
+            vorname: wrestler.vorname,
+            bubbles: [],
+          };
+        }
+        groupedByWrestler[fullName].bubbles.push(entry);
+      }
+    });
+
+    // Step 2: Process each wrestler's data
+    const output = Object.values(groupedByWrestler).map((wrestler: any) => {
+      const counts: Record<string, number> = {};
+
+      wrestler.bubbles.forEach((entry: DataEntry) => {
+        if (entry.result.length > 4) {
+          const points = parseFloat(entry.points);
+          const rank = parseInt(entry.rank);
+          const key = `${points},${rank}`;
+          counts[key] = (counts[key] || 0) + 1;
         }
       });
 
-      // Step 2: Process each wrestler's data
-      const output = Object.values(groupedByWrestler).map((wrestler: any) => {
-        const counts: any = {};
-
-        wrestler.bubbles.forEach((entry: any) => {
-          if (entry.result.length > 4) {
-            const points = parseFloat(entry.points);
-            const rank = parseInt(entry.rank);
-            const key = `${points},${rank}`;
-            if (counts[key]) {
-              counts[key]++;
-            } else {
-              counts[key] = 1;
-            }
-          }
-        });
-
-        wrestler.bubbles = Object.keys(counts).map((key) => {
-          const [x, y] = key.split(",").map(Number);
-          return { x, y, r: counts[key] };
-        });
-
-        return wrestler;
+      wrestler.bubbles = Object.keys(counts).map((key) => {
+        const [x, y] = key.split(",").map(Number);
+        return { x, y, r: counts[key] };
       });
 
-      comparsionData.value = {
-        datasets: [
-          {
-            label: output[0].name + " " + output[0].vorname,
-            data: output[0].bubbles,
-            backgroundColor: "rgba(255, 99, 132, 0.5)",
-            borderColor: "rgba(255, 99, 132, 0.9)",
-          },
-          {
-            label: output[1].name + " " + output[1].vorname,
-            data: output[1].bubbles,
-            backgroundColor: "rgba(0, 99, 132, 0.5)",
-            borderColor: "rgba(0, 99, 132, 0.9)",
-          },
-        ],
-      };
+      return wrestler;
     });
+
+    comparsionData.value = {
+      datasets: [
+        {
+          label: `${output[0].name} ${output[0].vorname}`,
+          data: output[0].bubbles,
+          backgroundColor: "rgba(255, 99, 132, 0.5)",
+          borderColor: "rgba(255, 99, 132, 0.9)",
+        },
+        {
+          label: `${output[1].name} ${output[1].vorname}`,
+          data: output[1].bubbles,
+          backgroundColor: "rgba(0, 99, 132, 0.5)",
+          borderColor: "rgba(0, 99, 132, 0.9)",
+        },
+      ],
+    };
+  } catch (error) {
+    console.error("Error loading statistics data:", error);
+    loadingStatistics.value = false;
+  }
 };
 
-const loadBoutsData = async () => {
-  const customFilter =
-    '(wrestler.id = "' +
-    route.params.wid +
-    '" && opponent.id ~ "' +
-    route.params.oid +
-    '") || (wrestler.id = "' +
-    route.params.oid +
-    '" && opponent.id ~ "' +
-    route.params.wid +
-    '")';
-  await pocketbase
-    .collection("bouts")
-    .getFullList(200 /* batch size */, {
+const loadBoutsData = async (): Promise<void> => {
+  try {
+    const customFilter = `(wrestler.id = "${wrestlerId.value}" && opponent.id ~ "${opponentId.value}") || (wrestler.id = "${opponentId.value}" && opponent.id ~ "${wrestlerId.value}")`;
+
+    const data = await pocketbase.collection("bouts").getFullList(200, {
       filter: customFilter,
       expand: "wrestler,opponent,place",
       sort: "-place.year,-wrestler.name,-created",
       fields:
         "id,result,points,fight_round,expand.wrestler.name,expand.wrestler.vorname,expand.opponent.name,expand.opponent.vorname,expand.place.id,expand.place.name,expand.place.year",
-    })
-    .then((data) => {
-      const groupedData: any = {};
-      data.forEach((entry) => {
-        if (
-          !entry.expand ||
-          !entry.expand.place ||
-          !entry.expand.wrestler ||
-          !entry.expand.opponent
-        ) {
-          return;
-        }
-        const placeId = entry.expand.place.id;
-        const placeName = entry.expand.place.name;
-        const year = entry.expand.place.year.split("-")[0];
-        const key = `${placeId}-${placeName}-${year}-${entry.fight_round}`;
-        if (!groupedData[key]) {
-          groupedData[key] = {
-            place: {
-              id: entry.expand.place.id,
-              name: entry.expand.place.name,
-              year: entry.expand.place.year.split("-")[0],
-            },
-            entries: [],
-          };
-        }
-        groupedData[key].entries.push({
-          id: entry.id,
-          points: entry.points,
-          result: entry.result,
-          wrestler: entry.expand.wrestler,
-          opponent: entry.expand.opponent,
-        });
-      });
-      boutsData.value = Object.values(groupedData);
-      loadingBouts.value = false;
     });
+
+    const groupedData: Record<string, BoutsData> = {};
+    data.forEach((entry) => {
+      if (
+        !entry.expand ||
+        !entry.expand.place ||
+        !entry.expand.wrestler ||
+        !entry.expand.opponent
+      ) {
+        return;
+      }
+      const placeId = entry.expand.place.id;
+      const placeName = entry.expand.place.name;
+      const year = entry.expand.place.year.split("-")[0];
+      const key = `${placeId}-${placeName}-${year}-${entry.fight_round}`;
+
+      if (!groupedData[key]) {
+        groupedData[key] = {
+          place: {
+            id: entry.expand.place.id,
+            name: entry.expand.place.name,
+            year: entry.expand.place.year.split("-")[0],
+          },
+          entries: [],
+        };
+      }
+      groupedData[key].entries.push({
+        id: entry.id,
+        points: entry.points,
+        result: entry.result,
+        wrestler: entry.expand.wrestler,
+        opponent: entry.expand.opponent,
+      });
+    });
+
+    boutsData.value = Object.values(groupedData);
+    loadingBouts.value = false;
+  } catch (error) {
+    console.error("Error loading bouts data:", error);
+    loadingBouts.value = false;
+  }
 };
 
-function isHigher(stat: any, type: string, _reverse = false) {
+const isHigher = (stat: any, type: string, reverse = false): boolean => {
+  if (!statisticsData.value.length) return false;
+
   // Find the entry with the highest value
   const highest = statisticsData.value.reduce(
-    (acc: { [x: string]: string }, curr: { [x: string]: string }) => {
-      return parseFloat(curr[type]) > parseFloat(acc[type]) ? curr : acc;
+    (acc: StatisticsData, curr: StatisticsData) => {
+      return parseFloat(curr[type as keyof StatisticsData] as string) >
+        parseFloat(acc[type as keyof StatisticsData] as string)
+        ? curr
+        : acc;
     },
   );
+
   // Compare current entry with the highest
-  if (_reverse) {
-    return !(stat === highest[type]);
+  if (reverse) {
+    return !(stat === highest[type as keyof StatisticsData]);
   }
-  return stat === highest[type];
-}
+  return stat === highest[type as keyof StatisticsData];
+};
 
 const chartOptions = ref({
   plugins: {
@@ -281,13 +347,26 @@ const chartOptions = ref({
   responsive: true,
 });
 
-async function rowRClick(rid: any) {
-  await navigateTo("/rankings/" + rid);
-}
+const rowRClick = async (rid: string): Promise<void> => {
+  try {
+    await navigateTo(`/rankings/${rid}`);
+  } catch (error) {
+    console.error("Navigation error:", error);
+  }
+};
 
-async function rowWClick(wid: any) {
-  await navigateTo("/wrestler/" + wid);
-}
+const rowWClick = async (wid: string): Promise<void> => {
+  try {
+    await navigateTo(`/wrestler/${wid}`);
+  } catch (error) {
+    console.error("Navigation error:", error);
+  }
+};
+
+// Lifecycle
+onMounted(async () => {
+  await Promise.all([loadStatisticsData(), loadBoutsData()]);
+});
 </script>
 <template>
   <div>
