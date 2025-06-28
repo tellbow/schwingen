@@ -759,6 +759,7 @@ onMounted(async () => {
 
 <template>
   <div>
+    <h1 class="sr-only">Schwinger Profil</h1>
     <ProgressSpinner v-if="loadingWrestler" />
     <div
       v-else

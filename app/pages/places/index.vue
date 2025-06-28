@@ -217,143 +217,148 @@ onMounted(async () => {
 });
 </script>
 <template>
-  <div
-    class="justify-content-center align-content-center display: flex flex-wrap fill-height mt-2 md:mt-5"
-  >
-    <DataTable
-      v-model:filters="filters"
-      class="w-11 md:w-9 cursor-pointer"
-      :value="records"
-      resizable-columns
-      column-resize-mode="fit"
-      show-gridlines
-      table-style="md:min-width: 50rem"
-      :page-link-size="numberOfPages"
-      lazy
-      paginator
-      :rows="numberOfRows"
-      data-key="id"
-      :filter-display="filterDisplay"
-      :row-hover="true"
-      :total-records="totalRecords"
-      :loading="loading"
-      @page="onPage($event)"
-      @filter="onFilter()"
-      @sort="onSort($event)"
-      @row-click="rowClick($event)"
+  <div>
+    <h1 class="sr-only">Schwingfeste - Tellbow</h1>
+    <div
+      class="justify-content-center align-content-center display: flex flex-wrap fill-height mt-2 md:mt-5"
     >
-      <template #empty> Keine Schwingfeste gefunden. </template>
-      <template #loading> Schwingfeste werden geladen. Bitte warten. </template>
-      <Column
-        v-if="layout === 'default'"
-        field="number"
-        header="Nummer"
-        style="padding: 0.5rem"
-        :sortable="sort"
-        :filter-match-mode-options="matchModeOptions"
-        :show-filter-menu="false"
+      <DataTable
+        v-model:filters="filters"
+        class="w-11 md:w-9 cursor-pointer"
+        :value="records"
+        resizable-columns
+        column-resize-mode="fit"
+        show-gridlines
+        table-style="md:min-width: 50rem"
+        :page-link-size="numberOfPages"
+        lazy
+        paginator
+        :rows="numberOfRows"
+        data-key="id"
+        :filter-display="filterDisplay"
+        :row-hover="true"
+        :total-records="totalRecords"
+        :loading="loading"
+        @page="onPage($event)"
+        @filter="onFilter()"
+        @sort="onSort($event)"
+        @row-click="rowClick($event)"
       >
-        <template #body="{ data }">
-          {{ data.number }}
+        <template #empty> Keine Schwingfeste gefunden. </template>
+        <template #loading>
+          Schwingfeste werden geladen. Bitte warten.
         </template>
-        <template #filter="{ filterModel, filterCallback }">
-          <InputText
-            v-model="filterModel.value"
-            type="text"
-            class="p-column-filter"
-            placeholder="Filter Nummer"
-            @input="filterCallback()"
-          />
-        </template>
-      </Column>
-      <Column
-        field="name"
-        header="Name"
-        style="padding: 0.5rem"
-        :sortable="sort"
-        :filter-match-mode-options="matchModeOptions"
-        :show-filter-menu="false"
-      >
-        <template #body="{ data }">
-          {{ data.name }}
-        </template>
-        <template #filter="{ filterModel, filterCallback }">
-          <InputText
-            v-model="filterModel.value"
-            type="text"
-            class="p-column-filter"
-            placeholder="Filter Name"
-            @input="filterCallback()"
-          />
-        </template>
-      </Column>
-      <Column
-        v-if="layout === 'default'"
-        field="location"
-        header="Ort"
-        style="padding: 0.5rem"
-        :sortable="sort"
-        :filter-match-mode-options="matchModeOptions"
-        :show-filter-menu="false"
-      >
-        <template #body="{ data }">
-          {{ data.location }}
-        </template>
-        <template #filter="{ filterModel, filterCallback }">
-          <InputText
-            v-model="filterModel.value"
-            type="text"
-            class="p-column-filter"
-            placeholder="Filter Ort"
-            @input="filterCallback()"
-          />
-        </template>
-      </Column>
-      <Column
-        field="year"
-        header="Jahr"
-        style="padding: 0.5rem"
-        :sortable="sort"
-        :show-filter-menu="false"
-        :show-clear-button="false"
-      >
-        <template #body="{ data }">
-          <p>{{ displayYear(data.year) }}</p>
-        </template>
-        <template #filter="{ filterModel, filterCallback }">
-          <Dropdown
-            v-model="filterModel.value"
-            :options="year"
-            placeholder="Filter Jahr"
-            class="p-column-filter"
-            :show-clear="true"
-            @change="filterCallback()"
-          />
-        </template>
-      </Column>
-      <Column
-        v-if="layout === 'default'"
-        field="type"
-        header="Typ"
-        style="padding: 0.5rem"
-        :sortable="sort"
-        :show-filter-menu="false"
-        :show-clear-button="false"
-      >
-        <template #body="{ data }">
-          {{ data.expand.placeType.type }}
-        </template>
-        <template #filter="{ filterModel, filterCallback }">
-          <Dropdown
-            v-model="filterModel.value"
-            :options="placeType"
-            placeholder="Filter Typ"
-            class="p-column-filter"
-            :show-clear="true"
-            @change="filterCallback()"
-          />
-        </template>
-      </Column>
-    </DataTable>
+        <Column
+          v-if="layout === 'default'"
+          field="number"
+          header="Nummer"
+          style="padding: 0.5rem"
+          :sortable="sort"
+          :filter-match-mode-options="matchModeOptions"
+          :show-filter-menu="false"
+        >
+          <template #body="{ data }">
+            {{ data.number }}
+          </template>
+          <template #filter="{ filterModel, filterCallback }">
+            <InputText
+              v-model="filterModel.value"
+              type="text"
+              class="p-column-filter"
+              placeholder="Filter Nummer"
+              @input="filterCallback()"
+            />
+          </template>
+        </Column>
+        <Column
+          field="name"
+          header="Name"
+          style="padding: 0.5rem"
+          :sortable="sort"
+          :filter-match-mode-options="matchModeOptions"
+          :show-filter-menu="false"
+        >
+          <template #body="{ data }">
+            {{ data.name }}
+          </template>
+          <template #filter="{ filterModel, filterCallback }">
+            <InputText
+              v-model="filterModel.value"
+              type="text"
+              class="p-column-filter"
+              placeholder="Filter Name"
+              @input="filterCallback()"
+            />
+          </template>
+        </Column>
+        <Column
+          v-if="layout === 'default'"
+          field="location"
+          header="Ort"
+          style="padding: 0.5rem"
+          :sortable="sort"
+          :filter-match-mode-options="matchModeOptions"
+          :show-filter-menu="false"
+        >
+          <template #body="{ data }">
+            {{ data.location }}
+          </template>
+          <template #filter="{ filterModel, filterCallback }">
+            <InputText
+              v-model="filterModel.value"
+              type="text"
+              class="p-column-filter"
+              placeholder="Filter Ort"
+              @input="filterCallback()"
+            />
+          </template>
+        </Column>
+        <Column
+          field="year"
+          header="Jahr"
+          style="padding: 0.5rem"
+          :sortable="sort"
+          :show-filter-menu="false"
+          :show-clear-button="false"
+        >
+          <template #body="{ data }">
+            <p>{{ displayYear(data.year) }}</p>
+          </template>
+          <template #filter="{ filterModel, filterCallback }">
+            <Dropdown
+              v-model="filterModel.value"
+              :options="year"
+              placeholder="Filter Jahr"
+              class="p-column-filter"
+              :show-clear="true"
+              @change="filterCallback()"
+            />
+          </template>
+        </Column>
+        <Column
+          v-if="layout === 'default'"
+          field="type"
+          header="Typ"
+          style="padding: 0.5rem"
+          :sortable="sort"
+          :show-filter-menu="false"
+          :show-clear-button="false"
+        >
+          <template #body="{ data }">
+            {{ data.expand.placeType.type }}
+          </template>
+          <template #filter="{ filterModel, filterCallback }">
+            <Dropdown
+              v-model="filterModel.value"
+              :options="placeType"
+              placeholder="Filter Typ"
+              class="p-column-filter"
+              :show-clear="true"
+              @change="filterCallback()"
+            />
+          </template>
+        </Column>
+      </DataTable>
+    </div>
   </div>
 </template>

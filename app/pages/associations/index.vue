@@ -546,6 +546,7 @@ onMounted(async () => {
 </script>
 <template>
   <div>
+    <h1 class="sr-only">Verbände - Tellbow</h1>
     <div class="flex justify-center">
       <div class="h-fit w-screen md:w-4">
         <p

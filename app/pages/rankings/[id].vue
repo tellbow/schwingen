@@ -277,6 +277,7 @@ onMounted(async () => {
 </script>
 <template>
   <div>
+    <h1 class="sr-only">Rangliste Detail</h1>
     <ProgressSpinner v-if="loadingPlace" />
     <div
       v-else

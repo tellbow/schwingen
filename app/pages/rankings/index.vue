@@ -332,293 +332,298 @@ onMounted(async () => {
 });
 </script>
 <template>
-  <div
-    class="justify-content-center align-content-center display: flex flex-wrap fill-height mt-5"
-  >
-    <DataTable
-      v-model:filters="filters"
-      v-model:expanded-rows="expandedRows"
-      class="w-11 cursor-pointer"
-      :value="records"
-      resizable-columns
-      column-resize-mode="fit"
-      show-gridlines
-      table-style="min-width: 50rem"
-      :page-link-size="numberOfPages"
-      lazy
-      paginator
-      :rows="numberOfRows"
-      data-key="id"
-      filter-display="row"
-      :row-hover="true"
-      :total-records="totalRecords"
-      :loading="loading"
-      @page="onPage($event)"
-      @filter="onFilter()"
-      @sort="onSort($event)"
-      @row-expand="onRowExpand($event)"
-      @row-collapse="onRowCollapse($event)"
+  <div>
+    <h1 class="sr-only">Ranglisten - Tellbow</h1>
+    <div
+      class="justify-content-center align-content-center display: flex flex-wrap fill-height mt-5"
     >
-      <template #empty> Keine Ranglisten gefunden. </template>
-      <template #loading> Ranglisten werden geladen. Bitte warten. </template>
-      <Column expander style="width: 4rem" />
-      <Column
-        field="rank"
-        header="Rang"
-        style="min-width: 6rem; padding: 0.5rem"
-        :filter-match-mode-options="matchModeOptionEquals"
-        :show-filter-menu="false"
-        :pt="{
-          filterInput: { class: 'w-fit' },
-        }"
+      <DataTable
+        v-model:filters="filters"
+        v-model:expanded-rows="expandedRows"
+        class="w-11 cursor-pointer"
+        :value="records"
+        resizable-columns
+        column-resize-mode="fit"
+        show-gridlines
+        table-style="min-width: 50rem"
+        :page-link-size="numberOfPages"
+        lazy
+        paginator
+        :rows="numberOfRows"
+        data-key="id"
+        filter-display="row"
+        :row-hover="true"
+        :total-records="totalRecords"
+        :loading="loading"
+        @page="onPage($event)"
+        @filter="onFilter()"
+        @sort="onSort($event)"
+        @row-expand="onRowExpand($event)"
+        @row-collapse="onRowCollapse($event)"
       >
-        <template #body="{ data }"> {{ data.rank }}{{ data.rank2 }} </template>
-        <template #filter="{ filterModel, filterCallback }">
-          <InputText
-            v-model="filterModel.value"
-            type="text"
-            class="p-column-filter"
-            placeholder="Filter Rang"
-            @input="filterCallback()"
-          />
-        </template>
-      </Column>
-      <Column
-        field="points"
-        header="Punkte"
-        style="min-width: 6rem; padding: 0.5rem"
-        :filter-match-mode-options="matchModeOptionEquals"
-        :show-filter-menu="false"
-        :pt="{
-          filterInput: { class: 'w-fit' },
-        }"
-      >
-        <template #body="{ data }">
-          {{ data.points }}
-        </template>
-        <template #filter="{ filterModel, filterCallback }">
-          <InputText
-            v-model="filterModel.value"
-            type="text"
-            class="p-column-filter"
-            placeholder="Filter Punkte"
-            @input="filterCallback()"
-          />
-        </template>
-      </Column>
-      <Column
-        v-if="layout === 'default'"
-        field="final"
-        header="Schlussgang"
-        style="min-width: 6rem; padding: 0.5rem"
-        :filter-match-mode-options="matchModeOptionEquals"
-        :show-filter-menu="false"
-        :show-clear-button="false"
-        :pt="{
-          filterInput: { class: 'w-fit' },
-        }"
-      >
-        <template #body="{ data }">
-          <Icon v-if="data.final" name="gis:flag-finish" />
-        </template>
-        <template #filter="{ filterModel, filterCallback }">
-          <Checkbox
-            v-model="filterModel.value"
-            :binary="true"
-            @input="filterCallback()"
-          />
-        </template>
-      </Column>
-      <Column
-        field="result"
-        header="Resultat"
-        style="min-width: 6rem; padding: 0.5rem"
-        :filter-match-mode-options="matchModeOptionContains"
-        :show-filter-menu="false"
-        :pt="{
-          filterInput: { class: 'w-fit' },
-        }"
-      >
-        <template #body="{ data }">
-          {{ data.result }}
-        </template>
-        <template #filter="{ filterModel, filterCallback }">
-          <InputText
-            v-model="filterModel.value"
-            type="text"
-            class="p-column-filter"
-            placeholder="Filter Resultat"
-            @input="filterCallback()"
-          />
-        </template>
-      </Column>
-      <Column
-        v-if="layout === 'default'"
-        field="wreath"
-        header="Kranz"
-        style="min-width: 6rem; padding: 0.5rem"
-        :filter-match-mode-options="matchModeOptionEquals"
-        :show-filter-menu="false"
-        :show-clear-button="false"
-        :pt="{
-          filterInput: { class: 'w-fit' },
-        }"
-      >
-        <template #body="{ data }">
-          <Icon v-if="data.wreath" name="mingcute:wreath-fill" />
-        </template>
-        <template #filter="{ filterModel, filterCallback }">
-          <Checkbox
-            v-model="filterModel.value"
-            :binary="true"
-            @input="filterCallback()"
-          />
-        </template>
-      </Column>
-      <Column
-        v-if="layout === 'default'"
-        field="status"
-        header="Status"
-        style="min-width: 6rem; padding: 0.5rem"
-        :filter-match-mode-options="matchModeOptionEquals"
-        :show-filter-menu="false"
-        :pt="{
-          filterInput: { class: 'w-fit' },
-        }"
-      >
-        <template #body="{ data }">
-          {{ data.status }}
-        </template>
-        <template #filter="{ filterModel, filterCallback }">
-          <InputText
-            v-model="filterModel.value"
-            type="text"
-            class="p-column-filter"
-            placeholder="Filter Status"
-            @input="filterCallback()"
-          />
-        </template>
-      </Column>
-      <Column
-        field="wrestler_name"
-        header="Name"
-        filter-field="expand.wrestler.name"
-        style="min-width: 12rem; padding: 0.5rem"
-        sortable
-        :filter-match-mode-options="matchModeOptionContains"
-        :show-filter-menu="false"
-        :pt="{
-          filterInput: { class: 'w-fit' },
-        }"
-      >
-        <template #body="{ data }">
-          {{ data.expand.wrestler.name }}
-        </template>
-        <template #filter="{ filterModel, filterCallback }">
-          <InputText
-            v-model="filterModel.value"
-            type="text"
-            class="p-column-filter"
-            placeholder="Filter Name"
-            @input="filterCallback()"
-          />
-        </template>
-      </Column>
-      <Column
-        field="wrestler_vorname"
-        header="Vorname"
-        filter-field="expand.wrestler.vorname"
-        style="min-width: 12rem; padding: 0.5rem"
-        sortable
-        :filter-match-mode-options="matchModeOptionContains"
-        :show-filter-menu="false"
-        :pt="{
-          filterInput: { class: 'w-fit' },
-        }"
-      >
-        <template #body="{ data }">
-          {{ data.expand.wrestler.vorname }}
-        </template>
-        <template #filter="{ filterModel, filterCallback }">
-          <InputText
-            v-model="filterModel.value"
-            type="text"
-            class="p-column-filter"
-            placeholder="Filter Vorname"
-            @input="filterCallback()"
-          />
-        </template>
-      </Column>
-      <Column
-        field="place_name"
-        header="Schwingfest"
-        filter-field="expand.place.name"
-        style="min-width: 12rem; padding: 0.5rem"
-        sortable
-        :filter-match-mode-options="matchModeOptionContains"
-        :show-filter-menu="false"
-        :pt="{
-          filterInput: { class: 'w-fit' },
-        }"
-      >
-        <template #body="{ data }">
-          {{ data.expand.place.name }}
-        </template>
-        <template #filter="{ filterModel, filterCallback }">
-          <InputText
-            v-model="filterModel.value"
-            type="text"
-            class="p-column-filter"
-            placeholder="Filter Schwingfest"
-            @input="filterCallback()"
-          />
-        </template>
-      </Column>
-      <Column
-        field="place_year"
-        header="Jahr"
-        filter-field="expand.place.year"
-        style="min-width: 10rem; padding: 0.5rem"
-        sortable
-        :show-filter-menu="false"
-        :show-clear-button="false"
-        :pt="{
-          filterInput: { class: 'w-fit' },
-        }"
-      >
-        <template #body="{ data }">
-          {{ data.year }}
-        </template>
-        <template #filter="{ filterModel, filterCallback }">
-          <Dropdown
-            v-model="filterModel.value"
-            :options="year"
-            placeholder="Filter Jahr"
-            class="p-column-filter"
-            :show-clear="true"
-            @change="filterCallback()"
-          />
-        </template>
-      </Column>
-      <template #expansion="data">
-        <div class="p-1">
-          <DataTable :value="data.data.bouts">
-            <Column field="result" header="Resultat" />
-            <Column field="points" header="Punkte" sortable />
-            <Column field="fight_round" header="Gang" sortable />
-            <Column
-              field="expand.opponent.name"
-              header="Gegner - Name"
-              sortable
+        <template #empty> Keine Ranglisten gefunden. </template>
+        <template #loading> Ranglisten werden geladen. Bitte warten. </template>
+        <Column expander style="width: 4rem" />
+        <Column
+          field="rank"
+          header="Rang"
+          style="min-width: 6rem; padding: 0.5rem"
+          :filter-match-mode-options="matchModeOptionEquals"
+          :show-filter-menu="false"
+          :pt="{
+            filterInput: { class: 'w-fit' },
+          }"
+        >
+          <template #body="{ data }">
+            {{ data.rank }}{{ data.rank2 }}
+          </template>
+          <template #filter="{ filterModel, filterCallback }">
+            <InputText
+              v-model="filterModel.value"
+              type="text"
+              class="p-column-filter"
+              placeholder="Filter Rang"
+              @input="filterCallback()"
             />
-            <Column
-              field="expand.opponent.vorname"
-              header="Gegner - Vorname"
-              sortable
+          </template>
+        </Column>
+        <Column
+          field="points"
+          header="Punkte"
+          style="min-width: 6rem; padding: 0.5rem"
+          :filter-match-mode-options="matchModeOptionEquals"
+          :show-filter-menu="false"
+          :pt="{
+            filterInput: { class: 'w-fit' },
+          }"
+        >
+          <template #body="{ data }">
+            {{ data.points }}
+          </template>
+          <template #filter="{ filterModel, filterCallback }">
+            <InputText
+              v-model="filterModel.value"
+              type="text"
+              class="p-column-filter"
+              placeholder="Filter Punkte"
+              @input="filterCallback()"
             />
-          </DataTable>
-        </div>
-      </template>
-    </DataTable>
+          </template>
+        </Column>
+        <Column
+          v-if="layout === 'default'"
+          field="final"
+          header="Schlussgang"
+          style="min-width: 6rem; padding: 0.5rem"
+          :filter-match-mode-options="matchModeOptionEquals"
+          :show-filter-menu="false"
+          :show-clear-button="false"
+          :pt="{
+            filterInput: { class: 'w-fit' },
+          }"
+        >
+          <template #body="{ data }">
+            <Icon v-if="data.final" name="gis:flag-finish" />
+          </template>
+          <template #filter="{ filterModel, filterCallback }">
+            <Checkbox
+              v-model="filterModel.value"
+              :binary="true"
+              @input="filterCallback()"
+            />
+          </template>
+        </Column>
+        <Column
+          field="result"
+          header="Resultat"
+          style="min-width: 6rem; padding: 0.5rem"
+          :filter-match-mode-options="matchModeOptionContains"
+          :show-filter-menu="false"
+          :pt="{
+            filterInput: { class: 'w-fit' },
+          }"
+        >
+          <template #body="{ data }">
+            {{ data.result }}
+          </template>
+          <template #filter="{ filterModel, filterCallback }">
+            <InputText
+              v-model="filterModel.value"
+              type="text"
+              class="p-column-filter"
+              placeholder="Filter Resultat"
+              @input="filterCallback()"
+            />
+          </template>
+        </Column>
+        <Column
+          v-if="layout === 'default'"
+          field="wreath"
+          header="Kranz"
+          style="min-width: 6rem; padding: 0.5rem"
+          :filter-match-mode-options="matchModeOptionEquals"
+          :show-filter-menu="false"
+          :show-clear-button="false"
+          :pt="{
+            filterInput: { class: 'w-fit' },
+          }"
+        >
+          <template #body="{ data }">
+            <Icon v-if="data.wreath" name="mingcute:wreath-fill" />
+          </template>
+          <template #filter="{ filterModel, filterCallback }">
+            <Checkbox
+              v-model="filterModel.value"
+              :binary="true"
+              @input="filterCallback()"
+            />
+          </template>
+        </Column>
+        <Column
+          v-if="layout === 'default'"
+          field="status"
+          header="Status"
+          style="min-width: 6rem; padding: 0.5rem"
+          :filter-match-mode-options="matchModeOptionEquals"
+          :show-filter-menu="false"
+          :pt="{
+            filterInput: { class: 'w-fit' },
+          }"
+        >
+          <template #body="{ data }">
+            {{ data.status }}
+          </template>
+          <template #filter="{ filterModel, filterCallback }">
+            <InputText
+              v-model="filterModel.value"
+              type="text"
+              class="p-column-filter"
+              placeholder="Filter Status"
+              @input="filterCallback()"
+            />
+          </template>
+        </Column>
+        <Column
+          field="wrestler_name"
+          header="Name"
+          filter-field="expand.wrestler.name"
+          style="min-width: 12rem; padding: 0.5rem"
+          sortable
+          :filter-match-mode-options="matchModeOptionContains"
+          :show-filter-menu="false"
+          :pt="{
+            filterInput: { class: 'w-fit' },
+          }"
+        >
+          <template #body="{ data }">
+            {{ data.expand.wrestler.name }}
+          </template>
+          <template #filter="{ filterModel, filterCallback }">
+            <InputText
+              v-model="filterModel.value"
+              type="text"
+              class="p-column-filter"
+              placeholder="Filter Name"
+              @input="filterCallback()"
+            />
+          </template>
+        </Column>
+        <Column
+          field="wrestler_vorname"
+          header="Vorname"
+          filter-field="expand.wrestler.vorname"
+          style="min-width: 12rem; padding: 0.5rem"
+          sortable
+          :filter-match-mode-options="matchModeOptionContains"
+          :show-filter-menu="false"
+          :pt="{
+            filterInput: { class: 'w-fit' },
+          }"
+        >
+          <template #body="{ data }">
+            {{ data.expand.wrestler.vorname }}
+          </template>
+          <template #filter="{ filterModel, filterCallback }">
+            <InputText
+              v-model="filterModel.value"
+              type="text"
+              class="p-column-filter"
+              placeholder="Filter Vorname"
+              @input="filterCallback()"
+            />
+          </template>
+        </Column>
+        <Column
+          field="place_name"
+          header="Schwingfest"
+          filter-field="expand.place.name"
+          style="min-width: 12rem; padding: 0.5rem"
+          sortable
+          :filter-match-mode-options="matchModeOptionContains"
+          :show-filter-menu="false"
+          :pt="{
+            filterInput: { class: 'w-fit' },
+          }"
+        >
+          <template #body="{ data }">
+            {{ data.expand.place.name }}
+          </template>
+          <template #filter="{ filterModel, filterCallback }">
+            <InputText
+              v-model="filterModel.value"
+              type="text"
+              class="p-column-filter"
+              placeholder="Filter Schwingfest"
+              @input="filterCallback()"
+            />
+          </template>
+        </Column>
+        <Column
+          field="place_year"
+          header="Jahr"
+          filter-field="expand.place.year"
+          style="min-width: 10rem; padding: 0.5rem"
+          sortable
+          :show-filter-menu="false"
+          :show-clear-button="false"
+          :pt="{
+            filterInput: { class: 'w-fit' },
+          }"
+        >
+          <template #body="{ data }">
+            {{ data.year }}
+          </template>
+          <template #filter="{ filterModel, filterCallback }">
+            <Dropdown
+              v-model="filterModel.value"
+              :options="year"
+              placeholder="Filter Jahr"
+              class="p-column-filter"
+              :show-clear="true"
+              @change="filterCallback()"
+            />
+          </template>
+        </Column>
+        <template #expansion="data">
+          <div class="p-1">
+            <DataTable :value="data.data.bouts">
+              <Column field="result" header="Resultat" />
+              <Column field="points" header="Punkte" sortable />
+              <Column field="fight_round" header="Gang" sortable />
+              <Column
+                field="expand.opponent.name"
+                header="Gegner - Name"
+                sortable
+              />
+              <Column
+                field="expand.opponent.vorname"
+                header="Gegner - Vorname"
+                sortable
+              />
+            </DataTable>
+          </div>
+        </template>
+      </DataTable>
+    </div>
   </div>
 </template>

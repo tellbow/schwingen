@@ -208,166 +208,169 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div
-    class="justify-content-center align-content-center md:flex md:flex-wrap fill-height mt-2 md:mt-5"
-  >
-    <DataTable
-      v-model:filters="filters"
-      class="cursor-pointer"
-      :value="records"
-      resizable-columns
-      column-resize-mode="fit"
-      show-gridlines
-      table-style="md:min-width: 50rem"
-      :page-link-size="numberOfPages"
-      lazy
-      paginator
-      :rows="numberOfRows"
-      data-key="id"
-      :filter-display="filterDisplay"
-      :row-hover="true"
-      :total-records="totalRecords"
-      :loading="loading"
-      @page="onPage($event)"
-      @filter="onFilter()"
-      @sort="onSort($event)"
-      @row-click="rowClick($event)"
+  <div>
+    <h1 class="sr-only">Schwinger - Tellbow</h1>
+    <div
+      class="justify-content-center align-content-center md:flex md:flex-wrap fill-height mt-2 md:mt-5"
     >
-      <template #empty>
-        <div class="text-center py-4">
-          <p>Keine Schwinger gefunden.</p>
-        </div>
-      </template>
-
-      <template #loading>
-        <div class="text-center py-4">
-          <p>Schwinger werden geladen. Bitte warten.</p>
-        </div>
-      </template>
-
-      <Column
-        field="name"
-        header="Name"
-        style="padding: 0.5rem"
-        :sortable="sort"
-        :filter-match-mode-options="matchModeOptionContains"
-        :show-filter-menu="false"
+      <DataTable
+        v-model:filters="filters"
+        class="cursor-pointer"
+        :value="records"
+        resizable-columns
+        column-resize-mode="fit"
+        show-gridlines
+        table-style="md:min-width: 50rem"
+        :page-link-size="numberOfPages"
+        lazy
+        paginator
+        :rows="numberOfRows"
+        data-key="id"
+        :filter-display="filterDisplay"
+        :row-hover="true"
+        :total-records="totalRecords"
+        :loading="loading"
+        @page="onPage($event)"
+        @filter="onFilter()"
+        @sort="onSort($event)"
+        @row-click="rowClick($event)"
       >
-        <template #body="{ data }">
-          <span>{{ data.name }}</span>
+        <template #empty>
+          <div class="text-center py-4">
+            <p>Keine Schwinger gefunden.</p>
+          </div>
         </template>
-        <template #filter="{ filterModel, filterCallback }">
-          <InputText
-            v-model="filterModel.value"
-            type="text"
-            class="p-column-filter"
-            placeholder="Suche"
-            aria-label="Nach Namen suchen"
-            @input="filterCallback()"
-          />
-        </template>
-      </Column>
 
-      <Column
-        field="vorname"
-        header="Vorname"
-        style="padding: 0.5rem"
-        :sortable="sort"
-        :filter-match-mode-options="matchModeOptionContains"
-        :show-filter-menu="false"
-      >
-        <template #body="{ data }">
-          <span>{{ data.vorname }}</span>
+        <template #loading>
+          <div class="text-center py-4">
+            <p>Schwinger werden geladen. Bitte warten.</p>
+          </div>
         </template>
-        <template #filter="{ filterModel, filterCallback }">
-          <InputText
-            v-model="filterModel.value"
-            type="text"
-            class="p-column-filter"
-            placeholder="Suche"
-            aria-label="Nach Vorname suchen"
-            @input="filterCallback()"
-          />
-        </template>
-      </Column>
 
-      <Column
-        v-if="layout === 'default'"
-        field="status"
-        header="Status"
-        style="padding: 0.5rem"
-        :sortable="sort"
-        :show-filter-menu="false"
-        :show-clear-button="false"
-      >
-        <template #body="{ data }">
-          <span v-if="data.expand?.status">{{
-            data.expand.status.symbol
-          }}</span>
-          <span v-else>-</span>
-        </template>
-        <template #filter="{ filterModel, filterCallback }">
-          <Dropdown
-            v-model="filterModel.value"
-            :options="STATUS_OPTIONS"
-            option-label="name"
-            option-value="value"
-            placeholder="Status wählen"
-            class="p-column-filter"
-            :show-clear="true"
-            aria-label="Status filter"
-            @change="filterCallback()"
-          />
-        </template>
-      </Column>
+        <Column
+          field="name"
+          header="Name"
+          style="padding: 0.5rem"
+          :sortable="sort"
+          :filter-match-mode-options="matchModeOptionContains"
+          :show-filter-menu="false"
+        >
+          <template #body="{ data }">
+            <span>{{ data.name }}</span>
+          </template>
+          <template #filter="{ filterModel, filterCallback }">
+            <InputText
+              v-model="filterModel.value"
+              type="text"
+              class="p-column-filter"
+              placeholder="Suche"
+              aria-label="Nach Namen suchen"
+              @input="filterCallback()"
+            />
+          </template>
+        </Column>
 
-      <Column
-        field="year"
-        header="Jahrgang"
-        style="padding: 0.5rem"
-        :sortable="sort"
-        :filter-match-mode-options="matchModeOptionContains"
-        :show-filter-menu="false"
-      >
-        <template #body="{ data }">
-          <span>{{ data.year }}</span>
-        </template>
-        <template #filter="{ filterModel, filterCallback }">
-          <InputText
-            v-model="filterModel.value"
-            type="text"
-            class="p-column-filter"
-            placeholder="Suche"
-            aria-label="Nach Jahrgang suchen"
-            @input="filterCallback()"
-          />
-        </template>
-      </Column>
+        <Column
+          field="vorname"
+          header="Vorname"
+          style="padding: 0.5rem"
+          :sortable="sort"
+          :filter-match-mode-options="matchModeOptionContains"
+          :show-filter-menu="false"
+        >
+          <template #body="{ data }">
+            <span>{{ data.vorname }}</span>
+          </template>
+          <template #filter="{ filterModel, filterCallback }">
+            <InputText
+              v-model="filterModel.value"
+              type="text"
+              class="p-column-filter"
+              placeholder="Suche"
+              aria-label="Nach Vorname suchen"
+              @input="filterCallback()"
+            />
+          </template>
+        </Column>
 
-      <Column
-        v-if="layout === 'default'"
-        field="club"
-        header="Schwingklub"
-        style="padding: 0.5rem"
-        :sortable="sort"
-        :filter-match-mode-options="matchModeOptionContains"
-        :show-filter-menu="false"
-      >
-        <template #body="{ data }">
-          <span v-if="data.expand?.club">{{ data.expand.club.name }}</span>
-          <span v-else>-</span>
-        </template>
-        <template #filter="{ filterModel, filterCallback }">
-          <InputText
-            v-model="filterModel.value"
-            type="text"
-            class="p-column-filter"
-            placeholder="Suche"
-            aria-label="Nach Schwingklub suchen"
-            @input="filterCallback()"
-          />
-        </template>
-      </Column>
-    </DataTable>
+        <Column
+          v-if="layout === 'default'"
+          field="status"
+          header="Status"
+          style="padding: 0.5rem"
+          :sortable="sort"
+          :show-filter-menu="false"
+          :show-clear-button="false"
+        >
+          <template #body="{ data }">
+            <span v-if="data.expand?.status">{{
+              data.expand.status.symbol
+            }}</span>
+            <span v-else>-</span>
+          </template>
+          <template #filter="{ filterModel, filterCallback }">
+            <Dropdown
+              v-model="filterModel.value"
+              :options="STATUS_OPTIONS"
+              option-label="name"
+              option-value="value"
+              placeholder="Status wählen"
+              class="p-column-filter"
+              :show-clear="true"
+              aria-label="Status filter"
+              @change="filterCallback()"
+            />
+          </template>
+        </Column>
+
+        <Column
+          field="year"
+          header="Jahrgang"
+          style="padding: 0.5rem"
+          :sortable="sort"
+          :filter-match-mode-options="matchModeOptionContains"
+          :show-filter-menu="false"
+        >
+          <template #body="{ data }">
+            <span>{{ data.year }}</span>
+          </template>
+          <template #filter="{ filterModel, filterCallback }">
+            <InputText
+              v-model="filterModel.value"
+              type="text"
+              class="p-column-filter"
+              placeholder="Suche"
+              aria-label="Nach Jahrgang suchen"
+              @input="filterCallback()"
+            />
+          </template>
+        </Column>
+
+        <Column
+          v-if="layout === 'default'"
+          field="club"
+          header="Schwingklub"
+          style="padding: 0.5rem"
+          :sortable="sort"
+          :filter-match-mode-options="matchModeOptionContains"
+          :show-filter-menu="false"
+        >
+          <template #body="{ data }">
+            <span v-if="data.expand?.club">{{ data.expand.club.name }}</span>
+            <span v-else>-</span>
+          </template>
+          <template #filter="{ filterModel, filterCallback }">
+            <InputText
+              v-model="filterModel.value"
+              type="text"
+              class="p-column-filter"
+              placeholder="Suche"
+              aria-label="Nach Schwingklub suchen"
+              @input="filterCallback()"
+            />
+          </template>
+        </Column>
+      </DataTable>
+    </div>
   </div>
 </template>

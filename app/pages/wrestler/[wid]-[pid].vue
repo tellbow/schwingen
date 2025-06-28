@@ -115,6 +115,7 @@ onMounted(async () => {
 
 <template>
   <div>
+    <h1 class="sr-only">Schwinger Platz-Detail</h1>
     <ProgressSpinner v-if="loadingOpponents" />
     <div
       v-else

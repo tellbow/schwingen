@@ -130,119 +130,122 @@ async function rowClick(event: any) {
 }
 </script>
 <template>
-  <div
-    class="justify-content-center align-content-center md:flex md:flex-wrap fill-height mt-2 md:mt-5"
-  >
-    <DataTable
-      v-model:filters="filters"
-      class="cursor-pointer"
-      :value="records"
-      resizable-columns
-      column-resize-mode="fit"
-      show-gridlines
-      table-style="md:min-width: 50rem"
-      :page-link-size="numberOfPages"
-      lazy
-      paginator
-      :rows="numberOfRows"
-      data-key="id"
-      :filter-display="filterDisplay"
-      :row-hover="true"
-      :total-records="totalRecords"
-      :loading="loading"
-      @page="onPage($event)"
-      @filter="onFilter()"
-      @sort="onSort($event)"
-      @row-click="rowClick($event)"
+  <div>
+    <h1 class="sr-only">Teilverband Detail</h1>
+    <div
+      class="justify-content-center align-content-center md:flex md:flex-wrap fill-height mt-2 md:mt-5"
     >
-      <template #empty> Keine Schwinger gefunden. </template>
-      <template #loading> Schwinger werden geladen. Bitte warten. </template>
-      <Column
-        field="name"
-        header="Name"
-        style="padding: 0.5rem"
-        :sortable="sort"
-        :filter-match-mode-options="matchModeOptionContains"
+      <DataTable
+        v-model:filters="filters"
+        class="cursor-pointer"
+        :value="records"
+        resizable-columns
+        column-resize-mode="fit"
+        show-gridlines
+        table-style="md:min-width: 50rem"
+        :page-link-size="numberOfPages"
+        lazy
+        paginator
+        :rows="numberOfRows"
+        data-key="id"
+        :filter-display="filterDisplay"
+        :row-hover="true"
+        :total-records="totalRecords"
+        :loading="loading"
+        @page="onPage($event)"
+        @filter="onFilter()"
+        @sort="onSort($event)"
+        @row-click="rowClick($event)"
       >
-        <template #body="{ data }">
-          {{ data.name }}
-        </template>
-        <template #filter="{ filterModel, filterCallback }">
-          <InputText
-            v-model="filterModel.value"
-            type="text"
-            class="p-column-filter"
-            placeholder="Filter Name"
-            @input="filterCallback()"
-          />
-        </template>
-      </Column>
-      <Column
-        field="vorname"
-        header="Vorname"
-        style="padding: 0.5rem"
-        :sortable="sort"
-        :filter-match-mode-options="matchModeOptionContains"
-      >
-        <template #body="{ data }">
-          {{ data.vorname }}
-        </template>
-        <template #filter="{ filterModel, filterCallback }">
-          <InputText
-            v-model="filterModel.value"
-            type="text"
-            class="p-column-filter"
-            placeholder="Filter Vorname"
-            @input="filterCallback()"
-          />
-        </template>
-      </Column>
-      <Column
-        v-if="layout === 'default'"
-        field="status"
-        header="Status"
-        style="padding: 0.5rem"
-        :sortable="sort"
-        :show-filter-menu="false"
-        :show-clear-button="false"
-      >
-        <template #body="{ data }">
-          <p v-if="data.expand.status">{{ data.expand.status.symbol }}</p>
-          <p v-else>-</p>
-        </template>
-        <template #filter="{ filterModel, filterCallback }">
-          <Dropdown
-            v-model="filterModel.value"
-            :options="status"
-            option-label="name"
-            option-value="value"
-            placeholder="Suche"
-            class="p-column-filter"
-            :show-clear="true"
-            @change="filterCallback()"
-          />
-        </template>
-      </Column>
-      <Column
-        field="year"
-        header="Jahrgang"
-        style="padding: 0.5rem"
-        :sortable="sort"
-        :filter-match-mode-options="matchModeOptionContains"
-      >
-        <template #body="{ data }">
-          {{ data.year }}
-        </template>
-        <template #filter="{ filterModel, filterCallback }">
-          <InputText
-            v-model="filterModel.value"
-            type="text"
-            class="p-column-filter"
-            placeholder="Filter Jahrgang"
-            @input="filterCallback()"
-          />
-        </template>
-      </Column>
-    </DataTable>
+        <template #empty> Keine Schwinger gefunden. </template>
+        <template #loading> Schwinger werden geladen. Bitte warten. </template>
+        <Column
+          field="name"
+          header="Name"
+          style="padding: 0.5rem"
+          :sortable="sort"
+          :filter-match-mode-options="matchModeOptionContains"
+        >
+          <template #body="{ data }">
+            {{ data.name }}
+          </template>
+          <template #filter="{ filterModel, filterCallback }">
+            <InputText
+              v-model="filterModel.value"
+              type="text"
+              class="p-column-filter"
+              placeholder="Filter Name"
+              @input="filterCallback()"
+            />
+          </template>
+        </Column>
+        <Column
+          field="vorname"
+          header="Vorname"
+          style="padding: 0.5rem"
+          :sortable="sort"
+          :filter-match-mode-options="matchModeOptionContains"
+        >
+          <template #body="{ data }">
+            {{ data.vorname }}
+          </template>
+          <template #filter="{ filterModel, filterCallback }">
+            <InputText
+              v-model="filterModel.value"
+              type="text"
+              class="p-column-filter"
+              placeholder="Filter Vorname"
+              @input="filterCallback()"
+            />
+          </template>
+        </Column>
+        <Column
+          v-if="layout === 'default'"
+          field="status"
+          header="Status"
+          style="padding: 0.5rem"
+          :sortable="sort"
+          :show-filter-menu="false"
+          :show-clear-button="false"
+        >
+          <template #body="{ data }">
+            <p v-if="data.expand.status">{{ data.expand.status.symbol }}</p>
+            <p v-else>-</p>
+          </template>
+          <template #filter="{ filterModel, filterCallback }">
+            <Dropdown
+              v-model="filterModel.value"
+              :options="status"
+              option-label="name"
+              option-value="value"
+              placeholder="Suche"
+              class="p-column-filter"
+              :show-clear="true"
+              @change="filterCallback()"
+            />
+          </template>
+        </Column>
+        <Column
+          field="year"
+          header="Jahrgang"
+          style="padding: 0.5rem"
+          :sortable="sort"
+          :filter-match-mode-options="matchModeOptionContains"
+        >
+          <template #body="{ data }">
+            {{ data.year }}
+          </template>
+          <template #filter="{ filterModel, filterCallback }">
+            <InputText
+              v-model="filterModel.value"
+              type="text"
+              class="p-column-filter"
+              placeholder="Filter Jahrgang"
+              @input="filterCallback()"
+            />
+          </template>
+        </Column>
+      </DataTable>
+    </div>
   </div>
 </template>

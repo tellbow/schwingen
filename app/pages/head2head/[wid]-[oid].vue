@@ -429,6 +429,7 @@ onMounted(async () => {
 </script>
 <template>
   <div>
+    <h1 class="sr-only">Direktvergleich Schwinger</h1>
     <div class="justify-content-center align-content-center display: flex mt-2">
       <Card class="w-11/12 md:w-9/12">
         <template #title>
