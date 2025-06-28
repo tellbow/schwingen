@@ -213,7 +213,9 @@ onMounted(async () => {
     <div
       class="justify-content-center align-content-center md:flex md:flex-wrap fill-height mt-2 md:mt-5"
     >
+      <!-- Desktop/Landscape Layout -->
       <DataTable
+        v-if="layout === 'default'"
         v-model:filters="filters"
         class="cursor-pointer"
         :value="records"
@@ -294,7 +296,6 @@ onMounted(async () => {
         </Column>
 
         <Column
-          v-if="layout === 'default'"
           field="status"
           header="Status"
           style="padding: 0.5rem"
@@ -347,7 +348,96 @@ onMounted(async () => {
         </Column>
 
         <Column
-          v-if="layout === 'default'"
+          field="club"
+          header="Schwingklub"
+          style="padding: 0.5rem"
+          :sortable="sort"
+          :filter-match-mode-options="matchModeOptionContains"
+          :show-filter-menu="false"
+        >
+          <template #body="{ data }">
+            <span v-if="data.expand?.club">{{ data.expand.club.name }}</span>
+            <span v-else>-</span>
+          </template>
+          <template #filter="{ filterModel, filterCallback }">
+            <InputText
+              v-model="filterModel.value"
+              type="text"
+              class="p-column-filter"
+              placeholder="Suche"
+              aria-label="Nach Schwingklub suchen"
+              @input="filterCallback()"
+            />
+          </template>
+        </Column>
+      </DataTable>
+
+      <!-- Mobile Layout -->
+      <DataTable
+        v-else
+        v-model:filters="filters"
+        class="cursor-pointer"
+        :value="records"
+        show-gridlines
+        table-style="min-width: 20rem"
+        :page-link-size="numberOfPages"
+        lazy
+        paginator
+        :rows="numberOfRows"
+        data-key="id"
+        :filter-display="filterDisplay"
+        :row-hover="true"
+        :total-records="totalRecords"
+        :loading="loading"
+        @page="onPage($event)"
+        @filter="onFilter()"
+        @sort="onSort($event)"
+        @row-click="rowClick($event)"
+      >
+        <template #empty>
+          <div class="text-center py-4">
+            <p>Keine Schwinger gefunden.</p>
+          </div>
+        </template>
+
+        <template #loading>
+          <div class="text-center py-4">
+            <p>Schwinger werden geladen. Bitte warten.</p>
+          </div>
+        </template>
+
+        <Column
+          field="name"
+          header="Name"
+          style="padding: 0.5rem"
+          :sortable="sort"
+          :filter-match-mode-options="matchModeOptionContains"
+          :show-filter-menu="false"
+        >
+          <template #body="{ data }">
+            <div class="flex flex-column">
+              <div class="font-bold">{{ data.name }} {{ data.vorname }}</div>
+              <div class="text-sm text-gray-600">
+                <span v-if="data.expand?.status">{{
+                  data.expand.status.symbol
+                }}</span>
+                <span v-else>-</span>
+              </div>
+            </div>
+          </template>
+          <template #filter="{ filterModel, filterCallback }">
+            <InputText
+              v-model="filterModel.value"
+              type="text"
+              class="p-column-filter"
+              placeholder="Suche"
+              aria-label="Nach Namen suchen"
+              @input="filterCallback()"
+            />
+          </template>
+        </Column>
+
+        <Column
           field="club"
           header="Schwingklub"
           style="padding: 0.5rem"

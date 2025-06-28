@@ -91,6 +91,7 @@ interface RankingData {
       expand: {
         status: {
           status: string;
+          symbol: string;
         };
       };
     };
@@ -110,6 +111,7 @@ interface BoutData {
       expand: {
         status: {
           status: string;
+          symbol: string;
         };
       };
     };
@@ -129,6 +131,7 @@ interface RowCollapseEvent {
 // Composables
 const pocketbase = usePocketbase();
 const route = useRoute();
+const { layout } = useLayout();
 
 // Validate route parameter
 const placeId = computed(() => {
@@ -179,7 +182,7 @@ const loadRankingsData = async (): Promise<void> => {
       expand: "place,wrestler,wrestler.status",
       sort: "rank, rank2, -created",
       fields:
-        "id,rank,rank2,points,final,result,wreath,status,expand.place.id,expand.wrestler.id,expand.wrestler.name,expand.wrestler.vorname,expand.wrestler.expand.status.status",
+        "id,rank,rank2,points,final,result,wreath,status,expand.place.id,expand.wrestler.id,expand.wrestler.name,expand.wrestler.vorname,expand.wrestler.expand.status.status,expand.wrestler.expand.status.symbol",
     });
 
     data.forEach((entry: RankingData) => {
@@ -188,11 +191,14 @@ const loadRankingsData = async (): Promise<void> => {
         !entry.expand.wrestler ||
         !entry.expand.wrestler.expand ||
         !entry.expand.wrestler.expand.status ||
-        !entry.expand.wrestler.expand.status.status
+        !entry.expand.wrestler.expand.status.status ||
+        !entry.expand.wrestler.expand.status.symbol
       ) {
         entry.wstatus = "-";
+        entry.wstatusSymbol = "-";
       } else {
         entry.wstatus = entry.expand.wrestler.expand.status.status;
+        entry.wstatusSymbol = entry.expand.wrestler.expand.status.symbol;
       }
     });
 
@@ -217,7 +223,7 @@ const loadLazySubData = async (
       filter: `wrestler.id = '${escapeFilterValue(wrestlerId)}' && place.id = '${escapeFilterValue(placeId)}'`,
       sort: "fight_round,-created",
       fields:
-        "id,result,points,fight_round,expand.opponent.id,expand.opponent.name,expand.opponent.vorname,expand.opponent.expand.status.status",
+        "id,result,points,fight_round,expand.opponent.id,expand.opponent.name,expand.opponent.vorname,expand.opponent.expand.status.status,expand.opponent.expand.status.symbol",
     });
 
     rankingsData.value.forEach((item: RankingData) => {
@@ -284,11 +290,11 @@ onMounted(async () => {
       class="justify-content-center align-content-center display: flex mt-2"
     >
       <Card class="w-11/12 md:w-9/12">
-        <template #title> Schwingfest: {{ placeData.name }} </template>
+        <template #title> Schwingfest: {{ placeData?.name }} </template>
         <template #content>
-          <p>Ort: {{ placeData.location }}</p>
-          <p>Jahr: {{ placeData.year }}</p>
-          <p v-if="placeData.expand.placeType">
+          <p>Ort: {{ placeData?.location }}</p>
+          <p>Jahr: {{ placeData?.year }}</p>
+          <p v-if="placeData?.expand?.placeType">
             Typ: {{ placeData.expand.placeType.type }}
           </p>
         </template>
@@ -302,7 +308,9 @@ onMounted(async () => {
       <Card class="w-11/12 md:w-9/12">
         <template #title> Rangliste</template>
         <template #content>
+          <!-- Desktop/Landscape Layout -->
           <DataTable
+            v-if="layout === 'default'"
             v-model:expanded-rows="expandedRows"
             :value="rankingsData"
             column-resize-mode="fit"
@@ -426,12 +434,158 @@ onMounted(async () => {
                   <Column field="result" header="R" />
                   <Column field="points" header="P" />
                   <Column field="fight_round" header="G" />
-                  <Column field="expand.opponent.name" header="Name" />
-                  <Column field="expand.opponent.vorname" header="Vorname" />
+                  <Column field="expand.opponent.name" header="Gegner">
+                    <template #body="{ data: boutData }">
+                      <div class="flex flex-column">
+                        <div class="font-bold">
+                          {{ boutData.expand.opponent.name }}
+                          {{ boutData.expand.opponent.vorname }}
+                        </div>
+                      </div>
+                    </template>
+                  </Column>
                   <Column
                     field="expand.opponent.expand.status.status"
                     header="Status"
                   />
+                </DataTable>
+              </div>
+            </template>
+          </DataTable>
+
+          <!-- Mobile Layout -->
+          <DataTable
+            v-else
+            v-model:expanded-rows="expandedRows"
+            :value="rankingsData"
+            show-gridlines
+            table-style="min-width: 20rem"
+            size="small"
+            data-key="id"
+            :pt="{
+              header: { class: 'p-0' },
+            }"
+            :row-hover="true"
+            @row-expand="onRowExpand($event)"
+            @row-collapse="onRowCollapse($event)"
+          >
+            <template #empty> Keine Ranglisten gefunden. </template>
+            <template #loading>
+              Ranglisten werden geladen. Bitte warten.
+            </template>
+            <Column expander style="width: 4rem" />
+            <Column
+              field="rank"
+              header="Rang"
+              style="min-width: 6rem; padding: 0.5rem"
+              :pt="{
+                filterInput: { class: 'w-fit' },
+              }"
+            >
+              <template #body="{ data }">
+                {{ data.rank }}{{ data.rank2 }}
+              </template>
+            </Column>
+            <Column
+              field="points"
+              header="Punkte"
+              style="min-width: 6rem; padding: 0.5rem"
+              :pt="{
+                filterInput: { class: 'w-fit' },
+              }"
+            >
+              <template #body="{ data }">
+                {{ data.points }}
+              </template>
+            </Column>
+            <Column
+              field="result"
+              header="Resultat"
+              style="min-width: 6rem; padding: 0.5rem"
+              :pt="{
+                filterInput: { class: 'w-fit' },
+              }"
+            >
+              <template #body="{ data }">
+                {{ data.result }}
+              </template>
+            </Column>
+            <Column
+              field="wrestler"
+              header="Schwinger"
+              style="min-width: 6rem; padding: 0.5rem"
+              :pt="{
+                filterInput: { class: 'w-fit' },
+              }"
+            >
+              <template #body="{ data }">
+                <div class="flex flex-column">
+                  <div class="font-bold">
+                    {{ data.expand.wrestler.name }}
+                    {{ data.expand.wrestler.vorname }}
+                  </div>
+                  <div class="text-sm text-gray-600">
+                    {{ data.wstatusSymbol }}
+                  </div>
+                </div>
+              </template>
+            </Column>
+            <Column
+              field="final"
+              header="Schlussgang"
+              style="min-width: 6rem; padding: 0.5rem"
+              :pt="{
+                filterInput: { class: 'w-fit' },
+              }"
+            >
+              <template #body="{ data }">
+                <Icon
+                  v-if="data.final"
+                  class="flex content-center"
+                  name="gis:flag-finish"
+                />
+              </template>
+            </Column>
+            <Column
+              field="wreath_accident"
+              header="Kranz / Unfall"
+              style="min-width: 6rem; padding: 0.5rem"
+              :pt="{
+                filterInput: { class: 'w-fit' },
+              }"
+            >
+              <template #body="{ data }">
+                <Icon
+                  v-if="data.wreath"
+                  class="flex content-center"
+                  name="mingcute:wreath-fill"
+                />
+                <Icon
+                  v-if="data.status === 'Unfall'"
+                  class="flex content-center"
+                  name="game-icons:arm-bandage"
+                />
+              </template>
+            </Column>
+            <template #expansion="data">
+              <div class="p-1">
+                <DataTable :value="data.data.bouts">
+                  <Column field="result" header="R" />
+                  <Column field="points" header="P" />
+                  <Column field="fight_round" header="G" />
+                  <Column field="expand.opponent.name" header="Gegner">
+                    <template #body="{ data: boutData }">
+                      <div class="flex flex-column">
+                        <div class="font-bold">
+                          {{ boutData.expand.opponent.name }}
+                          {{ boutData.expand.opponent.vorname }}
+                        </div>
+                        <div class="text-sm text-gray-600">
+                          {{ boutData.expand.opponent.expand.status.symbol }}
+                        </div>
+                      </div>
+                    </template>
+                  </Column>
                 </DataTable>
               </div>
             </template>

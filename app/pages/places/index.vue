@@ -222,7 +222,9 @@ onMounted(async () => {
     <div
       class="justify-content-center align-content-center display: flex flex-wrap fill-height mt-2 md:mt-5"
     >
+      <!-- Desktop/Landscape Layout -->
       <DataTable
+        v-if="layout === 'default'"
         v-model:filters="filters"
         class="w-11 md:w-9 cursor-pointer"
         :value="records"
@@ -249,7 +251,6 @@ onMounted(async () => {
           Schwingfeste werden geladen. Bitte warten.
         </template>
         <Column
-          v-if="layout === 'default'"
           field="number"
           header="Nummer"
           style="padding: 0.5rem"
@@ -292,7 +293,6 @@ onMounted(async () => {
           </template>
         </Column>
         <Column
-          v-if="layout === 'default'"
           field="location"
           header="Ort"
           style="padding: 0.5rem"
@@ -336,7 +336,6 @@ onMounted(async () => {
           </template>
         </Column>
         <Column
-          v-if="layout === 'default'"
           field="type"
           header="Typ"
           style="padding: 0.5rem"
@@ -355,6 +354,60 @@ onMounted(async () => {
               class="p-column-filter"
               :show-clear="true"
               @change="filterCallback()"
+            />
+          </template>
+        </Column>
+      </DataTable>
+
+      <!-- Mobile Layout -->
+      <DataTable
+        v-else
+        v-model:filters="filters"
+        class="w-11 md:w-9 cursor-pointer"
+        :value="records"
+        show-gridlines
+        table-style="min-width: 20rem"
+        :page-link-size="numberOfPages"
+        lazy
+        paginator
+        :rows="numberOfRows"
+        data-key="id"
+        :filter-display="filterDisplay"
+        :row-hover="true"
+        :total-records="totalRecords"
+        :loading="loading"
+        @page="onPage($event)"
+        @filter="onFilter()"
+        @sort="onSort($event)"
+        @row-click="rowClick($event)"
+      >
+        <template #empty> Keine Schwingfeste gefunden. </template>
+        <template #loading>
+          Schwingfeste werden geladen. Bitte warten.
+        </template>
+        <Column
+          field="name"
+          header="Name"
+          style="padding: 0.5rem"
+          :sortable="sort"
+          :filter-match-mode-options="matchModeOptions"
+          :show-filter-menu="false"
+        >
+          <template #body="{ data }">
+            <div class="flex flex-column">
+              <div class="font-bold">{{ data.name }}</div>
+              <div class="text-sm text-gray-600">
+                {{ data.location }}, {{ displayYear(data.year) }}
+              </div>
+            </div>
+          </template>
+          <template #filter="{ filterModel, filterCallback }">
+            <InputText
+              v-model="filterModel.value"
+              type="text"
+              class="p-column-filter"
+              placeholder="Filter Name"
+              @input="filterCallback()"
             />
           </template>
         </Column>
