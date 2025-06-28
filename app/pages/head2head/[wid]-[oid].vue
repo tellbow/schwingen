@@ -16,6 +16,36 @@ const setHead2HeadSEO = () => {
       keywords: `${wrestler1Name}, ${wrestler2Name}, Head-to-Head, Schwinger Vergleich, Schwingen, Schweizer Schwinger, ESV`,
       type: "article",
     });
+
+    // Set structured data for the head2head comparison
+    const { createAthlete, createBreadcrumbList, setStructuredData } =
+      useStructuredData();
+    const config = useRuntimeConfig();
+
+    const athlete1Data = createAthlete({
+      name: wrestler1Name,
+      givenName: wrestler1.vorname,
+      familyName: wrestler1.name,
+      url: `${config.public.baseUrl}/wrestler/${wrestler1.id}`,
+    });
+
+    const athlete2Data = createAthlete({
+      name: wrestler2Name,
+      givenName: wrestler2.vorname,
+      familyName: wrestler2.name,
+      url: `${config.public.baseUrl}/wrestler/${wrestler2.id}`,
+    });
+
+    const breadcrumbs = createBreadcrumbList([
+      { name: "Home", url: config.public.baseUrl },
+      { name: "1 vs. 1 Vergleich", url: `${config.public.baseUrl}/head2head` },
+      {
+        name: `${wrestler1Name} vs ${wrestler2Name}`,
+        url: `${config.public.baseUrl}/head2head/${wrestlerId.value}-${opponentId.value}`,
+      },
+    ]);
+
+    setStructuredData([athlete1Data, athlete2Data, breadcrumbs]);
   } else {
     // Fallback SEO while loading
     useSeo({

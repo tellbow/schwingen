@@ -8,6 +8,11 @@ useSeo({
   keywords: `Schwingerverband, Schwinger, Schweizer Schwinger, ESV, Schwingen`,
 });
 
+// Set structured data for the association detail page
+const { createSportsOrganization, createBreadcrumbList, setStructuredData } =
+  useStructuredData();
+const config = useRuntimeConfig();
+
 const pocketbase = usePocketbase();
 const route = useRoute();
 const { layout, numberOfRows, numberOfPages } = useLayout();
@@ -47,6 +52,25 @@ const sorts = ref({
 const matchModeOptionContains = ref([
   { label: "Enthält", value: FilterMatchMode.CONTAINS },
 ]);
+
+const associationId = route.params.id as string;
+
+const organizationData = createSportsOrganization({
+  name: `Teilverband`,
+  url: `${config.public.baseUrl}/associations/association/${associationId}`,
+  description: `Teilverband für Schweizer Schwingen`,
+});
+
+const breadcrumbs = createBreadcrumbList([
+  { name: "Home", url: config.public.baseUrl },
+  { name: "Verbände", url: `${config.public.baseUrl}/associations` },
+  {
+    name: `Teilverband`,
+    url: `${config.public.baseUrl}/associations/association/${associationId}`,
+  },
+]);
+
+setStructuredData([organizationData, breadcrumbs]);
 
 /* eslint require-await: "off" */
 onMounted(async () => {

@@ -19,6 +19,36 @@ const setWrestlerSEO = () => {
       keywords: `${fullName}, Schwinger, ESV, Schwingen, Statistiken, ${clubName}, ${cantonName}, ${associationName}`,
       type: "profile",
     });
+
+    // Set structured data for the wrestler
+    const { createAthlete, createBreadcrumbList, setStructuredData } =
+      useStructuredData();
+    const config = useRuntimeConfig();
+
+    const athleteData = createAthlete({
+      name: fullName,
+      givenName: wrestlerData.value.vorname,
+      familyName: wrestlerData.value.name,
+      url: `${config.public.baseUrl}/wrestler/${wrestlerData.value.id}`,
+      ...(clubName && {
+        worksFor: {
+          name: clubName,
+          url: `${config.public.baseUrl}/associations/club/${wrestlerData.value.expand?.club?.id}`,
+          description: `Schwingclub ${clubName}`,
+        },
+      }),
+    });
+
+    const breadcrumbs = createBreadcrumbList([
+      { name: "Home", url: config.public.baseUrl },
+      { name: "Schwinger", url: `${config.public.baseUrl}/wrestler` },
+      {
+        name: fullName,
+        url: `${config.public.baseUrl}/wrestler/${wrestlerData.value.id}`,
+      },
+    ]);
+
+    setStructuredData([athleteData, breadcrumbs]);
   } else {
     // Fallback SEO while loading
     useSeo({

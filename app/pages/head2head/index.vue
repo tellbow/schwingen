@@ -8,6 +8,31 @@ useSeo({
     "Schwinger Vergleich, Head-to-Head, 1 vs 1, Schwingen Duelle, Schweizer Schwinger, ESV",
 });
 
+// Set structured data for the head2head page
+const { createWebSite, createBreadcrumbList, setStructuredData } =
+  useStructuredData();
+const config = useRuntimeConfig();
+
+const websiteData = createWebSite({
+  name: "Tellbow - Head-to-Head Vergleich",
+  url: `${config.public.baseUrl}/head2head`,
+  description:
+    "Vergleichen Sie zwei Schweizer Schwinger direkt miteinander. Head-to-Head Statistiken und Duelle zwischen Schwingern aus der ESV-Datenbank.",
+  publisher: {
+    name: "Tellbow",
+    url: config.public.baseUrl,
+    logo: `${config.public.baseUrl}/images/logos/tellbow_512x512.webp`,
+    description: "Plattform für Schweizer Schwingen Statistiken und Analysen",
+  },
+});
+
+const breadcrumbs = createBreadcrumbList([
+  { name: "Home", url: config.public.baseUrl },
+  { name: "1 vs. 1 Vergleich", url: `${config.public.baseUrl}/head2head` },
+]);
+
+setStructuredData([websiteData, breadcrumbs]);
+
 // Types
 interface WrestlerData {
   id: string;

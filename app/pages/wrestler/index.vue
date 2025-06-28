@@ -11,6 +11,31 @@ useSeo({
     "Schwinger, Schweizer Schwinger, ESV, Eidgenoss, Kranzer, Schwingen, Datenbank",
 });
 
+// Set structured data for the wrestler list page
+const { createWebSite, createBreadcrumbList, setStructuredData } =
+  useStructuredData();
+const config = useRuntimeConfig();
+
+const websiteData = createWebSite({
+  name: "Tellbow - Schwinger Datenbank",
+  url: `${config.public.baseUrl}/wrestler`,
+  description:
+    "Durchsuchen Sie alle aktiven Schweizer Schwinger aus der ESV-Datenbank. Finden Sie Schwinger nach Name, Verein, Status und mehr.",
+  publisher: {
+    name: "Tellbow",
+    url: config.public.baseUrl,
+    logo: `${config.public.baseUrl}/images/logos/tellbow_512x512.webp`,
+    description: "Plattform für Schweizer Schwingen Statistiken und Analysen",
+  },
+});
+
+const breadcrumbs = createBreadcrumbList([
+  { name: "Home", url: config.public.baseUrl },
+  { name: "Schwinger", url: `${config.public.baseUrl}/wrestler` },
+]);
+
+setStructuredData([websiteData, breadcrumbs]);
+
 // Types
 interface Wrestler {
   id: string;

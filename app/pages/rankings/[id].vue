@@ -15,6 +15,36 @@ const setRankingSEO = () => {
       keywords: `${placeName}, ${placeLocation}, ${placeYear}, ${placeType}, Rangliste, Schwingen, Schweizer Schwinger, ESV`,
       type: "article",
     });
+
+    // Set structured data for the sports event
+    const { createEvent, createBreadcrumbList, setStructuredData } =
+      useStructuredData();
+    const config = useRuntimeConfig();
+
+    const eventData = createEvent({
+      name: `${placeName} ${placeYear}`,
+      startDate: `${placeYear}-01-01`, // Approximate start date
+      location: {
+        name: placeLocation,
+      },
+      description: `${placeType} Schwingfest ${placeName} ${placeYear} in ${placeLocation}`,
+      organizer: {
+        name: "Eidgenössischer Schwingerverband",
+        url: "https://esv.ch",
+        description: "Schweizerischer Dachverband für Schwingen",
+      },
+    });
+
+    const breadcrumbs = createBreadcrumbList([
+      { name: "Home", url: config.public.baseUrl },
+      { name: "Ranglisten", url: `${config.public.baseUrl}/rankings` },
+      {
+        name: `${placeName} ${placeYear}`,
+        url: `${config.public.baseUrl}/rankings/${placeId.value}`,
+      },
+    ]);
+
+    setStructuredData([eventData, breadcrumbs]);
   } else {
     // Fallback SEO while loading
     useSeo({

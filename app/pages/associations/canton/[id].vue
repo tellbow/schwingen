@@ -8,6 +8,11 @@ useSeo({
   keywords: `Kanton, Gauverband, Schwinger, Schweizer Schwinger, ESV, Schwingen`,
 });
 
+// Set structured data for the canton detail page
+const { createSportsOrganization, createBreadcrumbList, setStructuredData } =
+  useStructuredData();
+const config = useRuntimeConfig();
+
 const pocketbase = usePocketbase();
 const route = useRoute();
 const { layout, numberOfRows, numberOfPages } = useLayout();
@@ -47,6 +52,25 @@ const sorts = ref({
 const matchModeOptionContains = ref([
   { label: "Enthält", value: FilterMatchMode.CONTAINS },
 ]);
+
+const cantonId = route.params.id as string;
+
+const organizationData = createSportsOrganization({
+  name: `Kanton oder Gauverband`,
+  url: `${config.public.baseUrl}/associations/canton/${cantonId}`,
+  description: `Kanton oder Gauverband für Schweizer Schwingen`,
+});
+
+const breadcrumbs = createBreadcrumbList([
+  { name: "Home", url: config.public.baseUrl },
+  { name: "Verbände", url: `${config.public.baseUrl}/associations` },
+  {
+    name: `Kanton oder Gauverband`,
+    url: `${config.public.baseUrl}/associations/canton/${cantonId}`,
+  },
+]);
+
+setStructuredData([organizationData, breadcrumbs]);
 
 /* eslint require-await: "off" */
 onMounted(async () => {

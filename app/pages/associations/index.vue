@@ -13,6 +13,7 @@ import {
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import type { GeometryCollection, Topology } from "topojson-specification";
 import maps from "~/public/topo/swiss-maps-modified.json";
+import { useStructuredData } from "~/composables/useStructuredData";
 
 useSeo({
   title: "Verbände - Tellbow",
@@ -21,6 +22,41 @@ useSeo({
   keywords:
     "Schwingen Verbände, Teilverbände, Kantone, Vereine, ESV, Schweizer Schwingen, BKSV, ISV, NOSV, NWSV, SWSV",
 });
+
+// Set structured data for the associations page
+const {
+  createWebSite,
+  createSportsOrganization,
+  createBreadcrumbList,
+  setStructuredData,
+} = useStructuredData();
+const config = useRuntimeConfig();
+
+const websiteData = createWebSite({
+  name: "Tellbow - Schwingen Verbände",
+  url: `${config.public.baseUrl}/associations`,
+  description:
+    "Übersicht über alle Teilverbände, Kantone und Vereine im Schweizer Schwingen. Interaktive Karte und detaillierte Statistiken.",
+  publisher: {
+    name: "Tellbow",
+    url: config.public.baseUrl,
+    logo: `${config.public.baseUrl}/images/logos/tellbow_512x512.webp`,
+    description: "Plattform für Schweizer Schwingen Statistiken und Analysen",
+  },
+});
+
+const mainOrganization = createSportsOrganization({
+  name: "Eidgenössischer Schwingerverband",
+  url: "https://esv.ch",
+  description: "Schweizerischer Dachverband für Schwingen",
+});
+
+const breadcrumbs = createBreadcrumbList([
+  { name: "Home", url: config.public.baseUrl },
+  { name: "Verbände", url: `${config.public.baseUrl}/associations` },
+]);
+
+setStructuredData([websiteData, mainOrganization, breadcrumbs]);
 
 // Types
 interface AssociationData {

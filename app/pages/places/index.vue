@@ -11,6 +11,31 @@ useSeo({
     "Schwingfeste, Eidgenössisches Schwingfest, Teilverbandsschwingfest, Kantonales Schwingfest, Bergschwingfest, Schweizer Schwingen",
 });
 
+// Set structured data for the places page
+const { createWebSite, createBreadcrumbList, setStructuredData } =
+  useStructuredData();
+const config = useRuntimeConfig();
+
+const websiteData = createWebSite({
+  name: "Tellbow - Schwingfeste",
+  url: `${config.public.baseUrl}/places`,
+  description:
+    "Alle Schwingfeste der Aktiven aus den Jahren 2015-2025. Eidgenössische, Teilverbands-, Kantonale und regionale Schwingfeste.",
+  publisher: {
+    name: "Tellbow",
+    url: config.public.baseUrl,
+    logo: `${config.public.baseUrl}/images/logos/tellbow_512x512.webp`,
+    description: "Plattform für Schweizer Schwingen Statistiken und Analysen",
+  },
+});
+
+const breadcrumbs = createBreadcrumbList([
+  { name: "Home", url: config.public.baseUrl },
+  { name: "Schwingfeste", url: `${config.public.baseUrl}/places` },
+]);
+
+setStructuredData([websiteData, breadcrumbs]);
+
 // Types
 interface PlaceData {
   id: string;

@@ -8,6 +8,31 @@ useSeo({
     "Schwingen Statistiken, ELO Rating, Durchschnittsrang, Siege, Kränze, Schweizer Schwinger, ESV",
 });
 
+// Set structured data for the statistics page
+const { createWebSite, createBreadcrumbList, setStructuredData } =
+  useStructuredData();
+const config = useRuntimeConfig();
+
+const websiteData = createWebSite({
+  name: "Tellbow - Schwingen Statistiken",
+  url: `${config.public.baseUrl}/statistics`,
+  description:
+    "Detaillierte Statistiken und Analysen zu Schweizer Schwingern. ELO-Ratings, Durchschnittsranglisten, Siege, Kranze und mehr.",
+  publisher: {
+    name: "Tellbow",
+    url: config.public.baseUrl,
+    logo: `${config.public.baseUrl}/images/logos/tellbow_512x512.webp`,
+    description: "Plattform für Schweizer Schwingen Statistiken und Analysen",
+  },
+});
+
+const breadcrumbs = createBreadcrumbList([
+  { name: "Home", url: config.public.baseUrl },
+  { name: "Statistiken", url: `${config.public.baseUrl}/statistics` },
+]);
+
+setStructuredData([websiteData, breadcrumbs]);
+
 // Types
 interface YearOption {
   year: string | number;

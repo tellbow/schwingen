@@ -11,6 +11,31 @@ useSeo({
     "Ranglisten, Schwingen Ergebnisse, Schweizer Schwinger, ESV, Punkte, Kränze, Schwingfeste",
 });
 
+// Set structured data for the rankings list page
+const { createWebSite, createBreadcrumbList, setStructuredData } =
+  useStructuredData();
+const config = useRuntimeConfig();
+
+const websiteData = createWebSite({
+  name: "Tellbow - Ranglisten",
+  url: `${config.public.baseUrl}/rankings`,
+  description:
+    "Alle Ranglisten und Ergebnisse von Schweizer Schwingern aus den Jahren 2015-2025. Detaillierte Resultate, Punkte und Kränze.",
+  publisher: {
+    name: "Tellbow",
+    url: config.public.baseUrl,
+    logo: `${config.public.baseUrl}/images/logos/tellbow_512x512.webp`,
+    description: "Plattform für Schweizer Schwingen Statistiken und Analysen",
+  },
+});
+
+const breadcrumbs = createBreadcrumbList([
+  { name: "Home", url: config.public.baseUrl },
+  { name: "Ranglisten", url: `${config.public.baseUrl}/rankings` },
+]);
+
+setStructuredData([websiteData, breadcrumbs]);
+
 // Types
 interface RankingData {
   id: string;
