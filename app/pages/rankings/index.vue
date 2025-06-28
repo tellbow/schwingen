@@ -1,6 +1,15 @@
 <script setup lang="ts">
+// Set SEO metadata for the rankings page
 import { FilterMatchMode } from "primevue/api";
 import { escapeFilterValue } from "~/utils/filterUtils";
+
+useSeo({
+  title: "Ranglisten - Tellbow",
+  description:
+    "Alle Ranglisten und Ergebnisse von Schweizer Schwingern aus den Jahren 2015-2025. Detaillierte Resultate, Punkte und Kränze.",
+  keywords:
+    "Ranglisten, Schwingen Ergebnisse, Schweizer Schwinger, ESV, Punkte, Kränze, Schwingfeste",
+});
 
 // Types
 interface RankingData {

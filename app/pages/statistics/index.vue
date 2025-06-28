@@ -1,4 +1,13 @@
 <script setup lang="ts">
+// Set SEO metadata for the statistics page
+useSeo({
+  title: "Statistiken - Tellbow",
+  description:
+    "Detaillierte Statistiken und Analysen zu Schweizer Schwingern. ELO-Ratings, Durchschnittsranglisten, Siege, Kränze und mehr.",
+  keywords:
+    "Schwingen Statistiken, ELO Rating, Durchschnittsrang, Siege, Kränze, Schweizer Schwinger, ESV",
+});
+
 // Types
 interface YearOption {
   year: string | number;

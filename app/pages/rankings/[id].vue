@@ -1,6 +1,31 @@
 <script setup lang="ts">
 import { validateRouteParam, escapeFilterValue } from "~/utils/filterUtils";
 
+// Set SEO metadata for individual ranking pages
+const setRankingSEO = () => {
+  if (placeData.value) {
+    const placeName = placeData.value.name;
+    const placeLocation = placeData.value.location;
+    const placeYear = placeData.value.year;
+    const placeType = placeData.value.expand?.placeType?.type || "";
+
+    useSeo({
+      title: `${placeName} ${placeYear} - Rangliste - Tellbow`,
+      description: `Rangliste und Ergebnisse des ${placeType} ${placeName} ${placeYear} in ${placeLocation}. Alle Schwinger, Punkte und Kränze.`,
+      keywords: `${placeName}, ${placeLocation}, ${placeYear}, ${placeType}, Rangliste, Schwingen, Schweizer Schwinger, ESV`,
+      type: "article",
+    });
+  } else {
+    // Fallback SEO while loading
+    useSeo({
+      title: "Rangliste - Tellbow",
+      description: "Rangliste und Ergebnisse von Schweizer Schwingern.",
+      keywords: "Rangliste, Schwingen, Schweizer Schwinger, ESV",
+      type: "article",
+    });
+  }
+};
+
 // Types
 interface PlaceData {
   id: string;
@@ -105,6 +130,7 @@ const loadPlaceData = async (): Promise<void> => {
 
     data.year = data.year.split("-")[0];
     placeData.value = data;
+    setRankingSEO();
   } catch (error) {
     console.error("Error loading place data:", error);
     throw createError({

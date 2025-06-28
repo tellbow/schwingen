@@ -2,6 +2,15 @@
 import { FilterMatchMode } from "primevue/api";
 import { escapeFilterValue } from "~/utils/filterUtils";
 
+// Set SEO metadata for the wrestler list page
+useSeo({
+  title: "Schwinger - Tellbow",
+  description:
+    "Durchsuchen Sie alle aktiven Schweizer Schwinger aus der ESV-Datenbank. Finden Sie Schwinger nach Name, Verein, Status und mehr.",
+  keywords:
+    "Schwinger, Schweizer Schwinger, ESV, Eidgenoss, Kranzer, Schwingen, Datenbank",
+});
+
 // Types
 interface Wrestler {
   id: string;

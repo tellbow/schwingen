@@ -1,5 +1,12 @@
 <script setup lang="ts">
+// Set SEO metadata for canton detail pages
 import { FilterMatchMode } from "primevue/api";
+
+useSeo({
+  title: `Kanton oder Gauverband - Schwinger - Tellbow`,
+  description: `Alle Schwinger aus dem jeweiligen Kanton oder Gauverband. Durchsuchen Sie aktive Schwinger nach Name, Status und Jahrgang.`,
+  keywords: `Kanton, Gauverband, Schwinger, Schweizer Schwinger, ESV, Schwingen`,
+});
 
 const pocketbase = usePocketbase();
 const route = useRoute();

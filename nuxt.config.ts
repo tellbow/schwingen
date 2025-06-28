@@ -13,6 +13,13 @@ export default defineNuxtConfig({
             content: "3yA7b1xo5M3eQ_QOpOHA5sZeUe6hHItJK2M27aAdq_k",
           },
         ],
+        link: [
+          {
+            rel: "apple-touch-icon",
+            href: "/images/logos/tellbow_192x192.png",
+            sizes: "192x192",
+          },
+        ],
         script: [
           {
             src: "https://stats.mcathome.ch/script.js",

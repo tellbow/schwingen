@@ -1,3 +1,14 @@
+<script setup lang="ts">
+// Set SEO metadata for the home page
+useSeo({
+  title: "Tellbow - Alles rund ums Schwingen",
+  description:
+    "Entdecken Sie umfassende Statistiken, Ranglisten und Profile von Schweizer Schwingern. Verbände, Schwingfeste und detaillierte Analysen aus der ESV-Datenbank.",
+  keywords:
+    "Schwingen, Schweizer Schwinger, ESV, Eidgenössischer Schwingerverband, Schwingfeste, Ranglisten, Statistiken, Verbände",
+});
+</script>
+
 <template>
   <div
     class="justify-center flex md:align-items-center align-items-stretch flex-wrap"

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+// Set SEO metadata for the associations page
 // import { ChartConfiguration } from "chart.js";
 import { Chart } from "chart.js";
 import type { Feature } from "geojson";
@@ -12,6 +13,14 @@ import {
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import type { GeometryCollection, Topology } from "topojson-specification";
 import maps from "~/public/topo/swiss-maps-modified.json";
+
+useSeo({
+  title: "Verbände - Tellbow",
+  description:
+    "Übersicht über alle Teilverbände, Kantone und Vereine im Schweizer Schwingen. Interaktive Karte und detaillierte Statistiken.",
+  keywords:
+    "Schwingen Verbände, Teilverbände, Kantone, Vereine, ESV, Schweizer Schwingen, BKSV, ISV, NOSV, NWSV, SWSV",
+});
 
 // Types
 interface AssociationData {

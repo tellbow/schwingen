@@ -1,5 +1,12 @@
 <script setup lang="ts">
+// Set SEO metadata for association detail pages
 import { FilterMatchMode } from "primevue/api";
+
+useSeo({
+  title: `Schwingerverband - Tellbow`,
+  description: `Alle Schwinger des jeweiligen Verbands. Durchsuchen Sie aktive Schwinger nach Name, Status und Jahrgang.`,
+  keywords: `Schwingerverband, Schwinger, Schweizer Schwinger, ESV, Schwingen`,
+});
 
 const pocketbase = usePocketbase();
 const route = useRoute();

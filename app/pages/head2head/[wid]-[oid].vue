@@ -2,6 +2,33 @@
 import Chart from "primevue/chart";
 import { validateRouteParam } from "~/utils/filterUtils";
 
+// Set SEO metadata for individual head2head pages
+const setHead2HeadSEO = () => {
+  if (statisticsData.value.length >= 2) {
+    const wrestler1 = statisticsData.value[0];
+    const wrestler2 = statisticsData.value[1];
+    const wrestler1Name = `${wrestler1.vorname} ${wrestler1.name}`;
+    const wrestler2Name = `${wrestler2.vorname} ${wrestler2.name}`;
+
+    useSeo({
+      title: `${wrestler1Name} vs ${wrestler2Name} - Head-to-Head - Tellbow`,
+      description: `Vergleich zwischen ${wrestler1Name} und ${wrestler2Name}. Head-to-Head Statistiken, Durchschnittsrang, Punkte und Kränze im direkten Vergleich.`,
+      keywords: `${wrestler1Name}, ${wrestler2Name}, Head-to-Head, Schwinger Vergleich, Schwingen, Schweizer Schwinger, ESV`,
+      type: "article",
+    });
+  } else {
+    // Fallback SEO while loading
+    useSeo({
+      title: "Head-to-Head Vergleich - Tellbow",
+      description:
+        "Direkter Vergleich zwischen zwei Schweizer Schwingern. Statistiken und Analysen.",
+      keywords:
+        "Head-to-Head, Schwinger Vergleich, Schwingen, Schweizer Schwinger, ESV",
+      type: "article",
+    });
+  }
+};
+
 // Types
 interface Wrestler {
   id: string;
@@ -243,6 +270,8 @@ const loadStatisticsData = async (): Promise<void> => {
         },
       ],
     };
+
+    setHead2HeadSEO();
   } catch (error) {
     console.error("Error loading statistics data:", error);
     loadingStatistics.value = false;

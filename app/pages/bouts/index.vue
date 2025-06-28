@@ -1,6 +1,13 @@
 <script setup lang="ts">
+// Set SEO metadata for the bouts page
 import { FilterMatchMode } from "primevue/api";
 import { escapeFilterValue } from "~/utils/filterUtils";
+
+useSeo({
+  title: `Paarungen - Tellbow`,
+  description: `Alle Paarungen und Ergebnisse von Schweizer Schwingern aus den Jahren 2015-2025. Detaillierte Resultate, Punkte und Gang.`,
+  keywords: `Kanton, Gauverband, Schwinger, Schweizer Schwinger, ESV, Schwingen`,
+});
 
 // Types
 interface BoutData {

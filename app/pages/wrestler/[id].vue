@@ -2,6 +2,34 @@
 import Chart from "primevue/chart";
 import { validateRouteParam } from "~/utils/filterUtils";
 
+// Set SEO metadata for individual wrestler pages
+const setWrestlerSEO = () => {
+  if (wrestlerData.value) {
+    const fullName = `${wrestlerData.value.vorname} ${wrestlerData.value.name}`;
+    const clubName = wrestlerData.value.expand?.club?.name || "";
+    const cantonName =
+      wrestlerData.value.expand?.club?.expand?.canton?.name || "";
+    const associationName =
+      wrestlerData.value.expand?.club?.expand?.canton?.expand?.association
+        ?.name || "";
+
+    useSeo({
+      title: `${fullName} - Tellbow`,
+      description: `Profil und Statistiken von ${fullName}${clubName ? ` (${clubName})` : ""}. Ranglisten, ELO-Rating, Kränze und detaillierte Analysen aus der ESV-Datenbank.`,
+      keywords: `${fullName}, Schwinger, ESV, Schwingen, Statistiken, ${clubName}, ${cantonName}, ${associationName}`,
+      type: "profile",
+    });
+  } else {
+    // Fallback SEO while loading
+    useSeo({
+      title: "Schwinger - Tellbow",
+      description: "Schwinger Profil und Statistiken aus der ESV-Datenbank.",
+      keywords: "Schwinger, ESV, Schwingen, Statistiken",
+      type: "profile",
+    });
+  }
+};
+
 // Types
 interface WrestlerData {
   id: string;
@@ -219,6 +247,7 @@ const loadWrestlerData = async (): Promise<void> => {
 
     data.year = data.year ? data.year.split("-")[0] : "-";
     wrestlerData.value = data;
+    setWrestlerSEO();
   } catch (error) {
     console.error("Error loading wrestler data:", error);
     throw error;

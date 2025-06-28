@@ -1,6 +1,15 @@
 <script setup lang="ts">
+// Set SEO metadata for the places page
 import { FilterMatchMode } from "primevue/api";
 import { escapeFilterValue } from "~/utils/filterUtils";
+
+useSeo({
+  title: "Schwingfeste - Tellbow",
+  description:
+    "Alle Schwingfeste der Aktiven aus den Jahren 2015-2025. Eidgenössische, Teilverbands-, Kantonale und regionale Schwingfeste.",
+  keywords:
+    "Schwingfeste, Eidgenössisches Schwingfest, Teilverbandsschwingfest, Kantonales Schwingfest, Bergschwingfest, Schweizer Schwingen",
+});
 
 // Types
 interface PlaceData {

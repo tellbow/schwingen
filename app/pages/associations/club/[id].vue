@@ -1,5 +1,12 @@
 <script setup lang="ts">
+// Set SEO metadata for club detail pages
 import { FilterMatchMode } from "primevue/api";
+
+useSeo({
+  title: `Schwingclub - Tellbow`,
+  description: `Alle Schwinger des jeweiligen Clubs. Durchsuchen Sie aktive Schwinger nach Name, Jahrgang und Kategorie.`,
+  keywords: `Schwingclub, Schwinger, Schweizer Schwinger, ESV, Schwingen`,
+});
 
 const pocketbase = usePocketbase();
 const route = useRoute();

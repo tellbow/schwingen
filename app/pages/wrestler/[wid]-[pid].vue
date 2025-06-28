@@ -1,6 +1,28 @@
 <script setup lang="ts">
 import { validateRouteParam } from "~/utils/filterUtils";
 
+// Set SEO metadata for individual wrestler pages
+const setWrestlerSEO = () => {
+  if (opponentsData.value) {
+    const fullName = `${opponentsData.value[0].expand.wrestler.name} ${opponentsData.value[0].expand.wrestler.vorname}`;
+
+    useSeo({
+      title: `${fullName}, ${opponentsData.value[0].expand.place.name} - Tellbow`,
+      description: `Paarungen von ${fullName}, ${opponentsData.value[0].expand.place.name}. Ranglisten, ELO-Rating, Kränze und detaillierte Analysen aus der ESV-Datenbank.`,
+      keywords: `${fullName}, ${opponentsData.value[0].expand.place.name}, Schwinger, ESV, Schwingen, Statistiken`,
+      type: "profile",
+    });
+  } else {
+    // Fallback SEO while loading
+    useSeo({
+      title: "Schwinger - Tellbow",
+      description: "Schwinger Paarungen vom Schwingfest aus der ESV-Datenbank.",
+      keywords: "Schwinger, ESV, Schwingen, Statistiken",
+      type: "profile",
+    });
+  }
+};
+
 // Types
 interface OpponentData {
   id: string;
@@ -68,6 +90,7 @@ const loadBoutsData = async (): Promise<void> => {
     });
 
     opponentsData.value = data;
+    setWrestlerSEO();
   } catch (error) {
     console.error("Error loading bouts data:", error);
     opponentsData.value = [];

@@ -1,4 +1,13 @@
 <script setup lang="ts">
+// Set SEO metadata for the head2head page
+useSeo({
+  title: "1 vs. 1 Vergleich - Tellbow",
+  description:
+    "Vergleichen Sie zwei Schweizer Schwinger direkt miteinander. Head-to-Head Statistiken und Duelle zwischen Schwingern aus der ESV-Datenbank.",
+  keywords:
+    "Schwinger Vergleich, Head-to-Head, 1 vs 1, Schwingen Duelle, Schweizer Schwinger, ESV",
+});
+
 // Types
 interface WrestlerData {
   id: string;
