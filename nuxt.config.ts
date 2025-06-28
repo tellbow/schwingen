@@ -70,6 +70,14 @@ export default defineNuxtConfig({
       contentSecurityPolicy: false,
       crossOriginEmbedderPolicy:
         process.env.NODE_ENV === "development" ? "unsafe-none" : "require-corp",
+      // Enable HSTS for production environments only
+      ...(process.env.NODE_ENV !== "development" && {
+        strictTransportSecurity: {
+          maxAge: 31536000, // 1 year
+          includeSubdomains: true,
+          preload: true,
+        },
+      }),
     },
   },
 
