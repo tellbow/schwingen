@@ -23,7 +23,7 @@ export const useSeo = (options: SeoOptions = {}) => {
       "Umfassende Statistiken, Ranglisten und Profile von Schweizer Schwingern aus der ESV-Datenbank.",
     keywords:
       "Schwingen, Schweizer Schwinger, ESV, Eidgenössischer Schwingerverband, Schwingfeste, Ranglisten, Statistiken",
-    image: `${config.public.baseUrl}/images/logos/tellbow_512x512.png`,
+    image: `${config.public.baseUrl}/images/logos/tellbow_512x512.webp`,
     type: "website" as const,
     url: `${config.public.baseUrl}${route.path}`,
   };

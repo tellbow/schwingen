@@ -16,7 +16,7 @@ export default defineNuxtConfig({
         link: [
           {
             rel: "apple-touch-icon",
-            href: "/images/logos/tellbow_192x192.png",
+            href: "/images/logos/tellbow_192x192.webp",
             sizes: "192x192",
           },
         ],
@@ -179,19 +179,19 @@ export default defineNuxtConfig({
       categories: ["sports", "entertainment"],
       icons: [
         {
-          src: "images/logos/tellbow_192x192.png",
+          src: "images/logos/tellbow_192x192.webp",
           sizes: "192x192",
-          type: "image/png",
+          type: "image/webp",
         },
         {
-          src: "images/logos/tellbow_512x512.png",
+          src: "images/logos/tellbow_512x512.webp",
           sizes: "512x512",
-          type: "image/png",
+          type: "image/webp",
         },
         {
-          src: "images/logos/tellbow_512x512.png",
+          src: "images/logos/tellbow_512x512.webp",
           sizes: "512x512",
-          type: "image/png",
+          type: "image/webp",
           purpose: "any maskable",
         },
       ],

@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col items-center">
     <img
-      src="/images/logos/tellbow_circle.png"
+      src="/images/logos/tellbow_circle.webp"
       class="mt-5 w-2"
       alt="Tellbow"
     />

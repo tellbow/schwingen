@@ -14,8 +14,8 @@ useHead({
   link: [
     {
       rel: "icon",
-      type: "image/png",
-      href: "/favicon.png",
+      type: "image/x-icon",
+      href: "/favicon.ico",
     },
   ],
 });
@@ -25,11 +25,11 @@ useSeoMeta({
   ogTitle: "Tellbow",
   description: "Alles rund ums Schwingen!",
   ogDescription: "Alles rund ums Schwingen!",
-  ogImage: "https://schwingen.tellbow.ch/images/logos/tellbow_circle.png",
+  ogImage: "https://schwingen.tellbow.ch/images/logos/tellbow_circle.webp",
   ogUrl: "https://schwingen.tellbow.ch/wrestler/5h1fij68r6jh8ut",
   twitterTitle: "Tellbow",
   twitterDescription: "Alles rund ums Schwingen.",
-  twitterImage: "https://schwingen.tellbow.ch/images/logos/tellbow_circle.png",
+  twitterImage: "https://schwingen.tellbow.ch/images/logos/tellbow_circle.webp",
   twitterCard: "summary",
 });
 </script>
