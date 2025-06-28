@@ -55,7 +55,7 @@ function toggleNavigation() {
       <div class="inline-flex bg-yellow-900">
         <img
           class="ml-1 mt-1 border-solid border-2 border-yellow-800 rounded-full"
-          src="/images/logos/tellbow-192x192.png"
+          src="/images/logos/tellbow_192x192.png"
           style="width: 48px; height: 48px"
           alt="Tellbow"
           @click="home"

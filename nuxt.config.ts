@@ -85,8 +85,10 @@ export default defineNuxtConfig({
   site: {
     url: "https://schwingen.tellbow.ch/",
     name: "Tellbow",
-    description: "Alles rund ums Schwingen!",
+    description:
+      "Alles rund ums Schwingen! Umfassende Statistiken, Ranglisten und Profile von Schweizer Schwingern aus der ESV-Datenbank.",
     defaultLocale: "de",
+    indexable: true,
   },
 
   runtimeConfig: {
@@ -156,22 +158,31 @@ export default defineNuxtConfig({
     filename: sw ? "sw.ts" : undefined,
     registerType: "autoUpdate",
     manifest: {
-      name: "Tellbow",
+      name: "Tellbow - Alles rund ums Schwingen",
       short_name: "Tellbow",
+      description:
+        "Umfassende Statistiken, Ranglisten und Profile von Schweizer Schwingern",
       theme_color: "#ffffff",
+      background_color: "#ffffff",
+      display: "standalone",
+      orientation: "portrait-primary",
+      scope: "/",
+      start_url: "/",
+      lang: "de",
+      categories: ["sports", "entertainment"],
       icons: [
         {
-          src: "images/logos/tellbow-192x192.png",
+          src: "images/logos/tellbow_192x192.png",
           sizes: "192x192",
           type: "image/png",
         },
         {
-          src: "images/logos/tellbow-512x512.png",
+          src: "images/logos/tellbow_512x512.png",
           sizes: "512x512",
           type: "image/png",
         },
         {
-          src: "images/logos/tellbow-512x512.png",
+          src: "images/logos/tellbow_512x512.png",
           sizes: "512x512",
           type: "image/png",
           purpose: "any maskable",
