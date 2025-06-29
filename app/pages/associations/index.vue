@@ -65,6 +65,9 @@ interface AssociationData {
   abbreviation: string;
   wrestlerAmount: number;
   wrestlerActive: number;
+  wrestler1Star: number;
+  wrestler2Star: number;
+  wrestler3Star: number;
 }
 
 interface CantonData {
@@ -73,6 +76,9 @@ interface CantonData {
   association: string;
   wrestlerAmount: number;
   wrestlerActive: number;
+  wrestler1Star: number;
+  wrestler2Star: number;
+  wrestler3Star: number;
 }
 
 interface ClubData {
@@ -81,10 +87,17 @@ interface ClubData {
   canton: string;
   wrestlerAmount: number;
   wrestlerActive: number;
+  wrestler1Star: number;
+  wrestler2Star: number;
+  wrestler3Star: number;
 }
 
 interface MergedData extends Feature {
   wrestlerActive?: number;
+  wrestlerAmount?: number;
+  wrestler1Star?: number;
+  wrestler2Star?: number;
+  wrestler3Star?: number;
   id?: string;
   association?: string;
 }
@@ -127,10 +140,11 @@ const loadAssociationData = async (): Promise<void> => {
       .collection("wrestlersByAssociation")
       .getFullList(10, {
         sort: "name",
-        fields: "id,name,abbreviation,wrestlerAmount,wrestlerActive",
+        fields:
+          "id,name,abbreviation,wrestlerAmount,wrestlerActive,wrestler1Star,wrestler2Star,wrestler3Star",
       });
 
-    associationData.value = data;
+    associationData.value = data as unknown as AssociationData[];
   } catch (error) {
     console.error("Error loading association data:", error);
     associationData.value = [];
@@ -143,10 +157,11 @@ const loadCantonData = async (): Promise<void> => {
       .collection("wrestlersByCanton")
       .getFullList(50, {
         sort: "name",
-        fields: "id,name,association,wrestlerAmount,wrestlerActive",
+        fields:
+          "id,name,association,wrestlerAmount,wrestlerActive,wrestler1Star,wrestler2Star,wrestler3Star",
       });
 
-    fullCantonData.value = data;
+    fullCantonData.value = data as unknown as CantonData[];
   } catch (error) {
     console.error("Error loading canton data:", error);
     fullCantonData.value = [];
@@ -163,7 +178,11 @@ const mergeAssociationData = (
   for (const item of cantons) {
     if (item.properties) {
       const name = item.properties.name;
-      mergedData[name] = { ...mergedData[name], ...item };
+      mergedData[name] = {
+        ...mergedData[name],
+        ...item,
+        id: item.id?.toString(),
+      };
     }
   }
 
@@ -187,6 +206,9 @@ const mergeAssociationData = (
         isv.forEach((canton) => {
           if (mergedData[canton]) {
             mergedData[canton].wrestlerActive = item.wrestlerActive;
+            mergedData[canton].wrestler1Star = item.wrestler1Star;
+            mergedData[canton].wrestler2Star = item.wrestler2Star;
+            mergedData[canton].wrestler3Star = item.wrestler3Star;
             mergedData[canton].id = item.id;
           }
         });
@@ -206,6 +228,9 @@ const mergeAssociationData = (
         nosv.forEach((canton) => {
           if (mergedData[canton]) {
             mergedData[canton].wrestlerActive = item.wrestlerActive;
+            mergedData[canton].wrestler1Star = item.wrestler1Star;
+            mergedData[canton].wrestler2Star = item.wrestler2Star;
+            mergedData[canton].wrestler3Star = item.wrestler3Star;
             mergedData[canton].id = item.id;
           }
         });
@@ -216,6 +241,9 @@ const mergeAssociationData = (
         nwsv.forEach((canton) => {
           if (mergedData[canton]) {
             mergedData[canton].wrestlerActive = item.wrestlerActive;
+            mergedData[canton].wrestler1Star = item.wrestler1Star;
+            mergedData[canton].wrestler2Star = item.wrestler2Star;
+            mergedData[canton].wrestler3Star = item.wrestler3Star;
             mergedData[canton].id = item.id;
           }
         });
@@ -233,6 +261,9 @@ const mergeAssociationData = (
         swsv.forEach((canton) => {
           if (mergedData[canton]) {
             mergedData[canton].wrestlerActive = item.wrestlerActive;
+            mergedData[canton].wrestler1Star = item.wrestler1Star;
+            mergedData[canton].wrestler2Star = item.wrestler2Star;
+            mergedData[canton].wrestler3Star = item.wrestler3Star;
             mergedData[canton].id = item.id;
           }
         });
@@ -254,7 +285,11 @@ const mergeCantonData = (
   for (const item of cantons) {
     if (item.properties) {
       const name = item.properties.name;
-      mergedData[name] = { ...mergedData[name], ...item };
+      mergedData[name] = {
+        ...mergedData[name],
+        ...item,
+        id: item.id?.toString(),
+      };
     }
   }
 
@@ -268,18 +303,38 @@ const mergeCantonData = (
       case "Oberaargau":
       case "Oberland":
       case "Seeland":
-        if (mergedData.Bern?.wrestlerActive) {
+        if (mergedData.Bern?.wrestlerActive !== undefined) {
           mergedData.Bern.wrestlerActive += item.wrestlerActive;
+          mergedData.Bern.wrestler1Star =
+            (mergedData.Bern.wrestler1Star || 0) + item.wrestler1Star;
+          mergedData.Bern.wrestler2Star =
+            (mergedData.Bern.wrestler2Star || 0) + item.wrestler2Star;
+          mergedData.Bern.wrestler3Star =
+            (mergedData.Bern.wrestler3Star || 0) + item.wrestler3Star;
         } else if (mergedData.Bern) {
           mergedData.Bern = { ...mergedData.Bern, ...item };
         }
         break;
       case "Ob- und Nidwalden":
         if (mergedData.Obwalden) {
-          mergedData.Obwalden = { ...mergedData.Obwalden, ...item };
+          mergedData.Obwalden.wrestlerActive =
+            (mergedData.Obwalden.wrestlerActive || 0) + item.wrestlerActive;
+          mergedData.Obwalden.wrestler1Star =
+            (mergedData.Obwalden.wrestler1Star || 0) + item.wrestler1Star;
+          mergedData.Obwalden.wrestler2Star =
+            (mergedData.Obwalden.wrestler2Star || 0) + item.wrestler2Star;
+          mergedData.Obwalden.wrestler3Star =
+            (mergedData.Obwalden.wrestler3Star || 0) + item.wrestler3Star;
         }
         if (mergedData.Nidwalden) {
-          mergedData.Nidwalden = { ...mergedData.Nidwalden, ...item };
+          mergedData.Nidwalden.wrestlerActive =
+            (mergedData.Nidwalden.wrestlerActive || 0) + item.wrestlerActive;
+          mergedData.Nidwalden.wrestler1Star =
+            (mergedData.Nidwalden.wrestler1Star || 0) + item.wrestler1Star;
+          mergedData.Nidwalden.wrestler2Star =
+            (mergedData.Nidwalden.wrestler2Star || 0) + item.wrestler2Star;
+          mergedData.Nidwalden.wrestler3Star =
+            (mergedData.Nidwalden.wrestler3Star || 0) + item.wrestler3Star;
         }
         break;
       case "Appenzell":
@@ -514,10 +569,11 @@ const onSubTabOpen = async (event: TabEvent): Promise<void> => {
       .getFullList(200, {
         sort: "name",
         filter: `canton.id = "${currentCanton.value.id}"`,
-        fields: "id,name,canton,wrestlerAmount,wrestlerActive",
+        fields:
+          "id,name,canton,wrestlerAmount,wrestlerActive,wrestler1Star,wrestler2Star,wrestler3Star",
       });
 
-    clubData.value = data;
+    clubData.value = data as unknown as ClubData[];
   } catch (error) {
     console.error("Error loading club data:", error);
     clubData.value = [];
@@ -552,7 +608,7 @@ onMounted(async () => {
         <p
           class="text-xl font-bold mt-1 md:mt-2 mb-1 md:mb-2 text-center text-stone-800"
         >
-          Anzahl Schwinger pro {{ currentSelection }}
+          Anzahl Schwinger nach Status pro {{ currentSelection }}
         </p>
         <canvas id="canvasData" ref="canvasData" />
       </div>
@@ -574,9 +630,16 @@ onMounted(async () => {
           :header="
             association.abbreviation +
             ' (' +
+            association.wrestler1Star +
+            '*' +
+            ' / ' +
+            association.wrestler2Star +
+            '**' +
+            ' / ' +
+            association.wrestler3Star +
+            '***' +
+            ' / ' +
             association.wrestlerActive +
-            '/' +
-            association.wrestlerAmount +
             ' aktive Schwinger)'
           "
         >
@@ -587,9 +650,16 @@ onMounted(async () => {
               :header="
                 canton.name +
                 ' (' +
+                canton.wrestler1Star +
+                '*' +
+                ' / ' +
+                canton.wrestler2Star +
+                '**' +
+                ' / ' +
+                canton.wrestler3Star +
+                '***' +
+                ' / ' +
                 canton.wrestlerActive +
-                '/' +
-                canton.wrestlerAmount +
                 ' aktive Schwinger)'
               "
             >
@@ -598,10 +668,9 @@ onMounted(async () => {
                   <NuxtLink
                     :to="'/associations/club/' + value.id"
                     class="cursor-pointer hover:bg-gray-200"
-                    >{{ value.name }} ({{ value.wrestlerActive }}/{{
-                      value.wrestlerAmount
-                    }}
-                    aktive Schwinger)</NuxtLink
+                    >{{ value.name }} ({{ value.wrestler1Star }}* /
+                    {{ value.wrestler2Star }}** / {{ value.wrestler3Star }}*** /
+                    {{ value.wrestlerActive }} aktive Schwinger)</NuxtLink
                   >
                 </li>
               </ul>
