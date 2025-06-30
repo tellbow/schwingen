@@ -16,7 +16,10 @@ func main() {
     	se.Router.GET(
         	"/{path...}",
         	apis.Static(os.DirFS(".output/public"), true),
-    	)
+    	).BindFunc(func(e *core.RequestEvent) error {
+			apis.Gzip()
+			return e.Next()
+		})
     	return se.Next()
 	})
 
