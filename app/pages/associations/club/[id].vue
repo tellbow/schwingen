@@ -134,12 +134,11 @@ async function rowClick(event: any) {
     >
       <DataTable
         v-model:filters="filters"
-        class="cursor-pointer"
+        class="cursor-pointer table-style-responsive"
         :value="records"
         resizable-columns
         column-resize-mode="fit"
         show-gridlines
-        table-style="md:min-width: 50rem"
         :page-link-size="numberOfPages"
         lazy
         paginator
@@ -159,7 +158,7 @@ async function rowClick(event: any) {
         <Column
           field="name"
           header="Name"
-          style="padding: 0.5rem"
+          class="table-column-padding-only"
           :sortable="sort"
           :filter-match-mode-options="matchModeOptionContains"
         >
@@ -179,7 +178,7 @@ async function rowClick(event: any) {
         <Column
           field="vorname"
           header="Vorname"
-          style="padding: 0.5rem"
+          class="table-column-padding-only"
           :sortable="sort"
           :filter-match-mode-options="matchModeOptionContains"
         >
@@ -200,7 +199,7 @@ async function rowClick(event: any) {
           v-if="layout === 'default'"
           field="status"
           header="Status"
-          style="padding: 0.5rem"
+          class="table-column-padding-only"
           :sortable="sort"
           :show-filter-menu="false"
           :show-clear-button="false"
@@ -225,7 +224,7 @@ async function rowClick(event: any) {
         <Column
           field="year"
           header="Jahrgang"
-          style="padding: 0.5rem"
+          class="table-column-padding-only"
           :sortable="sort"
           :filter-match-mode-options="matchModeOptionContains"
         >

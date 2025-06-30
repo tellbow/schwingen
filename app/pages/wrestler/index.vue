@@ -252,7 +252,7 @@ onMounted(async () => {
         <Column
           field="name"
           header="Name"
-          style="padding: 0.5rem"
+          class="table-column-padding-only"
           :sortable="sort"
           :filter-match-mode-options="matchModeOptionContains"
           :show-filter-menu="false"
@@ -275,7 +275,7 @@ onMounted(async () => {
         <Column
           field="vorname"
           header="Vorname"
-          style="padding: 0.5rem"
+          class="table-column-padding-only"
           :sortable="sort"
           :filter-match-mode-options="matchModeOptionContains"
           :show-filter-menu="false"
@@ -298,7 +298,7 @@ onMounted(async () => {
         <Column
           field="status"
           header="Status"
-          style="padding: 0.5rem"
+          class="table-column-padding-only"
           :sortable="sort"
           :show-filter-menu="false"
           :show-clear-button="false"
@@ -327,7 +327,7 @@ onMounted(async () => {
         <Column
           field="year"
           header="Jahrgang"
-          style="padding: 0.5rem"
+          class="table-column-padding-only"
           :sortable="sort"
           :filter-match-mode-options="matchModeOptionContains"
           :show-filter-menu="false"
@@ -350,7 +350,7 @@ onMounted(async () => {
         <Column
           field="club"
           header="Schwingklub"
-          style="padding: 0.5rem"
+          class="table-column-padding-only"
           :sortable="sort"
           :filter-match-mode-options="matchModeOptionContains"
           :show-filter-menu="false"
@@ -409,7 +409,7 @@ onMounted(async () => {
         <Column
           field="name"
           header="Name"
-          style="padding: 0.5rem"
+          class="table-column-padding-only"
           :sortable="sort"
           :filter-match-mode-options="matchModeOptionContains"
           :show-filter-menu="false"
@@ -440,7 +440,7 @@ onMounted(async () => {
         <Column
           field="club"
           header="Schwingklub"
-          style="padding: 0.5rem"
+          class="table-column-padding-only"
           :sortable="sort"
           :filter-match-mode-options="matchModeOptionContains"
           :show-filter-menu="false"

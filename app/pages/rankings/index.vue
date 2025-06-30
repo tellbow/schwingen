@@ -340,12 +340,11 @@ onMounted(async () => {
       <DataTable
         v-model:filters="filters"
         v-model:expanded-rows="expandedRows"
-        class="w-11 cursor-pointer"
+        class="w-11 cursor-pointer table-style-default"
         :value="records"
         resizable-columns
         column-resize-mode="fit"
         show-gridlines
-        table-style="min-width: 50rem"
         :page-link-size="numberOfPages"
         lazy
         paginator
@@ -363,11 +362,11 @@ onMounted(async () => {
       >
         <template #empty> Keine Ranglisten gefunden. </template>
         <template #loading> Ranglisten werden geladen. Bitte warten. </template>
-        <Column expander style="width: 4rem" />
+        <Column expander class="table-column-expander" />
         <Column
           field="rank"
           header="Rang"
-          style="min-width: 6rem; padding: 0.5rem"
+          class="table-column-small"
           :filter-match-mode-options="matchModeOptionEquals"
           :show-filter-menu="false"
           :pt="{
@@ -390,7 +389,7 @@ onMounted(async () => {
         <Column
           field="points"
           header="Punkte"
-          style="min-width: 6rem; padding: 0.5rem"
+          class="table-column-small"
           :filter-match-mode-options="matchModeOptionEquals"
           :show-filter-menu="false"
           :pt="{
@@ -414,7 +413,7 @@ onMounted(async () => {
           v-if="layout === 'default'"
           field="final"
           header="Schlussgang"
-          style="min-width: 6rem; padding: 0.5rem"
+          class="table-column-small"
           :filter-match-mode-options="matchModeOptionEquals"
           :show-filter-menu="false"
           :show-clear-button="false"
@@ -436,7 +435,7 @@ onMounted(async () => {
         <Column
           field="result"
           header="Resultat"
-          style="min-width: 6rem; padding: 0.5rem"
+          class="table-column-small"
           :filter-match-mode-options="matchModeOptionContains"
           :show-filter-menu="false"
           :pt="{
@@ -460,7 +459,7 @@ onMounted(async () => {
           v-if="layout === 'default'"
           field="wreath"
           header="Kranz"
-          style="min-width: 6rem; padding: 0.5rem"
+          class="table-column-small"
           :filter-match-mode-options="matchModeOptionEquals"
           :show-filter-menu="false"
           :show-clear-button="false"
@@ -483,7 +482,7 @@ onMounted(async () => {
           v-if="layout === 'default'"
           field="status"
           header="Status"
-          style="min-width: 6rem; padding: 0.5rem"
+          class="table-column-small"
           :filter-match-mode-options="matchModeOptionEquals"
           :show-filter-menu="false"
           :pt="{
@@ -507,7 +506,7 @@ onMounted(async () => {
           field="wrestler_name"
           header="Name"
           filter-field="expand.wrestler.name"
-          style="min-width: 12rem; padding: 0.5rem"
+          class="table-column-large"
           sortable
           :filter-match-mode-options="matchModeOptionContains"
           :show-filter-menu="false"
@@ -532,7 +531,7 @@ onMounted(async () => {
           field="wrestler_vorname"
           header="Vorname"
           filter-field="expand.wrestler.vorname"
-          style="min-width: 12rem; padding: 0.5rem"
+          class="table-column-large"
           sortable
           :filter-match-mode-options="matchModeOptionContains"
           :show-filter-menu="false"
@@ -557,7 +556,7 @@ onMounted(async () => {
           field="place_name"
           header="Schwingfest"
           filter-field="expand.place.name"
-          style="min-width: 12rem; padding: 0.5rem"
+          class="table-column-large"
           sortable
           :filter-match-mode-options="matchModeOptionContains"
           :show-filter-menu="false"
@@ -582,7 +581,7 @@ onMounted(async () => {
           field="place_year"
           header="Jahr"
           filter-field="expand.place.year"
-          style="min-width: 10rem; padding: 0.5rem"
+          class="table-column-small"
           sortable
           :show-filter-menu="false"
           :show-clear-button="false"

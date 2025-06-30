@@ -54,9 +54,8 @@ function toggleNavigation() {
     <div class="relative overflow-hidden bg-yellow-900 topnav">
       <div class="inline-flex bg-yellow-900">
         <img
-          class="ml-1 mt-1 border-solid border-2 border-yellow-800 rounded-full"
+          class="ml-1 mt-1 border-solid border-2 border-yellow-800 rounded-full logo-image"
           src="/images/logos/tellbow_192x192.webp"
-          style="width: 48px; height: 48px"
           alt="Tellbow"
           @click="home"
         />
@@ -117,5 +116,10 @@ function toggleNavigation() {
 .active {
   background-color: #04aa6d;
   color: white;
+}
+
+.logo-image {
+  width: 48px;
+  height: 48px;
 }
 </style>

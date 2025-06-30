@@ -6,3 +6,51 @@
 
 @import "primevue/resources/themes/aura-light-noir/theme.css" layer(theme);
 @import "primeflex/primeflex.css" layer(theme);
+
+/* Common table column styles to replace inline styles */
+.table-column-expander {
+  width: 4rem;
+}
+
+.table-column-small {
+  min-width: 6rem;
+  padding: 0.5rem;
+}
+
+.table-column-medium {
+  min-width: 10rem;
+  padding: 0.5rem;
+}
+
+.table-column-large {
+  min-width: 12rem;
+  padding: 0.5rem;
+}
+
+.table-column-extra-large {
+  min-width: 20rem;
+  padding: 0.5rem;
+}
+
+.table-column-padding-only {
+  padding: 0.5rem;
+}
+
+/* Table style classes that target the actual table element */
+.table-style-default .p-datatable-table {
+  min-width: 50rem;
+}
+
+.table-style-compact .p-datatable-table {
+  min-width: 20rem;
+}
+
+.table-style-responsive .p-datatable-table {
+  min-width: 100%;
+}
+
+@media (min-width: 768px) {
+  .table-style-responsive .p-datatable-table {
+    min-width: 50rem;
+  }
+}

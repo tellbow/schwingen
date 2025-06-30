@@ -315,7 +315,7 @@ onMounted(async () => {
             :value="rankingsData"
             column-resize-mode="fit"
             show-gridlines
-            table-style="min-width: 50rem"
+            class="table-style-default"
             size="small"
             data-key="id"
             :pt="{
@@ -329,11 +329,11 @@ onMounted(async () => {
             <template #loading>
               Ranglisten werden geladen. Bitte warten.
             </template>
-            <Column expander style="width: 4rem" />
+            <Column expander class="table-column-expander" />
             <Column
               field="rank"
               header="Rang"
-              style="min-width: 6rem; padding: 0.5rem"
+              class="table-column-small"
               :pt="{
                 filterInput: { class: 'w-fit' },
               }"
@@ -345,7 +345,7 @@ onMounted(async () => {
             <Column
               field="points"
               header="Punkte"
-              style="min-width: 6rem; padding: 0.5rem"
+              class="table-column-small"
               :pt="{
                 filterInput: { class: 'w-fit' },
               }"
@@ -357,7 +357,7 @@ onMounted(async () => {
             <Column
               field="result"
               header="Resultat"
-              style="min-width: 6rem; padding: 0.5rem"
+              class="table-column-small"
               :pt="{
                 filterInput: { class: 'w-fit' },
               }"
@@ -369,7 +369,7 @@ onMounted(async () => {
             <Column
               field="wrestler"
               header="Schwinger"
-              style="min-width: 6rem; padding: 0.5rem"
+              class="table-column-small"
               :pt="{
                 filterInput: { class: 'w-fit' },
               }"
@@ -382,7 +382,7 @@ onMounted(async () => {
             <Column
               field="status"
               header="Status"
-              style="min-width: 6rem; padding: 0.5rem"
+              class="table-column-small"
               :pt="{
                 filterInput: { class: 'w-fit' },
               }"
@@ -394,7 +394,7 @@ onMounted(async () => {
             <Column
               field="final"
               header="Schlussgang"
-              style="min-width: 6rem; padding: 0.5rem"
+              class="table-column-small"
               :pt="{
                 filterInput: { class: 'w-fit' },
               }"
@@ -410,7 +410,7 @@ onMounted(async () => {
             <Column
               field="wreath_accident"
               header="Kranz / Unfall"
-              style="min-width: 6rem; padding: 0.5rem"
+              class="table-column-small"
               :pt="{
                 filterInput: { class: 'w-fit' },
               }"
@@ -459,7 +459,7 @@ onMounted(async () => {
             v-model:expanded-rows="expandedRows"
             :value="rankingsData"
             show-gridlines
-            table-style="min-width: 20rem"
+            class="table-style-compact"
             size="small"
             data-key="id"
             :pt="{
@@ -473,11 +473,11 @@ onMounted(async () => {
             <template #loading>
               Ranglisten werden geladen. Bitte warten.
             </template>
-            <Column expander style="width: 4rem" />
+            <Column expander class="table-column-expander" />
             <Column
               field="rank"
               header="Rang"
-              style="min-width: 6rem; padding: 0.5rem"
+              class="table-column-small"
               :pt="{
                 filterInput: { class: 'w-fit' },
               }"
@@ -489,7 +489,7 @@ onMounted(async () => {
             <Column
               field="points"
               header="Punkte"
-              style="min-width: 6rem; padding: 0.5rem"
+              class="table-column-small"
               :pt="{
                 filterInput: { class: 'w-fit' },
               }"
@@ -501,7 +501,7 @@ onMounted(async () => {
             <Column
               field="result"
               header="Resultat"
-              style="min-width: 6rem; padding: 0.5rem"
+              class="table-column-small"
               :pt="{
                 filterInput: { class: 'w-fit' },
               }"
@@ -513,7 +513,7 @@ onMounted(async () => {
             <Column
               field="wrestler"
               header="Schwinger"
-              style="min-width: 6rem; padding: 0.5rem"
+              class="table-column-small"
               :pt="{
                 filterInput: { class: 'w-fit' },
               }"
@@ -533,7 +533,7 @@ onMounted(async () => {
             <Column
               field="final"
               header="Schlussgang"
-              style="min-width: 6rem; padding: 0.5rem"
+              class="table-column-small"
               :pt="{
                 filterInput: { class: 'w-fit' },
               }"
@@ -549,7 +549,7 @@ onMounted(async () => {
             <Column
               field="wreath_accident"
               header="Kranz / Unfall"
-              style="min-width: 6rem; padding: 0.5rem"
+              class="table-column-small"
               :pt="{
                 filterInput: { class: 'w-fit' },
               }"

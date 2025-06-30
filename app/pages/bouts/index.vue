@@ -214,12 +214,11 @@ onMounted(async () => {
     >
       <DataTable
         v-model:filters="filters"
-        class="w-11"
+        class="w-11 table-style-default"
         :value="records"
         resizable-columns
         column-resize-mode="fit"
         show-gridlines
-        table-style="min-width: 50rem"
         :page-link-size="numberOfPages"
         lazy
         paginator
@@ -238,7 +237,7 @@ onMounted(async () => {
         <Column
           field="result"
           header="Resultat"
-          style="min-width: 6rem; padding: 0.5rem"
+          class="table-column-small"
           sortable
           :show-filter-menu="false"
           :show-clear-button="false"
@@ -263,7 +262,7 @@ onMounted(async () => {
         <Column
           field="points"
           header="Punkte"
-          style="min-width: 6rem; padding: 0.5rem"
+          class="table-column-small"
           sortable
           :show-filter-menu="false"
           :show-clear-button="false"
@@ -288,7 +287,7 @@ onMounted(async () => {
         <Column
           field="fight_round"
           header="Gang"
-          style="min-width: 6rem; padding: 0.5rem"
+          class="table-column-small"
           sortable
           :show-filter-menu="false"
           :show-clear-button="false"
@@ -314,7 +313,7 @@ onMounted(async () => {
           field="wrestler-name"
           header="Schwinger - Name"
           filter-field="expand.wrestler.name"
-          style="min-width: 12rem; padding: 0.5rem"
+          class="table-column-large"
           sortable
           :filter-match-mode-options="matchModeOptionContains"
           :show-filter-menu="false"
@@ -339,7 +338,7 @@ onMounted(async () => {
           field="wrestler-vorname"
           header="Schwinger - Vorname"
           filter-field="expand.wrestler.vorname"
-          style="min-width: 12rem; padding: 0.5rem"
+          class="table-column-large"
           sortable
           :filter-match-mode-options="matchModeOptionContains"
           :show-filter-menu="false"
@@ -364,7 +363,7 @@ onMounted(async () => {
           field="opponent-name"
           header="Gegner - Name"
           filter-field="expand.opponent.name"
-          style="min-width: 12rem; padding: 0.5rem"
+          class="table-column-large"
           sortable
           :filter-match-mode-options="matchModeOptionContains"
           :show-filter-menu="false"
@@ -389,7 +388,7 @@ onMounted(async () => {
           field="opponent-vorname"
           header="Gegner - Vorname"
           filter-field="expand.opponent.vorname"
-          style="min-width: 12rem; padding: 0.5rem"
+          class="table-column-large"
           sortable
           :filter-match-mode-options="matchModeOptionContains"
           :show-filter-menu="false"
@@ -414,7 +413,7 @@ onMounted(async () => {
           field="place-name"
           header="Schwingfest"
           filter-field="expand.place.name"
-          style="min-width: 12rem; padding: 0.5rem"
+          class="table-column-large"
           sortable
           :filter-match-mode-options="matchModeOptionContains"
           :show-filter-menu="false"
@@ -439,7 +438,7 @@ onMounted(async () => {
           field="place-year"
           header="Jahr"
           filter-field="expand.place.year"
-          style="min-width: 10rem; padding: 0.5rem"
+          class="table-column-medium"
           sortable
           :show-filter-menu="false"
           :show-clear-button="false"

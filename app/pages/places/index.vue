@@ -226,12 +226,11 @@ onMounted(async () => {
       <DataTable
         v-if="layout === 'default'"
         v-model:filters="filters"
-        class="w-11 md:w-9 cursor-pointer"
+        class="w-11 md:w-9 cursor-pointer table-style-responsive"
         :value="records"
         resizable-columns
         column-resize-mode="fit"
         show-gridlines
-        table-style="md:min-width: 50rem"
         :page-link-size="numberOfPages"
         lazy
         paginator
@@ -253,7 +252,7 @@ onMounted(async () => {
         <Column
           field="number"
           header="Nummer"
-          style="padding: 0.5rem"
+          class="table-column-padding-only"
           :sortable="sort"
           :filter-match-mode-options="matchModeOptions"
           :show-filter-menu="false"
@@ -274,7 +273,7 @@ onMounted(async () => {
         <Column
           field="name"
           header="Name"
-          style="padding: 0.5rem"
+          class="table-column-padding-only"
           :sortable="sort"
           :filter-match-mode-options="matchModeOptions"
           :show-filter-menu="false"
@@ -295,7 +294,7 @@ onMounted(async () => {
         <Column
           field="location"
           header="Ort"
-          style="padding: 0.5rem"
+          class="table-column-padding-only"
           :sortable="sort"
           :filter-match-mode-options="matchModeOptions"
           :show-filter-menu="false"
@@ -316,7 +315,7 @@ onMounted(async () => {
         <Column
           field="year"
           header="Jahr"
-          style="padding: 0.5rem"
+          class="table-column-padding-only"
           :sortable="sort"
           :show-filter-menu="false"
           :show-clear-button="false"
@@ -338,7 +337,7 @@ onMounted(async () => {
         <Column
           field="type"
           header="Typ"
-          style="padding: 0.5rem"
+          class="table-column-padding-only"
           :sortable="sort"
           :show-filter-menu="false"
           :show-clear-button="false"
@@ -363,10 +362,9 @@ onMounted(async () => {
       <DataTable
         v-else
         v-model:filters="filters"
-        class="w-11 md:w-9 cursor-pointer"
+        class="w-11 md:w-9 cursor-pointer table-style-compact"
         :value="records"
         show-gridlines
-        table-style="min-width: 20rem"
         :page-link-size="numberOfPages"
         lazy
         paginator
@@ -388,7 +386,7 @@ onMounted(async () => {
         <Column
           field="name"
           header="Name"
-          style="padding: 0.5rem"
+          class="table-column-padding-only"
           :sortable="sort"
           :filter-match-mode-options="matchModeOptions"
           :show-filter-menu="false"

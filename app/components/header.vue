@@ -37,9 +37,8 @@ function home() {
 <template>
   <div class="flex bg-yellow-900">
     <img
-      class="self-center ml-1 mr-1 cursor-pointer hover:bg-yellow-800 border-solid border-2 border-yellow-800 rounded-full"
+      class="self-center ml-1 mr-1 cursor-pointer hover:bg-yellow-800 border-solid border-2 border-yellow-800 rounded-full logo-image"
       src="/images/logos/tellbow_192x192.webp"
-      style="width: 48px; height: 48px"
       alt="Tellbow"
       @click="home()"
     />
@@ -63,6 +62,11 @@ function home() {
 </template>
 
 <style scoped>
+.logo-image {
+  width: 48px;
+  height: 48px;
+}
+
 :deep(.p-tabmenu .p-tabmenu-nav .p-tabmenuitem .p-menuitem-link:hover) {
   background-color: var(--yellow-800) !important;
   border-radius: 0px;
