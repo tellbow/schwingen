@@ -21,10 +21,23 @@ export default defineNuxtConfig({
           },
         ],
         script: [
-          {
-            src: "https://stats.mcathome.ch/script.js",
-            "data-website-id": "ace4da01-246d-4efd-bccf-3d39ee00c864",
-          },
+          ...(process.env.NODE_ENV !== "development"
+            ? [
+                {
+                  src: "https://www.googletagmanager.com/gtag/js?id=G-XT9Y2TP58B",
+                  async: true,
+                },
+                {
+                  innerHTML: `
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', 'G-XT9Y2TP58B');
+              `,
+                  type: "text/javascript",
+                },
+              ]
+            : []),
         ],
       },
     },
