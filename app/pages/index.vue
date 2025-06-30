@@ -52,6 +52,7 @@ setStructuredData([websiteData, breadcrumbs]);
           <p>Informationen zu den Teilverbänden und dessen Unterverbänden.</p>
           <Button
             label="Anzeigen"
+            aria-label="Verbände anzeigen"
             class="w-half mt-3 bg-yellow-900 border-2 border-yellow-800"
             @click="navigateTo('/associations')"
           />
@@ -73,6 +74,7 @@ setStructuredData([websiteData, breadcrumbs]);
           </p>
           <Button
             label="Anzeigen"
+            aria-label="Schwinger anzeigen"
             class="w-half mt-3 bg-yellow-900 border-2 border-yellow-800"
             @click="navigateTo('/wrestler')"
           />
@@ -92,6 +94,7 @@ setStructuredData([websiteData, breadcrumbs]);
           </p>
           <Button
             label="Anzeigen"
+            aria-label="Schwingfeste anzeigen"
             class="w-half mt-3 bg-yellow-900 border-2 border-yellow-800"
             @click="navigateTo('/places')"
           />
@@ -109,6 +112,7 @@ setStructuredData([websiteData, breadcrumbs]);
           <p>Statistiken über Schwinger</p>
           <Button
             label="Anzeigen"
+            aria-label="Statistiken anzeigen"
             class="w-half mt-3 bg-yellow-900 border-2 border-yellow-800"
             @click="navigateTo('/statistics')"
           />
