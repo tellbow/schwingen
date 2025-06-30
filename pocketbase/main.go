@@ -17,6 +17,11 @@ func main() {
         	"/{path...}",
         	apis.Static(os.DirFS(".output/public"), true),
     	).BindFunc(func(e *core.RequestEvent) error {
+			// Add HSTS header - only for HTTPS
+			if e.Request.TLS != nil {
+				e.Response.Header().Set("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload")
+			}
+			// Add Gzip middleware
 			apis.Gzip()
 			return e.Next()
 		})
