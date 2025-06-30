@@ -58,6 +58,21 @@ export default defineNuxtConfig({
     transpile: ["primevue"],
   },
 
+  vite: {
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            vendor: ["vue", "vue-router"],
+          },
+        },
+      },
+    },
+    css: {
+      devSourcemap: false,
+    },
+  },
+
   imports: {
     autoImport: true,
     addons: {
@@ -136,6 +151,59 @@ export default defineNuxtConfig({
 
   nitro: {
     compressPublicAssets: true,
+    routeRules: {
+      // Cache static assets aggressively
+      "/images/**": {
+        headers: {
+          "cache-control": "public, max-age=31536000, immutable", // 1 year
+        },
+      },
+      "/_nuxt/**": {
+        headers: {
+          "cache-control": "public, max-age=31536000, immutable", // 1 year for build assets
+        },
+      },
+      "/assets/**": {
+        headers: {
+          "cache-control": "public, max-age=31536000, immutable", // 1 year
+        },
+      },
+      // Cache CSS and JS files
+      "**/*.css": {
+        headers: {
+          "cache-control": "public, max-age=31536000, immutable",
+        },
+      },
+      "**/*.js": {
+        headers: {
+          "cache-control": "public, max-age=31536000, immutable",
+        },
+      },
+      // Cache webp images
+      "**/*.webp": {
+        headers: {
+          "cache-control": "public, max-age=31536000, immutable",
+        },
+      },
+      // Cache other image formats
+      "**/*.{png,jpg,jpeg,svg,ico}": {
+        headers: {
+          "cache-control": "public, max-age=31536000, immutable",
+        },
+      },
+      // Cache fonts
+      "**/*.{woff,woff2,ttf,eot}": {
+        headers: {
+          "cache-control": "public, max-age=31536000, immutable",
+        },
+      },
+      // HTML pages - shorter cache for dynamic content
+      "/**": {
+        headers: {
+          "cache-control": "public, max-age=3600, must-revalidate", // 1 hour
+        },
+      },
+    },
   },
 
   primevue: {
@@ -218,7 +286,70 @@ export default defineNuxtConfig({
       ],
     },
     workbox: {
-      globPatterns: ["**/*.{js,css,html,png,svg,ico}"],
+      globPatterns: ["**/*.{js,css,html,png,svg,ico,webp,woff,woff2}"],
+      runtimeCaching: [
+        // Cache images with network-first strategy
+        {
+          urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp|ico)$/,
+          handler: "CacheFirst",
+          options: {
+            cacheName: "images-cache",
+            expiration: {
+              maxEntries: 100,
+              maxAgeSeconds: 30 * 24 * 60 * 60, // 30 days
+            },
+            cacheableResponse: {
+              statuses: [0, 200],
+            },
+          },
+        },
+        // Cache CSS and JS files with stale-while-revalidate
+        {
+          urlPattern: /\.(?:css|js)$/,
+          handler: "StaleWhileRevalidate",
+          options: {
+            cacheName: "static-resources",
+            expiration: {
+              maxEntries: 50,
+              maxAgeSeconds: 60 * 24 * 60 * 60, // 60 days
+            },
+            cacheableResponse: {
+              statuses: [0, 200],
+            },
+          },
+        },
+        // Cache fonts with cache-first strategy
+        {
+          urlPattern: /\.(?:woff|woff2|ttf|eot)$/,
+          handler: "CacheFirst",
+          options: {
+            cacheName: "fonts-cache",
+            expiration: {
+              maxEntries: 20,
+              maxAgeSeconds: 60 * 24 * 60 * 60, // 60 days
+            },
+            cacheableResponse: {
+              statuses: [0, 200],
+            },
+          },
+        },
+        // Cache API responses with network-first strategy
+        {
+          urlPattern: /^https:\/\/.*\/api\/.*/,
+          handler: "NetworkFirst",
+          options: {
+            cacheName: "api-cache",
+            expiration: {
+              maxEntries: 100,
+              maxAgeSeconds: 5 * 60, // 5 minutes
+            },
+            networkTimeoutSeconds: 3,
+            cacheableResponse: {
+              statuses: [0, 200],
+            },
+          },
+        },
+      ],
     },
     injectManifest: {
       globPatterns: ["**/*.{js,css,html,png,svg,ico}"],
