@@ -118,16 +118,6 @@ interface BoutData {
   };
 }
 
-interface RowExpandEvent {
-  data: RankingData;
-}
-
-interface RowCollapseEvent {
-  data: {
-    id: string;
-  };
-}
-
 // Composables
 const pocketbase = usePocketbase();
 const route = useRoute();
@@ -152,7 +142,7 @@ const rankingsData = ref<RankingData[]>([]);
 const loadingPlace = ref(true);
 const loadingRankings = ref(true);
 const loadingBouts = ref(true);
-const expandedRows = ref();
+const activeTab = ref("0");
 
 // Methods
 const loadPlaceData = async (): Promise<void> => {
@@ -211,36 +201,6 @@ const loadRankingsData = async (): Promise<void> => {
   }
 };
 
-const loadLazySubData = async (
-  wrestlerId: string,
-  placeId: string,
-): Promise<void> => {
-  try {
-    loadingBouts.value = true;
-
-    const data = await pocketbase.collection("bouts").getList(1, 10, {
-      expand: "opponent,opponent.status",
-      filter: `wrestler.id = '${escapeFilterValue(wrestlerId)}' && place.id = '${escapeFilterValue(placeId)}'`,
-      sort: "fight_round,-created",
-      fields:
-        "id,result,points,fight_round,expand.opponent.id,expand.opponent.name,expand.opponent.vorname,expand.opponent.expand.status.status,expand.opponent.expand.status.symbol",
-    });
-
-    rankingsData.value.forEach((item: RankingData) => {
-      if (
-        item.expand.wrestler.id === wrestlerId &&
-        item.expand.place.id === placeId
-      ) {
-        item.bouts = data.items;
-      }
-    });
-  } catch (error) {
-    console.error("Error loading sub data:", error);
-  } finally {
-    loadingBouts.value = false;
-  }
-};
-
 // Custom comparator function to sort by rank
 const compareByRank = (a: RankingData, b: RankingData): number => {
   // Extract numerical and alphabetical components
@@ -258,17 +218,40 @@ const compareByRank = (a: RankingData, b: RankingData): number => {
   return alphaA.localeCompare(alphaB);
 };
 
-const onRowExpand = (event: RowExpandEvent): void => {
-  const { wrestler } = event.data.expand;
-  loadLazySubData(wrestler.id, placeId.value);
-};
+const loadAllBoutsData = async (): Promise<void> => {
+  try {
+    loadingBouts.value = true;
 
-const onRowCollapse = (event: RowCollapseEvent): void => {
-  const objIndex = rankingsData.value.findIndex(
-    (obj: RankingData) => obj.id === event.data.id,
-  );
-  if (objIndex !== -1) {
-    rankingsData.value[objIndex].bouts = [];
+    // Load bouts for all wrestlers in this place
+    const boutsData = await pocketbase.collection("bouts").getFullList(1000, {
+      expand: "opponent,opponent.status",
+      filter: `place.id = '${escapeFilterValue(placeId.value)}'`,
+      sort: "wrestler.name,fight_round,-created",
+      fields:
+        "id,result,points,fight_round,wrestler,expand.opponent.id,expand.opponent.name,expand.opponent.vorname,expand.opponent.expand.status.status,expand.opponent.expand.status.symbol",
+    });
+
+    // Group bouts by wrestler
+    const boutsByWrestler = new Map<string, BoutData[]>();
+
+    for (const bout of boutsData) {
+      const wrestlerId = bout.wrestler;
+      if (!boutsByWrestler.has(wrestlerId)) {
+        boutsByWrestler.set(wrestlerId, []);
+      }
+      boutsByWrestler.get(wrestlerId)?.push(bout as unknown as BoutData);
+    }
+
+    // Add bouts to rankings data
+    rankingsData.value.forEach((ranking) => {
+      const wrestlerBouts =
+        boutsByWrestler.get(ranking.expand.wrestler.id) || [];
+      ranking.bouts = wrestlerBouts;
+    });
+  } catch (error) {
+    console.error("Error loading all bouts data:", error);
+  } finally {
+    loadingBouts.value = false;
   }
 };
 
@@ -276,6 +259,7 @@ const onRowCollapse = (event: RowCollapseEvent): void => {
 onMounted(async () => {
   try {
     await Promise.all([loadPlaceData(), loadRankingsData()]);
+    await loadAllBoutsData();
   } catch (error) {
     console.error("Error in component mount:", error);
   }
@@ -306,292 +290,498 @@ onMounted(async () => {
       class="justify-content-center align-content-center display: flex mt-2"
     >
       <Card class="w-11/12 md:w-9/12">
-        <template #title> Rangliste</template>
+        <template #title> Resultate</template>
         <template #content>
-          <!-- Desktop/Landscape Layout -->
-          <DataTable
-            v-if="layout === 'default'"
-            v-model:expanded-rows="expandedRows"
-            :value="rankingsData"
-            column-resize-mode="fit"
-            show-gridlines
-            class="table-style-default"
-            size="small"
-            data-key="id"
-            :pt="{
-              header: { class: 'p-0' },
-            }"
-            :row-hover="true"
-            @row-expand="onRowExpand($event)"
-            @row-collapse="onRowCollapse($event)"
-          >
-            <template #empty> Keine Ranglisten gefunden. </template>
-            <template #loading>
-              Ranglisten werden geladen. Bitte warten.
-            </template>
-            <Column expander class="table-column-expander" />
-            <Column
-              field="rank"
-              header="Rang"
-              class="table-column-small"
-              :pt="{
-                filterInput: { class: 'w-fit' },
-              }"
-            >
-              <template #body="{ data }">
-                {{ data.rank }}{{ data.rank2 }}
-              </template>
-            </Column>
-            <Column
-              field="points"
-              header="Punkte"
-              class="table-column-small"
-              :pt="{
-                filterInput: { class: 'w-fit' },
-              }"
-            >
-              <template #body="{ data }">
-                {{ data.points }}
-              </template>
-            </Column>
-            <Column
-              field="result"
-              header="Resultat"
-              class="table-column-small"
-              :pt="{
-                filterInput: { class: 'w-fit' },
-              }"
-            >
-              <template #body="{ data }">
-                {{ data.result }}
-              </template>
-            </Column>
-            <Column
-              field="wrestler"
-              header="Schwinger"
-              class="table-column-small"
-              :pt="{
-                filterInput: { class: 'w-fit' },
-              }"
-            >
-              <template #body="{ data }">
-                {{ data.expand.wrestler.name }}
-                {{ data.expand.wrestler.vorname }}
-              </template>
-            </Column>
-            <Column
-              field="status"
-              header="Status"
-              class="table-column-small"
-              :pt="{
-                filterInput: { class: 'w-fit' },
-              }"
-            >
-              <template #body="{ data }">
-                {{ data.wstatus }}
-              </template>
-            </Column>
-            <Column
-              field="final"
-              header="Schlussgang"
-              class="table-column-small"
-              :pt="{
-                filterInput: { class: 'w-fit' },
-              }"
-            >
-              <template #body="{ data }">
-                <Icon
-                  v-if="data.final"
-                  class="flex content-center"
-                  name="gis:flag-finish"
-                />
-              </template>
-            </Column>
-            <Column
-              field="wreath_accident"
-              header="Kranz / Unfall"
-              class="table-column-small"
-              :pt="{
-                filterInput: { class: 'w-fit' },
-              }"
-            >
-              <template #body="{ data }">
-                <Icon
-                  v-if="data.wreath"
-                  class="flex content-center"
-                  name="mingcute:wreath-fill"
-                />
-                <Icon
-                  v-if="data.status === 'Unfall'"
-                  class="flex content-center"
-                  name="game-icons:arm-bandage"
-                />
-              </template>
-            </Column>
-            <template #expansion="data">
-              <div class="p-1">
-                <DataTable :value="data.data.bouts">
-                  <Column field="result" header="R" />
-                  <Column field="points" header="P" />
-                  <Column field="fight_round" header="G" />
-                  <Column field="expand.opponent.name" header="Gegner">
-                    <template #body="{ data: boutData }">
-                      <div class="flex flex-column">
-                        <div class="font-bold">
-                          {{ boutData.expand.opponent.name }}
-                          {{ boutData.expand.opponent.vorname }}
-                        </div>
-                      </div>
+          <div class="tabs-container">
+            <div class="tab-header">
+              <button
+                :class="['tab-button', { active: activeTab === '0' }]"
+                @click="activeTab = '0'"
+              >
+                Rangliste
+              </button>
+              <button
+                :class="['tab-button', { active: activeTab === '1' }]"
+                @click="activeTab = '1'"
+              >
+                Statistiken
+              </button>
+            </div>
+            <div class="tab-content">
+              <div v-if="activeTab === '0'" class="tab-panel">
+                <!-- Desktop/Landscape Layout -->
+                <DataTable
+                  v-if="layout === 'default'"
+                  :value="rankingsData"
+                  column-resize-mode="fit"
+                  show-gridlines
+                  class="table-style-default"
+                  size="small"
+                  data-key="id"
+                  :pt="{
+                    header: { class: 'p-0' },
+                  }"
+                  :row-hover="true"
+                >
+                  <template #empty> Keine Ranglisten gefunden. </template>
+                  <template #loading>
+                    Ranglisten werden geladen. Bitte warten.
+                  </template>
+                  <Column
+                    field="rank"
+                    header="Rang"
+                    class="table-column-small"
+                    :pt="{
+                      filterInput: { class: 'w-fit' },
+                    }"
+                  >
+                    <template #body="{ data }">
+                      {{ data.rank }}{{ data.rank2 }}
                     </template>
                   </Column>
                   <Column
-                    field="expand.opponent.expand.status.status"
+                    field="points"
+                    header="Punkte"
+                    class="table-column-small"
+                    :pt="{
+                      filterInput: { class: 'w-fit' },
+                    }"
+                  >
+                    <template #body="{ data }">
+                      {{ data.points }}
+                    </template>
+                  </Column>
+                  <Column
+                    field="result"
+                    header="Resultat"
+                    class="table-column-small"
+                    :pt="{
+                      filterInput: { class: 'w-fit' },
+                    }"
+                  >
+                    <template #body="{ data }">
+                      {{ data.result }}
+                    </template>
+                  </Column>
+                  <Column
+                    field="wrestler"
+                    header="Schwinger"
+                    class="table-column-small"
+                    :pt="{
+                      filterInput: { class: 'w-fit' },
+                    }"
+                  >
+                    <template #body="{ data }">
+                      {{ data.expand.wrestler.name }}
+                      {{ data.expand.wrestler.vorname }}
+                    </template>
+                  </Column>
+                  <Column
+                    field="status"
                     header="Status"
-                  />
-                </DataTable>
-              </div>
-            </template>
-          </DataTable>
-
-          <!-- Mobile Layout -->
-          <DataTable
-            v-else
-            v-model:expanded-rows="expandedRows"
-            :value="rankingsData"
-            show-gridlines
-            class="table-style-compact"
-            size="small"
-            data-key="id"
-            :pt="{
-              header: { class: 'p-0' },
-            }"
-            :row-hover="true"
-            @row-expand="onRowExpand($event)"
-            @row-collapse="onRowCollapse($event)"
-          >
-            <template #empty> Keine Ranglisten gefunden. </template>
-            <template #loading>
-              Ranglisten werden geladen. Bitte warten.
-            </template>
-            <Column expander class="table-column-expander" />
-            <Column
-              field="rank"
-              header="Rang"
-              class="table-column-small"
-              :pt="{
-                filterInput: { class: 'w-fit' },
-              }"
-            >
-              <template #body="{ data }">
-                {{ data.rank }}{{ data.rank2 }}
-              </template>
-            </Column>
-            <Column
-              field="points"
-              header="Punkte"
-              class="table-column-small"
-              :pt="{
-                filterInput: { class: 'w-fit' },
-              }"
-            >
-              <template #body="{ data }">
-                {{ data.points }}
-              </template>
-            </Column>
-            <Column
-              field="result"
-              header="Resultat"
-              class="table-column-small"
-              :pt="{
-                filterInput: { class: 'w-fit' },
-              }"
-            >
-              <template #body="{ data }">
-                {{ data.result }}
-              </template>
-            </Column>
-            <Column
-              field="wrestler"
-              header="Schwinger"
-              class="table-column-small"
-              :pt="{
-                filterInput: { class: 'w-fit' },
-              }"
-            >
-              <template #body="{ data }">
-                <div class="flex flex-column">
-                  <div class="font-bold">
-                    {{ data.expand.wrestler.name }}
-                    {{ data.expand.wrestler.vorname }}
-                  </div>
-                  <div class="text-sm text-gray-600">
-                    {{ data.wstatusSymbol }}
-                  </div>
-                </div>
-              </template>
-            </Column>
-            <Column
-              field="final"
-              header="Schlussgang"
-              class="table-column-small"
-              :pt="{
-                filterInput: { class: 'w-fit' },
-              }"
-            >
-              <template #body="{ data }">
-                <Icon
-                  v-if="data.final"
-                  class="flex content-center"
-                  name="gis:flag-finish"
-                />
-              </template>
-            </Column>
-            <Column
-              field="wreath_accident"
-              header="Kranz / Unfall"
-              class="table-column-small"
-              :pt="{
-                filterInput: { class: 'w-fit' },
-              }"
-            >
-              <template #body="{ data }">
-                <Icon
-                  v-if="data.wreath"
-                  class="flex content-center"
-                  name="mingcute:wreath-fill"
-                />
-                <Icon
-                  v-if="data.status === 'Unfall'"
-                  class="flex content-center"
-                  name="game-icons:arm-bandage"
-                />
-              </template>
-            </Column>
-            <template #expansion="data">
-              <div class="p-1">
-                <DataTable :value="data.data.bouts">
-                  <Column field="result" header="R" />
-                  <Column field="points" header="P" />
-                  <Column field="fight_round" header="G" />
-                  <Column field="expand.opponent.name" header="Gegner">
-                    <template #body="{ data: boutData }">
-                      <div class="flex flex-column">
-                        <div class="font-bold">
-                          {{ boutData.expand.opponent.name }}
-                          {{ boutData.expand.opponent.vorname }}
-                        </div>
-                        <div class="text-sm text-gray-600">
-                          {{ boutData.expand.opponent.expand.status.symbol }}
-                        </div>
-                      </div>
+                    class="table-column-small"
+                    :pt="{
+                      filterInput: { class: 'w-fit' },
+                    }"
+                  >
+                    <template #body="{ data }">
+                      {{ data.wstatus }}
+                    </template>
+                  </Column>
+                  <Column
+                    field="final"
+                    header="Schlussgang"
+                    class="table-column-small"
+                    :pt="{
+                      filterInput: { class: 'w-fit' },
+                    }"
+                  >
+                    <template #body="{ data }">
+                      <Icon
+                        v-if="data.final"
+                        class="flex content-center"
+                        name="gis:flag-finish"
+                      />
+                    </template>
+                  </Column>
+                  <Column
+                    field="wreath"
+                    header="Kranz"
+                    class="table-column-small"
+                    :pt="{
+                      filterInput: { class: 'w-fit' },
+                    }"
+                  >
+                    <template #body="{ data }">
+                      <Icon
+                        v-if="data.wreath"
+                        class="flex content-center"
+                        name="mingcute:wreath-fill"
+                      />
+                    </template>
+                  </Column>
+                  <Column
+                    field="accident"
+                    header="Unfall"
+                    class="table-column-small"
+                    :pt="{
+                      filterInput: { class: 'w-fit' },
+                    }"
+                  >
+                    <template #body="{ data }">
+                      <Icon
+                        v-if="data.status === 'Unfall'"
+                        class="flex content-center"
+                        name="game-icons:arm-bandage"
+                      />
                     </template>
                   </Column>
                 </DataTable>
+
+                <!-- Mobile Layout -->
+                <div v-else class="mobile-rankings">
+                  <div
+                    v-for="ranking in rankingsData"
+                    :key="ranking.id"
+                    class="mobile-ranking-card"
+                  >
+                    <div class="ranking-header">
+                      <div class="rank-badge">
+                        {{ ranking.rank }}{{ ranking.rank2 }}
+                      </div>
+                      <div class="wrestler-info">
+                        <div class="wrestler-name">
+                          {{ ranking.expand.wrestler.name }}
+                          {{ ranking.expand.wrestler.vorname }}
+                        </div>
+                        <div class="wrestler-status">
+                          {{ ranking.wstatusSymbol }}
+                        </div>
+                      </div>
+                    </div>
+                    <div class="ranking-details">
+                      <div class="detail-item">
+                        <span class="detail-label">Punkte:</span>
+                        <span class="detail-value">{{ ranking.points }}</span>
+                      </div>
+                      <div class="detail-item">
+                        <span class="detail-label">Resultat:</span>
+                        <span class="detail-value">{{ ranking.result }}</span>
+                      </div>
+                    </div>
+                    <div class="ranking-icons">
+                      <span
+                        v-if="ranking.final"
+                        class="final-badge"
+                        title="Schlussgang"
+                      >
+                        Schlussgang
+                      </span>
+                      <Icon
+                        v-if="ranking.wreath"
+                        class="ranking-icon"
+                        name="mingcute:wreath-fill"
+                        title="Kranz"
+                      />
+                      <Icon
+                        v-if="ranking.status === 'Unfall'"
+                        class="ranking-icon"
+                        name="game-icons:arm-bandage"
+                        title="Unfall"
+                      />
+                    </div>
+                  </div>
+                </div>
               </div>
-            </template>
-          </DataTable>
+
+              <div v-if="activeTab === '1'" class="tab-panel">
+                <ProgressSpinner v-if="loadingBouts" />
+                <div v-else class="stats-grid">
+                  <div
+                    v-for="ranking in rankingsData"
+                    :key="ranking.id"
+                    class="stats-card"
+                  >
+                    <div class="stats-header">
+                      <div class="wrestler-name">
+                        {{ ranking.rank }}{{ ranking.rank2 }}.
+                        {{ ranking.expand.wrestler.name }}
+                        {{ ranking.expand.wrestler.vorname }}
+                      </div>
+                      <div class="wrestler-info">
+                        {{ ranking.points }} Punkte
+                      </div>
+                    </div>
+                    <div class="stats-table-container">
+                      <table class="stats-table">
+                        <thead>
+                          <tr>
+                            <th>Resultat</th>
+                            <th>Gegner</th>
+                            <th>Punkte</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr v-for="bout in ranking.bouts" :key="bout.id">
+                            <td>{{ bout.result }}</td>
+                            <td>
+                              {{ bout.expand.opponent.name }}
+                              {{ bout.expand.opponent.vorname }}
+                            </td>
+                            <td>{{ bout.points }}</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </template>
       </Card>
     </div>
   </div>
 </template>
+<style scoped>
+.tabs-container {
+  width: 100%;
+}
+
+.tab-header {
+  display: flex;
+  border-bottom: 1px solid #e5e7eb;
+  margin-bottom: 1rem;
+}
+
+.tab-button {
+  padding: 0.75rem 1.5rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  color: #6b7280;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.tab-button:hover {
+  color: #374151;
+  background-color: #f9fafb;
+}
+
+.tab-button.active {
+  color: #1f2937;
+  border-bottom-color: #f59e0b;
+  font-weight: 600;
+}
+
+.tab-content {
+  min-height: 200px;
+}
+
+.tab-panel {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Statistics Grid Styles */
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  justify-items: center;
+}
+
+@media (min-width: 768px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    justify-items: stretch;
+  }
+}
+
+@media (min-width: 1024px) {
+  .stats-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.stats-card {
+  width: 100%;
+  max-width: 400px;
+  padding: 0.25rem;
+  height: 300px;
+  display: flex;
+  flex-direction: column;
+}
+
+.stats-header {
+  margin-bottom: 0.5rem;
+  flex-shrink: 0;
+}
+
+.wrestler-name {
+  font-weight: 600;
+  font-size: 1.125rem;
+  color: #1f2937;
+  margin-bottom: 0.25rem;
+}
+
+.wrestler-info {
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.stats-table-container {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.stats-table {
+  width: 100%;
+  font-size: 0.75rem;
+  border-collapse: collapse;
+  flex: 1;
+}
+
+.stats-table thead {
+  background-color: #f3f4f6;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.stats-table th {
+  padding: 0.25rem;
+  text-align: left;
+  font-weight: 600;
+  color: #374151;
+}
+
+.stats-table tbody {
+  overflow-y: auto;
+}
+
+.stats-table td {
+  padding: 0.25rem;
+  border-bottom: 1px solid #f3f4f6;
+  color: #374151;
+}
+
+.stats-table tr:hover {
+  background-color: #f9fafb;
+}
+
+/* Mobile Rankings Styles */
+.mobile-rankings {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.mobile-ranking-card {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.ranking-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.rank-badge {
+  background: #f59e0b;
+  color: white;
+  font-weight: 600;
+  font-size: 1.125rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  min-width: 2.5rem;
+  text-align: center;
+}
+
+.wrestler-info {
+  flex: 1;
+}
+
+.wrestler-name {
+  font-weight: 600;
+  font-size: 1rem;
+  color: #1f2937;
+  margin-bottom: 0.25rem;
+}
+
+.wrestler-status {
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.ranking-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.detail-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.detail-label {
+  font-size: 0.875rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.detail-value {
+  font-size: 0.875rem;
+  color: #1f2937;
+  font-weight: 600;
+}
+
+.ranking-icons {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.ranking-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: #6b7280;
+}
+
+.final-badge {
+  background: #f59e0b;
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  text-transform: uppercase;
+}
+
+.final-text {
+  color: #f59e0b;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+</style>
