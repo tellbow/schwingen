@@ -455,9 +455,9 @@ onMounted(async () => {
             </template>
             <template #header>
               <div class="grid mt-0">
-                <p class="col md:col-5">Schwinger</p>
+                <p class="col-4 md:col-5">Schwinger</p>
                 <p class="col md:col">⌀ Rang</p>
-                <p class="col md:col">⌀ Punkte</p>
+                <p class="col md:col">⌀ Pt.</p>
                 <p class="col md:col">Kränze</p>
                 <p class="col md:col">Schlussgänge</p>
               </div>
@@ -471,7 +471,7 @@ onMounted(async () => {
                   @click="rowWClick(item.id)"
                 >
                   <div class="grid">
-                    <div class="col md:col-5">
+                    <div class="col-4 md:col-5">
                       <p>{{ item.name }} {{ item.vorname }}</p>
                     </div>
                     <div class="col md:col">
@@ -532,7 +532,7 @@ onMounted(async () => {
             </template>
             <template #header>
               <div class="grid mt-0">
-                <p class="col md:col-7">Schwingfest (Jahr)</p>
+                <p class="col-4 md:col-7">Schwingfest (Jahr)</p>
                 <p v-if="boutsData" class="col md:col text-center">
                   {{ boutsData[0].entries[0].wrestler.name }}
                   {{ boutsData[0].entries[0].wrestler.vorname }}
@@ -552,7 +552,7 @@ onMounted(async () => {
                   @click="rowRClick(item.place.id)"
                 >
                   <div class="grid">
-                    <div class="col md:col-7">
+                    <div class="col-4 md:col-7">
                       <p>{{ item.place.name }} ({{ item.place.year }})</p>
                     </div>
                     <div class="col md:col text-center">
