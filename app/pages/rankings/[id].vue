@@ -79,6 +79,7 @@ interface RankingData {
   wreath: boolean;
   status: string;
   wstatus?: string;
+  wstatusSymbol?: string;
   bouts?: BoutData[];
   expand: {
     place: {
@@ -455,7 +456,15 @@ onMounted(async () => {
                           {{ ranking.expand.wrestler.vorname }}
                         </div>
                         <div class="wrestler-status">
-                          {{ ranking.wstatusSymbol }}
+                          <span
+                            v-if="
+                              ranking.wstatusSymbol &&
+                              ranking.wstatusSymbol !== '-'
+                            "
+                            class="status-symbol"
+                          >
+                            {{ ranking.wstatusSymbol }}
+                          </span>
                         </div>
                       </div>
                     </div>
@@ -507,6 +516,12 @@ onMounted(async () => {
                         {{ ranking.rank }}{{ ranking.rank2 }}.
                         {{ ranking.expand.wrestler.name }}
                         {{ ranking.expand.wrestler.vorname }}
+                        <span
+                          v-if="ranking.expand.wrestler.expand.status?.symbol"
+                          class="status-symbol"
+                        >
+                          {{ ranking.expand.wrestler.expand.status?.symbol }}
+                        </span>
                       </div>
                       <div class="wrestler-info">
                         {{ ranking.points }} Punkte
@@ -527,6 +542,14 @@ onMounted(async () => {
                             <td>
                               {{ bout.expand.opponent.name }}
                               {{ bout.expand.opponent.vorname }}
+                              <span
+                                v-if="
+                                  bout.expand.opponent.expand.status?.symbol
+                                "
+                                class="status-symbol"
+                              >
+                                {{ bout.expand.opponent.expand.status?.symbol }}
+                              </span>
                             </td>
                             <td>{{ bout.points }}</td>
                           </tr>
@@ -783,5 +806,11 @@ onMounted(async () => {
   color: #f59e0b;
   font-weight: 600;
   font-size: 0.875rem;
+}
+
+.status-symbol {
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin-left: 0.25rem;
 }
 </style>
