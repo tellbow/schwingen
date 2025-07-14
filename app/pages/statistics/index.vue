@@ -153,20 +153,25 @@ const loadData = async (): Promise<void> => {
     if (selectedYear.value.year === "Alle") {
       loadYear = "Overall";
       yearFormatFilter = "%";
+      // For "Alle", set ELO data to empty array since eloOverall collection doesn't exist
+      eloData.value = [];
+      loadingElo.value = false;
     } else {
       loadYear = selectedYear.value.year.toString();
       yearFormatFilter = selectedYear.value.year.toString();
-    }
 
-    // Load ELO data
-    const eloResponse = await pocketbase.collection("elo").getList(1, 5, {
-      expand: "wrestler",
-      sort: "-rating,-created",
-      fields:
-        "id,rating,expand.wrestler.id,expand.wrestler.name,expand.wrestler.vorname",
-    });
-    eloData.value = eloResponse.items;
-    loadingElo.value = false;
+      // Load ELO data
+      const eloResponse = await pocketbase
+        .collection("elo" + loadYear)
+        .getList(1, 5, {
+          expand: "wrestler",
+          sort: "-rating,-created",
+          fields:
+            "id,rating,expand.wrestler.id,expand.wrestler.name,expand.wrestler.vorname",
+        });
+      eloData.value = eloResponse.items;
+      loadingElo.value = false;
+    }
 
     // Load average rank data
     const averageRankResponse = await pocketbase
@@ -301,6 +306,12 @@ onMounted(async () => {
           </template>
           <template #content>
             <ProgressSpinner v-if="loadingElo" />
+            <div
+              v-else-if="eloData.length === 0"
+              class="text-center text-gray-500 py-4"
+            >
+              keine Daten über alle Jahre
+            </div>
             <DataView
               v-else
               :value="eloData"
