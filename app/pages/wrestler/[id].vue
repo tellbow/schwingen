@@ -286,13 +286,43 @@ const loadWrestlerData = async (): Promise<void> => {
 
 const loadEloData = async (): Promise<void> => {
   try {
-    const data = await pocketbase
-      .collection("elo")
-      .getFirstListItem(`wrestler.id="${wrestlerId.value}"`, {
-        fields: "id,rating",
-      });
-
-    eloData.value = data;
+    if (selectedYear.value.year === "Alle") {
+      // Try years in descending order (most recent first, skipping 'Alle')
+      const sortedYears = years
+        .map((y) => y.year)
+        .filter((y) => y !== "Alle")
+        .sort((a, b) => Number(b) - Number(a));
+      let found = false;
+      for (const y of sortedYears) {
+        try {
+          const data = await pocketbase
+            .collection(`elo${y}`)
+            .getFirstListItem(`wrestler.id="${wrestlerId.value}"`, {
+              fields: "id,rating",
+            });
+          eloData.value = data;
+          found = true;
+          break;
+        } catch (error) {
+          console.error("Error loading most recent year:", error);
+        }
+      }
+      if (!found) {
+        eloData.value = { id: "", rating: "-" };
+      }
+    } else {
+      try {
+        const data = await pocketbase
+          .collection(`elo${selectedYear.value.year}`)
+          .getFirstListItem(`wrestler.id="${wrestlerId.value}"`, {
+            fields: "id,rating",
+          });
+        eloData.value = data;
+      } catch (error) {
+        console.error("Error loading ELO data:", error);
+        eloData.value = { id: "", rating: "-" };
+      }
+    }
   } catch (error) {
     console.error("Error loading ELO data:", error);
     eloData.value = { id: "", rating: "-" };
@@ -646,7 +676,7 @@ const findBouts = async (): Promise<void> => {
 };
 
 const yearSelected = async (): Promise<void> => {
-  await Promise.all([loadRankingsData(), loadBoutsData()]);
+  await Promise.all([loadRankingsData(), loadBoutsData(), loadEloData()]);
 };
 
 // Navigation functions
