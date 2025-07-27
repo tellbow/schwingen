@@ -153,7 +153,7 @@ const loadPlaceData = async (): Promise<void> => {
       .getFirstListItem(`id="${placeId.value}"`, { expand: "placeType" });
 
     data.year = data.year.split("-")[0];
-    placeData.value = data;
+    placeData.value = data as unknown as PlaceData;
     setRankingSEO();
   } catch (error) {
     console.error("Error loading place data:", error);
@@ -176,7 +176,7 @@ const loadRankingsData = async (): Promise<void> => {
         "id,rank,rank2,points,final,result,wreath,status,expand.place.id,expand.wrestler.id,expand.wrestler.name,expand.wrestler.vorname,expand.wrestler.expand.status.status,expand.wrestler.expand.status.symbol",
     });
 
-    data.forEach((entry: RankingData) => {
+    data.forEach((entry: any) => {
       if (
         !entry.expand ||
         !entry.expand.wrestler ||
@@ -193,7 +193,7 @@ const loadRankingsData = async (): Promise<void> => {
       }
     });
 
-    rankingsData.value = data.sort(compareByRank);
+    rankingsData.value = (data as unknown as RankingData[]).sort(compareByRank);
   } catch (error) {
     console.error("Error loading rankings data:", error);
     rankingsData.value = [];
@@ -336,8 +336,8 @@ onMounted(async () => {
                       filterInput: { class: 'w-fit' },
                     }"
                   >
-                    <template #body="{ data }">
-                      {{ data.rank }}{{ data.rank2 }}
+                    <template #body="slotProps">
+                      {{ slotProps.data.rank }}{{ slotProps.data.rank2 }}
                     </template>
                   </Column>
                   <Column
@@ -348,8 +348,8 @@ onMounted(async () => {
                       filterInput: { class: 'w-fit' },
                     }"
                   >
-                    <template #body="{ data }">
-                      {{ data.points }}
+                    <template #body="slotProps">
+                      {{ slotProps.data.points }}
                     </template>
                   </Column>
                   <Column
@@ -360,8 +360,8 @@ onMounted(async () => {
                       filterInput: { class: 'w-fit' },
                     }"
                   >
-                    <template #body="{ data }">
-                      {{ data.result }}
+                    <template #body="slotProps">
+                      {{ slotProps.data.result }}
                     </template>
                   </Column>
                   <Column
@@ -372,9 +372,14 @@ onMounted(async () => {
                       filterInput: { class: 'w-fit' },
                     }"
                   >
-                    <template #body="{ data }">
-                      {{ data.expand.wrestler.name }}
-                      {{ data.expand.wrestler.vorname }}
+                    <template #body="slotProps">
+                      <NuxtLink
+                        :to="`/wrestler/${slotProps.data.expand.wrestler.id}`"
+                        class="wrestler-link"
+                      >
+                        {{ slotProps.data.expand.wrestler.name }}
+                        {{ slotProps.data.expand.wrestler.vorname }}
+                      </NuxtLink>
                     </template>
                   </Column>
                   <Column
@@ -385,8 +390,8 @@ onMounted(async () => {
                       filterInput: { class: 'w-fit' },
                     }"
                   >
-                    <template #body="{ data }">
-                      {{ data.wstatus }}
+                    <template #body="slotProps">
+                      {{ slotProps.data.wstatus }}
                     </template>
                   </Column>
                   <Column
@@ -397,9 +402,9 @@ onMounted(async () => {
                       filterInput: { class: 'w-fit' },
                     }"
                   >
-                    <template #body="{ data }">
+                    <template #body="slotProps">
                       <Icon
-                        v-if="data.final"
+                        v-if="slotProps.data.final"
                         class="flex content-center"
                         name="gis:flag-finish"
                       />
@@ -413,9 +418,9 @@ onMounted(async () => {
                       filterInput: { class: 'w-fit' },
                     }"
                   >
-                    <template #body="{ data }">
+                    <template #body="slotProps">
                       <Icon
-                        v-if="data.wreath"
+                        v-if="slotProps.data.wreath"
                         class="flex content-center"
                         name="mingcute:wreath-fill"
                       />
@@ -429,9 +434,9 @@ onMounted(async () => {
                       filterInput: { class: 'w-fit' },
                     }"
                   >
-                    <template #body="{ data }">
+                    <template #body="slotProps">
                       <Icon
-                        v-if="data.status === 'Unfall'"
+                        v-if="slotProps.data.status === 'Unfall'"
                         class="flex content-center"
                         name="game-icons:arm-bandage"
                       />
@@ -452,8 +457,13 @@ onMounted(async () => {
                       </div>
                       <div class="wrestler-info">
                         <div class="wrestler-name">
-                          {{ ranking.expand.wrestler.name }}
-                          {{ ranking.expand.wrestler.vorname }}
+                          <NuxtLink
+                            :to="`/wrestler/${ranking.expand.wrestler.id}`"
+                            class="wrestler-link"
+                          >
+                            {{ ranking.expand.wrestler.name }}
+                            {{ ranking.expand.wrestler.vorname }}
+                          </NuxtLink>
                         </div>
                         <div class="wrestler-status">
                           <span
@@ -513,15 +523,20 @@ onMounted(async () => {
                   >
                     <div class="stats-header">
                       <div class="wrestler-name">
-                        {{ ranking.rank }}{{ ranking.rank2 }}.
-                        {{ ranking.expand.wrestler.name }}
-                        {{ ranking.expand.wrestler.vorname }}
-                        <span
-                          v-if="ranking.expand.wrestler.expand.status?.symbol"
-                          class="status-symbol"
+                        <NuxtLink
+                          :to="`/wrestler/${ranking.expand.wrestler.id}`"
+                          class="wrestler-link"
                         >
-                          {{ ranking.expand.wrestler.expand.status?.symbol }}
-                        </span>
+                          {{ ranking.rank }}{{ ranking.rank2 }}.
+                          {{ ranking.expand.wrestler.name }}
+                          {{ ranking.expand.wrestler.vorname }}
+                          <span
+                            v-if="ranking.expand.wrestler.expand.status?.symbol"
+                            class="status-symbol"
+                          >
+                            {{ ranking.expand.wrestler.expand.status?.symbol }}
+                          </span>
+                        </NuxtLink>
                       </div>
                       <div class="wrestler-info">
                         {{ ranking.points }} Punkte
@@ -540,16 +555,23 @@ onMounted(async () => {
                           <tr v-for="bout in ranking.bouts" :key="bout.id">
                             <td>{{ bout.result }}</td>
                             <td>
-                              {{ bout.expand.opponent.name }}
-                              {{ bout.expand.opponent.vorname }}
-                              <span
-                                v-if="
-                                  bout.expand.opponent.expand.status?.symbol
-                                "
-                                class="status-symbol"
+                              <NuxtLink
+                                :to="`/wrestler/${bout.expand.opponent.id}`"
+                                class="opponent-link"
                               >
-                                {{ bout.expand.opponent.expand.status?.symbol }}
-                              </span>
+                                {{ bout.expand.opponent.name }}
+                                {{ bout.expand.opponent.vorname }}
+                                <span
+                                  v-if="
+                                    bout.expand.opponent.expand.status?.symbol
+                                  "
+                                  class="status-symbol"
+                                >
+                                  {{
+                                    bout.expand.opponent.expand.status?.symbol
+                                  }}
+                                </span>
+                              </NuxtLink>
                             </td>
                             <td>{{ bout.points }}</td>
                           </tr>
@@ -812,5 +834,25 @@ onMounted(async () => {
   font-size: 0.75rem;
   color: #6b7280;
   margin-left: 0.25rem;
+}
+
+.wrestler-link {
+  color: #1f2937;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.wrestler-link:hover {
+  text-decoration: underline;
+}
+
+.opponent-link {
+  color: #1f2937;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.opponent-link:hover {
+  text-decoration: underline;
 }
 </style>
