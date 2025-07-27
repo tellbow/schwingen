@@ -59,11 +59,11 @@ interface StatusOption {
 }
 
 interface FilterState {
-  name: { value: string; matchMode: FilterMatchMode };
-  vorname: { value: string; matchMode: FilterMatchMode };
-  year: { value: string; matchMode: FilterMatchMode };
-  club: { value: string; matchMode: FilterMatchMode };
-  status: { value: string; matchMode: FilterMatchMode };
+  name: { value: string; matchMode: string };
+  vorname: { value: string; matchMode: string };
+  year: { value: string; matchMode: string };
+  club: { value: string; matchMode: string };
+  status: { value: string; matchMode: string };
 }
 
 interface SortState {
@@ -76,8 +76,8 @@ interface PageEvent {
 }
 
 interface SortEvent {
-  sortField: string;
-  sortOrder: number;
+  sortField: string | ((item: any) => string) | undefined;
+  sortOrder: number | null | undefined;
 }
 
 interface RowClickEvent {
@@ -131,17 +131,45 @@ const matchModeOptionContains = ref([
 
 // Methods
 const buildSafeFilterString = (): string => {
-  const filterParts = [
-    `name ~ "${escapeFilterValue(filters.value.name.value)}"`,
-    `vorname ~ "${escapeFilterValue(filters.value.vorname.value)}"`,
-    `year ~ "${escapeFilterValue(filters.value.year.value)}"`,
-    `club.name ~ "${escapeFilterValue(filters.value.club.value)}"`,
-  ];
+  const filterParts = [];
+  
+  // Handle name/vorname filtering - in mobile view, search both fields
+  if (layout.value === 'mobile' && filters.value.name.value) {
+    const searchTerm = escapeFilterValue(filters.value.name.value);
+    filterParts.push(`(name ~ "${searchTerm}" || vorname ~ "${searchTerm}")`);
+  } else {
+    // Desktop view - separate filters for name and vorname
+    if (filters.value.name.value) {
+      filterParts.push(`name ~ "${escapeFilterValue(filters.value.name.value)}"`);
+    }
+    if (filters.value.vorname.value) {
+      filterParts.push(`vorname ~ "${escapeFilterValue(filters.value.vorname.value)}"`);
+    }
+  }
+  
+  // Add other filters
+  if (filters.value.year.value) {
+    filterParts.push(`year ~ "${escapeFilterValue(filters.value.year.value)}"`);
+  }
+  if (filters.value.club.value) {
+    filterParts.push(`club.name ~ "${escapeFilterValue(filters.value.club.value)}"`);
+  }
 
-  const baseFilter = filterParts.join(" && ");
-  const statusFilter = filters.value.status.value || "";
+  // Build the base filter
+  let filterString = filterParts.join(" && ");
+  
+  // Handle status filter - only add if there are other filters or if status filter is not empty
+  const statusFilter = filters.value.status.value;
+  if (statusFilter && statusFilter.trim() !== "") {
+    if (filterString) {
+      filterString += statusFilter;
+    } else {
+      // If no other filters, remove the leading " && " from status filter
+      filterString = statusFilter.replace(/^ && /, "");
+    }
+  }
 
-  return baseFilter + statusFilter;
+  return filterString;
 };
 
 const loadLazyData = async (): Promise<void> => {
@@ -161,17 +189,18 @@ const loadLazyData = async (): Promise<void> => {
       });
 
     // Process data
-    data.items.forEach((item: Wrestler) => {
+    data.items.forEach((item: any) => {
       if (item.year) {
         item.year = item.year.split("-")[0];
       }
     });
 
-    records.value = data.items;
+    records.value = data.items as unknown as Wrestler[];
     totalRecords.value = data.totalItems;
   } catch (error) {
     console.error("Error loading wrestler data:", error);
-    // Handle error appropriately - could show user notification
+    records.value = [];
+    totalRecords.value = 0;
   } finally {
     loading.value = false;
   }
@@ -188,8 +217,10 @@ const onFilter = (): void => {
 };
 
 const onSort = (event: SortEvent): void => {
-  sorts.value.field = event.sortField + ",";
-  sorts.value.order = event.sortOrder > 0 ? "" : "-";
+  if (typeof event.sortField === 'string') {
+    sorts.value.field = event.sortField + ",";
+  }
+  sorts.value.order = (event.sortOrder ?? 0) > 0 ? "" : "-";
   loadLazyData();
 };
 
@@ -408,7 +439,7 @@ onMounted(async () => {
 
         <Column
           field="name"
-          header="Name"
+          header="Schwinger"
           class="table-column-padding-only"
           :sortable="sort"
           :filter-match-mode-options="matchModeOptionContains"
@@ -430,8 +461,8 @@ onMounted(async () => {
               v-model="filterModel.value"
               type="text"
               class="p-column-filter"
-              placeholder="Suche"
-              aria-label="Nach Namen suchen"
+              placeholder="Suche nach Name oder Vorname"
+              aria-label="Nach Namen oder Vorname suchen"
               @input="filterCallback()"
             />
           </template>

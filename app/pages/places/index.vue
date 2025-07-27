@@ -51,11 +51,11 @@ interface PlaceData {
 }
 
 interface FilterState {
-  number: { value: string; matchMode: FilterMatchMode };
-  name: { value: string; matchMode: FilterMatchMode };
-  location: { value: string; matchMode: FilterMatchMode };
-  year: { value: string; matchMode: FilterMatchMode };
-  type: { value: string; matchMode: FilterMatchMode };
+  number: { value: string; matchMode: string };
+  name: { value: string; matchMode: string };
+  location: { value: string; matchMode: string };
+  year: { value: string; matchMode: string };
+  type: { value: string; matchMode: string };
 }
 
 interface SortState {
@@ -68,8 +68,8 @@ interface PageEvent {
 }
 
 interface SortEvent {
-  sortField: string;
-  sortOrder: number;
+  sortField: string | ((item: any) => string) | undefined;
+  sortOrder: number | null | undefined;
 }
 
 interface RowClickEvent {
@@ -136,12 +136,23 @@ const matchModeOptions = ref([
 const buildSafeFilterString = (): string => {
   const filterParts = [
     `number ~ "${escapeFilterValue(filters.value.number.value)}"`,
-    `name ~ "${escapeFilterValue(filters.value.name.value)}"`,
-    `location ~ "${escapeFilterValue(filters.value.location.value)}"`,
-    `year >= "2015"`,
-    `year ~ "${escapeFilterValue(filters.value.year.value)}"`,
-    `placeType.type ~ "${escapeFilterValue(filters.value.type.value)}"`,
   ];
+
+  // Handle mobile layout differently - search across name, location, and year
+  if (layout.value === "mobile") {
+    const searchValue = escapeFilterValue(filters.value.name.value);
+    if (searchValue) {
+      filterParts.push(`(name ~ "${searchValue}" || location ~ "${searchValue}" || year ~ "${searchValue}")`);
+    }
+  } else {
+    // Desktop layout - separate filters for each field
+    filterParts.push(`name ~ "${escapeFilterValue(filters.value.name.value)}"`);
+    filterParts.push(`location ~ "${escapeFilterValue(filters.value.location.value)}"`);
+  }
+
+  filterParts.push(`year >= "2015"`);
+  filterParts.push(`year ~ "${escapeFilterValue(filters.value.year.value)}"`);
+  filterParts.push(`placeType.type ~ "${escapeFilterValue(filters.value.type.value)}"`);
 
   return filterParts.join(" && ");
 };
@@ -162,13 +173,13 @@ const loadLazyData = async (): Promise<void> => {
       });
 
     // Process data
-    data.items.forEach((item: PlaceData) => {
+    data.items.forEach((item: any) => {
       if (item.year) {
         item.year = item.year.split(" ")[0];
       }
     });
 
-    records.value = data.items;
+    records.value = data.items as unknown as PlaceData[];
     totalRecords.value = data.totalItems;
   } catch (error) {
     console.error("Error loading places data:", error);
@@ -190,8 +201,10 @@ const onFilter = (): void => {
 };
 
 const onSort = (event: SortEvent): void => {
-  sorts.value.field = event.sortField + ",";
-  sorts.value.order = event.sortOrder > 0 ? "" : "-";
+  if (typeof event.sortField === 'string') {
+    sorts.value.field = event.sortField + ",";
+  }
+  sorts.value.order = (event.sortOrder ?? 0) > 0 ? "" : "-";
   loadLazyData();
 };
 
@@ -385,7 +398,7 @@ onMounted(async () => {
         </template>
         <Column
           field="name"
-          header="Name"
+          header="Schwingfest"
           class="table-column-padding-only"
           :sortable="sort"
           :filter-match-mode-options="matchModeOptions"
@@ -404,7 +417,7 @@ onMounted(async () => {
               v-model="filterModel.value"
               type="text"
               class="p-column-filter"
-              placeholder="Filter Name"
+              placeholder="Suche nach Name, Ort oder Jahr"
               @input="filterCallback()"
             />
           </template>
