@@ -35,15 +35,15 @@ interface BoutData {
 }
 
 interface FilterState {
-  result: { value: string; matchMode: FilterMatchMode };
-  points: { value: string; matchMode: FilterMatchMode };
-  fight_round: { value: string; matchMode: FilterMatchMode };
-  "expand.wrestler.name": { value: string; matchMode: FilterMatchMode };
-  "expand.wrestler.vorname": { value: string; matchMode: FilterMatchMode };
-  "expand.opponent.name": { value: string; matchMode: FilterMatchMode };
-  "expand.opponent.vorname": { value: string; matchMode: FilterMatchMode };
-  "expand.place.name": { value: string; matchMode: FilterMatchMode };
-  "expand.place.year": { value: string; matchMode: FilterMatchMode };
+  result: { value: string; matchMode: string };
+  points: { value: string; matchMode: string };
+  fight_round: { value: string; matchMode: string };
+  "expand.wrestler.name": { value: string; matchMode: string };
+  "expand.wrestler.vorname": { value: string; matchMode: string };
+  "expand.opponent.name": { value: string; matchMode: string };
+  "expand.opponent.vorname": { value: string; matchMode: string };
+  "expand.place.name": { value: string; matchMode: string };
+  "expand.place.year": { value: string; matchMode: string };
 }
 
 interface SortState {
@@ -56,8 +56,8 @@ interface PageEvent {
 }
 
 interface SortEvent {
-  sortField: string;
-  sortOrder: number;
+  sortField: string | ((item: any) => string) | undefined;
+  sortOrder: number | null | undefined;
 }
 
 // Composables
@@ -69,6 +69,17 @@ const loading = ref(true);
 const page = ref(1);
 const records = ref<BoutData[]>([]);
 const totalRecords = ref(0);
+
+// Debounced filter function
+let filterTimeout: NodeJS.Timeout | null = null;
+const debouncedLoadData = () => {
+  if (filterTimeout) {
+    clearTimeout(filterTimeout);
+  }
+  filterTimeout = setTimeout(() => {
+    loadLazyData();
+  }, 300);
+};
 
 // Filter options
 const result = ref(["o", "-", "+"]);
@@ -167,14 +178,21 @@ const loadLazyData = async (): Promise<void> => {
           "id,result,points,fight_round,expand.wrestler.id,expand.wrestler.name,expand.wrestler.vorname,expand.opponent.id,expand.opponent.name,expand.opponent.vorname,expand.place.id,expand.place.name,expand.place.year",
       });
 
-    // Process data
-    data.items.forEach((item: BoutData) => {
-      if (item.expand.place.year) {
-        item.expand.place.year = item.expand.place.year.split(" ")[0];
-      }
-    });
+    // Process data efficiently
+    const processedItems = data.items.map((item: any) => ({
+      ...item,
+      expand: {
+        ...item.expand,
+        place: {
+          ...item.expand.place,
+          year: item.expand.place.year
+            ? item.expand.place.year.split(" ")[0]
+            : item.expand.place.year,
+        },
+      },
+    }));
 
-    records.value = data.items;
+    records.value = processedItems as unknown as BoutData[];
     totalRecords.value = data.totalItems;
   } catch (error) {
     console.error("Error loading bouts data:", error);
@@ -192,12 +210,14 @@ const onPage = (event: PageEvent): void => {
 
 const onFilter = (): void => {
   page.value = 1; // Reset to first page when filtering
-  loadLazyData();
+  debouncedLoadData();
 };
 
 const onSort = (event: SortEvent): void => {
-  sorts.value.field = event.sortField.replace("-", ".") + ",";
-  sorts.value.order = event.sortOrder > 0 ? "" : "-";
+  if (typeof event.sortField === "string") {
+    sorts.value.field = event.sortField.replace("-", ".") + ",";
+  }
+  sorts.value.order = (event.sortOrder ?? 0) > 0 ? "" : "-";
   loadLazyData();
 };
 

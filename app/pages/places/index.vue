@@ -86,6 +86,17 @@ const page = ref(1);
 const records = ref<PlaceData[]>([]);
 const totalRecords = ref(0);
 
+// Debounced filter function
+let filterTimeout: NodeJS.Timeout | null = null;
+const debouncedLoadData = () => {
+  if (filterTimeout) {
+    clearTimeout(filterTimeout);
+  }
+  filterTimeout = setTimeout(() => {
+    loadLazyData();
+  }, 300);
+};
+
 // Filter options
 const year = ref([
   "2015",
@@ -134,9 +145,14 @@ const matchModeOptions = ref([
 
 // Methods
 const buildSafeFilterString = (): string => {
-  const filterParts = [
-    `number ~ "${escapeFilterValue(filters.value.number.value)}"`,
-  ];
+  const filterParts: string[] = [];
+
+  // Only add number filter if it has a value
+  if (filters.value.number.value) {
+    filterParts.push(
+      `number ~ "${escapeFilterValue(filters.value.number.value)}"`,
+    );
+  }
 
   // Handle mobile layout differently - search across name, location, and year
   if (layout.value === "mobile") {
@@ -148,17 +164,32 @@ const buildSafeFilterString = (): string => {
     }
   } else {
     // Desktop layout - separate filters for each field
-    filterParts.push(`name ~ "${escapeFilterValue(filters.value.name.value)}"`);
-    filterParts.push(
-      `location ~ "${escapeFilterValue(filters.value.location.value)}"`,
-    );
+    if (filters.value.name.value) {
+      filterParts.push(
+        `name ~ "${escapeFilterValue(filters.value.name.value)}"`,
+      );
+    }
+    if (filters.value.location.value) {
+      filterParts.push(
+        `location ~ "${escapeFilterValue(filters.value.location.value)}"`,
+      );
+    }
   }
 
+  // Always add year constraint
   filterParts.push(`year >= "2015"`);
-  filterParts.push(`year ~ "${escapeFilterValue(filters.value.year.value)}"`);
-  filterParts.push(
-    `placeType.type ~ "${escapeFilterValue(filters.value.type.value)}"`,
-  );
+
+  // Only add year filter if it has a value
+  if (filters.value.year.value) {
+    filterParts.push(`year ~ "${escapeFilterValue(filters.value.year.value)}"`);
+  }
+
+  // Only add type filter if it has a value
+  if (filters.value.type.value) {
+    filterParts.push(
+      `placeType.type ~ "${escapeFilterValue(filters.value.type.value)}"`,
+    );
+  }
 
   return filterParts.join(" && ");
 };
@@ -178,14 +209,13 @@ const loadLazyData = async (): Promise<void> => {
         fields: "id,number,name,location,year,expand.placeType.type",
       });
 
-    // Process data
-    data.items.forEach((item: any) => {
-      if (item.year) {
-        item.year = item.year.split(" ")[0];
-      }
-    });
+    // Process data efficiently
+    const processedItems = data.items.map((item: any) => ({
+      ...item,
+      year: item.year ? item.year.split(" ")[0] : item.year,
+    }));
 
-    records.value = data.items as unknown as PlaceData[];
+    records.value = processedItems as unknown as PlaceData[];
     totalRecords.value = data.totalItems;
   } catch (error) {
     console.error("Error loading places data:", error);
@@ -203,7 +233,7 @@ const onPage = (event: PageEvent): void => {
 
 const onFilter = (): void => {
   page.value = 1; // Reset to first page when filtering
-  loadLazyData();
+  debouncedLoadData();
 };
 
 const onSort = (event: SortEvent): void => {
@@ -223,6 +253,7 @@ const rowClick = async (event: RowClickEvent): Promise<void> => {
 };
 
 const displayYear = (year: string): string => {
+  if (!year) return "";
   if (layout.value === "mobile") {
     return year.split("-")[0];
   } else {

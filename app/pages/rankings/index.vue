@@ -77,30 +77,30 @@ interface BoutData {
 }
 
 interface FilterState {
-  rank: { value: string; matchMode: FilterMatchMode; prefix: string };
-  points: { value: string; matchMode: FilterMatchMode; prefix: string };
-  final: { value: string; matchMode: FilterMatchMode; prefix: string };
-  result: { value: string; matchMode: FilterMatchMode; prefix: string };
-  wreath: { value: string; matchMode: FilterMatchMode; prefix: string };
-  status: { value: string; matchMode: FilterMatchMode; prefix: string };
+  rank: { value: string; matchMode: string; prefix: string };
+  points: { value: string; matchMode: string; prefix: string };
+  final: { value: string; matchMode: string; prefix: string };
+  result: { value: string; matchMode: string; prefix: string };
+  wreath: { value: string; matchMode: string; prefix: string };
+  status: { value: string; matchMode: string; prefix: string };
   "expand.wrestler.name": {
     value: string;
-    matchMode: FilterMatchMode;
+    matchMode: string;
     prefix: string;
   };
   "expand.wrestler.vorname": {
     value: string;
-    matchMode: FilterMatchMode;
+    matchMode: string;
     prefix: string;
   };
   "expand.place.name": {
     value: string;
-    matchMode: FilterMatchMode;
+    matchMode: string;
     prefix: string;
   };
   "expand.place.year": {
     value: string;
-    matchMode: FilterMatchMode;
+    matchMode: string;
     prefix: string;
   };
 }
@@ -115,8 +115,8 @@ interface PageEvent {
 }
 
 interface SortEvent {
-  sortField: string;
-  sortOrder: number;
+  sortField: string | ((item: any) => string) | undefined;
+  sortOrder: number | null | undefined;
 }
 
 interface RowExpandEvent {
@@ -139,6 +139,17 @@ const page = ref(1);
 const records = ref<RankingData[]>([]);
 const totalRecords = ref(0);
 const expandedRows = ref();
+
+// Debounced filter function
+let filterTimeout: NodeJS.Timeout | null = null;
+const debouncedLoadData = () => {
+  if (filterTimeout) {
+    clearTimeout(filterTimeout);
+  }
+  filterTimeout = setTimeout(() => {
+    loadLazyData();
+  }, 300);
+};
 
 // Filter options
 const year = ref([
@@ -251,11 +262,11 @@ const loadLazyData = async (): Promise<void> => {
           "id,rank,rank2,points,final,result,wreath,status,expand.wrestler.id,expand.wrestler.name,expand.wrestler.vorname,expand.place.id,expand.place.name,expand.place.year",
       });
 
-    records.value = data.items.map((item: RankingData) => ({
+    records.value = data.items.map((item: any) => ({
       ...item,
       year: item.expand.place.year.split(" ")[0],
       bouts: [],
-    }));
+    })) as unknown as RankingData[];
     totalRecords.value = data.totalItems;
   } catch (error) {
     console.error("Error loading rankings data:", error);
@@ -286,7 +297,7 @@ const loadLazySubData = async (
         item.expand.wrestler.id === wrestlerId &&
         item.expand.place.id === placeId
       ) {
-        item.bouts = data.items;
+        item.bouts = data.items as unknown as BoutData[];
       }
     });
   } catch (error) {
@@ -303,12 +314,14 @@ const onPage = (event: PageEvent): void => {
 
 const onFilter = (): void => {
   page.value = 1; // Reset to first page when filtering
-  loadLazyData();
+  debouncedLoadData();
 };
 
 const onSort = (event: SortEvent): void => {
-  sorts.value.field = event.sortField.replace("_", ".") + ",";
-  sorts.value.order = event.sortOrder > 0 ? "" : "-";
+  if (typeof event.sortField === "string") {
+    sorts.value.field = event.sortField.replace("_", ".") + ",";
+  }
+  sorts.value.order = (event.sortOrder ?? 0) > 0 ? "" : "-";
   loadLazyData();
 };
 

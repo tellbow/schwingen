@@ -94,6 +94,17 @@ const page = ref(1);
 const records = ref<Wrestler[]>([]);
 const totalRecords = ref(0);
 
+// Debounced filter function
+let filterTimeout: NodeJS.Timeout | null = null;
+const debouncedLoadData = () => {
+  if (filterTimeout) {
+    clearTimeout(filterTimeout);
+  }
+  filterTimeout = setTimeout(() => {
+    loadLazyData();
+  }, 300);
+};
+
 // Constants
 const STATUS_OPTIONS: StatusOption[] = [
   { name: "Eidgenoss", value: " && status.symbol = '***'" },
@@ -194,14 +205,13 @@ const loadLazyData = async (): Promise<void> => {
           "id,name,vorname,year,expand.club.id,expand.club.name,expand.status.symbol",
       });
 
-    // Process data
-    data.items.forEach((item: any) => {
-      if (item.year) {
-        item.year = item.year.split("-")[0];
-      }
-    });
+    // Process data efficiently
+    const processedItems = data.items.map((item: any) => ({
+      ...item,
+      year: item.year ? item.year.split("-")[0] : item.year,
+    }));
 
-    records.value = data.items as unknown as Wrestler[];
+    records.value = processedItems as unknown as Wrestler[];
     totalRecords.value = data.totalItems;
   } catch (error) {
     console.error("Error loading wrestler data:", error);
@@ -219,7 +229,7 @@ const onPage = (event: PageEvent): void => {
 
 const onFilter = (): void => {
   page.value = 1; // Reset to first page when filtering
-  loadLazyData();
+  debouncedLoadData();
 };
 
 const onSort = (event: SortEvent): void => {
