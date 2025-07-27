@@ -70,7 +70,7 @@ setStructuredData([websiteData, breadcrumbs]);
           <p>
             Enthält alle aktiven Schwinger aus der
             <a href="https://esv.ch/hkesv/datenbank/">Datenbank des ESV</a
-            >(Stand 19.06.2025).
+            >(Stand 27.07.2025).
           </p>
           <Button
             label="Anzeigen"
