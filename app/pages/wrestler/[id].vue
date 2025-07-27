@@ -85,6 +85,10 @@ interface WrestlerData {
         };
       };
     };
+    metadata?: {
+      website?: string;
+      instagram?: string;
+    };
   };
 }
 
@@ -270,13 +274,13 @@ const loadWrestlerData = async (): Promise<void> => {
     const data = await pocketbase
       .collection("wrestler")
       .getFirstListItem(`id="${wrestlerId.value}"`, {
-        expand: "status,club,club.canton,club.canton.association",
+        expand: "status,metadata,club,club.canton,club.canton.association",
         fields:
-          "id,name,vorname,year,category,expand.status.status,expand.club.name,expand.club.expand.canton.name,expand.club.expand.canton.expand.association.name,expand.club.expand.canton.expand.association.abbreviation",
+          "id,name,vorname,year,category,expand.status.status,expand.metadata.website,expand.metadata.instagram,expand.club.name,expand.club.expand.canton.name,expand.club.expand.canton.expand.association.name,expand.club.expand.canton.expand.association.abbreviation",
       });
 
     data.year = data.year ? data.year.split("-")[0] : "-";
-    wrestlerData.value = data;
+    wrestlerData.value = data as unknown as WrestlerData;
     setWrestlerSEO();
   } catch (error) {
     console.error("Error loading wrestler data:", error);
@@ -300,7 +304,7 @@ const loadEloData = async (): Promise<void> => {
             .getFirstListItem(`wrestler.id="${wrestlerId.value}"`, {
               fields: "id,rating",
             });
-          eloData.value = data;
+          eloData.value = data as unknown as EloData;
           found = true;
           break;
         } catch (error) {
@@ -317,7 +321,7 @@ const loadEloData = async (): Promise<void> => {
           .getFirstListItem(`wrestler.id="${wrestlerId.value}"`, {
             fields: "id,rating",
           });
-        eloData.value = data;
+        eloData.value = data as unknown as EloData;
       } catch (error) {
         console.error("Error loading ELO data:", error);
         eloData.value = { id: "", rating: "-" };
@@ -384,9 +388,9 @@ const loadRankingsData = async (): Promise<void> => {
     wreath2.value = 0;
     wreath3.value = 0;
 
-    data.forEach((item: RankingData) => {
+    data.forEach((item: any) => {
       if (item.wreath) {
-        const placeType = item.expand.place.expand.placeType.type;
+        const placeType = item.expand?.place?.expand?.placeType?.type;
         switch (placeType) {
           case "Gauverband":
           case "Kantonal":
@@ -402,11 +406,13 @@ const loadRankingsData = async (): Promise<void> => {
         }
       }
       // Store the original date for charting purposes
-      item.expand.place.originalDate = item.expand.place.year;
-      item.expand.place.year = item.expand.place.year.split("-")[0];
+      if (item.expand?.place) {
+        item.expand.place.originalDate = item.expand.place.year;
+        item.expand.place.year = item.expand.place.year.split("-")[0];
+      }
     });
 
-    rankingsData.value = data;
+    rankingsData.value = data as unknown as RankingData[];
   } catch (error) {
     console.error("Error loading rankings data:", error);
     rankingsData.value = [];
@@ -829,6 +835,28 @@ onMounted(async () => {
                 .abbreviation
             }}
           </p>
+          <div
+            v-if="
+              wrestlerData.expand.metadata?.website ||
+              wrestlerData.expand.metadata?.instagram
+            "
+            class="flex gap-2 mt-2"
+          >
+            <NuxtLink
+              v-if="wrestlerData.expand.metadata?.website"
+              :to="wrestlerData.expand.metadata.website"
+              target="_blank"
+            >
+              <Icon name="mdi:web" class="inline-block" />
+            </NuxtLink>
+            <NuxtLink
+              v-if="wrestlerData.expand.metadata?.instagram"
+              :to="wrestlerData.expand.metadata.instagram"
+              target="_blank"
+            >
+              <Icon name="mdi:instagram" class="inline-block" />
+            </NuxtLink>
+          </div>
         </template>
       </Card>
     </div>
