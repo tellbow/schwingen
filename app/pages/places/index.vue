@@ -142,17 +142,23 @@ const buildSafeFilterString = (): string => {
   if (layout.value === "mobile") {
     const searchValue = escapeFilterValue(filters.value.name.value);
     if (searchValue) {
-      filterParts.push(`(name ~ "${searchValue}" || location ~ "${searchValue}" || year ~ "${searchValue}")`);
+      filterParts.push(
+        `(name ~ "${searchValue}" || location ~ "${searchValue}" || year ~ "${searchValue}")`,
+      );
     }
   } else {
     // Desktop layout - separate filters for each field
     filterParts.push(`name ~ "${escapeFilterValue(filters.value.name.value)}"`);
-    filterParts.push(`location ~ "${escapeFilterValue(filters.value.location.value)}"`);
+    filterParts.push(
+      `location ~ "${escapeFilterValue(filters.value.location.value)}"`,
+    );
   }
 
   filterParts.push(`year >= "2015"`);
   filterParts.push(`year ~ "${escapeFilterValue(filters.value.year.value)}"`);
-  filterParts.push(`placeType.type ~ "${escapeFilterValue(filters.value.type.value)}"`);
+  filterParts.push(
+    `placeType.type ~ "${escapeFilterValue(filters.value.type.value)}"`,
+  );
 
   return filterParts.join(" && ");
 };
@@ -201,7 +207,7 @@ const onFilter = (): void => {
 };
 
 const onSort = (event: SortEvent): void => {
-  if (typeof event.sortField === 'string') {
+  if (typeof event.sortField === "string") {
     sorts.value.field = event.sortField + ",";
   }
   sorts.value.order = (event.sortOrder ?? 0) > 0 ? "" : "-";

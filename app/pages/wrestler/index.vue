@@ -132,32 +132,38 @@ const matchModeOptionContains = ref([
 // Methods
 const buildSafeFilterString = (): string => {
   const filterParts = [];
-  
+
   // Handle name/vorname filtering - in mobile view, search both fields
-  if (layout.value === 'mobile' && filters.value.name.value) {
+  if (layout.value === "mobile" && filters.value.name.value) {
     const searchTerm = escapeFilterValue(filters.value.name.value);
     filterParts.push(`(name ~ "${searchTerm}" || vorname ~ "${searchTerm}")`);
   } else {
     // Desktop view - separate filters for name and vorname
     if (filters.value.name.value) {
-      filterParts.push(`name ~ "${escapeFilterValue(filters.value.name.value)}"`);
+      filterParts.push(
+        `name ~ "${escapeFilterValue(filters.value.name.value)}"`,
+      );
     }
     if (filters.value.vorname.value) {
-      filterParts.push(`vorname ~ "${escapeFilterValue(filters.value.vorname.value)}"`);
+      filterParts.push(
+        `vorname ~ "${escapeFilterValue(filters.value.vorname.value)}"`,
+      );
     }
   }
-  
+
   // Add other filters
   if (filters.value.year.value) {
     filterParts.push(`year ~ "${escapeFilterValue(filters.value.year.value)}"`);
   }
   if (filters.value.club.value) {
-    filterParts.push(`club.name ~ "${escapeFilterValue(filters.value.club.value)}"`);
+    filterParts.push(
+      `club.name ~ "${escapeFilterValue(filters.value.club.value)}"`,
+    );
   }
 
   // Build the base filter
   let filterString = filterParts.join(" && ");
-  
+
   // Handle status filter - only add if there are other filters or if status filter is not empty
   const statusFilter = filters.value.status.value;
   if (statusFilter && statusFilter.trim() !== "") {
@@ -217,7 +223,7 @@ const onFilter = (): void => {
 };
 
 const onSort = (event: SortEvent): void => {
-  if (typeof event.sortField === 'string') {
+  if (typeof event.sortField === "string") {
     sorts.value.field = event.sortField + ",";
   }
   sorts.value.order = (event.sortOrder ?? 0) > 0 ? "" : "-";
