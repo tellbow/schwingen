@@ -243,24 +243,36 @@ const years: YearOption[] = [
 
 // Computed properties
 const averageRank = computed(() => {
-  if (!rankingsData.value.length) return "-";
+  const filteredData = rankingsData.value.filter(
+    (item) => item.status !== "Unfall",
+  );
 
-  const totalRank = rankingsData.value
+  if (filteredData.length < 5) return "-";
+
+  const totalRank = filteredData
     .map((item) => parseInt(item.rank.replace(/\D/g, "")) || 0)
     .reduce((sum, rank) => sum + rank, 0);
 
-  const average = totalRank / rankingsData.value.length;
+  const average = totalRank / filteredData.length;
   return isNaN(average) ? "-" : average.toFixed(2);
 });
 
 const averagePoints = computed(() => {
-  if (!rankingsData.value.length) return "-";
+  const filteredData = rankingsData.value.filter(
+    (item) =>
+      item.status !== "Unfall" &&
+      !item.expand?.place?.expand?.placeType?.type?.includes("idgenössisch"),
+  );
 
-  const totalPoints = rankingsData.value
-    .map((item) => parseInt(item.points) || 0)
+  if (filteredData.length < 5) return "-";
+
+  const totalPoints = filteredData
+    .map((item) => parseFloat(item.points) || 0)
     .reduce((sum, points) => sum + points, 0);
 
-  const average = totalPoints / rankingsData.value.length;
+  console.log(filteredData.length);
+  console.log(totalPoints);
+  const average = totalPoints / filteredData.length;
   return isNaN(average) ? "-" : average.toFixed(2);
 });
 
