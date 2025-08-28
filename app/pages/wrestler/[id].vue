@@ -628,10 +628,10 @@ const findTopOpponents = async (): Promise<void> => {
 
     const data = await pocketbase.collection("bouts").getFullList(200, {
       filter: `wrestler.id = "${wrestlerId.value}" && result = "o"`,
-      expand: "opponent,place",
+      expand: "opponent,opponent.status,place",
       sort: "-place.year,-created",
       fields:
-        "id,result,points,expand.opponent.id,expand.opponent.name,expand.opponent.vorname,expand.place.id,expand.place.name,expand.place.year",
+        "id,result,points,expand.opponent.id,expand.opponent.name,expand.opponent.vorname,expand.opponent.expand.status.symbol,expand.place.id,expand.place.name,expand.place.year",
     });
 
     // Group by opponent and count losses
@@ -639,15 +639,19 @@ const findTopOpponents = async (): Promise<void> => {
       (acc, item) => {
         const opponentId = item.expand.opponent.id;
         const { name, vorname } = item.expand.opponent;
+        const { symbol } = item.expand.opponent.expand.status;
 
         if (acc[opponentId]) {
           acc[opponentId].count++;
         } else {
-          acc[opponentId] = { count: 1, name, vorname };
+          acc[opponentId] = { count: 1, name, vorname, symbol };
         }
         return acc;
       },
-      {} as Record<string, { count: number; name: string; vorname: string }>,
+      {} as Record<
+        string,
+        { count: number; name: string; vorname: string; symbol: string }
+      >,
     );
 
     // Convert to array and sort by count
@@ -891,9 +895,8 @@ onMounted(async () => {
               :key="value.id"
               @click="wrestlerRowClick(value.id)"
             >
-              {{ key + 1 }}: {{ value.name }} {{ value.vorname }} ({{
-                value.count
-              }}
+              {{ key + 1 }}: {{ value.name }} {{ value.vorname
+              }}{{ value.symbol }} ({{ value.count }}
               verloren)
             </li>
           </ul>
