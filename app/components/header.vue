@@ -3,11 +3,6 @@ import { ref } from "vue";
 
 const items = ref([
   {
-    label: "Verbände",
-    icon: "clubs-icon",
-    route: "/associations",
-  },
-  {
     label: "Schwinger",
     icon: "wrestler-icon",
     route: "/wrestler",

@@ -47,24 +47,6 @@ setStructuredData([websiteData, breadcrumbs]);
           content: { class: 'p-1 md:p-2' },
         }"
       >
-        <template #title> Verbände </template>
-        <template #content>
-          <p>Informationen zu den Teilverbänden und dessen Unterverbänden.</p>
-          <Button
-            label="Anzeigen"
-            aria-label="Verbände anzeigen"
-            class="w-half mt-3 bg-yellow-900 border-2 border-yellow-800"
-            @click="navigateTo('/associations')"
-          />
-        </template>
-      </Card>
-      <Card
-        class="w-screen md:w-5 ml-2 md:ml-4 mt-2 mr-2 md:mr-4"
-        :pt="{
-          body: { class: 'pt-2 md:pt-3 pb-2 md:pb-3' },
-          content: { class: 'p-1 md:p-2' },
-        }"
-      >
         <template #title> Schwinger </template>
         <template #content>
           <p>

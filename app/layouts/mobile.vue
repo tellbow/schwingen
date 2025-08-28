@@ -7,10 +7,6 @@ const items = ref([
     to: "/",
   },
   {
-    label: "Verbände",
-    to: "/associations",
-  },
-  {
     label: "Schwinger",
     to: "/wrestler",
   },
