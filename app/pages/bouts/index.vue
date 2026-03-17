@@ -5,7 +5,7 @@ import { escapeFilterValue } from "~/utils/filterUtils";
 
 useSeo({
   title: `Paarungen - Tellbow`,
-  description: `Alle Paarungen und Ergebnisse von Schweizer Schwingern aus den Jahren 2015-2025. Detaillierte Resultate, Punkte und Gang.`,
+  description: `Alle Paarungen und Ergebnisse von Schweizer Schwingern aus den Jahren 2015-2026. Detaillierte Resultate, Punkte und Gang.`,
   keywords: `Kanton, Gauverband, Schwinger, Schweizer Schwinger, ESV, Schwingen`,
 });
 
@@ -108,6 +108,7 @@ const year = ref([
   "2023",
   "2024",
   "2025",
+  "2026",
 ]);
 
 // Filters and sorting

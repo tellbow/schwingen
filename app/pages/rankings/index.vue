@@ -6,7 +6,7 @@ import { escapeFilterValue } from "~/utils/filterUtils";
 useSeo({
   title: "Ranglisten - Tellbow",
   description:
-    "Alle Ranglisten und Ergebnisse von Schweizer Schwingern aus den Jahren 2015-2025. Detaillierte Resultate, Punkte und Kränze.",
+    "Alle Ranglisten und Ergebnisse von Schweizer Schwingern aus den Jahren 2015-2026. Detaillierte Resultate, Punkte und Kränze.",
   keywords:
     "Ranglisten, Schwingen Ergebnisse, Schweizer Schwinger, ESV, Punkte, Kränze, Schwingfeste",
 });
@@ -20,7 +20,7 @@ const websiteData = createWebSite({
   name: "Tellbow - Ranglisten",
   url: `${config.public.baseUrl}/rankings`,
   description:
-    "Alle Ranglisten und Ergebnisse von Schweizer Schwingern aus den Jahren 2015-2025. Detaillierte Resultate, Punkte und Kränze.",
+    "Alle Ranglisten und Ergebnisse von Schweizer Schwingern aus den Jahren 2015-2026. Detaillierte Resultate, Punkte und Kränze.",
   publisher: {
     name: "Tellbow",
     url: config.public.baseUrl,
@@ -164,6 +164,7 @@ const year = ref([
   "2023",
   "2024",
   "2025",
+  "2026",
 ]);
 
 // Filters and sorting

@@ -52,7 +52,7 @@ setStructuredData([websiteData, breadcrumbs]);
           <p>
             Enthält alle aktiven Schwinger aus der
             <a href="https://esv.ch/hkesv/datenbank/">Datenbank des ESV</a
-            >(Stand 27.07.2025).
+            >(Stand 17.05.2026).
           </p>
           <Button
             label="Anzeigen"
@@ -72,7 +72,7 @@ setStructuredData([websiteData, breadcrumbs]);
         <template #title> Schwingfeste </template>
         <template #content>
           <p>
-            Enthält alle Schwingfeste der Aktiven aus den Jahren 2015 - 2025.
+            Enthält alle Schwingfeste der Aktiven aus den Jahren 2015 - 2026.
           </p>
           <Button
             label="Anzeigen"

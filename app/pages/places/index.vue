@@ -6,7 +6,7 @@ import { escapeFilterValue } from "~/utils/filterUtils";
 useSeo({
   title: "Schwingfeste - Tellbow",
   description:
-    "Alle Schwingfeste der Aktiven aus den Jahren 2015-2025. Eidgenössische, Teilverbands-, Kantonale und regionale Schwingfeste.",
+    "Alle Schwingfeste der Aktiven aus den Jahren 2015-2026. Eidgenössische, Teilverbands-, Kantonale und regionale Schwingfeste.",
   keywords:
     "Schwingfeste, Eidgenössisches Schwingfest, Teilverbandsschwingfest, Kantonales Schwingfest, Bergschwingfest, Schweizer Schwingen",
 });
@@ -20,7 +20,7 @@ const websiteData = createWebSite({
   name: "Tellbow - Schwingfeste",
   url: `${config.public.baseUrl}/places`,
   description:
-    "Alle Schwingfeste der Aktiven aus den Jahren 2015-2025. Eidgenössische, Teilverbands-, Kantonale und regionale Schwingfeste.",
+    "Alle Schwingfeste der Aktiven aus den Jahren 2015-2026. Eidgenössische, Teilverbands-, Kantonale und regionale Schwingfeste.",
   publisher: {
     name: "Tellbow",
     url: config.public.baseUrl,
@@ -110,6 +110,7 @@ const year = ref([
   "2023",
   "2024",
   "2025",
+  "2026",
 ]);
 const placeType = ref([
   "Sonstige",

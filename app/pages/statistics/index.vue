@@ -133,6 +133,7 @@ const years: YearOption[] = [
   { year: 2023 },
   { year: 2024 },
   { year: 2025 },
+  { year: 2026 },
   { year: "Alle" },
 ];
 
