@@ -1,0 +1,12 @@
+node_modules/
+.svelte-kit/
+build/
+pb_data/
+.git/
+.gitignore
+*.md
+.env
+.env.*
+docker/
+k8s/
+scripts/

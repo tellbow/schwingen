@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: pocketbase
+  namespace: schwingen
+  labels:
+    app: pocketbase
+spec:
+  selector:
+    app: pocketbase
+  ports:
+    - name: http
+      port: 8090
+      targetPort: 8090
+  # ClusterIP: only accessible within the cluster (frontend pod calls this)
+  type: ClusterIP
