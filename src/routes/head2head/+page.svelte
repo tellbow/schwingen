@@ -88,20 +88,20 @@
 			<div class="relative">
 				<input
 					type="text"
-					class="w-full border border-gray-300 rounded px-3 py-2 text-lg md:text-sm"
+					class="filter-input"
 					placeholder="Name oder Vorname eingeben…"
 					bind:value={searchTerm1}
 					oninput={() => debounceSearch(searchTerm1, 1)}
 				/>
 				{#if searching1}
-					<div class="absolute right-2 top-2"><div class="spinner w-4 h-4 border border-zinc-800"></div></div>
+					<div class="absolute right-2 top-2"><div class="spinner w-4 h-4"></div></div>
 				{/if}
 				{#if results1.length > 0}
-					<ul class="absolute z-10 w-full bg-white border border-gray-200 rounded shadow-lg mt-1 max-h-48 overflow-y-auto">
+					<ul class="absolute z-10 w-full bg-surface-lowest border border-border rounded-lg mt-1 max-h-48 overflow-y-auto">
 						{#each results1 as w}
 							<li>
 								<button
-									class="w-full text-left px-3 py-2 text-lg md:text-sm hover:bg-gray-100 cursor-pointer"
+									class="w-full text-left px-3 py-2 text-lg md:text-sm hover:bg-surface-container transition-colors cursor-pointer"
 									onclick={() => select(w, 1)}
 								>
 									{w.name} {w.vorname}
@@ -112,7 +112,7 @@
 				{/if}
 			</div>
 			{#if selected1}
-				<p class="text-xs text-green-700 mt-1">Ausgewählt: {selected1.name} {selected1.vorname}</p>
+				<p class="text-xs text-tertiary mt-1">Ausgewählt: {selected1.name} {selected1.vorname}</p>
 			{/if}
 		</div>
 
@@ -122,20 +122,20 @@
 			<div class="relative">
 				<input
 					type="text"
-					class="w-full border border-gray-300 rounded px-3 py-2 text-lg md:text-sm"
+					class="filter-input"
 					placeholder="Name oder Vorname eingeben…"
 					bind:value={searchTerm2}
 					oninput={() => debounceSearch(searchTerm2, 2)}
 				/>
 				{#if searching2}
-					<div class="absolute right-2 top-2"><div class="spinner w-4 h-4 border border-zinc-800"></div></div>
+					<div class="absolute right-2 top-2"><div class="spinner w-4 h-4"></div></div>
 				{/if}
 				{#if results2.length > 0}
-					<ul class="absolute z-10 w-full bg-white border border-gray-200 rounded shadow-lg mt-1 max-h-48 overflow-y-auto">
+					<ul class="absolute z-10 w-full bg-surface-lowest border border-border rounded-lg mt-1 max-h-48 overflow-y-auto">
 						{#each results2 as w}
 							<li>
 								<button
-									class="w-full text-left px-3 py-2 text-lg md:text-sm hover:bg-gray-100 cursor-pointer"
+									class="w-full text-left px-3 py-2 text-lg md:text-sm hover:bg-surface-container transition-colors cursor-pointer"
 									onclick={() => select(w, 2)}
 								>
 									{w.name} {w.vorname}
@@ -146,13 +146,13 @@
 				{/if}
 			</div>
 			{#if selected2}
-				<p class="text-xs text-green-700 mt-1">Ausgewählt: {selected2.name} {selected2.vorname}</p>
+				<p class="text-xs text-tertiary mt-1">Ausgewählt: {selected2.name} {selected2.vorname}</p>
 			{/if}
 		</div>
 	</div>
 
 	{#if selected1 && selected2 && selected1.id === selected2.id}
-		<p class="mt-4 text-red-600 text-sm">Bitte zwei verschiedene Schwinger auswählen.</p>
+		<p class="mt-4 text-error text-sm">Bitte zwei verschiedene Schwinger auswählen.</p>
 	{/if}
 
 	<div class="mt-6">

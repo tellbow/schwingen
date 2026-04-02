@@ -77,7 +77,7 @@
 				<th>Jahr</th>
 				<th class="hidden md:table-cell">Typ</th>
 			</tr>
-			<tr class="bg-gray-50">
+			<tr class="bg-surface-low">
 				<th class="p-1 hidden md:table-cell">
 					<input type="text" class="filter-input" placeholder="Nr." bind:value={filterNumber} oninput={search} />
 				</th>
@@ -107,7 +107,7 @@
 			{#if loading}
 				<tr><td colspan="5" class="text-center py-8"><div class="spinner mx-auto"></div></td></tr>
 			{:else if data.places.length === 0}
-				<tr><td colspan="5" class="text-center py-8 text-gray-500">Keine Schwingfeste gefunden.</td></tr>
+				<tr><td colspan="5" class="text-center py-8 text-muted-foreground">Keine Schwingfeste gefunden.</td></tr>
 			{:else}
 				{#each data.places as p}
 					<tr class="cursor-pointer" onclick={() => goto(`/rankings/${p.id}`)}>
@@ -116,7 +116,7 @@
 							<a href="/rankings/{p.id}" class="hover:underline">
 								{p.name}
 							</a>
-							<span class="block text-xs text-gray-500 md:hidden">{p.expand?.placeType?.type ?? ''}</span>
+							<span class="block text-xs text-muted-foreground md:hidden">{p.expand?.placeType?.type ?? ''}</span>
 						</td>
 						<td class="hidden md:table-cell">{p.location ?? '-'}</td>
 						<td class="whitespace-nowrap">{p.yearDisplay}</td>
@@ -143,6 +143,6 @@
 			{/each}
 			<button class="pagination-btn" disabled={data.page >= totalPages} onclick={() => goToPage(data.page + 1)}>›</button>
 		</div>
-		<span class="text-sm text-gray-500">Seite {data.page} von {totalPages}</span>
+		<span class="text-sm text-muted-foreground">Seite {data.page} von {totalPages}</span>
 	</div>
 {/if}

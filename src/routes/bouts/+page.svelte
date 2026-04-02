@@ -84,7 +84,7 @@
 				<th>Schwingfest</th>
 				<th class="hidden md:table-cell">Jahr</th>
 			</tr>
-			<tr class="bg-gray-50">
+			<tr class="bg-surface-low">
 				<th class="p-1">
 					<select class="filter-input" bind:value={filterResult} onchange={search}>
 						{#each RESULTS as r}
@@ -134,13 +134,13 @@
 			{#if loading}
 				<tr><td colspan="9" class="text-center py-8"><div class="spinner mx-auto"></div></td></tr>
 			{:else if data.bouts.length === 0}
-				<tr><td colspan="9" class="text-center py-8 text-gray-500">Keine Paarungen gefunden.</td></tr>
+				<tr><td colspan="9" class="text-center py-8 text-muted-foreground">Keine Paarungen gefunden.</td></tr>
 			{:else}
 				{#each data.bouts as b}
 					<tr>
 						<td class="font-mono">
 							{b.result}
-							<span class="block text-xs text-gray-500 md:hidden">{b.points} · G{b.fight_round} · {b.year}</span>
+							<span class="block text-xs text-muted-foreground md:hidden">{b.points} · G{b.fight_round} · {b.year}</span>
 						</td>
 						<td class="hidden md:table-cell">{b.points}</td>
 						<td class="hidden md:table-cell">{b.fight_round}</td>
@@ -149,7 +149,7 @@
 							onclick={() => goto(`/wrestler/${b.expand?.wrestler?.id}`)}
 						>
 							{b.expand?.wrestler?.name ?? '-'}
-							<span class="block text-xs text-gray-500 md:hidden">{b.expand?.wrestler?.vorname ?? ''}</span>
+							<span class="block text-xs text-muted-foreground md:hidden">{b.expand?.wrestler?.vorname ?? ''}</span>
 						</td>
 						<td class="hidden md:table-cell">{b.expand?.wrestler?.vorname ?? '-'}</td>
 						<td
@@ -157,7 +157,7 @@
 							onclick={() => goto(`/wrestler/${b.expand?.opponent?.id}`)}
 						>
 							{b.expand?.opponent?.name ?? '-'}
-							<span class="block text-xs text-gray-500 md:hidden">{b.expand?.opponent?.vorname ?? ''}</span>
+							<span class="block text-xs text-muted-foreground md:hidden">{b.expand?.opponent?.vorname ?? ''}</span>
 						</td>
 						<td class="hidden md:table-cell">{b.expand?.opponent?.vorname ?? '-'}</td>
 						<td
@@ -189,6 +189,6 @@
 			{/each}
 			<button class="pagination-btn" disabled={data.page >= totalPages} onclick={() => goToPage(data.page + 1)}>›</button>
 		</div>
-		<span class="text-sm text-gray-500">Seite {data.page} von {totalPages}</span>
+		<span class="text-sm text-muted-foreground">Seite {data.page} von {totalPages}</span>
 	</div>
 {/if}

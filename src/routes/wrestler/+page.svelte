@@ -75,7 +75,7 @@
 				<th class="hidden md:table-cell">Jahrgang</th>
 				<th>Schwingklub</th>
 			</tr>
-			<tr class="bg-gray-50">
+			<tr class="bg-surface-low">
 				<th class="p-1">
 					<input
 						type="text"
@@ -130,12 +130,12 @@
 				<tr>
 					<td colspan="5" class="text-center py-8">
 						<div class="spinner mx-auto"></div>
-						<p class="mt-2 text-gray-500 text-sm">Schwinger werden geladen...</p>
+						<p class="mt-2 text-muted-foreground text-sm">Schwinger werden geladen...</p>
 					</td>
 				</tr>
 			{:else if data.wrestlers.length === 0}
 				<tr>
-					<td colspan="5" class="text-center py-8 text-gray-500">Keine Schwinger gefunden.</td>
+					<td colspan="5" class="text-center py-8 text-muted-foreground">Keine Schwinger gefunden.</td>
 				</tr>
 			{:else}
 				{#each data.wrestlers as w}
@@ -143,7 +143,7 @@
 						<td class="font-medium">
 							<a href="/wrestler/{w.id}" class="hover:underline">
 								{w.name}
-								<span class="md:hidden text-gray-600"> {w.vorname}</span>
+								<span class="md:hidden text-muted-foreground"> {w.vorname}</span>
 							</a>
 						</td>
 						<td class="hidden md:table-cell">{w.vorname}</td>
@@ -190,6 +190,6 @@
 				›
 			</button>
 		</div>
-		<span class="text-sm text-gray-500">Seite {data.page} von {totalPages}</span>
+		<span class="text-sm text-muted-foreground">Seite {data.page} von {totalPages}</span>
 	</div>
 {/if}

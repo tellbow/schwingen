@@ -67,6 +67,13 @@ Denormalized view collections:
 - Client-side calls go through `/api/pb/[...path]` proxy (avoids CORS)
 - `src/lib/pb.ts` — single PocketBase JS SDK client
 
+### Observability
+
+- `src/lib/metrics.ts` — Prometheus metrics (HTTP request counters + duration histograms)
+- `src/lib/tracing.ts` — OpenTelemetry NodeSDK with OTLP HTTP exporter
+- Both wired in `src/hooks.server.ts` — do not modify the instrumentation setup
+- Metrics available at `/metrics`, health check at `/health`
+
 ---
 
 ## PWA — Offline Caching

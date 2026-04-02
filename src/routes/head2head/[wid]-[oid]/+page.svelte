@@ -86,9 +86,9 @@
 
 <div class="max-w-4xl mx-auto space-y-4">
 	<h1 class="text-xl font-bold">
-		<a href="/wrestler/{wrestler.id}" class="underline hover:text-zinc-600">{wrestler.vorname} {wrestler.name}</a>
+		<a href="/wrestler/{wrestler.id}" class="underline hover:text-primary">{wrestler.vorname} {wrestler.name}</a>
 		vs
-		<a href="/wrestler/{opponent.id}" class="underline hover:text-zinc-600">{opponent.vorname} {opponent.name}</a>
+		<a href="/wrestler/{opponent.id}" class="underline hover:text-primary">{opponent.vorname} {opponent.name}</a>
 	</h1>
 
 	<!-- Stats Comparison -->
@@ -127,7 +127,7 @@
 	<div class="card">
 		<h2 class="card-title">Direkte Begegnungen ({commonBouts.length})</h2>
 		{#if commonBouts.length === 0}
-			<p class="text-gray-500 text-sm">Keine direkten Begegnungen gefunden.</p>
+			<p class="text-muted-foreground text-sm">Keine direkten Begegnungen gefunden.</p>
 		{:else}
 			<div class="overflow-x-auto">
 				<table class="data-table w-full text-sm">

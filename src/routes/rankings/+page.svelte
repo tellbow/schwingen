@@ -112,7 +112,7 @@
 				<th>Schwingfest</th>
 				<th class="hidden md:table-cell">Jahr</th>
 			</tr>
-			<tr class="bg-gray-50">
+			<tr class="bg-surface-low">
 				<th class="p-1"></th>
 				<th class="p-1">
 					<input type="text" class="filter-input" placeholder="Rang" bind:value={filterRank} oninput={search} />
@@ -151,16 +151,16 @@
 			{#if loading}
 				<tr><td colspan="11" class="text-center py-8"><div class="spinner mx-auto"></div></td></tr>
 			{:else if data.rankings.length === 0}
-				<tr><td colspan="11" class="text-center py-8 text-gray-500">Keine Ranglisten gefunden.</td></tr>
+				<tr><td colspan="11" class="text-center py-8 text-muted-foreground">Keine Ranglisten gefunden.</td></tr>
 			{:else}
 				{#each data.rankings as r}
 					<tr class="cursor-pointer" onclick={() => toggleExpand(r)}>
-						<td class="text-center text-gray-400">
+						<td class="text-center text-outline">
 							{expandedBouts[r.id] !== undefined ? '▲' : '▼'}
 						</td>
 						<td>
 							{r.rank}{r.rank2}
-							<span class="block text-xs text-gray-500 md:hidden">{r.points}</span>
+							<span class="block text-xs text-muted-foreground md:hidden">{r.points}</span>
 						</td>
 						<td class="hidden md:table-cell">{r.points}</td>
 						<td class="hidden md:table-cell">{r.final ? '🏁' : ''}</td>
@@ -172,7 +172,7 @@
 							onclick={(e) => { e.stopPropagation(); goto(`/wrestler/${r.expand?.wrestler?.id}`); }}
 						>
 							{r.expand?.wrestler?.name ?? '-'}
-							<span class="block text-xs text-gray-500 md:hidden">{r.expand?.wrestler?.vorname ?? ''}</span>
+							<span class="block text-xs text-muted-foreground md:hidden">{r.expand?.wrestler?.vorname ?? ''}</span>
 						</td>
 						<td class="hidden md:table-cell">{r.expand?.wrestler?.vorname ?? '-'}</td>
 						<td
@@ -180,7 +180,7 @@
 							onclick={(e) => { e.stopPropagation(); goto(`/rankings/${r.expand?.place?.id}`); }}
 						>
 							{r.expand?.place?.name ?? '-'}
-							<span class="block text-xs text-gray-500 md:hidden">{r.year}</span>
+							<span class="block text-xs text-muted-foreground md:hidden">{r.year}</span>
 						</td>
 						<td class="hidden md:table-cell">{r.year}</td>
 					</tr>
@@ -192,13 +192,13 @@
 						</tr>
 					{:else if expandedBouts[r.id] !== undefined}
 						<tr>
-							<td colspan="11" class="p-2 bg-gray-50">
+							<td colspan="11" class="p-2 bg-surface-low">
 								{#if expandedBouts[r.id].length === 0}
-									<p class="text-sm text-gray-500">Keine Paarungen.</p>
+									<p class="text-sm text-muted-foreground">Keine Paarungen.</p>
 								{:else}
-									<table class="w-full text-xs border border-gray-200">
+									<table class="w-full text-xs border border-border">
 										<thead>
-											<tr class="bg-gray-200">
+											<tr class="bg-surface-container">
 												<th class="px-2 py-1 text-left">Gang</th>
 												<th class="px-2 py-1 text-left">Resultat</th>
 												<th class="px-2 py-1 text-left">Punkte</th>
@@ -207,7 +207,7 @@
 										</thead>
 										<tbody>
 											{#each expandedBouts[r.id] as b}
-												<tr class="border-t border-gray-100">
+												<tr class="border-t border-outline-variant/20">
 													<td class="px-2 py-1">{b.fight_round}</td>
 													<td class="px-2 py-1 font-mono">{b.result}</td>
 													<td class="px-2 py-1">{b.points}</td>
@@ -248,6 +248,6 @@
 			{/each}
 			<button class="pagination-btn" disabled={data.page >= totalPages} onclick={() => goToPage(data.page + 1)}>›</button>
 		</div>
-		<span class="text-sm text-gray-500">Seite {data.page} von {totalPages}</span>
+		<span class="text-sm text-muted-foreground">Seite {data.page} von {totalPages}</span>
 	</div>
 {/if}

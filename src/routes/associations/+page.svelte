@@ -222,45 +222,45 @@
 		<h2 class="card-title">Teilverbände, Kantone und Klubs</h2>
 		<div class="space-y-2">
 			{#each data.associations as assoc}
-				<div class="border border-gray-200 rounded">
+				<div class="border border-border rounded-lg">
 					<button
-						class="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-gray-50 font-medium"
+						class="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-surface-low font-medium transition-colors"
 						onclick={() => toggleAssociation(assoc.id)}
 					>
 						<span class="flex flex-col">
 							<span>
 								<a
 									href="/associations/association/{assoc.id}"
-									class="underline hover:text-zinc-600 mr-2"
+									class="underline hover:text-primary mr-2"
 									onclick={(e) => e.stopPropagation()}
 								>
 									{assoc.abbreviation}
 								</a>
 								{assoc.name}
 							</span>
-							<span class="text-xs text-gray-500 font-normal mt-0.5">
+							<span class="text-xs text-muted-foreground font-normal mt-0.5">
 								{assoc.wrestlerActive} aktiv &nbsp;·&nbsp; * {assoc.wrestler1Star} &nbsp;·&nbsp; ** {assoc.wrestler2Star} &nbsp;·&nbsp; *** {assoc.wrestler3Star}
 							</span>
 						</span>
-						<span class="text-gray-400 ml-3 shrink-0">{expandedAssociation === assoc.id ? '▲' : '▼'}</span>
+						<span class="text-outline ml-3 shrink-0">{expandedAssociation === assoc.id ? '▲' : '▼'}</span>
 					</button>
 
 					{#if expandedAssociation === assoc.id}
 						<div class="px-4 pb-2 space-y-1">
 							{#each cantonsByAssociation[assoc.id] || [] as canton}
-								<div class="border-l-2 border-gray-300 pl-3">
+								<div class="border-l-2 border-outline-variant pl-3">
 									<button
-										class="w-full flex justify-between items-center py-1 text-left text-sm hover:bg-gray-50"
+										class="w-full flex justify-between items-center py-1 text-left text-sm hover:bg-surface-low transition-colors"
 										onclick={() => expandedCanton = expandedCanton === canton.id ? null : canton.id}
 									>
 										<a
 											href="/associations/canton/{canton.id}"
-											class="underline hover:text-zinc-600"
+											class="underline hover:text-primary"
 											onclick={(e) => e.stopPropagation()}
 										>
 											{canton.name}
 										</a>
-										<span class="text-xs text-gray-500">
+										<span class="text-xs text-muted-foreground">
 											{canton.wrestlerActive} aktiv
 											{expandedCanton === canton.id ? ' ▲' : ' ▼'}
 										</span>
@@ -269,22 +269,22 @@
 									{#if expandedCanton === canton.id}
 										<div class="pl-3 space-y-0.5">
 											{#each clubsByCanton[canton.id] || [] as club}
-												<div class="flex justify-between items-center py-0.5 text-xs border-b border-gray-100 hover:bg-gray-50">
-													<a href="/associations/club/{club.id}" class="underline hover:text-zinc-600">
+												<div class="flex justify-between items-center py-0.5 text-xs border-b border-outline-variant/20 hover:bg-surface-container transition-colors">
+													<a href="/associations/club/{club.id}" class="underline hover:text-primary">
 														{club.name}
 													</a>
-													<span class="text-gray-500">{club.wrestlerActive} aktiv</span>
+													<span class="text-muted-foreground">{club.wrestlerActive} aktiv</span>
 												</div>
 											{/each}
 											{#if (clubsByCanton[canton.id] || []).length === 0}
-												<p class="text-xs text-gray-400 py-1">Keine Klubs gefunden.</p>
+												<p class="text-xs text-outline py-1">Keine Klubs gefunden.</p>
 											{/if}
 										</div>
 									{/if}
 								</div>
 							{/each}
 							{#if (cantonsByAssociation[assoc.id] || []).length === 0}
-								<p class="text-sm text-gray-400 py-1">Keine Kantone gefunden.</p>
+								<p class="text-sm text-outline py-1">Keine Kantone gefunden.</p>
 							{/if}
 						</div>
 					{/if}

@@ -12,7 +12,7 @@
 	{#if data.canton}
 		<div class="card mb-4">
 			<h1 class="text-xl font-bold">{data.canton.name}</h1>
-			<p class="text-sm text-gray-600 mt-1">
+			<p class="text-sm text-muted-foreground mt-1">
 				{data.canton.wrestlerActive} aktiv &nbsp;|&nbsp;
 				* {data.canton.wrestler1Star} &nbsp;|&nbsp;
 				** {data.canton.wrestler2Star} &nbsp;|&nbsp;
@@ -26,7 +26,7 @@
 	<div class="card">
 		<h2 class="card-title">Schwingklubs</h2>
 		{#if data.clubs.length === 0}
-			<p class="text-gray-500 text-sm">Keine Klubs gefunden.</p>
+			<p class="text-muted-foreground text-sm">Keine Klubs gefunden.</p>
 		{:else}
 			<div class="overflow-x-auto">
 				<table class="data-table w-full text-sm">

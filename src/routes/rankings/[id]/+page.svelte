@@ -13,7 +13,7 @@
 <div class="max-w-4xl mx-auto">
 	<div class="card mb-4">
 		<h1 class="text-xl font-bold">{place.name}</h1>
-		<p class="text-sm text-gray-600 mt-1">
+		<p class="text-sm text-muted-foreground mt-1">
 			{place.year} &nbsp;|&nbsp; {place.location ?? ''}
 			{#if place.expand?.placeType?.type}
 				&nbsp;|&nbsp; {place.expand.placeType.type}
@@ -37,7 +37,7 @@
 			</thead>
 			<tbody>
 				{#if rankings.length === 0}
-					<tr><td colspan="8" class="text-center py-8 text-gray-500">Keine Einträge gefunden.</td></tr>
+					<tr><td colspan="8" class="text-center py-8 text-muted-foreground">Keine Einträge gefunden.</td></tr>
 				{/if}
 				{#each rankings as r}
 					<tr class="cursor-pointer" onclick={() => goto(`/wrestler/${r.expand?.wrestler?.id}`)}>
@@ -45,7 +45,7 @@
 						<td>{r.points}</td>
 						<td class="font-medium">
 							{r.expand?.wrestler?.name ?? '-'}
-							<span class="md:hidden text-gray-500 text-xs"> {r.expand?.wrestler?.vorname ?? ''}</span>
+							<span class="md:hidden text-muted-foreground text-xs"> {r.expand?.wrestler?.vorname ?? ''}</span>
 						</td>
 						<td class="hidden md:table-cell">{r.expand?.wrestler?.vorname ?? '-'}</td>
 						<td class="font-mono text-xs">{r.result}</td>

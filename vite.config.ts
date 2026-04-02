@@ -3,11 +3,21 @@ import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig } from 'vite';
 import tailwindcss from '@tailwindcss/vite';
 import { VitePWA } from 'vite-plugin-pwa';
+import { fileURLToPath } from 'url';
+import path from 'path';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const projectRoot = path.resolve(__dirname, '../../..');
 
 export default defineConfig({
 	test: {
 		environment: 'jsdom',
 		include: ['src/**/*.test.ts']
+	},
+	server: {
+		fs: {
+			allow: [projectRoot]
+		}
 	},
 	plugins: [
 		tailwindcss(),

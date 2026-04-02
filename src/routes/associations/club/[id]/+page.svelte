@@ -63,7 +63,7 @@
 	{#if data.club}
 		<div class="card mb-4">
 			<h1 class="text-xl font-bold">{data.club.name}</h1>
-			<p class="text-sm text-gray-600 mt-1">
+			<p class="text-sm text-muted-foreground mt-1">
 				{data.club.wrestlerActive} aktiv &nbsp;|&nbsp;
 				* {data.club.wrestler1Star} &nbsp;|&nbsp;
 				** {data.club.wrestler2Star} &nbsp;|&nbsp;
@@ -83,7 +83,7 @@
 					<th>Status</th>
 					<th class="hidden md:table-cell">Jahrgang</th>
 				</tr>
-				<tr class="bg-gray-50">
+				<tr class="bg-surface-low">
 					<th class="p-1">
 						<input type="text" class="filter-input" placeholder="Name" bind:value={filterName} oninput={search} />
 					</th>
@@ -106,13 +106,13 @@
 				{#if loading}
 					<tr><td colspan="4" class="text-center py-8"><div class="spinner mx-auto"></div></td></tr>
 				{:else if data.wrestlers.length === 0}
-					<tr><td colspan="4" class="text-center py-8 text-gray-500">Keine Schwinger gefunden.</td></tr>
+					<tr><td colspan="4" class="text-center py-8 text-muted-foreground">Keine Schwinger gefunden.</td></tr>
 				{:else}
 					{#each data.wrestlers as w}
 						<tr class="cursor-pointer" onclick={() => goto(`/wrestler/${w.id}`)}>
 							<td class="font-medium">
 								{w.name}
-								<span class="md:hidden text-gray-600"> {w.vorname}</span>
+								<span class="md:hidden text-muted-foreground"> {w.vorname}</span>
 							</td>
 							<td class="hidden md:table-cell">{w.vorname}</td>
 							<td>{w.expand?.status?.symbol ?? '-'}</td>
@@ -126,7 +126,7 @@
 
 	{#if totalPages > 1}
 		<div class="pagination mt-4">
-			<span class="text-sm text-gray-600">{data.total} Schwinger, Seite {data.page} von {totalPages}</span>
+			<span class="text-sm text-muted-foreground">{data.total} Schwinger, Seite {data.page} von {totalPages}</span>
 			<div class="flex gap-1">
 				<button class="pagination-btn" disabled={data.page <= 1} onclick={() => goToPage(data.page - 1)}>‹</button>
 				{#each Array.from({ length: Math.min(totalPages, 7) }, (_, i) => {

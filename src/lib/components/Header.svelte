@@ -24,7 +24,7 @@
 	<div class="max-w-screen-xl mx-auto px-4">
 		<div class="flex items-center h-14">
 			<a href="/" class="flex items-center gap-2 mr-6 flex-shrink-0">
-				<img src="/images/logos/tellbow_192x192.webp" alt="Tellbow" class="h-8 w-8 rounded-md" width="32" height="32" />
+				<img src="/images/logos/tellbow_circle.webp" alt="Tellbow" class="h-8 w-8" width="32" height="32" />
 				<span class="font-extrabold text-lg tracking-tight text-primary">Tellbow</span>
 			</a>
 

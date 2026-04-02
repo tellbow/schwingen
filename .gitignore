@@ -1,3 +1,4 @@
+.DS_Store
 node_modules/
 build/
 .svelte-kit/
@@ -6,4 +7,3 @@ build/
 !.env.example
 *.local
 pb_data/
-.claude/
