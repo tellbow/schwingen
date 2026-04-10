@@ -13,6 +13,7 @@ import {
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import type { GeometryCollection, Topology } from "topojson-specification";
 import maps from "~/public/topo/swiss-maps-modified.json";
+import bernGauverbandGeo from "~/public/topo/bern-gauverband.json";
 import { useStructuredData } from "~/composables/useStructuredData";
 
 useSeo({
@@ -359,94 +360,83 @@ const mergeCantonData = (
   return Object.values(mergedData);
 };
 
+const nation = shallowRef<Feature | null>(null);
+
+const buildChart = (
+  displayData: MergedData[],
+  label: string,
+  onClickHandler: (evt: ChartClickEvent) => void,
+): void => {
+  chart.value?.destroy();
+
+  const canvasData = document.getElementById("canvasData") as HTMLCanvasElement;
+  const ctxData = canvasData?.getContext("2d");
+  if (!ctxData || !(ctxData instanceof CanvasRenderingContext2D)) return;
+
+  chart.value = new Chart(ctxData, {
+    type: "choropleth",
+    data: {
+      labels: displayData.map((d: MergedData) => d.properties?.name),
+      datasets: [
+        {
+          label,
+          outline: nation.value!,
+          showOutline: true,
+          data: displayData.map((d: MergedData) => ({
+            feature: d,
+            value: d.wrestlerActive || 0,
+          })),
+        },
+      ],
+    },
+    options: {
+      plugins: {
+        legend: { display: false },
+        datalabels: {
+          align: "center",
+          color: "#000",
+          font: { size: "12", weight: "bold" },
+          textShadowBlur: 10,
+          textShadowColor: "#000",
+          formatter: (v: any) =>
+            v.feature.properties?.name + ": " + (v.feature.wrestlerActive || 0),
+          display: (context: any) => context.active,
+        },
+      },
+      onClick: onClickHandler,
+      scales: {
+        projection: {
+          axis: "x",
+          projection: "mercator",
+          projectionOffset: [-30, 0],
+        },
+        color: {
+          axis: "x",
+          quantize: 10,
+          interpolate: "oranges",
+        },
+      },
+    },
+  } as any);
+};
+
 const initializeChart = (): void => {
   try {
-    const nation: Feature = topojson.feature(
-      maps as unknown as Topology,
-      maps.objects.country as GeometryCollection,
-    ).features[0];
     const cantons: Array<Feature> = topojson.feature(
       maps as unknown as Topology,
       maps.objects.cantons as GeometryCollection,
     ).features;
 
-    // Merge data
+    nation.value = topojson.feature(
+      maps as unknown as Topology,
+      maps.objects.country as GeometryCollection,
+    ).features[0];
+
     mergedAssociations.value = mergeAssociationData(
       cantons,
       associationData.value,
     );
     mergedCantons.value = mergeCantonData(cantons, fullCantonData.value);
-
-    const config = {
-      type: "choropleth",
-      data: {
-        labels: mergedAssociations.value.map(
-          (d: MergedData) => d.properties?.name,
-        ),
-        datasets: [
-          {
-            label: "Teilverbände",
-            outline: nation,
-            showOutline: true,
-            data: mergedAssociations.value.map((d: MergedData) => ({
-              feature: d,
-              value: d.wrestlerActive || 0,
-            })),
-          },
-        ],
-      },
-      options: {
-        plugins: {
-          legend: {
-            display: false,
-          },
-          datalabels: {
-            align: "center",
-            color: "#000",
-            font: {
-              size: "12",
-              weight: "bold",
-            },
-            textShadowBlur: 10,
-            textShadowColor: "#000",
-            formatter: (v: any) => {
-              return (
-                v.feature.properties?.name +
-                ": " +
-                (v.feature.wrestlerActive || 0)
-              );
-            },
-            display: function (context: any) {
-              return context.active;
-            },
-          },
-        },
-        onClick: (evt: ChartClickEvent) => {
-          const res = chart.value?.getElementsAtEventForMode(
-            evt,
-            "nearest",
-            { intersect: true },
-            true,
-          );
-          if (res && res.length !== 0) {
-            const route = `/associations/association/${res[0].element.feature.id}`;
-            navigateTo(route);
-          }
-        },
-        scales: {
-          projection: {
-            axis: "x",
-            projection: "mercator",
-            projectionOffset: [-30, 0],
-          },
-          color: {
-            axis: "x",
-            quantize: 10,
-            interpolate: "oranges",
-          },
-        },
-      },
-    };
 
     Chart.register(
       ChoroplethController,
@@ -456,61 +446,89 @@ const initializeChart = (): void => {
       ChartDataLabels,
     );
 
-    const canvasData = document.getElementById(
-      "canvasData",
-    ) as HTMLCanvasElement;
-    const ctxData = canvasData.getContext("2d");
-
-    if (!ctxData || !(ctxData instanceof CanvasRenderingContext2D)) {
-      throw new Error("Canvas context not available");
-    }
-
-    chart.value = new Chart(ctxData, config as any);
+    buildChart(
+      mergedAssociations.value,
+      "Teilverbände",
+      (evt: ChartClickEvent) => {
+        const res = chart.value?.getElementsAtEventForMode(
+          evt,
+          "nearest",
+          { intersect: true },
+          true,
+        );
+        if (res && res.length !== 0) {
+          navigateTo(`/associations/association/${res[0].element.feature.id}`);
+        }
+      },
+    );
   } catch (error) {
     console.error("Error initializing chart:", error);
     navigateTo("/error");
   }
 };
 
+const mergeBKSVData = (): MergedData[] => {
+  // Build a map of canton name → canton data for BKSV sub-regions
+  const bksvCantons = fullCantonData.value.filter(
+    (c: CantonData) => c.association === currentAssociation.value,
+  );
+  const byName = Object.fromEntries(bksvCantons.map((c) => [c.name, c]));
+
+  // Take all non-Bern cantons from mergedCantons, then add the 6 Gauverband features
+  const withoutBern = mergedCantons.value.filter(
+    (d: MergedData) => d.properties?.name !== "Bern",
+  );
+
+  const gauverbandFeatures: MergedData[] = (
+    bernGauverbandGeo as unknown as GeoJSON.FeatureCollection
+  ).features.map((f) => {
+    const name = f.properties?.name as string;
+    const canton = byName[name];
+    return {
+      ...f,
+      id: canton?.id,
+      association: canton?.association,
+      wrestlerActive: canton?.wrestlerActive ?? 0,
+      wrestlerAmount: canton?.wrestlerAmount ?? 0,
+      wrestler1Star: canton?.wrestler1Star ?? 0,
+      wrestler2Star: canton?.wrestler2Star ?? 0,
+      wrestler3Star: canton?.wrestler3Star ?? 0,
+    } as MergedData;
+  });
+
+  return [...withoutBern, ...gauverbandFeatures];
+};
+
 const onTabOpen = (event: TabEvent): void => {
   try {
     if (!associationData.value[event.index as number]) return;
 
-    currentAssociation.value = associationData.value[event.index as number].id;
-    currentSelection.value = "Kanton";
+    const association = associationData.value[event.index as number];
+    currentAssociation.value = association.id;
+    const isBKSV = association.abbreviation === "BKSV";
+    currentSelection.value = isBKSV ? "Gauverband" : "Kanton";
 
-    if (!chart.value) return;
+    const displayData = isBKSV ? mergeBKSVData() : mergedCantons.value;
 
-    chart.value.data.labels = mergedCantons.value.map(
-      (d: MergedData) => d.properties?.name,
-    );
-    chart.value.data.datasets[0].label = "Kantone";
-    chart.value.data.datasets[0].data = mergedCantons.value.map(
-      (d: MergedData) => ({
-        feature: d,
-        value: d.wrestlerActive || 0,
-      }),
-    );
-
-    chart.value.options.onClick = (evt: ChartClickEvent) => {
-      const res = chart.value?.getElementsAtEventForMode(
-        evt,
-        "nearest",
-        { intersect: true },
-        true,
-      );
-      if (res && res.length !== 0) {
-        let route: string;
-        if (res[0].element.feature.properties?.name === "Bern") {
-          route = `/associations/association/${res[0].element.feature.association}`;
-        } else {
-          route = `/associations/canton/${res[0].element.feature.id}`;
+    buildChart(
+      displayData,
+      isBKSV ? "Gauverbände" : "Kantone",
+      (evt: ChartClickEvent) => {
+        const res = chart.value?.getElementsAtEventForMode(
+          evt,
+          "nearest",
+          { intersect: true },
+          true,
+        );
+        if (res && res.length !== 0) {
+          const feature = res[0].element.feature;
+          const route = feature.id
+            ? `/associations/canton/${feature.id}`
+            : `/associations/association/${feature.association}`;
+          navigateTo(route);
         }
-        navigateTo(route);
-      }
-    };
-
-    chart.value.update();
+      },
+    );
   } catch (error) {
     console.error("Error in tab open:", error);
   }
@@ -520,33 +538,21 @@ const onTabClose = (): void => {
   try {
     currentSelection.value = "Teilverband";
 
-    if (!chart.value) return;
-
-    chart.value.data.labels = mergedAssociations.value.map(
-      (d: MergedData) => d.properties?.name,
+    buildChart(
+      mergedAssociations.value,
+      "Teilverbände",
+      (evt: ChartClickEvent) => {
+        const res = chart.value?.getElementsAtEventForMode(
+          evt,
+          "nearest",
+          { intersect: true },
+          true,
+        );
+        if (res && res.length !== 0) {
+          navigateTo(`/associations/association/${res[0].element.feature.id}`);
+        }
+      },
     );
-    chart.value.data.datasets[0].label = "Teilverbände";
-    chart.value.data.datasets[0].data = mergedAssociations.value.map(
-      (d: MergedData) => ({
-        feature: d,
-        value: d.wrestlerActive || 0,
-      }),
-    );
-
-    chart.value.options.onClick = (evt: ChartClickEvent) => {
-      const res = chart.value?.getElementsAtEventForMode(
-        evt,
-        "nearest",
-        { intersect: true },
-        true,
-      );
-      if (res && res.length !== 0) {
-        const route = `/associations/association/${res[0].element.feature.id}`;
-        navigateTo(route);
-      }
-    };
-
-    chart.value.update();
   } catch (error) {
     console.error("Error in tab close:", error);
   }
