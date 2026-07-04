@@ -2,6 +2,7 @@
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 	import { escapeFilterValue } from '$lib/utils/filter';
+	import { formatDate } from '$lib/utils/format';
 
 	let { data } = $props();
 
@@ -74,7 +75,7 @@
 				<th class="hidden md:table-cell">Nr.</th>
 				<th>Name</th>
 				<th class="hidden md:table-cell">Ort</th>
-				<th>Jahr</th>
+				<th>Datum</th>
 				<th class="hidden md:table-cell">Typ</th>
 			</tr>
 			<tr class="bg-surface-low">
@@ -119,7 +120,7 @@
 							<span class="block text-xs text-muted-foreground md:hidden">{p.expand?.placeType?.type ?? ''}</span>
 						</td>
 						<td class="hidden md:table-cell">{p.location ?? '-'}</td>
-						<td class="whitespace-nowrap">{p.yearDisplay}</td>
+						<td class="whitespace-nowrap">{formatDate(p.year)}</td>
 						<td class="hidden md:table-cell text-xs">{p.expand?.placeType?.type ?? '-'}</td>
 					</tr>
 				{/each}

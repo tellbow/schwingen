@@ -52,16 +52,6 @@
 		</div>
 
 		<div class="card">
-			<h2 class="card-title">{t('nav.rankings')}</h2>
-			<p class="text-muted-foreground text-sm mb-3">
-				{t('home.rankingsDesc')}
-			</p>
-			<a href="/rankings" class="btn-primary inline-block">
-				{t('home.show')}
-			</a>
-		</div>
-
-		<div class="card">
 			<h2 class="card-title">{t('nav.associations')}</h2>
 			<p class="text-muted-foreground text-sm mb-3">
 				{t('home.associationsDesc')}

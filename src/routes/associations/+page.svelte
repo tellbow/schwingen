@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { goto } from '$app/navigation';
 	import { Chart, registerables } from 'chart.js';
 	import {
 		ChoroplethController,
@@ -9,6 +10,12 @@
 		topojson
 	} from 'chartjs-chart-geo';
 	import { getDark } from '$lib/dark-mode.svelte';
+	import {
+		buildAssociationFeatures,
+		buildCantonFeatures,
+		buildGauverbandFeatures,
+		type MergedMapFeature
+	} from '$lib/utils/associations-map';
 
 	Chart.register(...registerables, ChoroplethController, GeoFeature, ColorScale, ProjectionScale);
 
@@ -19,88 +26,60 @@
 	let mapChart: Chart | null = null;
 	let expandedAssociation = $state<string | null>(null);
 	let expandedCanton = $state<string | null>(null);
+	let mapMode = $state<'association' | 'canton' | 'gauverband'>('association');
 
-	// Topo canton features and country outline — populated in onMount
+	// Topo canton features, country outline and Bern Gauverband features — populated in onMount
 	let cantonFeatures: any[] = [];
 	let countryFeature: any = null;
+	let gauverbandFeatures: any[] = [];
 
-	// Association abbreviation → list of topo canton names
-	const associationTopoCantons: Record<string, string[]> = {
-		BKSV: ['Bern'],
-		ISV: ['Luzern', 'Nidwalden', 'Obwalden', 'Schwyz', 'Tessin', 'Uri', 'Zug'],
-		NOSV: [
-			'Appenzell Ausserrhoden',
-			'Appenzell Innerrhoden',
-			'Glarus',
-			'Graubünden',
-			'Schaffhausen',
-			'St. Gallen',
-			'Thurgau',
-			'Zürich'
-		],
-		NWSV: ['Aargau', 'Basel-Stadt', 'Baselland', 'Solothurn'],
-		SWSV: ['Fribourgeoise', 'Genevoise', 'Jura', 'Neuchâteloise', 'Valaisanne', 'Vaudoise']
-	};
+	const mapLabel = $derived(
+		mapMode === 'association' ? 'Teilverband' : mapMode === 'gauverband' ? 'Gauverband' : 'Kanton'
+	);
 
-	/** Build features coloured by association (all cantons in same association share the association's total) */
-	function buildAssociationFeatures() {
-		const byName: Record<string, any> = {};
-		for (const f of cantonFeatures) {
-			const name = f.properties?.name;
-			if (name) byName[name] = { ...f, wrestlerActive: 0 };
-		}
-		for (const assoc of data.associations) {
-			const topoNames = associationTopoCantons[assoc.abbreviation] ?? [];
-			for (const name of topoNames) {
-				if (byName[name]) byName[name].wrestlerActive = assoc.wrestlerActive;
-			}
-		}
-		return Object.values(byName);
-	}
-
-	/** Build features coloured per canton (Bern = sum of 6 sub-regions, etc.) */
-	function buildCantonFeatures() {
-		const byName: Record<string, any> = {};
-		for (const f of cantonFeatures) {
-			const name = f.properties?.name;
-			if (name) byName[name] = { ...f, wrestlerActive: 0 };
-		}
-		for (const canton of data.cantons) {
-			const name = canton.name;
-			switch (name) {
-				case 'Berner-Jura':
-				case 'Emmental':
-				case 'Mittelland':
-				case 'Oberaargau':
-				case 'Oberland':
-				case 'Seeland':
-					if (byName.Bern) byName.Bern.wrestlerActive += canton.wrestlerActive;
-					break;
-				case 'Ob- und Nidwalden':
-					if (byName.Obwalden) byName.Obwalden.wrestlerActive += canton.wrestlerActive;
-					if (byName.Nidwalden) byName.Nidwalden.wrestlerActive += canton.wrestlerActive;
-					break;
-				case 'Appenzell':
-					if (byName['Appenzell Ausserrhoden'])
-						byName['Appenzell Ausserrhoden'].wrestlerActive += canton.wrestlerActive;
-					if (byName['Appenzell Innerrhoden'])
-						byName['Appenzell Innerrhoden'].wrestlerActive += canton.wrestlerActive;
-					break;
-				default:
-					if (byName[name]) byName[name].wrestlerActive += canton.wrestlerActive;
-			}
-		}
-		return Object.values(byName);
-	}
-
-	function updateMap(mode: 'association' | 'canton') {
+	function handleMapClick(evt: unknown) {
 		if (!mapChart) return;
-		const features = mode === 'association' ? buildAssociationFeatures() : buildCantonFeatures();
-		mapChart.data.labels = features.map((f: any) => f.properties?.name || '');
-		mapChart.data.datasets[0].data = features.map((f: any) => ({
+		const elements = mapChart.getElementsAtEventForMode(
+			evt as never,
+			'nearest',
+			{ intersect: true },
+			true
+		);
+		if (elements.length === 0) return;
+		const feature = (elements[0].element as unknown as { feature: MergedMapFeature }).feature;
+		if (!feature.id) return;
+		if (mapMode === 'association') {
+			goto(`/associations/association/${feature.id}`);
+		} else {
+			goto(`/associations/canton/${feature.id}`);
+		}
+	}
+
+	function updateMap(mode: 'association' | 'canton' | 'gauverband', associationId?: string) {
+		if (!mapChart) return;
+		mapMode = mode;
+
+		let features: MergedMapFeature[];
+		if (mode === 'association') {
+			features = buildAssociationFeatures(cantonFeatures, data.associations as any);
+		} else if (mode === 'gauverband') {
+			const bksvCantons = (data.cantons as any[]).filter(
+				(c: any) => c.association === associationId
+			);
+			features = buildGauverbandFeatures(
+				buildCantonFeatures(cantonFeatures, data.cantons as any, associationId),
+				gauverbandFeatures,
+				bksvCantons
+			);
+		} else {
+			features = buildCantonFeatures(cantonFeatures, data.cantons as any, associationId);
+		}
+
+		mapChart.data.labels = features.map((f) => f.properties?.name || '');
+		mapChart.data.datasets[0].data = features.map((f) => ({
 			feature: f,
 			value: f.wrestlerActive || 0
-		}));
+		})) as any;
 		mapChart.update();
 	}
 
@@ -108,7 +87,14 @@
 		const wasExpanded = expandedAssociation === assocId;
 		expandedAssociation = wasExpanded ? null : assocId;
 		expandedCanton = null;
-		updateMap(expandedAssociation ? 'canton' : 'association');
+
+		if (!expandedAssociation) {
+			updateMap('association');
+			return;
+		}
+
+		const association = data.associations.find((a: any) => a.id === expandedAssociation);
+		updateMap(association?.abbreviation === 'BKSV' ? 'gauverband' : 'canton', expandedAssociation);
 	}
 
 	// Group cantons by association ID
@@ -140,13 +126,18 @@
 	onMount(async () => {
 		if (!mapCanvas) return;
 		try {
-			const response = await fetch('/topo/swiss-maps-modified.json');
-			const maps = await response.json();
+			const [mapsResponse, gauverbandResponse] = await Promise.all([
+				fetch('/topo/swiss-maps-modified.json'),
+				fetch('/topo/bern-gauverband.json')
+			]);
+			const maps = await mapsResponse.json();
+			const bernGauverbandGeo = await gauverbandResponse.json();
 
 			countryFeature = (topojson as any).feature(maps, maps.objects.country).features[0];
 			cantonFeatures = (topojson as any).feature(maps, maps.objects.cantons).features;
+			gauverbandFeatures = bernGauverbandGeo.features;
 
-			const features = buildAssociationFeatures();
+			const features = buildAssociationFeatures(cantonFeatures, data.associations as any);
 
 			const dark = getDark();
 
@@ -173,6 +164,7 @@
 					plugins: {
 						legend: { display: false }
 					},
+					onClick: handleMapClick,
 					scales: {
 						projection: {
 							axis: 'x',
@@ -209,7 +201,7 @@
 	<!-- Map -->
 	<div class="card">
 		<h2 class="card-title">
-			Aktive Schwinger nach {expandedAssociation ? 'Kanton' : 'Teilverband'}
+			Aktive Schwinger nach {mapLabel}
 		</h2>
 		<!-- Explicit height required for maintainAspectRatio: false to work -->
 		<div style="position: relative; height: 420px; overflow: hidden;">

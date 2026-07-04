@@ -72,7 +72,7 @@
 					responsive: true,
 					scales: {
 						x: { title: { display: true, text: 'Punkte' } },
-						y: { title: { display: true, text: 'Rang' }, reverse: true }
+						y: { title: { display: true, text: 'Rang' }, reverse: true, min: 1 }
 					}
 				}
 			});

@@ -41,6 +41,9 @@ const de: Translations = {
 		points: "Punkte",
 		wreath: "Kranz",
 		result: "Resultat",
+		resultsTitle: "Resultate",
+		tabRangliste: "Rangliste",
+		tabStatistik: "Statistik",
 	},
 	bouts: {
 		title: "Paarungen",
@@ -112,6 +115,9 @@ const fr: Translations = {
 		points: "Points",
 		wreath: "Couronne",
 		result: "Résultat",
+		resultsTitle: "Résultats",
+		tabRangliste: "Classement",
+		tabStatistik: "Statistiques",
 	},
 	bouts: {
 		title: "Appariements",

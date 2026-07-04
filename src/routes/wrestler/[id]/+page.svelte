@@ -484,7 +484,7 @@
 				</thead>
 				<tbody>
 					{#each rankingsData as r}
-						<tr onclick={() => goto(`/rankings/${r.expand?.place?.id}`)}>
+						<tr onclick={() => goto(`/wrestler/${wrestler.id}-${r.expand?.place?.id}`)}>
 							<td class="font-medium">{r.expand?.place?.name ?? '-'}</td>
 							<td class="hidden md:table-cell text-outline">{r.expand?.place?.year ?? '-'}</td>
 							<td class="font-semibold">{r.rank}{r.rank2}</td>
@@ -548,7 +548,7 @@
 				</thead>
 				<tbody>
 					{#each boutsData as b}
-						<tr onclick={() => goto(`/rankings/${b.expand.place.id}`)}>
+						<tr onclick={() => goto(`/wrestler/${wrestler.id}-${b.expand.place.id}`)}>
 							<td class="font-medium">{b.expand.place.name}</td>
 							<td class="text-outline">{b.expand.place.year}</td>
 							<td>{b.points}</td>

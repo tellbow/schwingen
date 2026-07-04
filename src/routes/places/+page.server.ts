@@ -17,10 +17,7 @@ export const load: PageServerLoad = async ({ url }) => {
 		});
 
 		return {
-			places: data.items.map((item: any) => ({
-				...item,
-				yearDisplay: item.year ? item.year.split('-')[0] : item.year
-			})),
+			places: data.items,
 			total: data.totalItems,
 			page,
 			perPage
