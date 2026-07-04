@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 FROM alpine:3.21
 
-ARG PB_VERSION=0.25.2
+ARG PB_VERSION=0.36.6
 ARG TARGETARCH
 
 RUN apk add --no-cache \
