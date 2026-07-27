@@ -37,7 +37,7 @@
 	let pieChart: Chart | null = null;
 	let lineChart: Chart | null = null;
 
-	const YEARS = [2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 'Alle'];
+	const YEARS = [2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026, 'Alle'];
 
 	const averageRank = $derived(() => {
 		const filtered = rankingsData.filter((r) => r.status !== 'Unfall');

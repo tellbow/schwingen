@@ -15,7 +15,7 @@
 
 	let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 
-	const YEARS = ['', '2015', '2016', '2017', '2018', '2019', '2020', '2021', '2022', '2023', '2024', '2025'];
+	const YEARS = ['', '2015', '2016', '2017', '2018', '2019', '2020', '2021', '2022', '2023', '2024', '2025', '2026'];
 	const PLACE_TYPES = [
 		'',
 		'Sonstige',
@@ -63,7 +63,7 @@
 
 <svelte:head>
 	<title>Schwingfeste - Tellbow</title>
-	<meta name="description" content="Alle Schwingfeste der Aktiven aus den Jahren 2015-2025." />
+	<meta name="description" content="Alle Schwingfeste der Aktiven aus den Jahren 2015-2026." />
 </svelte:head>
 
 <h1 class="sr-only">Schwingfeste - Tellbow</h1>
