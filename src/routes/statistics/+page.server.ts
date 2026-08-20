@@ -1,8 +1,17 @@
 import type { PageServerLoad } from './$types';
 import { createServerPb } from '$lib/pb';
 
+const CACHE_TTL_MS = 60 * 60 * 1000;
+const cache = new Map<string, { data: any; cachedAt: number }>();
+
 export const load: PageServerLoad = async ({ url }) => {
 	const year = url.searchParams.get('year') || 'Alle';
+
+	const cached = cache.get(year);
+	if (cached && Date.now() - cached.cachedAt < CACHE_TTL_MS) {
+		return cached.data;
+	}
+
 	const pb = createServerPb();
 
 	const loadYear = year === 'Alle' ? 'Overall' : year;
@@ -77,6 +86,7 @@ export const load: PageServerLoad = async ({ url }) => {
 		);
 
 		await Promise.all(promises);
+		cache.set(year, { data: results, cachedAt: Date.now() });
 		return results;
 	} catch (e) {
 		console.error('Error loading statistics:', e);

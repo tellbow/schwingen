@@ -22,9 +22,11 @@ RUN set -eux; \
     rm /tmp/pocketbase.zip && \
     chmod +x /pb/pocketbase
 
+COPY pb_migrations /pb/pb_migrations
+
 VOLUME ["/pb/pb_data"]
 
 EXPOSE 8090
 
 ENTRYPOINT ["/pb/pocketbase", "serve"]
-CMD ["--http=0.0.0.0:8090", "--dir=/pb/pb_data", "--encryptionEnv=PB_ENCRYPTION_KEY"]
+CMD ["--http=0.0.0.0:8090", "--dir=/pb/pb_data", "--migrationsDir=/pb/pb_migrations", "--encryptionEnv=PB_ENCRYPTION_KEY"]

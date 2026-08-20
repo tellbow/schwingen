@@ -1,13 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
-	import {
-		Chart,
-		BubbleController, PointElement, LinearScale,
-		Legend, Tooltip, Title
-	} from 'chart.js';
-
-	Chart.register(BubbleController, PointElement, LinearScale, Legend, Tooltip, Title);
+	import type { Chart } from 'chart.js';
 
 	let { data } = $props();
 	const wrestler = $derived(data.wrestler);
@@ -39,8 +33,12 @@
 	const statsW = $derived(calcStats(rankingsW));
 	const statsO = $derived(calcStats(rankingsO));
 
-	onMount(() => {
+	onMount(async () => {
 		if (bubbleCanvas && rankingsW.length && rankingsO.length) {
+			const { Chart: ChartJS, BubbleController, PointElement, LinearScale, Legend, Tooltip, Title } =
+				await import('chart.js');
+			ChartJS.register(BubbleController, PointElement, LinearScale, Legend, Tooltip, Title);
+
 			const wPoints = rankingsW.filter((r) => r.status !== 'Unfall').map((r) => ({
 				x: parseFloat(r.points) || 0,
 				y: parseInt(r.rank?.replace(/\D/g, '') || '0') || 0,
@@ -52,7 +50,7 @@
 				r: 5
 			}));
 
-			bubbleChart = new Chart(bubbleCanvas, {
+			bubbleChart = new ChartJS(bubbleCanvas, {
 				type: 'bubble',
 				data: {
 					datasets: [

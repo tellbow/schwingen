@@ -1,14 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
-	import { Chart, registerables } from 'chart.js';
-	import {
-		ChoroplethController,
-		GeoFeature,
-		ColorScale,
-		ProjectionScale,
-		topojson
-	} from 'chartjs-chart-geo';
+	import type { Chart } from 'chart.js';
 	import { getDark } from '$lib/dark-mode.svelte';
 	import {
 		buildAssociationFeatures,
@@ -16,8 +9,6 @@
 		buildGauverbandFeatures,
 		type MergedMapFeature
 	} from '$lib/utils/associations-map';
-
-	Chart.register(...registerables, ChoroplethController, GeoFeature, ColorScale, ProjectionScale);
 
 	let { data } = $props();
 
@@ -126,10 +117,22 @@
 	onMount(async () => {
 		if (!mapCanvas) return;
 		try {
-			const [mapsResponse, gauverbandResponse] = await Promise.all([
+			const [chartjs, chartjsGeo, mapsResponse, gauverbandResponse] = await Promise.all([
+				import('chart.js'),
+				import('chartjs-chart-geo'),
 				fetch('/topo/swiss-maps-modified.json'),
 				fetch('/topo/bern-gauverband.json')
 			]);
+			const ChartJS = chartjs.Chart;
+			ChartJS.register(
+				...chartjs.registerables,
+				chartjsGeo.ChoroplethController,
+				chartjsGeo.GeoFeature,
+				chartjsGeo.ColorScale,
+				chartjsGeo.ProjectionScale
+			);
+			const topojson = chartjsGeo.topojson;
+
 			const maps = await mapsResponse.json();
 			const bernGauverbandGeo = await gauverbandResponse.json();
 
@@ -141,7 +144,7 @@
 
 			const dark = getDark();
 
-			mapChart = new Chart(mapCanvas, {
+			mapChart = new ChartJS(mapCanvas, {
 				type: 'choropleth',
 				data: {
 					labels: features.map((f: any) => f.properties?.name || ''),

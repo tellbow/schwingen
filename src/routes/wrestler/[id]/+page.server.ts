@@ -17,7 +17,7 @@ export const load: PageServerLoad = async ({ params }) => {
 		const wrestler = await pb.collection('wrestler').getFirstListItem(`id="${wrestlerId}"`, {
 			expand: 'status,metadata,club,club.canton,club.canton.association',
 			fields:
-				'id,name,vorname,year,category,expand.status.status,expand.metadata.website,expand.metadata.instagram,expand.club.id,expand.club.name,expand.club.expand.canton.name,expand.club.expand.canton.expand.association.name,expand.club.expand.canton.expand.association.abbreviation'
+				'id,name,vorname,year,category,expand.status.status,expand.metadata.website,expand.club.id,expand.club.name,expand.club.expand.canton.name,expand.club.expand.canton.expand.association.abbreviation'
 		});
 
 		wrestler.year = wrestler.year ? wrestler.year.split('-')[0] : '-';

@@ -2,15 +2,10 @@
 	import { onMount, onDestroy } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { getClientPb } from '$lib/pb';
-	import {
-		Chart,
-		ArcElement, BarElement, CategoryScale, LinearScale,
-		PieController, BarController,
-		Legend, Tooltip
-	} from 'chart.js';
+	import type { Chart } from 'chart.js';
 	import { getDark } from '$lib/dark-mode.svelte';
 
-	Chart.register(ArcElement, BarElement, CategoryScale, LinearScale, PieController, BarController, Legend, Tooltip);
+	let ChartJS: typeof Chart;
 
 	let { data } = $props();
 	const wrestler = $derived(data.wrestler);
@@ -77,22 +72,20 @@
 		const pb = getClientPb();
 		const years = YEARS.filter((y) => y !== 'Alle').map(Number).sort((a, b) => b - a);
 		if (selectedYear === 'Alle') {
-			for (const y of years) {
-				try {
-					const res = await pb.collection(`elo${y}`).getList(1, 1, {
-						filter: `wrestler.id="${wrestler.id}"`,
-						skipTotal: true,
-						fields: 'id,rating'
-					});
-					if (res.items.length > 0) {
-						eloData = res.items[0];
-						return;
-					}
-				} catch {
-					// collection may not exist for this year
-				}
-			}
-			eloData = { rating: '-' };
+			const results = await Promise.all(
+				years.map((y) =>
+					pb
+						.collection(`elo${y}`)
+						.getList(1, 1, {
+							filter: `wrestler.id="${wrestler.id}"`,
+							skipTotal: true,
+							fields: 'id,rating'
+						})
+						.catch(() => ({ items: [] as any[] }))
+				)
+			);
+			const hit = results.find((res) => res.items.length > 0);
+			eloData = hit ? hit.items[0] : { rating: '-' };
 		} else {
 			try {
 				const res = await pb.collection(`elo${selectedYear}`).getList(1, 1, {
@@ -252,7 +245,7 @@
 
 		if (pieCanvas) {
 			pieChart?.destroy();
-			pieChart = new Chart(pieCanvas, {
+			pieChart = new ChartJS(pieCanvas, {
 				type: 'pie',
 				data: {
 					labels: ['Sieg', 'Gestellt', 'Niederlage'],
@@ -299,7 +292,7 @@
 
 			const labels = Object.keys(grouped);
 			lineChart?.destroy();
-			lineChart = new Chart(lineCanvas, {
+			lineChart = new ChartJS(lineCanvas, {
 				type: 'bar',
 				data: {
 					labels,
@@ -338,6 +331,12 @@
 	}
 
 	onMount(async () => {
+		const chartjs = await import('chart.js');
+		ChartJS = chartjs.Chart;
+		ChartJS.register(
+			chartjs.ArcElement, chartjs.BarElement, chartjs.CategoryScale, chartjs.LinearScale,
+			chartjs.PieController, chartjs.BarController, chartjs.Legend, chartjs.Tooltip
+		);
 		await Promise.all([loadElo(), loadRankings(), loadOpponents()]);
 		updateCharts();
 	});

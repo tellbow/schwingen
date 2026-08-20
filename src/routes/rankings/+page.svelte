@@ -47,7 +47,7 @@
 			const filter = buildFilter();
 			const params = new URLSearchParams();
 			if (filter) params.set('filter', filter);
-			await goto(`/rankings?${params.toString()}`, { invalidateAll: true });
+			await goto(`/rankings?${params.toString()}`, { invalidateAll: true, keepFocus: true });
 			loading = false;
 		}, 300);
 	}

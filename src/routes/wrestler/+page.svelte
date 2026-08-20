@@ -42,7 +42,7 @@
 			const params = new URLSearchParams();
 			if (filter) params.set('filter', filter);
 			if (pageNum > 1) params.set('page', String(pageNum));
-			await goto(`/wrestler?${params.toString()}`, { invalidateAll: true });
+			await goto(`/wrestler?${params.toString()}`, { invalidateAll: true, keepFocus: true });
 			loading = false;
 		}, 300);
 	}
