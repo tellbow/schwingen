@@ -61,6 +61,8 @@
 <svelte:head>
 	<title>Schwinger - Tellbow</title>
 	<meta name="description" content="Durchsuchen Sie alle aktiven Schweizer Schwinger." />
+	<meta property="og:title" content="Schwinger - Tellbow" />
+	<meta property="og:description" content="Durchsuchen Sie alle aktiven Schweizer Schwinger." />
 </svelte:head>
 
 <h1 class="sr-only">Schwinger - Tellbow</h1>

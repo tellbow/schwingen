@@ -350,6 +350,8 @@
 <svelte:head>
 	<title>{wrestler.vorname} {wrestler.name} - Tellbow</title>
 	<meta name="description" content="Profil und Statistiken von {wrestler.vorname} {wrestler.name}." />
+	<meta property="og:title" content="{wrestler.vorname} {wrestler.name} - Tellbow" />
+	<meta property="og:description" content="Profil und Statistiken von {wrestler.vorname} {wrestler.name}." />
 </svelte:head>
 
 <h1 class="sr-only">Schwinger Profil</h1>

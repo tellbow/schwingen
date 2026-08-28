@@ -19,6 +19,8 @@
 <svelte:head>
 	<title>Statistiken - Tellbow</title>
 	<meta name="description" content="Detaillierte Statistiken und Analysen zu Schweizer Schwingern." />
+	<meta property="og:title" content="Statistiken - Tellbow" />
+	<meta property="og:description" content="Detaillierte Statistiken und Analysen zu Schweizer Schwingern." />
 </svelte:head>
 
 <h1 class="sr-only">Statistiken - Tellbow</h1>

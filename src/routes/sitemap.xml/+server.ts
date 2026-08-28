@@ -1,7 +1,7 @@
 import type { RequestHandler } from '@sveltejs/kit';
 import { createServerPb } from '$lib/pb';
 
-const ORIGIN = 'https://tellbow.ch';
+const ORIGIN = 'https://schwingen.tellbow.ch';
 const CACHE_TTL_MS = 60 * 60 * 1000;
 
 let cachedSitemap: { xml: string; generatedAt: number } | null = null;

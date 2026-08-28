@@ -76,6 +76,8 @@
 <svelte:head>
 	<title>Direktvergleich - Tellbow</title>
 	<meta name="description" content="Vergleichen Sie zwei Schweizer Schwinger direkt miteinander." />
+	<meta property="og:title" content="Direktvergleich - Tellbow" />
+	<meta property="og:description" content="Vergleichen Sie zwei Schweizer Schwinger direkt miteinander." />
 </svelte:head>
 
 <div class="max-w-2xl mx-auto">

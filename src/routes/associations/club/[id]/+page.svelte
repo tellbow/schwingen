@@ -57,6 +57,9 @@
 
 <svelte:head>
 	<title>{data.club?.name ?? 'Schwingklub'} - Tellbow</title>
+	<meta name="description" content="Schwinger und Statistiken des Schwingklubs {data.club?.name ?? ''}." />
+	<meta property="og:title" content="{data.club?.name ?? 'Schwingklub'} - Tellbow" />
+	<meta property="og:description" content="Schwinger und Statistiken des Schwingklubs {data.club?.name ?? ''}." />
 </svelte:head>
 
 <div class="max-w-4xl mx-auto">

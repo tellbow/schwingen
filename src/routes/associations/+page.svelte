@@ -196,6 +196,8 @@
 <svelte:head>
 	<title>Verbände - Tellbow</title>
 	<meta name="description" content="Übersicht über alle Teilverbände, Kantone und Vereine im Schweizer Schwingen." />
+	<meta property="og:title" content="Verbände - Tellbow" />
+	<meta property="og:description" content="Übersicht über alle Teilverbände, Kantone und Vereine im Schweizer Schwingen." />
 </svelte:head>
 
 <h1 class="sr-only">Verbände - Tellbow</h1>

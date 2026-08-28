@@ -6,6 +6,9 @@
 
 <svelte:head>
 	<title>{data.association?.name ?? 'Schwingerverband'} - Tellbow</title>
+	<meta name="description" content="Vereine, Schwinger und Statistiken des Verbands {data.association?.name ?? ''}." />
+	<meta property="og:title" content="{data.association?.name ?? 'Schwingerverband'} - Tellbow" />
+	<meta property="og:description" content="Vereine, Schwinger und Statistiken des Verbands {data.association?.name ?? ''}." />
 </svelte:head>
 
 <div class="max-w-4xl mx-auto">

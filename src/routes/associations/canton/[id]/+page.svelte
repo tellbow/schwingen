@@ -6,6 +6,9 @@
 
 <svelte:head>
 	<title>{data.canton?.name ?? 'Kanton'} - Tellbow</title>
+	<meta name="description" content="Schwinger, Vereine und Statistiken aus dem Kanton {data.canton?.name ?? ''}." />
+	<meta property="og:title" content="{data.canton?.name ?? 'Kanton'} - Tellbow" />
+	<meta property="og:description" content="Schwinger, Vereine und Statistiken aus dem Kanton {data.canton?.name ?? ''}." />
 </svelte:head>
 
 <div class="max-w-4xl mx-auto">

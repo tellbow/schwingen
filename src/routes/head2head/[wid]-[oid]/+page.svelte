@@ -80,6 +80,9 @@
 
 <svelte:head>
 	<title>{wrestler.vorname} {wrestler.name} vs {opponent.vorname} {opponent.name} - Tellbow</title>
+	<meta name="description" content="Direktvergleich zwischen {wrestler.vorname} {wrestler.name} und {opponent.vorname} {opponent.name}." />
+	<meta property="og:title" content="{wrestler.vorname} {wrestler.name} vs {opponent.vorname} {opponent.name} - Tellbow" />
+	<meta property="og:description" content="Direktvergleich zwischen {wrestler.vorname} {wrestler.name} und {opponent.vorname} {opponent.name}." />
 </svelte:head>
 
 <div class="max-w-4xl mx-auto space-y-4">

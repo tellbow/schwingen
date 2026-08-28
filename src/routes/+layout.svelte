@@ -1,6 +1,7 @@
 <script lang="ts">
 	import '../app.css';
 	import { onMount } from 'svelte';
+	import { page } from '$app/stores';
 	import { initLocale, getLocale } from '$lib/i18n/index.svelte';
 	import { initDark } from '$lib/dark-mode.svelte';
 	import Header from '$lib/components/Header.svelte';
@@ -9,6 +10,7 @@
 	let { children } = $props();
 
 	const locale = $derived(getLocale());
+	const canonicalUrl = $derived(`https://schwingen.tellbow.ch${$page.url.pathname}`);
 
 	$effect(() => {
 		document.documentElement.lang = locale;
@@ -21,11 +23,8 @@
 </script>
 
 <svelte:head>
-	<title>Tellbow - Alles rund ums Schwingen</title>
-	<meta name="description" content="Umfassende Statistiken, Ranglisten und Profile von Schweizer Schwingern." />
-	<meta property="og:title" content="Tellbow - Alles rund ums Schwingen" />
-	<meta property="og:description" content="Umfassende Statistiken, Ranglisten und Profile von Schweizer Schwingern." />
-	<meta property="og:url" content="https://tellbow.ch" />
+	<link rel="canonical" href={canonicalUrl} />
+	<meta property="og:url" content={canonicalUrl} />
 </svelte:head>
 
 <a href="#main-content" class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary focus:text-white focus:rounded-lg focus:outline-none">

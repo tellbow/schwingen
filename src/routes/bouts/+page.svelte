@@ -66,6 +66,8 @@
 <svelte:head>
 	<title>Paarungen - Tellbow</title>
 	<meta name="description" content="Alle Paarungen und Ergebnisse von Schweizer Schwingern." />
+	<meta property="og:title" content="Paarungen - Tellbow" />
+	<meta property="og:description" content="Alle Paarungen und Ergebnisse von Schweizer Schwingern." />
 </svelte:head>
 
 <h1 class="sr-only">Paarungen - Tellbow</h1>

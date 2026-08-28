@@ -12,6 +12,9 @@
 
 <svelte:head>
 	<title>{place.name} {place.year} - Rangliste - Tellbow</title>
+	<meta name="description" content="Rangliste und Resultate von {place.name} {place.year}." />
+	<meta property="og:title" content="{place.name} {place.year} - Rangliste - Tellbow" />
+	<meta property="og:description" content="Rangliste und Resultate von {place.name} {place.year}." />
 </svelte:head>
 
 <div class="max-w-4xl mx-auto">

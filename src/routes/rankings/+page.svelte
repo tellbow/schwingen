@@ -92,6 +92,8 @@
 <svelte:head>
 	<title>Ranglisten - Tellbow</title>
 	<meta name="description" content="Alle Ranglisten und Ergebnisse von Schweizer Schwingern." />
+	<meta property="og:title" content="Ranglisten - Tellbow" />
+	<meta property="og:description" content="Alle Ranglisten und Ergebnisse von Schweizer Schwingern." />
 </svelte:head>
 
 <h1 class="sr-only">Ranglisten - Tellbow</h1>

@@ -64,6 +64,8 @@
 <svelte:head>
 	<title>Schwingfeste - Tellbow</title>
 	<meta name="description" content="Alle Schwingfeste der Aktiven aus den Jahren 2015-2026." />
+	<meta property="og:title" content="Schwingfeste - Tellbow" />
+	<meta property="og:description" content="Alle Schwingfeste der Aktiven aus den Jahren 2015-2026." />
 </svelte:head>
 
 <h1 class="sr-only">Schwingfeste - Tellbow</h1>

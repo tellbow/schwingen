@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://tellbow.ch/sitemap.xml
+Sitemap: https://schwingen.tellbow.ch/sitemap.xml

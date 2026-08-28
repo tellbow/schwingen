@@ -9,6 +9,8 @@
 <svelte:head>
 	<title>Tellbow - Alles rund ums Schwingen</title>
 	<meta name="description" content="Entdecken Sie umfassende Statistiken, Ranglisten und Profile von Schweizer Schwingern. Verbände, Schwingfeste und detaillierte Analysen." />
+	<meta property="og:title" content="Tellbow - Alles rund ums Schwingen" />
+	<meta property="og:description" content="Entdecken Sie umfassende Statistiken, Ranglisten und Profile von Schweizer Schwingern. Verbände, Schwingfeste und detaillierte Analysen." />
 </svelte:head>
 
 <Hero />
