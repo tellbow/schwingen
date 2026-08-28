@@ -63,7 +63,9 @@ All colors must come from CSS custom properties defined in `app.css`. Never use 
 
 ## Typography
 
-Font: `Inter`, system-ui, sans-serif. Headings use `letter-spacing: -0.02em`.
+Body font: `Inter`, system-ui, sans-serif. Headings use `letter-spacing: -0.02em`.
+
+Display serif (`font-serif`, token `--font-serif`): `Bitter`, Georgia, serif — used for the homepage hero headline and other large editorial headings (see `Hero.svelte`, `DestinationGrid.svelte`, `StatStrip.svelte`). Never use it for UI chrome (nav, buttons, tables, forms) — those stay on the body font or `font-sans` (token `--font-sans`, the plain system UI stack — see the nav logo in `Header.svelte`).
 
 | Usage | Classes |
 |-------|---------|

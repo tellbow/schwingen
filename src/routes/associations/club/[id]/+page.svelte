@@ -1,9 +1,11 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
-	import { escapeFilterValue } from '$lib/utils/filter';
+	import { WRESTLER_STATUS_OPTIONS } from '$lib/utils/filter';
+	import { t, localizePath, type Locale } from '$lib/i18n/index.svelte';
 
 	let { data } = $props();
+	const locale = $derived($page.data.locale as Locale);
 
 	let filterName = $state('');
 	let filterVorname = $state('');
@@ -15,51 +17,39 @@
 
 	const clubId = $derived($page.params.id);
 
-	const STATUS_OPTIONS = [
-		{ label: 'Alle', value: '' },
-		{ label: 'Eidgenoss', value: "status.symbol = '***'" },
-		{ label: 'Teilverbands- und Bergkranzer', value: "status.symbol = '**'" },
-		{ label: 'Kantonal- und Gauverbandskranzer', value: "status.symbol = '*'" },
-		{ label: 'Ohne Kranz', value: "status.symbol = ''" }
-	];
-
-	function buildFilter(): string {
-		const parts: string[] = [];
-		if (filterName) parts.push(`name ~ "${escapeFilterValue(filterName)}"`);
-		if (filterVorname) parts.push(`vorname ~ "${escapeFilterValue(filterVorname)}"`);
-		if (filterYear) parts.push(`year ~ "${escapeFilterValue(filterYear)}"`);
-		if (filterStatus) parts.push(filterStatus);
-		return parts.join(' && ');
+	function buildParams(pageNum: number): URLSearchParams {
+		const params = new URLSearchParams();
+		if (filterName) params.set('name', filterName);
+		if (filterVorname) params.set('vorname', filterVorname);
+		if (filterYear) params.set('year', filterYear);
+		if (filterStatus) params.set('status', filterStatus);
+		if (pageNum > 1) params.set('page', String(pageNum));
+		return params;
 	}
 
 	function search() {
 		if (debounceTimer) clearTimeout(debounceTimer);
 		debounceTimer = setTimeout(async () => {
 			loading = true;
-			const filter = buildFilter();
-			const params = new URLSearchParams();
-			if (filter) params.set('filter', filter);
-			await goto(`/associations/club/${clubId}?${params.toString()}`, { invalidateAll: true });
+			await goto(localizePath(`/associations/club/${clubId}?${buildParams(1).toString()}`, locale), {
+				invalidateAll: true
+			});
 			loading = false;
 		}, 300);
 	}
 
 	function goToPage(p: number) {
-		const filter = buildFilter();
-		const params = new URLSearchParams($page.url.searchParams);
-		params.set('page', String(p));
-		if (filter) params.set('filter', filter);
-		goto(`/associations/club/${clubId}?${params.toString()}`, { invalidateAll: true });
+		goto(localizePath(`/associations/club/${clubId}?${buildParams(p).toString()}`, locale), { invalidateAll: true });
 	}
 
 	const totalPages = $derived(Math.ceil(data.total / data.perPage));
 </script>
 
 <svelte:head>
-	<title>{data.club?.name ?? 'Schwingklub'} - Tellbow</title>
-	<meta name="description" content="Schwinger und Statistiken des Schwingklubs {data.club?.name ?? ''}." />
-	<meta property="og:title" content="{data.club?.name ?? 'Schwingklub'} - Tellbow" />
-	<meta property="og:description" content="Schwinger und Statistiken des Schwingklubs {data.club?.name ?? ''}." />
+	<title>{data.club?.name ?? t(locale, 'associations.clubFallbackTitle')} - Tellbow</title>
+	<meta name="description" content="{t(locale, 'associations.clubMetaDescriptionPrefix')} {data.club?.name ?? ''}." />
+	<meta property="og:title" content="{data.club?.name ?? t(locale, 'associations.clubFallbackTitle')} - Tellbow" />
+	<meta property="og:description" content="{t(locale, 'associations.clubMetaDescriptionPrefix')} {data.club?.name ?? ''}." />
 </svelte:head>
 
 <div class="max-w-4xl mx-auto">
@@ -67,41 +57,41 @@
 		<div class="card mb-4">
 			<h1 class="text-xl font-bold">{data.club.name}</h1>
 			<p class="text-sm text-muted-foreground mt-1">
-				{data.club.wrestlerActive} aktiv &nbsp;|&nbsp;
+				{data.club.wrestlerActive} {t(locale, 'associations.activeLabel')} &nbsp;|&nbsp;
 				* {data.club.wrestler1Star} &nbsp;|&nbsp;
 				** {data.club.wrestler2Star} &nbsp;|&nbsp;
 				*** {data.club.wrestler3Star}
 			</p>
 		</div>
 	{:else}
-		<h1 class="text-xl font-bold mb-4">Schwingklub</h1>
+		<h1 class="text-xl font-bold mb-4">{t(locale, 'associations.clubFallbackTitle')}</h1>
 	{/if}
 
 	<div class="overflow-x-auto">
 		<table class="data-table w-full">
 			<thead>
 				<tr>
-					<th>Name</th>
-					<th class="hidden md:table-cell">Vorname</th>
-					<th>Status</th>
-					<th class="hidden md:table-cell">Jahrgang</th>
+					<th>{t(locale, 'wrestler.name')}</th>
+					<th class="hidden md:table-cell">{t(locale, 'wrestler.firstName')}</th>
+					<th>{t(locale, 'wrestler.status')}</th>
+					<th class="hidden md:table-cell">{t(locale, 'wrestler.yearOfBirth')}</th>
 				</tr>
 				<tr class="bg-surface-low">
 					<th class="p-1">
-						<input type="text" class="filter-input" placeholder="Name" bind:value={filterName} oninput={search} />
+						<input type="text" class="filter-input" placeholder={t(locale, 'wrestler.name')} bind:value={filterName} oninput={search} />
 					</th>
 					<th class="p-1 hidden md:table-cell">
-						<input type="text" class="filter-input" placeholder="Vorname" bind:value={filterVorname} oninput={search} />
+						<input type="text" class="filter-input" placeholder={t(locale, 'wrestler.firstName')} bind:value={filterVorname} oninput={search} />
 					</th>
 					<th class="p-1">
 						<select class="filter-input" bind:value={filterStatus} onchange={search}>
-							{#each STATUS_OPTIONS as opt}
-								<option value={opt.value}>{opt.label}</option>
+							{#each WRESTLER_STATUS_OPTIONS as opt}
+								<option value={opt.value}>{t(locale, opt.labelKey)}</option>
 							{/each}
 						</select>
 					</th>
 					<th class="p-1 hidden md:table-cell">
-						<input type="text" class="filter-input" placeholder="Jahrgang" bind:value={filterYear} oninput={search} />
+						<input type="text" class="filter-input" placeholder={t(locale, 'wrestler.yearOfBirth')} bind:value={filterYear} oninput={search} />
 					</th>
 				</tr>
 			</thead>
@@ -109,13 +99,15 @@
 				{#if loading}
 					<tr><td colspan="4" class="text-center py-8"><div class="spinner mx-auto"></div></td></tr>
 				{:else if data.wrestlers.length === 0}
-					<tr><td colspan="4" class="text-center py-8 text-muted-foreground">Keine Schwinger gefunden.</td></tr>
+					<tr><td colspan="4" class="text-center py-8 text-muted-foreground">{t(locale, 'wrestler.noResultsFound')}</td></tr>
 				{:else}
 					{#each data.wrestlers as w}
-						<tr class="cursor-pointer" onclick={() => goto(`/wrestler/${w.id}`)}>
+						<tr>
 							<td class="font-medium">
-								{w.name}
-								<span class="md:hidden text-muted-foreground"> {w.vorname}</span>
+								<a href="/wrestler/{w.id}" class="hover:underline">
+									{w.name}
+									<span class="md:hidden text-muted-foreground"> {w.vorname}</span>
+								</a>
 							</td>
 							<td class="hidden md:table-cell">{w.vorname}</td>
 							<td>{w.expand?.status?.symbol ?? '-'}</td>
@@ -129,7 +121,7 @@
 
 	{#if totalPages > 1}
 		<div class="pagination mt-4">
-			<span class="text-sm text-muted-foreground">{data.total} Schwinger, Seite {data.page} von {totalPages}</span>
+			<span class="text-sm text-muted-foreground">{data.total} {t(locale, 'wrestler.title')}, {t(locale, 'common.page')} {data.page} {t(locale, 'common.of')} {totalPages}</span>
 			<div class="flex gap-1">
 				<button class="pagination-btn" disabled={data.page <= 1} onclick={() => goToPage(data.page - 1)}>‹</button>
 				{#each Array.from({ length: Math.min(totalPages, 7) }, (_, i) => {

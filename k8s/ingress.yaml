@@ -15,6 +15,13 @@ spec:
     - host: tellbow.ch
       http:
         paths:
+          - path: /metrics
+            pathType: Exact
+            backend:
+              service:
+                name: metrics-blackhole
+                port:
+                  number: 80
           - path: /
             pathType: Prefix
             backend:

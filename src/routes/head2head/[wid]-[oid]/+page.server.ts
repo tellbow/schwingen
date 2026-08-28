@@ -1,6 +1,7 @@
 import type { PageServerLoad } from './$types';
 import { createServerPb } from '$lib/pb';
 import { validateRouteParam } from '$lib/utils/filter';
+import { yearOnly } from '$lib/utils/format';
 import { error } from '@sveltejs/kit';
 
 export const load: PageServerLoad = async ({ params }) => {
@@ -49,14 +50,14 @@ export const load: PageServerLoad = async ({ params }) => {
 		]);
 
 		commonBouts.forEach((b: any) => {
-			b.expand.place.year = b.expand.place.year?.split('-')[0] || '';
+			b.expand.place.year = yearOnly(b.expand.place.year);
 		});
 
 		// Process rankings
 		const processRankings = (data: any[]) => {
 			return data.map((r: any) => ({
 				...r,
-				year: r.expand?.place?.year?.split('-')[0] || ''
+				year: yearOnly(r.expand?.place?.year)
 			}));
 		};
 
@@ -67,8 +68,11 @@ export const load: PageServerLoad = async ({ params }) => {
 			rankingsO: processRankings(rankingsO),
 			commonBouts
 		};
-	} catch (e) {
+	} catch (e: any) {
 		console.error(e);
-		throw error(404, 'Wrestlers not found');
+		if (e?.status === 404) {
+			throw error(404, 'Wrestlers not found');
+		}
+		throw error(500, 'Failed to load head-to-head data');
 	}
 };

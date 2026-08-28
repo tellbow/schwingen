@@ -1,9 +1,11 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
-	import { escapeFilterValue } from '$lib/utils/filter';
+	import { t, localizePath, type Locale } from '$lib/i18n/index.svelte';
+	import Pagination from '$lib/components/pagination.svelte';
 
 	let { data } = $props();
+	const locale = $derived($page.data.locale as Locale);
 
 	let filterResult = $state('');
 	let filterPoints = $state('');
@@ -23,110 +25,101 @@
 	const ROUNDS = ['', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
 	const YEARS = ['', '2015', '2016', '2017', '2018', '2019', '2020', '2021', '2022', '2023', '2024', '2025', '2026'];
 
-	function buildFilter(): string {
-		const parts: string[] = [];
-		if (filterResult) parts.push(`result = "${escapeFilterValue(filterResult)}"`);
-		if (filterPoints) parts.push(`points = "${escapeFilterValue(filterPoints)}"`);
-		if (filterRound) parts.push(`fight_round = "${escapeFilterValue(filterRound)}"`);
-		if (filterWrestlerName) parts.push(`wrestler.name ~ "${escapeFilterValue(filterWrestlerName)}"`);
-		if (filterWrestlerVorname)
-			parts.push(`wrestler.vorname ~ "${escapeFilterValue(filterWrestlerVorname)}"`);
-		if (filterOpponentName)
-			parts.push(`opponent.name ~ "${escapeFilterValue(filterOpponentName)}"`);
-		if (filterOpponentVorname)
-			parts.push(`opponent.vorname ~ "${escapeFilterValue(filterOpponentVorname)}"`);
-		if (filterPlaceName) parts.push(`place.name ~ "${escapeFilterValue(filterPlaceName)}"`);
-		if (filterYear) parts.push(`place.year ~ "${escapeFilterValue(filterYear)}"`);
-		return parts.join(' && ');
+	function buildParams(pageNum: number): URLSearchParams {
+		const params = new URLSearchParams();
+		if (filterResult) params.set('result', filterResult);
+		if (filterPoints) params.set('points', filterPoints);
+		if (filterRound) params.set('round', filterRound);
+		if (filterWrestlerName) params.set('wrestlerName', filterWrestlerName);
+		if (filterWrestlerVorname) params.set('wrestlerVorname', filterWrestlerVorname);
+		if (filterOpponentName) params.set('opponentName', filterOpponentName);
+		if (filterOpponentVorname) params.set('opponentVorname', filterOpponentVorname);
+		if (filterPlaceName) params.set('placeName', filterPlaceName);
+		if (filterYear) params.set('year', filterYear);
+		if (pageNum > 1) params.set('page', String(pageNum));
+		return params;
 	}
 
 	function search() {
 		if (debounceTimer) clearTimeout(debounceTimer);
 		debounceTimer = setTimeout(async () => {
 			loading = true;
-			const filter = buildFilter();
-			const params = new URLSearchParams();
-			if (filter) params.set('filter', filter);
-			await goto(`/bouts?${params.toString()}`, { invalidateAll: true, keepFocus: true });
+			await goto(localizePath(`/bouts?${buildParams(1).toString()}`, locale), { invalidateAll: true, keepFocus: true });
 			loading = false;
 		}, 300);
 	}
 
 	function goToPage(p: number) {
-		const filter = buildFilter();
-		const params = new URLSearchParams($page.url.searchParams);
-		params.set('page', String(p));
-		if (filter) params.set('filter', filter);
-		goto(`/bouts?${params.toString()}`, { invalidateAll: true });
+		goto(localizePath(`/bouts?${buildParams(p).toString()}`, locale), { invalidateAll: true });
 	}
 
 	const totalPages = $derived(Math.ceil(data.total / data.perPage));
 </script>
 
 <svelte:head>
-	<title>Paarungen - Tellbow</title>
-	<meta name="description" content="Alle Paarungen und Ergebnisse von Schweizer Schwingern." />
-	<meta property="og:title" content="Paarungen - Tellbow" />
-	<meta property="og:description" content="Alle Paarungen und Ergebnisse von Schweizer Schwingern." />
+	<title>{t(locale, 'bouts.metaTitle')}</title>
+	<meta name="description" content={t(locale, 'bouts.metaDescription')} />
+	<meta property="og:title" content={t(locale, 'bouts.metaTitle')} />
+	<meta property="og:description" content={t(locale, 'bouts.metaDescription')} />
 </svelte:head>
 
-<h1 class="sr-only">Paarungen - Tellbow</h1>
+<h1 class="sr-only">{t(locale, 'bouts.metaTitle')}</h1>
 
 <div class="overflow-x-auto">
 	<table class="data-table w-full">
 		<thead>
 			<tr>
-				<th>Res.</th>
-				<th class="hidden md:table-cell">Punkte</th>
-				<th class="hidden md:table-cell">Gang</th>
-				<th>Name</th>
-				<th class="hidden md:table-cell">Vorname</th>
-				<th>Gegner</th>
-				<th class="hidden md:table-cell">Geg. Vorname</th>
-				<th>Schwingfest</th>
-				<th class="hidden md:table-cell">Jahr</th>
+				<th>{t(locale, 'bouts.colResult')}</th>
+				<th class="hidden md:table-cell">{t(locale, 'bouts.points')}</th>
+				<th class="hidden md:table-cell">{t(locale, 'bouts.round')}</th>
+				<th>{t(locale, 'wrestler.name')}</th>
+				<th class="hidden md:table-cell">{t(locale, 'wrestler.firstName')}</th>
+				<th>{t(locale, 'bouts.opponent')}</th>
+				<th class="hidden md:table-cell">{t(locale, 'bouts.opponentFirstName')}</th>
+				<th>{t(locale, 'rankings.colSchwingfest')}</th>
+				<th class="hidden md:table-cell">{t(locale, 'rankings.colYear')}</th>
 			</tr>
 			<tr class="bg-surface-low">
 				<th class="p-1">
 					<select class="filter-input" bind:value={filterResult} onchange={search}>
 						{#each RESULTS as r}
-							<option value={r}>{r || 'Alle'}</option>
+							<option value={r}>{r || t(locale, 'common.all')}</option>
 						{/each}
 					</select>
 				</th>
 				<th class="p-1 hidden md:table-cell">
 					<select class="filter-input" bind:value={filterPoints} onchange={search}>
 						{#each POINTS as p}
-							<option value={p}>{p || 'Alle'}</option>
+							<option value={p}>{p || t(locale, 'common.all')}</option>
 						{/each}
 					</select>
 				</th>
 				<th class="p-1 hidden md:table-cell">
 					<select class="filter-input" bind:value={filterRound} onchange={search}>
 						{#each ROUNDS as r}
-							<option value={r}>{r || 'Alle'}</option>
+							<option value={r}>{r || t(locale, 'common.all')}</option>
 						{/each}
 					</select>
 				</th>
 				<th class="p-1">
-					<input type="text" class="filter-input" placeholder="Name" bind:value={filterWrestlerName} oninput={search} />
+					<input type="text" class="filter-input" placeholder={t(locale, 'wrestler.name')} bind:value={filterWrestlerName} oninput={search} />
 				</th>
 				<th class="p-1 hidden md:table-cell">
-					<input type="text" class="filter-input" placeholder="Vorname" bind:value={filterWrestlerVorname} oninput={search} />
+					<input type="text" class="filter-input" placeholder={t(locale, 'wrestler.firstName')} bind:value={filterWrestlerVorname} oninput={search} />
 				</th>
 				<th class="p-1">
-					<input type="text" class="filter-input" placeholder="Gegner" bind:value={filterOpponentName} oninput={search} />
+					<input type="text" class="filter-input" placeholder={t(locale, 'bouts.opponent')} bind:value={filterOpponentName} oninput={search} />
 				</th>
 				<th class="p-1 hidden md:table-cell">
-					<input type="text" class="filter-input" placeholder="Vorname" bind:value={filterOpponentVorname} oninput={search} />
+					<input type="text" class="filter-input" placeholder={t(locale, 'wrestler.firstName')} bind:value={filterOpponentVorname} oninput={search} />
 				</th>
 				<th class="p-1">
-					<input type="text" class="filter-input" placeholder="Schwingfest" bind:value={filterPlaceName} oninput={search} />
+					<input type="text" class="filter-input" placeholder={t(locale, 'rankings.colSchwingfest')} bind:value={filterPlaceName} oninput={search} />
 				</th>
 				<th class="p-1 hidden md:table-cell">
 					<select class="filter-input" bind:value={filterYear} onchange={search}>
 						{#each YEARS as y}
-							<option value={y}>{y || 'Alle'}</option>
+							<option value={y}>{y || t(locale, 'common.all')}</option>
 						{/each}
 					</select>
 				</th>
@@ -136,7 +129,7 @@
 			{#if loading}
 				<tr><td colspan="9" class="text-center py-8"><div class="spinner mx-auto"></div></td></tr>
 			{:else if data.bouts.length === 0}
-				<tr><td colspan="9" class="text-center py-8 text-muted-foreground">Keine Paarungen gefunden.</td></tr>
+				<tr><td colspan="9" class="text-center py-8 text-muted-foreground">{t(locale, 'bouts.noResultsFound')}</td></tr>
 			{:else}
 				{#each data.bouts as b}
 					<tr>
@@ -146,27 +139,24 @@
 						</td>
 						<td class="hidden md:table-cell">{b.points}</td>
 						<td class="hidden md:table-cell">{b.fight_round}</td>
-						<td
-							class="underline cursor-pointer"
-							onclick={() => goto(`/wrestler/${b.expand?.wrestler?.id}`)}
-						>
-							{b.expand?.wrestler?.name ?? '-'}
+						<td>
+							<a href="/wrestler/{b.expand?.wrestler?.id}" class="underline">
+								{b.expand?.wrestler?.name ?? '-'}
+							</a>
 							<span class="block text-xs text-muted-foreground md:hidden">{b.expand?.wrestler?.vorname ?? ''}</span>
 						</td>
 						<td class="hidden md:table-cell">{b.expand?.wrestler?.vorname ?? '-'}</td>
-						<td
-							class="underline cursor-pointer"
-							onclick={() => goto(`/wrestler/${b.expand?.opponent?.id}`)}
-						>
-							{b.expand?.opponent?.name ?? '-'}
+						<td>
+							<a href="/wrestler/{b.expand?.opponent?.id}" class="underline">
+								{b.expand?.opponent?.name ?? '-'}
+							</a>
 							<span class="block text-xs text-muted-foreground md:hidden">{b.expand?.opponent?.vorname ?? ''}</span>
 						</td>
 						<td class="hidden md:table-cell">{b.expand?.opponent?.vorname ?? '-'}</td>
-						<td
-							class="underline cursor-pointer"
-							onclick={() => goto(`/rankings/${b.expand?.place?.id}`)}
-						>
-							{b.expand?.place?.name ?? '-'}
+						<td>
+							<a href="/rankings/{b.expand?.place?.id}" class="underline">
+								{b.expand?.place?.name ?? '-'}
+							</a>
 						</td>
 						<td class="hidden md:table-cell">{b.year}</td>
 					</tr>
@@ -176,21 +166,4 @@
 	</table>
 </div>
 
-{#if totalPages > 1}
-	<div class="flex flex-col items-center gap-1 mt-4 py-3">
-		<div class="flex gap-1">
-			<button class="pagination-btn" disabled={data.page <= 1} onclick={() => goToPage(data.page - 1)}>‹</button>
-			{#each Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
-				const half = 2;
-				let start = Math.max(1, data.page - half);
-				const end = Math.min(totalPages, start + 4);
-				start = Math.max(1, end - 4);
-				return start + i;
-			}) as p}
-				<button class="pagination-btn {p === data.page ? 'pagination-active' : ''}" onclick={() => goToPage(p)}>{p}</button>
-			{/each}
-			<button class="pagination-btn" disabled={data.page >= totalPages} onclick={() => goToPage(data.page + 1)}>›</button>
-		</div>
-		<span class="text-sm text-muted-foreground">Seite {data.page} von {totalPages}</span>
-	</div>
-{/if}
+<Pagination page={data.page} {totalPages} onNavigate={goToPage} {locale} />

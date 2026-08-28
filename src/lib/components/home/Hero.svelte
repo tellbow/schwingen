@@ -1,9 +1,12 @@
 <script lang="ts">
 	import { Search } from 'lucide-svelte';
 	import { goto } from '$app/navigation';
-	import { t } from '$lib/i18n/index.svelte';
+	import { page } from '$app/stores';
+	import { t, localizePath, type Locale } from '$lib/i18n/index.svelte';
 	import { escapeFilterValue } from '$lib/utils/filter';
 	import { getClientPb } from '$lib/pb';
+
+	const locale = $derived($page.data.locale as Locale);
 
 	let query = $state('');
 	let loading = $state(false);
@@ -25,11 +28,11 @@
 				pb.collection('places').getList(1, 1, { filter: placesFilter, fields: 'id' }).then((r) => r.totalItems).catch(() => 0)
 			]);
 
-			if (wrestlerCount === 0 && placesCount > 0) {
-				await goto(`/places?filter=${encodeURIComponent(placesFilter)}`);
-			} else {
-				await goto(`/wrestler?filter=${encodeURIComponent(wrestlerFilter)}`);
-			}
+			const target =
+				wrestlerCount === 0 && placesCount > 0
+					? `/places?q=${encodeURIComponent(q)}`
+					: `/wrestler?q=${encodeURIComponent(q)}`;
+			await goto(localizePath(target, locale));
 		} finally {
 			loading = false;
 		}
@@ -44,14 +47,14 @@
 	<div class="absolute -top-52 -right-36 h-[520px] w-[520px] rounded-full border border-primary/15 pointer-events-none"></div>
 	<div class="absolute -top-36 -right-16 h-[380px] w-[380px] rounded-full border border-tertiary-container/20 pointer-events-none"></div>
 
-	<div class="relative max-w-screen-xl mx-auto px-4 py-12 md:py-16">
+	<div class="relative max-w-screen-xl mx-auto px-4 pt-8 pb-6 md:pt-10 md:pb-8">
 		<div class="max-w-xl">
-			<p class="text-xs font-bold uppercase tracking-[0.12em] text-outline mb-3">{t('home.heroEyebrow')}</p>
+			<p class="text-xs font-bold uppercase tracking-[0.12em] text-outline mb-3">{t(locale, 'home.heroEyebrow')}</p>
 			<h1 class="font-serif font-semibold text-4xl md:text-5xl leading-[1.1] tracking-tight text-foreground mb-5 text-pretty">
-				{t('home.heroHeadline')}
+				{t(locale, 'home.heroHeadline')}
 			</h1>
 			<p class="text-muted-foreground text-base md:text-lg leading-relaxed mb-8 max-w-md">
-				{t('home.heroSubhead')}
+				{t(locale, 'home.heroSubhead')}
 			</p>
 
 			<form class="flex items-center gap-3 mb-3" onsubmit={handleSearch}>
@@ -61,15 +64,14 @@
 						type="text"
 						bind:value={query}
 						disabled={loading}
-						placeholder={t('home.searchPlaceholder')}
+						placeholder={t(locale, 'home.searchPlaceholder')}
 						class="bg-transparent border-0 outline-none text-sm w-full placeholder:text-outline"
 					/>
 				</div>
 				<button type="submit" class="btn-primary whitespace-nowrap" disabled={loading}>
-					{loading ? t('common.loading') : t('home.searchButton')}
+					{loading ? t(locale, 'common.loading') : t(locale, 'home.searchButton')}
 				</button>
 			</form>
-			<a href="/rankings" class="text-sm font-semibold hover:underline">{t('home.quickLink')} →</a>
 		</div>
 	</div>
 </section>

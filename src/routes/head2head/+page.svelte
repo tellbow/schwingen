@@ -1,7 +1,11 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import { page } from '$app/stores';
 	import { getClientPb } from '$lib/pb';
 	import { escapeFilterValue } from '$lib/utils/filter';
+	import { t, localizePath, type Locale } from '$lib/i18n/index.svelte';
+
+	const locale = $derived($page.data.locale as Locale);
 
 	let searchTerm1 = $state('');
 	let searchTerm2 = $state('');
@@ -66,7 +70,7 @@
 
 	function compare() {
 		if (selected1 && selected2 && selected1.id !== selected2.id) {
-			goto(`/head2head/${selected1.id}-${selected2.id}`);
+			goto(localizePath(`/head2head/${selected1.id}-${selected2.id}`, locale));
 		}
 	}
 
@@ -74,24 +78,24 @@
 </script>
 
 <svelte:head>
-	<title>Direktvergleich - Tellbow</title>
-	<meta name="description" content="Vergleichen Sie zwei Schweizer Schwinger direkt miteinander." />
-	<meta property="og:title" content="Direktvergleich - Tellbow" />
-	<meta property="og:description" content="Vergleichen Sie zwei Schweizer Schwinger direkt miteinander." />
+	<title>{t(locale, 'head2head.title')} - Tellbow</title>
+	<meta name="description" content={t(locale, 'head2head.metaDescription')} />
+	<meta property="og:title" content="{t(locale, 'head2head.title')} - Tellbow" />
+	<meta property="og:description" content={t(locale, 'head2head.metaDescription')} />
 </svelte:head>
 
 <div class="max-w-2xl mx-auto">
-	<h1 class="text-xl font-bold mb-4">Direktvergleich</h1>
+	<h1 class="text-xl font-bold mb-4">{t(locale, 'head2head.title')}</h1>
 
 	<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 		<!-- Wrestler 1 -->
 		<div class="card">
-			<h2 class="font-semibold mb-2">Schwinger 1</h2>
+			<h2 class="font-semibold mb-2">{t(locale, 'head2head.wrestler1')}</h2>
 			<div class="relative">
 				<input
 					type="text"
 					class="filter-input"
-					placeholder="Name oder Vorname eingeben…"
+					placeholder={t(locale, 'head2head.searchPlaceholder')}
 					bind:value={searchTerm1}
 					oninput={() => debounceSearch(searchTerm1, 1)}
 				/>
@@ -114,18 +118,18 @@
 				{/if}
 			</div>
 			{#if selected1}
-				<p class="text-xs text-tertiary mt-1">Ausgewählt: {selected1.name} {selected1.vorname}</p>
+				<p class="text-xs text-tertiary mt-1">{t(locale, 'head2head.selectedLabel')} {selected1.name} {selected1.vorname}</p>
 			{/if}
 		</div>
 
 		<!-- Wrestler 2 -->
 		<div class="card">
-			<h2 class="font-semibold mb-2">Schwinger 2</h2>
+			<h2 class="font-semibold mb-2">{t(locale, 'head2head.wrestler2')}</h2>
 			<div class="relative">
 				<input
 					type="text"
 					class="filter-input"
-					placeholder="Name oder Vorname eingeben…"
+					placeholder={t(locale, 'head2head.searchPlaceholder')}
 					bind:value={searchTerm2}
 					oninput={() => debounceSearch(searchTerm2, 2)}
 				/>
@@ -148,13 +152,13 @@
 				{/if}
 			</div>
 			{#if selected2}
-				<p class="text-xs text-tertiary mt-1">Ausgewählt: {selected2.name} {selected2.vorname}</p>
+				<p class="text-xs text-tertiary mt-1">{t(locale, 'head2head.selectedLabel')} {selected2.name} {selected2.vorname}</p>
 			{/if}
 		</div>
 	</div>
 
 	{#if selected1 && selected2 && selected1.id === selected2.id}
-		<p class="mt-4 text-error text-sm">Bitte zwei verschiedene Schwinger auswählen.</p>
+		<p class="mt-4 text-error text-sm">{t(locale, 'head2head.selectDifferentWarning')}</p>
 	{/if}
 
 	<div class="mt-6">
@@ -163,7 +167,7 @@
 			onclick={compare}
 			disabled={!canCompare}
 		>
-			Vergleichen
+			{t(locale, 'head2head.compareButton')}
 		</button>
 	</div>
 </div>

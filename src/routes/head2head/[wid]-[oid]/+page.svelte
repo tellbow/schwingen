@@ -1,7 +1,8 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
-	import { goto } from '$app/navigation';
+	import { onDestroy } from 'svelte';
+	import { page } from '$app/stores';
 	import type { Chart } from 'chart.js';
+	import { t, type Locale } from '$lib/i18n/index.svelte';
 
 	let { data } = $props();
 	const wrestler = $derived(data.wrestler);
@@ -9,6 +10,7 @@
 	const rankingsW = $derived(data.rankingsW);
 	const rankingsO = $derived(data.rankingsO);
 	const commonBouts = $derived(data.commonBouts);
+	const locale = $derived($page.data.locale as Locale);
 
 	let bubbleCanvas = $state<HTMLCanvasElement | null>(null);
 	let bubbleChart: Chart | null = null;
@@ -33,62 +35,83 @@
 	const statsW = $derived(calcStats(rankingsW));
 	const statsO = $derived(calcStats(rankingsO));
 
-	onMount(async () => {
-		if (bubbleCanvas && rankingsW.length && rankingsO.length) {
-			const { Chart: ChartJS, BubbleController, PointElement, LinearScale, Legend, Tooltip, Title } =
-				await import('chart.js');
-			ChartJS.register(BubbleController, PointElement, LinearScale, Legend, Tooltip, Title);
+	let ChartJS: typeof Chart;
 
-			const wPoints = rankingsW.filter((r) => r.status !== 'Unfall').map((r) => ({
-				x: parseFloat(r.points) || 0,
-				y: parseInt(r.rank?.replace(/\D/g, '') || '0') || 0,
-				r: 5
-			}));
-			const oPoints = rankingsO.filter((r) => r.status !== 'Unfall').map((r) => ({
-				x: parseFloat(r.points) || 0,
-				y: parseInt(r.rank?.replace(/\D/g, '') || '0') || 0,
-				r: 5
-			}));
+	async function ensureChartJS() {
+		if (ChartJS) return;
+		const { Chart: ChartJSImport, BubbleController, PointElement, LinearScale, Legend, Tooltip, Title } =
+			await import('chart.js');
+		ChartJS = ChartJSImport;
+		ChartJS.register(BubbleController, PointElement, LinearScale, Legend, Tooltip, Title);
+	}
 
-			bubbleChart = new ChartJS(bubbleCanvas, {
-				type: 'bubble',
-				data: {
-					datasets: [
-						{
-							label: `${wrestler.name} ${wrestler.vorname}`,
-							data: wPoints,
-							backgroundColor: 'rgba(34, 197, 94, 0.5)'
-						},
-						{
-							label: `${opponent.name} ${opponent.vorname}`,
-							data: oPoints,
-							backgroundColor: 'rgba(239, 68, 68, 0.5)'
-						}
-					]
-				},
-				options: {
-					responsive: true,
-					scales: {
-						x: { title: { display: true, text: 'Punkte' } },
-						y: { title: { display: true, text: 'Rang' }, reverse: true, min: 1 }
+	function drawBubbleChart() {
+		if (!bubbleCanvas || !rankingsW.length || !rankingsO.length) return;
+
+		const wPoints = rankingsW.filter((r) => r.status !== 'Unfall').map((r) => ({
+			x: parseFloat(r.points) || 0,
+			y: parseInt(r.rank?.replace(/\D/g, '') || '0') || 0,
+			r: 5
+		}));
+		const oPoints = rankingsO.filter((r) => r.status !== 'Unfall').map((r) => ({
+			x: parseFloat(r.points) || 0,
+			y: parseInt(r.rank?.replace(/\D/g, '') || '0') || 0,
+			r: 5
+		}));
+
+		bubbleChart?.destroy();
+		bubbleChart = new ChartJS(bubbleCanvas, {
+			type: 'bubble',
+			data: {
+				datasets: [
+					{
+						label: `${wrestler.name} ${wrestler.vorname}`,
+						data: wPoints,
+						backgroundColor: 'rgba(34, 197, 94, 0.5)'
+					},
+					{
+						label: `${opponent.name} ${opponent.vorname}`,
+						data: oPoints,
+						backgroundColor: 'rgba(239, 68, 68, 0.5)'
 					}
+				]
+			},
+			options: {
+				responsive: true,
+				scales: {
+					x: { title: { display: true, text: t(locale, 'rankings.points') } },
+					y: { title: { display: true, text: t(locale, 'rankings.rank') }, reverse: true, min: 1 }
 				}
-			});
-		}
+			}
+		});
+	}
+
+	// SvelteKit reuses this component instance when navigating between two
+	// head2head comparisons (same route, different wid-oid), so onMount
+	// alone would only ever draw the chart for the first pair viewed.
+	$effect(() => {
+		rankingsW;
+		rankingsO;
+		locale;
+		ensureChartJS().then(drawBubbleChart);
+	});
+
+	onDestroy(() => {
+		bubbleChart?.destroy();
 	});
 </script>
 
 <svelte:head>
-	<title>{wrestler.vorname} {wrestler.name} vs {opponent.vorname} {opponent.name} - Tellbow</title>
-	<meta name="description" content="Direktvergleich zwischen {wrestler.vorname} {wrestler.name} und {opponent.vorname} {opponent.name}." />
-	<meta property="og:title" content="{wrestler.vorname} {wrestler.name} vs {opponent.vorname} {opponent.name} - Tellbow" />
-	<meta property="og:description" content="Direktvergleich zwischen {wrestler.vorname} {wrestler.name} und {opponent.vorname} {opponent.name}." />
+	<title>{wrestler.vorname} {wrestler.name} {t(locale, 'head2head.vs')} {opponent.vorname} {opponent.name} - Tellbow</title>
+	<meta name="description" content="{t(locale, 'head2head.metaDescriptionPrefix')} {wrestler.vorname} {wrestler.name} {t(locale, 'head2head.and')} {opponent.vorname} {opponent.name}." />
+	<meta property="og:title" content="{wrestler.vorname} {wrestler.name} {t(locale, 'head2head.vs')} {opponent.vorname} {opponent.name} - Tellbow" />
+	<meta property="og:description" content="{t(locale, 'head2head.metaDescriptionPrefix')} {wrestler.vorname} {wrestler.name} {t(locale, 'head2head.and')} {opponent.vorname} {opponent.name}." />
 </svelte:head>
 
 <div class="max-w-4xl mx-auto space-y-4">
 	<h1 class="text-xl font-bold">
 		<a href="/wrestler/{wrestler.id}" class="underline hover:text-primary">{wrestler.vorname} {wrestler.name}</a>
-		vs
+		{t(locale, 'head2head.vs')}
 		<a href="/wrestler/{opponent.id}" class="underline hover:text-primary">{opponent.vorname} {opponent.name}</a>
 	</h1>
 
@@ -97,21 +120,21 @@
 		<div class="card">
 			<h2 class="font-semibold text-sm mb-2">{wrestler.name} {wrestler.vorname}</h2>
 			<div class="text-sm space-y-1">
-				<p>Ø Rang: <strong>{statsW.avgRank}</strong></p>
-				<p>Ø Punkte: <strong>{statsW.avgPoints}</strong></p>
-				<p>Kränze: <strong>{statsW.wreaths}</strong></p>
-				<p>Schlussgänge: <strong>{statsW.finals}</strong></p>
-				<p>Teilnahmen: <strong>{statsW.events}</strong></p>
+				<p>{t(locale, 'wrestler.avgRank')}: <strong>{statsW.avgRank}</strong></p>
+				<p>{t(locale, 'wrestler.avgPoints')}: <strong>{statsW.avgPoints}</strong></p>
+				<p>{t(locale, 'rankings.wreath')}: <strong>{statsW.wreaths}</strong></p>
+				<p>{t(locale, 'head2head.finalRoundsLabel')}: <strong>{statsW.finals}</strong></p>
+				<p>{t(locale, 'head2head.eventsLabel')}: <strong>{statsW.events}</strong></p>
 			</div>
 		</div>
 		<div class="card">
 			<h2 class="font-semibold text-sm mb-2">{opponent.name} {opponent.vorname}</h2>
 			<div class="text-sm space-y-1">
-				<p>Ø Rang: <strong>{statsO.avgRank}</strong></p>
-				<p>Ø Punkte: <strong>{statsO.avgPoints}</strong></p>
-				<p>Kränze: <strong>{statsO.wreaths}</strong></p>
-				<p>Schlussgänge: <strong>{statsO.finals}</strong></p>
-				<p>Teilnahmen: <strong>{statsO.events}</strong></p>
+				<p>{t(locale, 'wrestler.avgRank')}: <strong>{statsO.avgRank}</strong></p>
+				<p>{t(locale, 'wrestler.avgPoints')}: <strong>{statsO.avgPoints}</strong></p>
+				<p>{t(locale, 'rankings.wreath')}: <strong>{statsO.wreaths}</strong></p>
+				<p>{t(locale, 'head2head.finalRoundsLabel')}: <strong>{statsO.finals}</strong></p>
+				<p>{t(locale, 'head2head.eventsLabel')}: <strong>{statsO.events}</strong></p>
 			</div>
 		</div>
 	</div>
@@ -119,34 +142,35 @@
 	<!-- Bubble Chart -->
 	{#if rankingsW.length > 0 && rankingsO.length > 0}
 		<div class="card">
-			<h2 class="card-title">Punkte vs Rang</h2>
+			<h2 class="card-title">{t(locale, 'head2head.pointsVsRankTitle')}</h2>
 			<canvas bind:this={bubbleCanvas}></canvas>
 		</div>
 	{/if}
 
 	<!-- Common Bouts -->
 	<div class="card">
-		<h2 class="card-title">Direkte Begegnungen ({commonBouts.length})</h2>
+		<h2 class="card-title">{t(locale, 'head2head.commonBoutsTitle')} ({commonBouts.length})</h2>
 		{#if commonBouts.length === 0}
-			<p class="text-muted-foreground text-sm">Keine direkten Begegnungen gefunden.</p>
+			<p class="text-muted-foreground text-sm">{t(locale, 'head2head.noCommonBouts')}</p>
 		{:else}
 			<div class="overflow-x-auto">
 				<table class="data-table w-full text-sm">
 					<thead>
 						<tr>
-							<th>Schwingfest</th>
-							<th>Jahr</th>
-							<th>Punkte</th>
-							<th>Resultat</th>
+							<th>{t(locale, 'rankings.colSchwingfest')}</th>
+							<th>{t(locale, 'rankings.colYear')}</th>
+							<th>{t(locale, 'rankings.points')}</th>
+							<th>{t(locale, 'rankings.result')}</th>
 						</tr>
 					</thead>
 					<tbody>
 						{#each commonBouts as b}
-							<tr
-								class="cursor-pointer"
-								onclick={() => goto(`/rankings/${b.expand?.place?.id}`)}
-							>
-								<td>{b.expand?.place?.name ?? '-'}</td>
+							<tr>
+								<td>
+									<a href="/rankings/{b.expand?.place?.id}" class="hover:underline">
+										{b.expand?.place?.name ?? '-'}
+									</a>
+								</td>
 								<td>{b.expand?.place?.year ?? '-'}</td>
 								<td>{b.points}</td>
 								<td class="font-mono">{b.result}</td>

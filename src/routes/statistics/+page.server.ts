@@ -4,8 +4,13 @@ import { createServerPb } from '$lib/pb';
 const CACHE_TTL_MS = 60 * 60 * 1000;
 const cache = new Map<string, { data: any; cachedAt: number }>();
 
+const VALID_YEARS = [
+	'2015', '2016', '2017', '2018', '2019', '2021', '2022', '2023', '2024', '2025', '2026', 'Alle'
+];
+
 export const load: PageServerLoad = async ({ url }) => {
-	const year = url.searchParams.get('year') || 'Alle';
+	const requestedYear = url.searchParams.get('year') || 'Alle';
+	const year = VALID_YEARS.includes(requestedYear) ? requestedYear : 'Alle';
 
 	const cached = cache.get(year);
 	if (cached && Date.now() - cached.cachedAt < CACHE_TTL_MS) {

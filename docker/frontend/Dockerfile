@@ -17,10 +17,10 @@ WORKDIR /app
 
 # Only copy what the server needs at runtime
 COPY --from=builder /app/build ./build
-COPY --from=builder /app/package.json ./
+COPY --from=builder /app/package.json /app/bun.lock ./
 
 # Install production deps only (pocketbase SDK, etc.)
-RUN bun install --production --frozen-lockfile 2>/dev/null || bun install --production
+RUN bun install --production --frozen-lockfile
 
 ENV PORT=3000
 ENV HOST=0.0.0.0

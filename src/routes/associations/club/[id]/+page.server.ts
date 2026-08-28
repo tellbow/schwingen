@@ -1,6 +1,7 @@
 import type { PageServerLoad } from './$types';
 import { createServerPb } from '$lib/pb';
-import { validateRouteParam } from '$lib/utils/filter';
+import { buildSafeFilter, validateRouteParam, WRESTLER_STATUS_FILTERS } from '$lib/utils/filter';
+import { yearOnly } from '$lib/utils/format';
 import { error } from '@sveltejs/kit';
 
 export const load: PageServerLoad = async ({ params, url }) => {
@@ -14,9 +15,14 @@ export const load: PageServerLoad = async ({ params, url }) => {
 	const pb = createServerPb();
 	const page = parseInt(url.searchParams.get('page') || '1');
 	const perPage = 15;
-	const filter = url.searchParams.get('filter') || '';
 
-	const baseFilter = `club.id = "${clubId}"${filter ? ` && ${filter}` : ''}`;
+	const memberFilter = buildSafeFilter(url.searchParams, [
+		{ param: 'name', column: 'name', match: 'contains' },
+		{ param: 'vorname', column: 'vorname', match: 'contains' },
+		{ param: 'year', column: 'year', match: 'contains' },
+		{ param: 'status', enum: WRESTLER_STATUS_FILTERS }
+	]);
+	const filter = [`club.id = "${clubId}"`, memberFilter].filter(Boolean).join(' && ');
 
 	try {
 		const [club, wrestlers] = await Promise.all([
@@ -24,7 +30,7 @@ export const load: PageServerLoad = async ({ params, url }) => {
 				fields: 'id,name,canton,wrestlerAmount,wrestlerActive,wrestler1Star,wrestler2Star,wrestler3Star'
 			}).catch(() => null),
 			pb.collection('wrestler').getList(page, perPage, {
-				filter: baseFilter,
+				filter,
 				expand: 'status',
 				sort: '-status.symbol,name,-created',
 				fields: 'id,name,vorname,year,expand.status.symbol'
@@ -35,7 +41,7 @@ export const load: PageServerLoad = async ({ params, url }) => {
 			club,
 			wrestlers: wrestlers.items.map((item: any) => ({
 				...item,
-				year: item.year ? item.year.split('-')[0] : item.year
+				year: yearOnly(item.year)
 			})),
 			total: wrestlers.totalItems,
 			page,

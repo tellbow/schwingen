@@ -1,18 +1,20 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
+	import { page } from '$app/stores';
+	import { t, type Locale } from '$lib/i18n/index.svelte';
 
 	let { data } = $props();
 	const wrestler = $derived(data.wrestler);
 	const place = $derived(data.place);
 	const ranking = $derived(data.ranking);
 	const bouts = $derived(data.bouts);
+	const locale = $derived($page.data.locale as Locale);
 </script>
 
 <svelte:head>
 	<title>{wrestler.vorname} {wrestler.name}, {place.name} - Tellbow</title>
-	<meta name="description" content="Resultate von {wrestler.vorname} {wrestler.name} am {place.name}." />
+	<meta name="description" content="{t(locale, 'wrestler.resultsAtMetaDescriptionPrefix')} {wrestler.vorname} {wrestler.name} {t(locale, 'wrestler.resultsAtMetaDescriptionInfix')} {place.name}." />
 	<meta property="og:title" content="{wrestler.vorname} {wrestler.name}, {place.name} - Tellbow" />
-	<meta property="og:description" content="Resultate von {wrestler.vorname} {wrestler.name} am {place.name}." />
+	<meta property="og:description" content="{t(locale, 'wrestler.resultsAtMetaDescriptionPrefix')} {wrestler.vorname} {wrestler.name} {t(locale, 'wrestler.resultsAtMetaDescriptionInfix')} {place.name}." />
 </svelte:head>
 
 <div class="max-w-4xl mx-auto space-y-4">
@@ -33,19 +35,19 @@
 		{#if ranking}
 			<div class="flex flex-wrap gap-4 mt-4 text-sm">
 				<div>
-					<p class="text-xs text-outline">Rang</p>
+					<p class="text-xs text-outline">{t(locale, 'rankings.rank')}</p>
 					<p class="font-semibold">{ranking.rank}{ranking.rank2}</p>
 				</div>
 				<div>
-					<p class="text-xs text-outline">Punkte</p>
+					<p class="text-xs text-outline">{t(locale, 'rankings.points')}</p>
 					<p class="font-semibold">{ranking.points}</p>
 				</div>
 				<div>
-					<p class="text-xs text-outline">Resultat</p>
+					<p class="text-xs text-outline">{t(locale, 'rankings.result')}</p>
 					<p class="font-mono">{ranking.result}</p>
 				</div>
 				<div>
-					<p class="text-xs text-outline">SF / Kranz</p>
+					<p class="text-xs text-outline">{t(locale, 'wrestler.finalWreathLabel')}</p>
 					<p class="font-semibold">{ranking.final ? '🏁' : ''} {ranking.wreath ? '🏆' : ''}</p>
 				</div>
 			</div>
@@ -53,26 +55,23 @@
 	</div>
 
 	<div class="card">
-		<h2 class="card-title">Gänge ({bouts.length})</h2>
+		<h2 class="card-title">{t(locale, 'wrestler.roundsTitle')} ({bouts.length})</h2>
 		{#if bouts.length === 0}
-			<p class="text-muted-foreground text-sm">Keine Gänge gefunden.</p>
+			<p class="text-muted-foreground text-sm">{t(locale, 'wrestler.noBoutsFound')}</p>
 		{:else}
 			<div class="overflow-x-auto">
 				<table class="data-table w-full">
 					<thead>
 						<tr>
-							<th>Gang</th>
-							<th>Resultat</th>
-							<th>Punkte</th>
-							<th>Gegner</th>
+							<th>{t(locale, 'rankings.gang')}</th>
+							<th>{t(locale, 'rankings.result')}</th>
+							<th>{t(locale, 'rankings.points')}</th>
+							<th>{t(locale, 'rankings.opponent')}</th>
 						</tr>
 					</thead>
 					<tbody>
 						{#each bouts as b}
-							<tr
-								class="cursor-pointer"
-								onclick={() => goto(`/wrestler/${b.expand?.opponent?.id}-${place.id}`)}
-							>
+							<tr>
 								<td>{b.fight_round}</td>
 								<td class="font-mono text-xs tracking-wider">
 									{#each b.result.split('') as char}
@@ -87,7 +86,9 @@
 								</td>
 								<td>{b.points}</td>
 								<td class="font-medium">
-									{b.expand?.opponent?.name ?? '-'} {b.expand?.opponent?.vorname ?? ''}
+									<a href="/wrestler/{b.expand?.opponent?.id}-{place.id}" class="hover:underline">
+										{b.expand?.opponent?.name ?? '-'} {b.expand?.opponent?.vorname ?? ''}
+									</a>
 								</td>
 							</tr>
 						{/each}

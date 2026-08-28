@@ -1,5 +1,6 @@
 import type { RequestHandler } from '@sveltejs/kit';
 import { createServerPb } from '$lib/pb';
+import { LOCALES, localizePath } from '$lib/i18n/index.svelte';
 
 const ORIGIN = 'https://schwingen.tellbow.ch';
 const CACHE_TTL_MS = 60 * 60 * 1000;
@@ -7,18 +8,24 @@ const CACHE_TTL_MS = 60 * 60 * 1000;
 let cachedSitemap: { xml: string; generatedAt: number } | null = null;
 
 function url(path: string, lastmod?: string): string {
-	const loc = `${ORIGIN}${path}`;
-	return lastmod
-		? `<url><loc>${loc}</loc><lastmod>${lastmod}</lastmod></url>`
-		: `<url><loc>${loc}</loc></url>`;
+	const lastmodTag = lastmod ? `<lastmod>${lastmod}</lastmod>` : '';
+	return LOCALES.map((locale) => {
+		const alternates = LOCALES.map(
+			(alt) => `<xhtml:link rel="alternate" hreflang="${alt}" href="${ORIGIN}${localizePath(path, alt)}"/>`
+		).join('');
+		return `<url><loc>${ORIGIN}${localizePath(path, locale)}</loc>${lastmodTag}${alternates}</url>`;
+	}).join('\n');
 }
 
 async function generateSitemap(): Promise<string> {
 	const pb = createServerPb();
 
-	const [wrestlers, places] = await Promise.all([
+	const [wrestlers, places, associations, cantons, clubs] = await Promise.all([
 		pb.collection('wrestler').getFullList({ fields: 'id,updated', skipTotal: true }).catch(() => []),
-		pb.collection('places').getFullList({ fields: 'id,updated', skipTotal: true }).catch(() => [])
+		pb.collection('places').getFullList({ fields: 'id,updated', skipTotal: true }).catch(() => []),
+		pb.collection('wrestlersByAssociation').getFullList({ fields: 'id', skipTotal: true }).catch(() => []),
+		pb.collection('wrestlersByCanton').getFullList({ fields: 'id', skipTotal: true }).catch(() => []),
+		pb.collection('wrestlersByClub').getFullList({ fields: 'id', skipTotal: true }).catch(() => [])
 	]);
 
 	const staticUrls = [
@@ -39,9 +46,13 @@ async function generateSitemap(): Promise<string> {
 		url(`/rankings/${p.id}`, p.updated?.substring(0, 10))
 	);
 
+	const associationUrls = associations.map((a: any) => url(`/associations/association/${a.id}`));
+	const cantonUrls = cantons.map((c: any) => url(`/associations/canton/${c.id}`));
+	const clubUrls = clubs.map((c: any) => url(`/associations/club/${c.id}`));
+
 	return `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${[...staticUrls, ...wrestlerUrls, ...placeUrls].join('\n')}
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+${[...staticUrls, ...wrestlerUrls, ...placeUrls, ...associationUrls, ...cantonUrls, ...clubUrls].join('\n')}
 </urlset>`;
 }
 

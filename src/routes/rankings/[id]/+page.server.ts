@@ -2,6 +2,7 @@ import type { PageServerLoad } from './$types';
 import { createServerPb } from '$lib/pb';
 import { validateRouteParam } from '$lib/utils/filter';
 import { groupBoutsByWrestler } from '$lib/utils/rankings';
+import { yearOnly } from '$lib/utils/format';
 import { error } from '@sveltejs/kit';
 
 export const load: PageServerLoad = async ({ params }) => {
@@ -58,7 +59,7 @@ export const load: PageServerLoad = async ({ params }) => {
 		throw error(404, 'Place not found');
 	}
 
-	place.year = place.year ? place.year.split('-')[0] : place.year;
+	place.year = yearOnly(place.year);
 
 	let rankings = rankingsResult.items.sort((a: any, b: any) => {
 		const na = parseInt(a.rank) || 0;

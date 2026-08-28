@@ -1,8 +1,10 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
+	import { page } from '$app/stores';
 	import type { Chart } from 'chart.js';
 	import { getDark } from '$lib/dark-mode.svelte';
+	import { t, localizePath, type Locale } from '$lib/i18n/index.svelte';
 	import {
 		buildAssociationFeatures,
 		buildCantonFeatures,
@@ -11,6 +13,7 @@
 	} from '$lib/utils/associations-map';
 
 	let { data } = $props();
+	const locale = $derived($page.data.locale as Locale);
 
 	// $state() required for bind:this in Svelte 5 runes mode
 	let mapCanvas = $state<HTMLCanvasElement | null>(null);
@@ -25,7 +28,11 @@
 	let gauverbandFeatures: any[] = [];
 
 	const mapLabel = $derived(
-		mapMode === 'association' ? 'Teilverband' : mapMode === 'gauverband' ? 'Gauverband' : 'Kanton'
+		mapMode === 'association'
+			? t(locale, 'associations.mapLabelAssociation')
+			: mapMode === 'gauverband'
+				? t(locale, 'associations.mapLabelGauverband')
+				: t(locale, 'associations.mapLabelCanton')
 	);
 
 	function handleMapClick(evt: unknown) {
@@ -40,9 +47,9 @@
 		const feature = (elements[0].element as unknown as { feature: MergedMapFeature }).feature;
 		if (!feature.id) return;
 		if (mapMode === 'association') {
-			goto(`/associations/association/${feature.id}`);
+			goto(localizePath(`/associations/association/${feature.id}`, locale));
 		} else {
-			goto(`/associations/canton/${feature.id}`);
+			goto(localizePath(`/associations/canton/${feature.id}`, locale));
 		}
 	}
 
@@ -150,7 +157,7 @@
 					labels: features.map((f: any) => f.properties?.name || ''),
 					datasets: [
 						{
-							label: 'Aktive Schwinger',
+							label: t(locale, 'associations.chartDatasetLabel'),
 							outline: countryFeature,
 							data: features.map((f: any) => ({
 								feature: f,
@@ -194,19 +201,19 @@
 </script>
 
 <svelte:head>
-	<title>Verbände - Tellbow</title>
-	<meta name="description" content="Übersicht über alle Teilverbände, Kantone und Vereine im Schweizer Schwingen." />
-	<meta property="og:title" content="Verbände - Tellbow" />
-	<meta property="og:description" content="Übersicht über alle Teilverbände, Kantone und Vereine im Schweizer Schwingen." />
+	<title>{t(locale, 'associations.metaTitle')}</title>
+	<meta name="description" content={t(locale, 'associations.metaDescription')} />
+	<meta property="og:title" content={t(locale, 'associations.metaTitle')} />
+	<meta property="og:description" content={t(locale, 'associations.metaDescription')} />
 </svelte:head>
 
-<h1 class="sr-only">Verbände - Tellbow</h1>
+<h1 class="sr-only">{t(locale, 'associations.metaTitle')}</h1>
 
 <div class="max-w-4xl mx-auto space-y-4">
 	<!-- Map -->
 	<div class="card">
 		<h2 class="card-title">
-			Aktive Schwinger nach {mapLabel}
+			{t(locale, 'associations.activeSchwingerByLabel')} {mapLabel}
 		</h2>
 		<!-- Explicit height required for maintainAspectRatio: false to work -->
 		<div style="position: relative; height: 420px; overflow: hidden;">
@@ -216,7 +223,7 @@
 
 	<!-- Accordion: Association → Canton → Club -->
 	<div class="card">
-		<h2 class="card-title">Teilverbände, Kantone und Klubs</h2>
+		<h2 class="card-title">{t(locale, 'associations.accordionTitle')}</h2>
 		<div class="space-y-2">
 			{#each data.associations as assoc}
 				<div class="border border-border rounded-lg">
@@ -236,7 +243,7 @@
 								{assoc.name}
 							</span>
 							<span class="text-xs text-muted-foreground font-normal mt-0.5">
-								{assoc.wrestlerActive} aktiv &nbsp;·&nbsp; * {assoc.wrestler1Star} &nbsp;·&nbsp; ** {assoc.wrestler2Star} &nbsp;·&nbsp; *** {assoc.wrestler3Star}
+								{assoc.wrestlerActive} {t(locale, 'associations.activeLabel')} &nbsp;·&nbsp; * {assoc.wrestler1Star} &nbsp;·&nbsp; ** {assoc.wrestler2Star} &nbsp;·&nbsp; *** {assoc.wrestler3Star}
 							</span>
 						</span>
 						<span class="text-outline ml-3 shrink-0">{expandedAssociation === assoc.id ? '▲' : '▼'}</span>
@@ -258,7 +265,7 @@
 											{canton.name}
 										</a>
 										<span class="text-xs text-muted-foreground">
-											{canton.wrestlerActive} aktiv
+											{canton.wrestlerActive} {t(locale, 'associations.activeLabel')}
 											{expandedCanton === canton.id ? ' ▲' : ' ▼'}
 										</span>
 									</button>
@@ -270,18 +277,18 @@
 													<a href="/associations/club/{club.id}" class="underline hover:text-primary">
 														{club.name}
 													</a>
-													<span class="text-muted-foreground">{club.wrestlerActive} aktiv</span>
+													<span class="text-muted-foreground">{club.wrestlerActive} {t(locale, 'associations.activeLabel')}</span>
 												</div>
 											{/each}
 											{#if (clubsByCanton[canton.id] || []).length === 0}
-												<p class="text-xs text-outline py-1">Keine Klubs gefunden.</p>
+												<p class="text-xs text-outline py-1">{t(locale, 'associations.noClubsFound')}</p>
 											{/if}
 										</div>
 									{/if}
 								</div>
 							{/each}
 							{#if (cantonsByAssociation[assoc.id] || []).length === 0}
-								<p class="text-sm text-outline py-1">Keine Kantone gefunden.</p>
+								<p class="text-sm text-outline py-1">{t(locale, 'associations.noCantonsFound')}</p>
 							{/if}
 						</div>
 					{/if}

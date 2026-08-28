@@ -60,7 +60,9 @@
   --radius-lg: 0.5rem;
   --radius-xl: 0.75rem;
 
-  --font-serif: 'Newsreader', Georgia, serif;
+  --font-sans: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  --font-serif: 'Bitter', Georgia, serif;
 }
 
 .dark {

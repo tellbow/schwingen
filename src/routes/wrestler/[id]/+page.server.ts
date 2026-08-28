@@ -1,6 +1,7 @@
 import type { PageServerLoad } from './$types';
 import { createServerPb } from '$lib/pb';
 import { validateRouteParam } from '$lib/utils/filter';
+import { yearOnly } from '$lib/utils/format';
 import { error } from '@sveltejs/kit';
 
 export const load: PageServerLoad = async ({ params }) => {
@@ -20,7 +21,7 @@ export const load: PageServerLoad = async ({ params }) => {
 				'id,name,vorname,year,category,expand.status.status,expand.metadata.website,expand.club.id,expand.club.name,expand.club.expand.canton.name,expand.club.expand.canton.expand.association.abbreviation'
 		});
 
-		wrestler.year = wrestler.year ? wrestler.year.split('-')[0] : '-';
+		wrestler.year = yearOnly(wrestler.year) || '-';
 
 		return { wrestler };
 	} catch {

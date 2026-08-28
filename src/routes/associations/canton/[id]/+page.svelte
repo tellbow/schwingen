@@ -1,14 +1,16 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
+	import { page } from '$app/stores';
+	import { t, type Locale } from '$lib/i18n/index.svelte';
 
 	let { data } = $props();
+	const locale = $derived($page.data.locale as Locale);
 </script>
 
 <svelte:head>
-	<title>{data.canton?.name ?? 'Kanton'} - Tellbow</title>
-	<meta name="description" content="Schwinger, Vereine und Statistiken aus dem Kanton {data.canton?.name ?? ''}." />
-	<meta property="og:title" content="{data.canton?.name ?? 'Kanton'} - Tellbow" />
-	<meta property="og:description" content="Schwinger, Vereine und Statistiken aus dem Kanton {data.canton?.name ?? ''}." />
+	<title>{data.canton?.name ?? t(locale, 'associations.cantonFallbackTitle')} - Tellbow</title>
+	<meta name="description" content="{t(locale, 'associations.cantonMetaDescriptionPrefix')} {data.canton?.name ?? ''}." />
+	<meta property="og:title" content="{data.canton?.name ?? t(locale, 'associations.cantonFallbackTitle')} - Tellbow" />
+	<meta property="og:description" content="{t(locale, 'associations.cantonMetaDescriptionPrefix')} {data.canton?.name ?? ''}." />
 </svelte:head>
 
 <div class="max-w-4xl mx-auto">
@@ -16,27 +18,27 @@
 		<div class="card mb-4">
 			<h1 class="text-xl font-bold">{data.canton.name}</h1>
 			<p class="text-sm text-muted-foreground mt-1">
-				{data.canton.wrestlerActive} aktiv &nbsp;|&nbsp;
+				{data.canton.wrestlerActive} {t(locale, 'associations.activeLabel')} &nbsp;|&nbsp;
 				* {data.canton.wrestler1Star} &nbsp;|&nbsp;
 				** {data.canton.wrestler2Star} &nbsp;|&nbsp;
 				*** {data.canton.wrestler3Star}
 			</p>
 		</div>
 	{:else}
-		<h1 class="text-xl font-bold mb-4">Kanton</h1>
+		<h1 class="text-xl font-bold mb-4">{t(locale, 'associations.cantonFallbackTitle')}</h1>
 	{/if}
 
 	<div class="card">
-		<h2 class="card-title">Schwingklubs</h2>
+		<h2 class="card-title">{t(locale, 'associations.clubs')}</h2>
 		{#if data.clubs.length === 0}
-			<p class="text-muted-foreground text-sm">Keine Klubs gefunden.</p>
+			<p class="text-muted-foreground text-sm">{t(locale, 'associations.noClubsFound')}</p>
 		{:else}
 			<div class="overflow-x-auto">
 				<table class="data-table w-full text-sm">
 					<thead>
 						<tr>
-							<th>Klub</th>
-							<th>Aktiv</th>
+							<th>{t(locale, 'associations.club')}</th>
+							<th>{t(locale, 'associations.activeColumnHeader')}</th>
 							<th class="hidden md:table-cell">*</th>
 							<th class="hidden md:table-cell">**</th>
 							<th class="hidden md:table-cell">***</th>
@@ -44,8 +46,10 @@
 					</thead>
 					<tbody>
 						{#each data.clubs as club}
-							<tr class="cursor-pointer" onclick={() => goto(`/associations/club/${club.id}`)}>
-								<td class="font-medium underline">{club.name}</td>
+							<tr>
+								<td class="font-medium">
+									<a href="/associations/club/{club.id}" class="underline">{club.name}</a>
+								</td>
 								<td>{club.wrestlerActive}</td>
 								<td class="hidden md:table-cell">{club.wrestler1Star}</td>
 								<td class="hidden md:table-cell">{club.wrestler2Star}</td>

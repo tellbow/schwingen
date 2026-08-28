@@ -1,18 +1,19 @@
 <script lang="ts">
+	import { page } from '$app/stores';
+	import { t, type Locale } from '$lib/i18n/index.svelte';
 	import Hero from '$lib/components/home/Hero.svelte';
-	import StatStrip from '$lib/components/home/StatStrip.svelte';
 	import DestinationGrid from '$lib/components/home/DestinationGrid.svelte';
 
 	let { data } = $props();
+	const locale = $derived($page.data.locale as Locale);
 </script>
 
 <svelte:head>
-	<title>Tellbow - Alles rund ums Schwingen</title>
-	<meta name="description" content="Entdecken Sie umfassende Statistiken, Ranglisten und Profile von Schweizer Schwingern. Verbände, Schwingfeste und detaillierte Analysen." />
-	<meta property="og:title" content="Tellbow - Alles rund ums Schwingen" />
-	<meta property="og:description" content="Entdecken Sie umfassende Statistiken, Ranglisten und Profile von Schweizer Schwingern. Verbände, Schwingfeste und detaillierte Analysen." />
+	<title>{t(locale, 'home.metaTitle')}</title>
+	<meta name="description" content={t(locale, 'home.metaDescription')} />
+	<meta property="og:title" content={t(locale, 'home.metaTitle')} />
+	<meta property="og:description" content={t(locale, 'home.metaDescription')} />
 </svelte:head>
 
 <Hero />
-<StatStrip />
 <DestinationGrid eloTop5={data.eloTop5} eloYear={data.eloYear} />

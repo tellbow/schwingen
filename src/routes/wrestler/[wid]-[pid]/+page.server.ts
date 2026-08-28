@@ -1,6 +1,7 @@
 import type { PageServerLoad } from './$types';
 import { createServerPb } from '$lib/pb';
 import { validateRouteParam } from '$lib/utils/filter';
+import { yearOnly } from '$lib/utils/format';
 import { error } from '@sveltejs/kit';
 
 export const load: PageServerLoad = async ({ params }) => {
@@ -40,7 +41,7 @@ export const load: PageServerLoad = async ({ params }) => {
 			})
 		]);
 
-		place.year = place.year ? place.year.split('-')[0] : place.year;
+		place.year = yearOnly(place.year);
 
 		return { wrestler, place, ranking, bouts };
 	} catch (e) {
