@@ -73,11 +73,22 @@ jobs:
           ghcr.io/gitleaks/gitleaks:v8.30.0@sha256:691af3c7c5a48b16f187ce3446d5f194838f91238f27270ed36eef6359a574d9
           git /repo --redact --no-banner -c /repo/.gitleaks.toml
 
-  # Static analysis with semgrep's default rules.
+  # Static analysis with semgrep's default rules. Excluded after a look at
+  # each finding (2026-10-13):
+  #   missing-user, missing-user-entrypoint: PocketBase runs as root on a
+  #     volume root owns (the pod drops all capabilities); the frontend
+  #     image has a USER;
+  #   prototype-pollution-loop: t() only reads translation keys from code;
+  #   react-insecure-request: start.ts polls the local dev PocketBase.
   semgrep:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - run: pipx run semgrep==1.180.0 scan --config p/default --metrics=off --error
+      - run: >-
+          pipx run semgrep==1.180.0 scan --config p/default --metrics=off --error
+          --exclude-rule dockerfile.security.missing-user.missing-user
+          --exclude-rule dockerfile.security.missing-user-entrypoint.missing-user-entrypoint
+          --exclude-rule javascript.lang.security.audit.prototype-pollution.prototype-pollution-loop.prototype-pollution-loop
+          --exclude-rule typescript.react.security.react-insecure-request.react-insecure-request
