@@ -2,3 +2,6 @@ bun.lock
 static/
 pb_migrations/
 .claude/
+app/
+.agents/
+skills-lock.json

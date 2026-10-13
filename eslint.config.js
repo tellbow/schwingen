@@ -10,7 +10,7 @@ const gitignorePath = path.resolve(import.meta.dirname, '.gitignore');
 
 export default defineConfig(
 	includeIgnoreFile(gitignorePath),
-	{ ignores: ['pb_migrations/', 'static/'] },
+	{ ignores: ['pb_migrations/', 'static/', 'app/'] },
 	js.configs.recommended,
 	ts.configs.recommended,
 	svelte.configs.recommended,

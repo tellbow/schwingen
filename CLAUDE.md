@@ -26,6 +26,7 @@ Tellbow is a **public Swiss Schwingen (wrestling) statistics dashboard**.
 - **Database:** SQLite (from PocketBase)
 - **Auth:** None — fully public read-only app
 - **Deployment:** Frontend & PocketBase Docker containers on **Kubernetes**, deployed by Flux from `tellbow/gitops` (`cluster/schwingen/`)
+- **iOS app:** Flutter in `app/`, reads a release's `data.db` locally — see below
 
 ---
 
@@ -126,6 +127,15 @@ bun run start   # Start production server (via start.ts --prod)
 bun run lint    # Prettier check + ESLint
 bun run format  # Prettier write
 ```
+
+### iOS App (`app/`)
+
+- Flutter, iOS only (`ch.tellbow.schwingen`), plain `StatefulWidget`/`setState`, DE/FR from `lib/l10n/app_{de,fr}.arb` (gen-l10n)
+- Data: downloads the newest GitHub release's `data.db` on first launch and opens it read-only with sqflite; later launches check for a newer release in the background (`lib/data/release.dart`, `store.dart`)
+- All SQL lives in `lib/data/queries.dart`, on the PocketBase tables and views as they ship in the release — **a migration that renames or drops a column or view breaks the app**; run `TELLBOW_DB=<release data.db> flutter test test/release_database_test.dart` after schema changes
+- Screens in `lib/screens/`: wrestlers, festivals (`places`), head-to-head, statistics; shared widgets in `widgets.dart`, navigation and formatting in `context.dart`
+- Verify: `flutter analyze`, `flutter test` (in `app/`); `integration_test/app_test.dart` drives the real app on a simulator
+- Web lint (`bun run lint`) ignores `app/`; the Dart formatter (`page_width: 120`) applies there
 
 ### Claude Skills and Commands
 
@@ -267,6 +277,7 @@ bun run build   # Verify production build succeeds
 ├── scripts/                 # strip-auth-records.sh, swap-pocketbase-db.sh
 ├── docker/                  # frontend/ and pocketbase/ Dockerfiles
 ├── docker-compose.yml
+├── app/                     # Flutter iOS app (local SQLite from a release's data.db)
 └── .github/workflows/       # ci.yml (push/PR/weekly: lint, tests, osv-scanner, zizmor, gitleaks, semgrep), release.yml (published release)
 ```
 

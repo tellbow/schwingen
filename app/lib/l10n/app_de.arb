@@ -1,0 +1,123 @@
+{
+  "appTitle": "Tellbow",
+  "tabWrestlers": "Schwinger",
+  "tabPlaces": "Schwingfeste",
+  "tabHeadToHead": "Direktvergleich",
+  "tabStatistics": "Statistiken",
+  "searchWrestlers": "Name, Vorname oder Klub",
+  "searchPlaces": "Schwingfest oder Ort",
+  "noResults": "Keine Einträge gefunden",
+  "noData": "Keine Daten verfügbar.",
+  "all": "Alle",
+  "year": "Jahr",
+  "yearOfBirth": "Jahrgang",
+  "club": "Klub",
+  "eloOfYear": "ELO {year}",
+  "wins": "Siege",
+  "draws": "Gestellte",
+  "losses": "Niederlagen",
+  "averageRank": "Ø Rang",
+  "averagePoints": "Ø Punkte",
+  "wreathCantonal": "Kantonale Kränze",
+  "wreathRegional": "Teilverbands- und Bergkränze",
+  "wreathFederal": "Eidg. Kränze",
+  "rankings": "Ranglisten",
+  "opponents": "Häufigste Gegner",
+  "round": "{round}. Gang",
+  "points": "Punkte",
+  "wrestler1": "Schwinger 1",
+  "wrestler2": "Schwinger 2",
+  "pickWrestler": "Schwinger wählen",
+  "swap": "Tauschen",
+  "meetings": "Begegnungen",
+  "noMeetings": "Die beiden haben noch nie gegeneinander geschwungen.",
+  "topElo": "Top 5 – ELO-Rating",
+  "topAvgRank": "Top 5 – Ø Rang",
+  "topAvgPoints": "Top 5 – Ø Punkte",
+  "topWins": "Top 5 – meiste Siege",
+  "topWreaths": "Top 5 – meiste Kränze",
+  "topPlaces": "Top 5 – meiste Teilnahmen",
+  "fiveEvents": "5 Teilnahmen pro Jahr oder mehr",
+  "withWreath": "{count} mit Kranz",
+  "drawRatio": "% Gestellte Gänge",
+  "drawRatioCaption": "Anteil gestellter Gänge in Schlussgängen",
+  "dataTitle": "Daten laden",
+  "dataText": "Tellbow speichert alle Resultate auf dem iPhone. Einmal laden ({size} MB), danach funktioniert die App ohne Internet.",
+  "checking": "Neueste Daten werden gesucht…",
+  "download": "Laden",
+  "downloading": "Daten werden geladen… {percent} %",
+  "retry": "Nochmals versuchen",
+  "failed": "Fehler: {error}",
+  "noRelease": "Keine Daten gefunden.",
+  "updateAvailable": "Neue Daten verfügbar ({tag}, {size} MB)",
+  "later": "Später",
+  "dataVersion": "Daten {tag}",
+  "@eloOfYear": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "@round": {
+    "placeholders": {
+      "round": {
+        "type": "int"
+      }
+    }
+  },
+  "@withWreath": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@dataText": {
+    "placeholders": {
+      "size": {
+        "type": "int"
+      }
+    }
+  },
+  "@downloading": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "@failed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "@updateAvailable": {
+    "placeholders": {
+      "tag": {
+        "type": "String"
+      },
+      "size": {
+        "type": "int"
+      }
+    }
+  },
+  "@dataVersion": {
+    "placeholders": {
+      "tag": {
+        "type": "String"
+      }
+    }
+  },
+  "openProfile": "Profil anzeigen",
+  "winsWithRate": "Siege · {percent} %",
+  "@winsWithRate": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  }
+}

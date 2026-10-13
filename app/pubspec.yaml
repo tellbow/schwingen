@@ -1,0 +1,36 @@
+name: tellbow
+description: "Tellbow: Alles rund ums Schwingen, offline auf dem iPhone."
+publish_to: 'none'
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.12.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  http: ^1.6.0
+  intl: ^0.20.2
+  path: ^1.9.1
+  path_provider: ^2.1.6
+  sqflite: ^2.4.4+1
+  url_launcher: ^6.3.3
+
+dev_dependencies:
+  flutter_lints: ^6.0.0
+  flutter_test:
+    sdk: flutter
+  integration_test:
+    sdk: flutter
+  sqflite_common_ffi: ^2.4.3
+
+flutter:
+  generate: true
+  uses-material-design: true
+
+hooks:
+  user_defines:
+    sqlite3:
+      source: system
