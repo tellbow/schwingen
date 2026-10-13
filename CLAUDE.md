@@ -55,6 +55,8 @@ Year-indexed collections (replace `{year}` with e.g. `2025`):
 - `mostPlacesAttended{year}` — attendance frequency per year
 - `drawDecisionRatio` — ratio of draws vs. decisions (global)
 
+The yearly views filter by date range (`places.year >= 'YYYY-01-01' AND places.year < 'YYYY+1-01-01'`, index `idx_places_year`), not `LIKE '%YYYY%'`, which scans all rankings. A new season's views copy the queries in `pb_migrations/1791887615_yearly_stats_views_by_date_range.js`.
+
 Denormalized view collections:
 
 - `wrestlersByAssociation`
