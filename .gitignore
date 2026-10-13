@@ -7,3 +7,4 @@ build/
 !.env.example
 *.local
 pb_data/
+.claude/worktrees/

@@ -8,5 +8,4 @@ pb_data/
 .env
 .env.*
 docker/
-k8s/
 scripts/

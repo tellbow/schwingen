@@ -25,7 +25,7 @@ Tellbow is a **public Swiss Schwingen (wrestling) statistics dashboard**.
 - **Backend:** PocketBase binary only (no custom Go code)
 - **Database:** SQLite (from PocketBase)
 - **Auth:** None — fully public read-only app
-- **Deployment:** Frontend & PocketBase Docker containers on **Kubernetes**
+- **Deployment:** Frontend & PocketBase Docker containers on **Kubernetes**, deployed by Flux from `tellbow/gitops` (`cluster/schwingen/`)
 
 ---
 
@@ -94,6 +94,15 @@ The app runs on **Kubernetes**. Keep this in mind when writing code:
 - **Environment config** — all config via environment variables (never hardcoded)
 - **PocketBase data** — `pb_data/` must be on a **PersistentVolumeClaim**, not ephemeral container storage
 - **Stateless frontend** — SvelteKit renders client-side only; the frontend container is fully stateless
+- **Manifests live in `tellbow/gitops`**, not in this repo — see `.claude/rules/release-deployment.md`
+
+### Releases and data
+
+- Data is scraped and imported locally (`tellbow/schwingen-data` → local PocketBase), never in production
+- A GitHub release `vX.Y.Z` with `data.db` attached by hand ships code and data together
+- `.github/workflows/release.yml` strips account/login records from the asset, then pushes both images as `X.Y.Z`
+- Flux bumps the deployments; the pocketbase initContainer downloads the latest release's `data.db` on start
+- Production has no PocketBase superuser — the published `data.db` contains no accounts
 
 ---
 
@@ -238,9 +247,11 @@ bun run build   # Verify production build succeeds
 ├── static/
 │   ├── favicon.ico
 │   └── topo/                # GeoJSON for map charts
-├── docker/
+├── pb_migrations/           # PocketBase migrations, baked into the pocketbase image
+├── scripts/                 # strip-auth-records.sh, swap-pocketbase-db.sh
+├── docker/                  # frontend/ and pocketbase/ Dockerfiles
 ├── docker-compose.yml
-└── k8s/                     # Kubernetes manifests
+└── .github/workflows/       # ci.yml (push/PR), release.yml (published release)
 ```
 
 ### Key Principles

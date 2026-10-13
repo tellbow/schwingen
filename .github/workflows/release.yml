@@ -1,0 +1,79 @@
+name: release
+
+# Publishing a GitHub release (tag vX.Y.Z, data.db attached by hand) strips
+# account and login records from its data.db, then builds both images as
+# X.Y.Z. Flux bumps the cluster to X.Y.Z and the pocketbase initContainer
+# pulls that release's data.db.
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+jobs:
+  data:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      TAG: ${{ github.event.release.tag_name }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Strip auth records from data.db
+        run: |
+          if ! gh release download "$TAG" -R "$GITHUB_REPOSITORY" -p data.db -D "$RUNNER_TEMP"; then
+            echo "::warning::release $TAG has no data.db; the cluster keeps its current database"
+            exit 0
+          fi
+          command -v sqlite3 >/dev/null || { sudo apt-get update -q && sudo apt-get install -yq sqlite3; }
+          db="$RUNNER_TEMP/data.db"
+          [ "$(head -c 15 "$db")" = "SQLite format 3" ] || { echo "::error::data.db is not a SQLite database"; exit 1; }
+          before=$(sha256sum "$db")
+          ./scripts/strip-auth-records.sh "$db"
+          if [ "$(sha256sum "$db")" != "$before" ]; then
+            gh release upload "$TAG" "$db" -R "$GITHUB_REPOSITORY" --clobber
+          fi
+
+  image:
+    needs: data
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      fail-fast: false
+      matrix:
+        name: [frontend, pocketbase]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: docker/setup-qemu-action@99012661954931238ded8c8b007157a8430204e1 # v4.4.0
+      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+      - uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - id: meta
+        uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
+        with:
+          images: ghcr.io/${{ github.repository_owner }}/schwingen-${{ matrix.name }}
+          flavor: latest=false
+          tags: |
+            type=semver,pattern={{version}}
+            type=sha
+      - uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: .
+          file: docker/${{ matrix.name }}/Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha,scope=${{ matrix.name }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.name }}

@@ -109,64 +109,18 @@ make docker-push REGISTRY=ghcr.io OWNER=myorg TAG=v1.2.3
 
 ---
 
-## Deploying to Kubernetes
+## Releasing and Deploying
 
-All manifests are in `k8s/`. The namespace is `schwingen`.
+The app runs on Kubernetes, deployed by Flux from [`tellbow/gitops`](https://github.com/tellbow/gitops) (`cluster/schwingen/`). Manifests live there, not in this repo.
 
-### Prerequisites
+A release ships code and data together:
 
-- A Kubernetes cluster
-- `kubectl` configured
-- Container images pushed to a registry (see [Build & Push](#push-images-to-registry) above)
-- `nginx-ingress` and `cert-manager` installed in the cluster
+1. Update the data locally (see [`tellbow/schwingen-data`](https://github.com/tellbow/schwingen-data)) and commit any code changes to `main`.
+2. Create a GitHub release with a new tag `vX.Y.Z` and attach `pb_data/data.db` as `data.db`.
+3. The `release` workflow strips all account and login records from the attached `data.db` and replaces the asset (`scripts/strip-auth-records.sh`), then pushes `ghcr.io/tellbow/schwingen-frontend:X.Y.Z` and `schwingen-pocketbase:X.Y.Z`.
+4. Flux image automation bumps both deployments to `X.Y.Z`. On start, the pocketbase pod's initContainer downloads the latest release's `data.db` if it differs from the one on the PVC, and keeps the previous one as `data.db.previous`.
 
-### 1. Update image references
-
-Edit `k8s/pocketbase-deployment.yaml` and `k8s/frontend-deployment.yaml` — replace `ghcr.io/OWNER/` with your actual registry path.
-
-### 2. Configure secrets
-
-Edit `k8s/secret.yaml` and set a real 32-character encryption key:
-
-```yaml
-stringData:
-  PB_ENCRYPTION_KEY: "your-actual-32-char-encryption-key"
-```
-
-### 3. Configure the app
-
-Edit `k8s/configmap.yaml` to set your domain and any OTEL settings:
-
-```yaml
-data:
-  ORIGIN: "https://yourdomain.ch"
-  OTEL_EXPORTER_OTLP_ENDPOINT: ""   # set if using OpenTelemetry
-```
-
-Update the hostname in `k8s/ingress.yaml`.
-
-### 4. Apply manifests
-
-```bash
-kubectl apply -f k8s/namespace.yaml
-kubectl apply -f k8s/secret.yaml
-kubectl apply -f k8s/configmap.yaml
-kubectl apply -f k8s/pocketbase-pvc.yaml
-kubectl apply -f k8s/pocketbase-deployment.yaml
-kubectl apply -f k8s/pocketbase-service.yaml
-kubectl apply -f k8s/frontend-deployment.yaml
-kubectl apply -f k8s/frontend-service.yaml
-kubectl apply -f k8s/ingress.yaml
-# Optional
-kubectl apply -f k8s/frontend-hpa.yaml
-kubectl apply -f k8s/pdb.yaml
-```
-
-Or apply the whole directory at once:
-
-```bash
-kubectl apply -f k8s/
-```
+Run `./scripts/strip-auth-records.sh` on a copy before uploading so the asset is never public with accounts in it, even for the minute before the workflow replaces it.
 
 ### Architecture
 
