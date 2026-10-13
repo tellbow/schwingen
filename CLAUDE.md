@@ -106,6 +106,7 @@ The app runs on **Kubernetes**. Keep this in mind when writing code:
 - `.github/workflows/release.yml` verifies the tag, strips account/login records from the asset, then pushes both images as `X.Y.Z` with SBOM, provenance and a cosign signature
 - Flux bumps the deployments; the pocketbase initContainer downloads the latest release's `data.db` on start
 - Production has no PocketBase superuser — the published `data.db` contains no accounts
+- The `release` skill (`/release`) walks through a release step by step
 
 ---
 
@@ -125,6 +126,14 @@ bun run start   # Start production server (via start.ts --prod)
 bun run lint    # Prettier check + ESLint
 bun run format  # Prettier write
 ```
+
+### Claude Skills and Commands
+
+- Commands (`.claude/commands/`): `/check` (lint, check, test, build), `/test`, `/test-file <path>`
+- Skills (`.claude/skills/`):
+  - `screenshot` — captures a state of the website (via `screenshot-capture`, Playwright on Haiku against the running dev server), shows it in the terminal and asks whether it fits. `.claude/rules/screenshots.md` says when: after every user-visible change
+  - `release` — the release flow; only when the user asks for a release
+  - `web-design-guidelines` — UI review against Vercel's Web Interface Guidelines; installed with `npx skills` (`.agents/skills/`, `skills-lock.json`), symlinked into `.claude/skills/`
 
 ---
 
@@ -191,9 +200,10 @@ Follow these rules strictly to keep the codebase clean and consistent.
 **Internationalisation (DE/FR — implemented):**
 
 - Custom i18n system — no external library
-- Translation files: `src/lib/i18n/translations.ts` (structured `de`/`fr` objects), `src/lib/i18n/index.svelte.ts` (reactive locale state)
-- Usage: `import { t } from "$lib/i18n/index.svelte"` then `t("section.key")`
-- Locale persisted to `localStorage`; changed via `setLocale()`; initialized in layout via `initLocale()`
+- Translation files: `src/lib/i18n/translations.ts` (structured `de`/`fr` objects), `src/lib/i18n/index.svelte.ts` (`t`, `LOCALES`, `localizePath`, `delocalizePath`)
+- Locale comes from the URL: German has no prefix, French lives under `/fr/...`. `src/hooks.ts` reroutes `/fr/...` to the same route, `src/hooks.server.ts` sets `locals.locale` and the page's `lang`, `+layout.server.ts` passes `locale` as page data
+- Usage: `const locale = $derived($page.data.locale as Locale)` (or `data.locale`), then `t(locale, "section.key")`
+- Links: `localizePath(href, locale)`; switching language is a link to the other locale's URL — nothing is stored in `localStorage`
 - Date/number formatting via `Intl.DateTimeFormat` / `Intl.NumberFormat`
 - Format helpers live in `src/lib/utils/format.ts`
 - **Current state:** DE/FR fully implemented. DE is the default locale.
@@ -265,4 +275,4 @@ bun run build   # Verify production build succeeds
 1. **Public read-only dashboard:** no auth, no user state, no writes from the frontend
 2. **Stateless frontend:** SvelteKit renders client-side only
 3. **Kubernetes-ready:** stateless containers, env-var config, health endpoints
-4. **Multi-language:** DE/FR implemented — use `t("key")` from `$lib/i18n/index.svelte` for all UI strings
+4. **Multi-language:** DE/FR implemented — use `t(locale, "key")` from `$lib/i18n/index.svelte` for all UI strings

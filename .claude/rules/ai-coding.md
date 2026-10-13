@@ -10,7 +10,7 @@ Every piece of logic has exactly one canonical home:
 | Pure utilities | `$lib/utils/<concern>.ts` |
 | PocketBase filter helpers | `$lib/utils/filter.ts` |
 | i18n translations | `$lib/i18n/translations.ts` |
-| i18n reactive state | `$lib/i18n/index.svelte.ts` |
+| i18n lookup and locale URLs | `$lib/i18n/index.svelte.ts` |
 | Reactive stores | `$lib/<name>.svelte.ts` |
 | UI primitives | `$lib/components/ui/<component>/` |
 | Domain components | `$lib/components/<domain>/` |

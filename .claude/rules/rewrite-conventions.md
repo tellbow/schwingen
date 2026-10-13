@@ -29,7 +29,7 @@ When a file exceeds its limit, split it immediately as part of the current task.
 | File | Purpose | Exports |
 |------|---------|---------|
 | `translations.ts` | DE/FR translation strings | `de`, `fr` translation objects |
-| `index.svelte.ts` | Reactive locale state | `t()`, `getLocale()`, `setLocale()`, `initLocale()`, `LOCALES` |
+| `index.svelte.ts` | Translation lookup and locale URLs (French under `/fr`) | `t()`, `LOCALES`, `localizePath()`, `delocalizePath()`, `Locale` |
 
 ### Components (`src/lib/components/`)
 

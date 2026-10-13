@@ -17,7 +17,7 @@
 
 ### i18n
 
-- **All UI strings**: Always use `t("section.key")` from `$lib/i18n/index.svelte.ts`. Never hardcode German or French strings in components.
+- **All UI strings**: Always use `t(locale, "section.key")` from `$lib/i18n/index.svelte.ts`, with `locale` from the page data. Never hardcode German or French strings in components.
 - **Both locales together**: When adding a translation key, always add it to both `de` and `fr` in `translations.ts` at the same time.
 
 ### PocketBase
