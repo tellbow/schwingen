@@ -133,7 +133,8 @@ bun run format  # Prettier write
 - Flutter, iOS only (`ch.tellbow.schwingen`), plain `StatefulWidget`/`setState`, DE/FR from `lib/l10n/app_{de,fr}.arb` (gen-l10n)
 - Data: downloads the newest GitHub release's `app.db.gz` (only the tables and views the app reads, ~34 MB; `data.db` for releases without it) on first launch and opens it read-only with sqflite; later launches check for a newer release in the background (`lib/data/release.dart`, `store.dart`)
 - All SQL lives in `lib/data/queries.dart`, on the PocketBase tables and views as they ship in the release — **a migration that renames or drops a column or view breaks the app**; run `TELLBOW_DB=<release data.db> flutter test test/release_database_test.dart` after schema changes
-- Screens in `lib/screens/`: wrestlers, festivals (`places`), head-to-head, statistics; shared widgets in `widgets.dart`, navigation and formatting in `context.dart`
+- Screens in `lib/screens/`: wrestlers, festivals (`places`), head-to-head, associations → cantons → clubs (`groups_screen.dart`), statistics; shared widgets in `widgets.dart` and `stat_grid.dart`, navigation and formatting in `context.dart`
+- Queries: `queries.dart`, plus `group_queries.dart` and `statistics_queries.dart` (extensions on `Queries`); association counts are the app's own SQL, not the web's `wrestlersBy*` views (those use double-quoted strings and are not in `app.db`)
 - Verify: `flutter analyze`, `flutter test` (in `app/`, also the `app` job in `ci.yml`); `integration_test/app_test.dart` drives the real app on a simulator
 - Web lint (`bun run lint`) ignores `app/`; the Dart formatter (`page_width: 120`) applies there
 

@@ -53,5 +53,13 @@
   "later": "Plus tard",
   "dataVersion": "Données {tag}",
   "openProfile": "Voir le profil",
-  "winsWithRate": "Victoires · {percent} %"
+  "winsWithRate": "Victoires · {percent} %",
+  "tabAssociations": "Associations",
+  "total": "Total",
+  "active": "Actifs",
+  "activeCount": "{count} actifs",
+  "cantons": "Cantons / fédérations régionales",
+  "clubs": "Clubs de lutte",
+  "navPlaces": "Fêtes",
+  "navHeadToHead": "Duel"
 }

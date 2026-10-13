@@ -2,7 +2,10 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'package:tellbow/data/group_queries.dart';
+import 'package:tellbow/data/models.dart';
 import 'package:tellbow/data/queries.dart';
+import 'package:tellbow/data/statistics_queries.dart';
 
 final _path = Platform.environment['TELLBOW_DB'];
 
@@ -65,6 +68,28 @@ void main() {
       expect(year.drawPercent, isNotNull);
       final overall = await timed('statistics overall', () => q.statistics(null));
       expect(overall.averageRank, hasLength(5));
+
+      final associations = await timed('groups', () => q.groups(GroupLevel.association));
+      expect(associations, hasLength(5));
+      final clubs = await timed('clubs', () => q.groups(GroupLevel.club));
+      expect(await timed('club members', () => q.wrestlers('', club: clubs.first.id, limit: 1000)), isNotEmpty);
+      final web = await db.rawQuery("SELECT name FROM sqlite_master WHERE name = 'wrestlersByAssociation'");
+      if (web.isNotEmpty) {
+        final rows = await db.rawQuery('SELECT * FROM wrestlersByAssociation ORDER BY name');
+        expect(
+          associations.map((a) => [a.id, a.total, a.active, a.stars.$3, a.stars.$2, a.stars.$1]),
+          rows.map(
+            (r) => [
+              r['id'],
+              r['wrestlerAmount'],
+              r['wrestlerActive'],
+              r['wrestler1Star'],
+              r['wrestler2Star'],
+              r['wrestler3Star'],
+            ],
+          ),
+        );
+      }
     },
   );
 }

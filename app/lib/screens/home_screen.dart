@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../data/queries.dart';
 import 'context.dart';
+import 'groups_screen.dart';
 import 'head_to_head_screen.dart';
 import 'places_screen.dart';
 import 'statistics_screen.dart';
@@ -19,13 +20,14 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final _navigators = List.generate(4, (_) => GlobalKey<NavigatorState>());
+  final _navigators = List.generate(5, (_) => GlobalKey<NavigatorState>());
   var _tab = 0;
 
   Widget _root(int tab) => switch (tab) {
     0 => WrestlersScreen(queries: widget.queries),
     1 => PlacesScreen(queries: widget.queries),
     2 => HeadToHeadScreen(queries: widget.queries),
+    3 => AssociationsScreen(queries: widget.queries),
     _ => StatisticsScreen(queries: widget.queries, dataTag: widget.dataTag),
   };
 
@@ -63,8 +65,9 @@ class _HomeScreenState extends State<HomeScreen> {
         onDestinationSelected: _select,
         destinations: [
           NavigationDestination(icon: const Icon(Icons.people_outline), label: l10n.tabWrestlers),
-          NavigationDestination(icon: const Icon(Icons.emoji_events_outlined), label: l10n.tabPlaces),
-          NavigationDestination(icon: const Icon(Icons.compare_arrows), label: l10n.tabHeadToHead),
+          NavigationDestination(icon: const Icon(Icons.emoji_events_outlined), label: l10n.navPlaces),
+          NavigationDestination(icon: const Icon(Icons.compare_arrows), label: l10n.navHeadToHead),
+          NavigationDestination(icon: const Icon(Icons.account_tree_outlined), label: l10n.tabAssociations),
           NavigationDestination(icon: const Icon(Icons.bar_chart), label: l10n.tabStatistics),
         ],
       ),

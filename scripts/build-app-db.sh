@@ -25,7 +25,8 @@ CREATE TABLE canton (id TEXT PRIMARY KEY NOT NULL, name TEXT, association TEXT);
 CREATE TABLE club (id TEXT PRIMARY KEY NOT NULL, name TEXT, canton TEXT);
 CREATE TABLE wrestlerStatus (id TEXT PRIMARY KEY NOT NULL, status TEXT, symbol TEXT);
 CREATE TABLE wrestlerMetadata (id TEXT PRIMARY KEY NOT NULL, website TEXT, instagram TEXT);
-CREATE TABLE wrestler (id TEXT PRIMARY KEY NOT NULL, name TEXT, vorname TEXT, year TEXT, club TEXT, status TEXT, metadata TEXT);
+CREATE TABLE wrestler (id TEXT PRIMARY KEY NOT NULL, name TEXT, vorname TEXT, year TEXT, category TEXT, club TEXT, status TEXT,
+  metadata TEXT);
 CREATE TABLE placeType (id TEXT PRIMARY KEY NOT NULL, type TEXT);
 CREATE TABLE places (id TEXT PRIMARY KEY NOT NULL, name TEXT, location TEXT, year TEXT, placeType TEXT);
 CREATE TABLE rankings (id TEXT PRIMARY KEY NOT NULL, place TEXT, wrestler TEXT, rank TEXT, rank2 TEXT, points TEXT,
@@ -37,13 +38,14 @@ INSERT INTO canton SELECT id, name, association FROM src.canton;
 INSERT INTO club SELECT id, name, canton FROM src.club;
 INSERT INTO wrestlerStatus SELECT id, status, symbol FROM src.wrestlerStatus;
 INSERT INTO wrestlerMetadata SELECT id, website, instagram FROM src.wrestlerMetadata;
-INSERT INTO wrestler SELECT id, name, vorname, year, club, status, metadata FROM src.wrestler;
+INSERT INTO wrestler SELECT id, name, vorname, year, category, club, status, metadata FROM src.wrestler;
 INSERT INTO placeType SELECT id, type FROM src.placeType;
 INSERT INTO places SELECT id, name, location, year, placeType FROM src.places;
 INSERT INTO rankings SELECT id, place, wrestler, rank, rank2, points, result, wreath, final, status FROM src.rankings;
 INSERT INTO bouts SELECT place, wrestler, opponent, fight_round, result, points FROM src.bouts ORDER BY wrestler, opponent;
 
 CREATE INDEX idx_places_year ON places (year);
+CREATE INDEX idx_wrestler_club ON wrestler (club);
 CREATE INDEX idx_rankings_wrestler ON rankings (wrestler);
 CREATE INDEX idx_rankings_place ON rankings (place);
 CREATE INDEX idx_bouts_wrestler_opponent ON bouts (wrestler, opponent);

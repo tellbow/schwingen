@@ -64,7 +64,7 @@ void main() {
     await pumpUntil(tester, find.text('Begegnungen'));
     await shot(tester, 'head-to-head');
 
-    await tester.tap(tab('Schwingfeste'));
+    await tester.tap(tab('Feste'));
     await pumpUntil(tester, find.byType(ListTile));
     await shot(tester, 'places');
     await tester.tap(find.byType(ListTile).first);
@@ -76,5 +76,21 @@ void main() {
     await tester.tap(tab('Statistiken'));
     await pumpUntil(tester, find.text('Top 5 – meiste Siege'));
     await shot(tester, 'statistics');
+
+    Finder tilesIn(String section) => find.descendant(
+      of: find.ancestor(of: find.text(section), matching: find.byType(Card)),
+      matching: find.byType(ListTile),
+    );
+
+    await tester.tap(tab('Verbände'));
+    await pumpUntil(tester, find.textContaining('(BKSV)'));
+    await tester.tap(find.textContaining('(BKSV)'));
+    await pumpUntil(tester, tilesIn('Kantone / Gauverbände'));
+    await shot(tester, 'association');
+    await tester.tap(tilesIn('Kantone / Gauverbände').first);
+    await pumpUntil(tester, tilesIn('Schwingklubs'));
+    await tester.tap(tilesIn('Schwingklubs').first);
+    await pumpUntil(tester, tilesIn('Schwinger'));
+    await shot(tester, 'club');
   });
 }

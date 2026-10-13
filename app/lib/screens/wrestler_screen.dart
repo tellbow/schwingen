@@ -5,6 +5,7 @@ import '../data/models.dart';
 import '../data/queries.dart';
 import '../data/stats.dart';
 import 'context.dart';
+import 'stat_grid.dart';
 import 'widgets.dart';
 
 typedef _Season = ({List<Ranking> rankings, List<OpponentRecord> opponents, Elo? elo});
@@ -44,7 +45,7 @@ class _WrestlerScreenState extends State<WrestlerScreen> {
         return ListView(
           padding: const EdgeInsets.only(bottom: 24),
           children: [
-            _Header(detail),
+            _Header(queries: widget.queries, detail: detail),
             const SizedBox(height: 8),
             YearChips(
               years: years,
@@ -67,8 +68,9 @@ class _WrestlerScreenState extends State<WrestlerScreen> {
 }
 
 class _Header extends StatelessWidget {
-  const _Header(this.detail);
+  const _Header({required this.queries, required this.detail});
 
+  final Queries queries;
   final WrestlerDetail detail;
 
   @override
@@ -82,7 +84,14 @@ class _Header extends StatelessWidget {
         children: [
           PersonName(detail.person, style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
           if (detail.status.isNotEmpty) Text(detail.status, style: TextStyle(color: theme.colorScheme.primary)),
-          if (place.isNotEmpty) Text(place),
+          if (place.isNotEmpty)
+            InkWell(
+              onTap: detail.clubId.isEmpty ? null : () => openGroup(context, queries, GroupLevel.club, detail.clubId),
+              child: Text(
+                place,
+                style: TextStyle(color: theme.colorScheme.primary, decoration: TextDecoration.underline),
+              ),
+            ),
           if (detail.year.isNotEmpty) Text('${context.l10n.yearOfBirth} ${detail.year}'),
           if (detail.website.isNotEmpty || detail.instagram.isNotEmpty)
             Wrap(

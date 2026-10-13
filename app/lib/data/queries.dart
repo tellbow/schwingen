@@ -1,16 +1,15 @@
 import 'package:sqflite/sqflite.dart';
 
 import 'models.dart';
+import 'rows.dart';
 import 'stats.dart';
-
-typedef _Row = Map<String, Object?>;
 
 class Queries {
   Queries(this.db);
 
   final DatabaseExecutor db;
 
-  Future<List<WrestlerSummary>> wrestlers(String search, {int limit = 50, int offset = 0}) async {
+  Future<List<WrestlerSummary>> wrestlers(String search, {String? club, int limit = 50, int offset = 0}) async {
     final match = matchWords(search, ['w.name', 'w.vorname', 'c.name']);
     final rows = await db.rawQuery(
       '''
@@ -18,13 +17,13 @@ class Queries {
       FROM wrestler w
       LEFT JOIN club c ON c.id = w.club
       LEFT JOIN wrestlerStatus s ON s.id = w.status
-      WHERE ${match.where}
+      WHERE ${match.where} AND (? IS NULL OR w.club = ?)
       ORDER BY s.symbol DESC, w.name, w.vorname
       LIMIT ? OFFSET ?''',
-      [...match.args, limit, offset],
+      [...match.args, club, club, limit, offset],
     );
     return [
-      for (final r in rows) WrestlerSummary(person: _person(r), year: yearOf(_s(r['year'])), club: _s(r['club'])),
+      for (final r in rows) WrestlerSummary(person: personOf(r), year: yearOf(text(r['year'])), club: text(r['club'])),
     ];
   }
 
@@ -32,7 +31,7 @@ class Queries {
     final rows = await db.rawQuery(
       '''
       SELECT w.id, w.name, w.vorname, w.year, s.status, s.symbol, m.website, m.instagram,
-        c.name AS club, ca.name AS canton, a.abbreviation AS association
+        c.id AS clubId, c.name AS club, ca.name AS canton, a.abbreviation AS association
       FROM wrestler w
       LEFT JOIN wrestlerStatus s ON s.id = w.status
       LEFT JOIN wrestlerMetadata m ON m.id = w.metadata
@@ -45,14 +44,15 @@ class Queries {
     if (rows.isEmpty) return null;
     final r = rows.first;
     return WrestlerDetail(
-      person: _person(r),
-      year: yearOf(_s(r['year'])),
-      status: _s(r['status']),
-      club: _s(r['club']),
-      canton: _s(r['canton']),
-      association: _s(r['association']),
-      website: _s(r['website']),
-      instagram: _s(r['instagram']),
+      person: personOf(r),
+      year: yearOf(text(r['year'])),
+      status: text(r['status']),
+      clubId: text(r['clubId']),
+      club: text(r['club']),
+      canton: text(r['canton']),
+      association: text(r['association']),
+      website: text(r['website']),
+      instagram: text(r['instagram']),
     );
   }
 
@@ -85,13 +85,13 @@ class Queries {
     return [
       for (final r in rows)
         Ranking(
-          rank: _s(r['rank']),
-          rank2: _s(r['rank2']),
-          points: _s(r['points']),
-          result: _s(r['result']),
+          rank: text(r['rank']),
+          rank2: text(r['rank2']),
+          points: text(r['points']),
+          result: text(r['result']),
           wreath: r['wreath'] == 1,
-          status: _s(r['status']),
-          place: _place(r),
+          status: text(r['status']),
+          place: placeOf(r),
         ),
     ];
   }
@@ -114,7 +114,12 @@ class Queries {
     );
     return [
       for (final r in rows)
-        OpponentRecord(opponent: _person(r), wins: _i(r['wins']), draws: _i(r['draws']), losses: _i(r['losses'])),
+        OpponentRecord(
+          opponent: personOf(r),
+          wins: whole(r['wins']),
+          draws: whole(r['draws']),
+          losses: whole(r['losses']),
+        ),
     ];
   }
 
@@ -138,7 +143,7 @@ class Queries {
       LIMIT ? OFFSET ?''',
       [...match.args, ...range.args, limit, offset],
     );
-    return [for (final r in rows) _place(r)];
+    return [for (final r in rows) placeOf(r)];
   }
 
   Future<PlaceSummary?> place(String id) async {
@@ -150,7 +155,7 @@ class Queries {
       WHERE p.id = ?''',
       [id],
     );
-    return rows.isEmpty ? null : _place(rows.first);
+    return rows.isEmpty ? null : placeOf(rows.first);
   }
 
   Future<List<PlaceRanking>> placeRankings(String placeId) async {
@@ -166,12 +171,12 @@ class Queries {
     );
     final bouts = <String, List<Bout>>{};
     for (final r in boutRows) {
-      (bouts[_s(r['wrestler'])] ??= []).add(
+      (bouts[text(r['wrestler'])] ??= []).add(
         Bout(
-          round: _i(r['fight_round']),
-          result: _s(r['result']),
-          points: _s(r['points']),
-          opponent: r['id'] == null ? null : _person(r),
+          round: whole(r['fight_round']),
+          result: text(r['result']),
+          points: text(r['points']),
+          opponent: r['id'] == null ? null : personOf(r),
         ),
       );
     }
@@ -187,13 +192,13 @@ class Queries {
     final rankings = [
       for (final r in rows)
         PlaceRanking(
-          rank: _s(r['rank']),
-          rank2: _s(r['rank2']),
-          points: _s(r['points']),
+          rank: text(r['rank']),
+          rank2: text(r['rank2']),
+          points: text(r['points']),
           wreath: r['wreath'] == 1,
-          status: _s(r['status']),
-          wrestler: r['id'] == null ? null : _person(r),
-          bouts: bouts[_s(r['id'])] ?? const [],
+          status: text(r['status']),
+          wrestler: r['id'] == null ? null : personOf(r),
+          bouts: bouts[text(r['id'])] ?? const [],
         ),
     ];
     rankings.sort((a, b) => compareRanks(a.rank, a.rank2, b.rank, b.rank2));
@@ -213,59 +218,21 @@ class Queries {
     );
     return [
       for (final r in rows)
-        Meeting(round: _i(r['fight_round']), result: _s(r['result']), points: _s(r['points']), place: _place(r)),
+        Meeting(
+          round: whole(r['fight_round']),
+          result: text(r['result']),
+          points: text(r['points']),
+          place: placeOf(r),
+        ),
     ];
   }
-
-  Future<Statistics> statistics(int? year) async {
-    final suffix = year == null ? 'Overall' : '$year';
-    if (year != null && !(await seasons()).contains(year)) throw ArgumentError.value(year, 'year');
-    final elo = year != null && (await eloYears()).contains(year)
-        ? await _entries('''
-            SELECT w.id, w.name, w.vorname, s.symbol, e.rating AS value
-            FROM elo$year e
-            JOIN wrestler w ON w.id = e.wrestler
-            LEFT JOIN wrestlerStatus s ON s.id = w.status
-            ORDER BY e.rating DESC, w.name, w.vorname
-            LIMIT 5''')
-        : <StatEntry>[];
-    final ratio = await db.rawQuery(
-      'SELECT SUM(countDraw) AS draws, SUM(countAll) AS total FROM drawDecisionRatio WHERE ? IS NULL OR yearFormat = ?',
-      [year?.toString(), year?.toString()],
-    );
-    final total = _i(ratio.first['total']);
-    return Statistics(
-      elo: elo,
-      averageRank: await _entries(
-        'SELECT wid AS id, name, vorname, averageRank AS value FROM averageRank$suffix ORDER BY averageRank',
-      ),
-      averagePoints: await _entries(
-        'SELECT wid AS id, name, vorname, averagePoints AS value FROM averagePoints$suffix ORDER BY averagePoints DESC',
-      ),
-      mostWins: await _entries(
-        'SELECT id, name, vorname, wins AS value, wreath AS extra FROM mostWins$suffix ORDER BY wins DESC, wreath DESC',
-      ),
-      mostWreaths: await _entries(
-        'SELECT id, name, vorname, wreath AS value FROM mostWreaths$suffix ORDER BY wreath DESC',
-      ),
-      mostPlacesAttended: await _entries(
-        'SELECT id, name, vorname, placesAttended AS value FROM mostPlacesAttended$suffix ORDER BY placesAttended DESC',
-      ),
-      drawPercent: total == 0 ? null : (_i(ratio.first['draws']) * 100 / total).round(),
-    );
-  }
-
-  Future<List<StatEntry>> _entries(String sql) async => [
-    for (final r in await db.rawQuery(sql))
-      StatEntry(person: _person(r), value: (r['value'] as num?) ?? 0, extra: r['extra'] as num?),
-  ];
 
   Future<List<int>> _yearsOf(String prefix, {String type = 'view'}) async {
     final rows = await db.rawQuery("SELECT name FROM sqlite_master WHERE type = ? AND name GLOB ?", [
       type,
       '$prefix[0-9][0-9][0-9][0-9]',
     ]);
-    return [for (final r in rows) int.parse(_s(r['name']).substring(prefix.length))]..sort((a, b) => b - a);
+    return [for (final r in rows) int.parse(text(r['name']).substring(prefix.length))]..sort((a, b) => b - a);
   }
 }
 
@@ -286,18 +253,3 @@ String yearOf(String date) => date.length >= 4 ? date.substring(0, 4) : '';
 ({String where, List<Object> args}) _yearRange(int? year) => year == null
     ? (where: '1', args: const [])
     : (where: 'p.year >= ? AND p.year < ?', args: ['$year-01-01', '${year + 1}-01-01']);
-
-Person _person(_Row r) =>
-    Person(id: _s(r['id']), name: _s(r['name']), vorname: _s(r['vorname']), symbol: _s(r['symbol']));
-
-PlaceSummary _place(_Row r) => PlaceSummary(
-  id: _s(r['placeId']),
-  name: _s(r['placeName']),
-  location: _s(r['location']),
-  date: _s(r['date']),
-  type: _s(r['type']),
-);
-
-String _s(Object? v) => v?.toString() ?? '';
-
-int _i(Object? v) => (v as num?)?.toInt() ?? 0;

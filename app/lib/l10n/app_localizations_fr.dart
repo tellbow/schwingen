@@ -190,4 +190,30 @@ class AppLocalizationsFr extends AppLocalizations {
   String winsWithRate(int percent) {
     return 'Victoires · $percent %';
   }
+
+  @override
+  String get tabAssociations => 'Associations';
+
+  @override
+  String get total => 'Total';
+
+  @override
+  String get active => 'Actifs';
+
+  @override
+  String activeCount(int count) {
+    return '$count actifs';
+  }
+
+  @override
+  String get cantons => 'Cantons / fédérations régionales';
+
+  @override
+  String get clubs => 'Clubs de lutte';
+
+  @override
+  String get navPlaces => 'Fêtes';
+
+  @override
+  String get navHeadToHead => 'Duel';
 }

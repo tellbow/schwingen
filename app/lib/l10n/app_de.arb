@@ -119,5 +119,20 @@
         "type": "int"
       }
     }
-  }
+  },
+  "tabAssociations": "Verbände",
+  "total": "Total",
+  "active": "Aktive",
+  "activeCount": "{count} Aktive",
+  "cantons": "Kantone / Gauverbände",
+  "clubs": "Schwingklubs",
+  "@activeCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "navPlaces": "Feste",
+  "navHeadToHead": "Vergleich"
 }

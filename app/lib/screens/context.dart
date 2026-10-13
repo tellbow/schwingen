@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../data/models.dart';
 import '../data/queries.dart';
 import '../l10n/app_localizations.dart';
+import 'groups_screen.dart';
 import 'head_to_head_screen.dart';
 import 'place_screen.dart';
 import 'wrestler_screen.dart';
@@ -29,6 +30,12 @@ extension Context on BuildContext {
 void openWrestler(BuildContext context, Queries queries, String id) => Navigator.of(context).push(
   MaterialPageRoute(
     builder: (_) => WrestlerScreen(queries: queries, id: id),
+  ),
+);
+
+void openGroup(BuildContext context, Queries queries, GroupLevel level, String id) => Navigator.of(context).push(
+  MaterialPageRoute(
+    builder: (_) => GroupScreen(queries: queries, level: level, id: id),
   ),
 );
 

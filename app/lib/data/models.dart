@@ -22,6 +22,7 @@ class WrestlerDetail {
     required this.person,
     required this.year,
     required this.status,
+    required this.clubId,
     required this.club,
     required this.canton,
     required this.association,
@@ -32,6 +33,7 @@ class WrestlerDetail {
   final Person person;
   final String year;
   final String status;
+  final String clubId;
   final String club;
   final String canton;
   final String association;
@@ -161,4 +163,26 @@ class Statistics {
   final List<StatEntry> mostWreaths;
   final List<StatEntry> mostPlacesAttended;
   final int? drawPercent;
+}
+
+enum GroupLevel { association, canton, club }
+
+class Group {
+  const Group({
+    required this.level,
+    required this.id,
+    required this.name,
+    required this.short,
+    required this.total,
+    required this.active,
+    required this.stars,
+  });
+
+  final GroupLevel level;
+  final String id;
+  final String name;
+  final String short;
+  final int total;
+  final int active;
+  final (int, int, int) stars;
 }

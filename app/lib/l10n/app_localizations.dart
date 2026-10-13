@@ -421,6 +421,54 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Siege · {percent} %'**
   String winsWithRate(int percent);
+
+  /// No description provided for @tabAssociations.
+  ///
+  /// In de, this message translates to:
+  /// **'Verbände'**
+  String get tabAssociations;
+
+  /// No description provided for @total.
+  ///
+  /// In de, this message translates to:
+  /// **'Total'**
+  String get total;
+
+  /// No description provided for @active.
+  ///
+  /// In de, this message translates to:
+  /// **'Aktive'**
+  String get active;
+
+  /// No description provided for @activeCount.
+  ///
+  /// In de, this message translates to:
+  /// **'{count} Aktive'**
+  String activeCount(int count);
+
+  /// No description provided for @cantons.
+  ///
+  /// In de, this message translates to:
+  /// **'Kantone / Gauverbände'**
+  String get cantons;
+
+  /// No description provided for @clubs.
+  ///
+  /// In de, this message translates to:
+  /// **'Schwingklubs'**
+  String get clubs;
+
+  /// No description provided for @navPlaces.
+  ///
+  /// In de, this message translates to:
+  /// **'Feste'**
+  String get navPlaces;
+
+  /// No description provided for @navHeadToHead.
+  ///
+  /// In de, this message translates to:
+  /// **'Vergleich'**
+  String get navHeadToHead;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

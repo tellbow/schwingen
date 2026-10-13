@@ -1,6 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'package:tellbow/data/group_queries.dart';
+import 'package:tellbow/data/models.dart';
 import 'package:tellbow/data/queries.dart';
+import 'package:tellbow/data/statistics_queries.dart';
 
 const schema = [
   'CREATE TABLE association (id TEXT PRIMARY KEY, name TEXT, abbreviation TEXT)',
@@ -8,7 +11,8 @@ const schema = [
   'CREATE TABLE club (id TEXT PRIMARY KEY, name TEXT, canton TEXT)',
   'CREATE TABLE wrestlerStatus (id TEXT PRIMARY KEY, status TEXT, symbol TEXT)',
   'CREATE TABLE wrestlerMetadata (id TEXT PRIMARY KEY, website TEXT, instagram TEXT)',
-  'CREATE TABLE wrestler (id TEXT PRIMARY KEY, name TEXT, vorname TEXT, year TEXT, club TEXT, status TEXT, metadata TEXT)',
+  'CREATE TABLE wrestler (id TEXT PRIMARY KEY, name TEXT, vorname TEXT, year TEXT, category TEXT, club TEXT, status TEXT, '
+      'metadata TEXT)',
   'CREATE TABLE placeType (id TEXT PRIMARY KEY, type TEXT)',
   'CREATE TABLE places (id TEXT PRIMARY KEY, name TEXT, location TEXT, year TEXT, placeType TEXT)',
   'CREATE TABLE rankings (id TEXT PRIMARY KEY, place TEXT, wrestler TEXT, rank TEXT, rank2 TEXT, '
@@ -42,10 +46,10 @@ const data = [
   "INSERT INTO wrestlerStatus VALUES ('s3', 'Eidgenoss', '***'), ('s1', 'Kantonalkranzer', '*')",
   "INSERT INTO wrestlerMetadata VALUES ('m1', 'https://example.test', '')",
   "INSERT INTO wrestler VALUES "
-      "('w1', 'Staudenmann', 'Fabian', '1995-01-01 00:00:00.000Z', 'k1', 's3', 'm1'), "
-      "('w2', 'Aebersold', 'Fabio', '1998-01-01 00:00:00.000Z', 'k1', 's1', ''), "
-      "('w3', 'Muster_Mann', 'Hans', '', 'k2', '', ''), "
-      "('w4', 'Aebi', 'Res', '', '', '', '')",
+      "('w1', 'Staudenmann', 'Fabian', '1995-01-01 00:00:00.000Z', 'A', 'k1', 's3', 'm1'), "
+      "('w2', 'Aebersold', 'Fabio', '1998-01-01 00:00:00.000Z', 'A', 'k1', 's1', ''), "
+      "('w3', 'Muster_Mann', 'Hans', '', '', 'k2', '', ''), "
+      "('w4', 'Aebi', 'Res', '', 'A', '', '', '')",
   "INSERT INTO placeType VALUES ('t1', 'Kantonal'), ('t2', 'Eidgenössisch')",
   "INSERT INTO places VALUES "
       "('p1', 'Emmentalisches', 'Langnau', '2025-05-11 00:00:00.000Z', 't1'), "
@@ -112,10 +116,35 @@ void main() {
 
   test('wrestler joins status, club, canton, association and links', () async {
     final w = await q.wrestler('w1');
+    expect(w?.clubId, 'k1');
     expect(w?.person.fullName, 'Fabian Staudenmann');
     expect((w?.status, w?.club, w?.canton, w?.association), ('Eidgenoss', 'Schwingklub Thun', 'Bern', 'BKSV'));
     expect(w?.website, 'https://example.test');
     expect(await q.wrestler('missing'), isNull);
+  });
+
+  group('groups', () {
+    test('count all, active and wreathed wrestlers per association', () async {
+      final association = (await q.groups(GroupLevel.association)).single;
+      expect((association.name, association.short), ('Bernisch-Kantonaler', 'BKSV'));
+      expect((association.total, association.active, association.stars), (3, 2, (1, 0, 1)));
+    });
+
+    test('list the cantons of an association and the clubs of a canton by name', () async {
+      expect((await q.groups(GroupLevel.canton, parent: 'a1')).map((g) => g.id), ['c1']);
+      final clubs = await q.groups(GroupLevel.club, parent: 'c1');
+      expect(clubs.map((g) => (g.name, g.total, g.active)), [('Schwingklub Sense', 1, 0), ('Schwingklub Thun', 2, 2)]);
+      expect(await q.groups(GroupLevel.club, parent: 'nowhere'), isEmpty);
+    });
+
+    test('find one group by id', () async {
+      expect((await q.groups(GroupLevel.club, id: 'k1')).single.name, 'Schwingklub Thun');
+    });
+
+    test('club members are wrestlers filtered by club', () async {
+      expect((await q.wrestlers('', club: 'k1')).map((w) => w.person.id), ['w1', 'w2']);
+      expect((await q.wrestlers('fabio', club: 'k1')).map((w) => w.person.id), ['w2']);
+    });
   });
 
   test('seasons and elo years come from the database objects', () async {

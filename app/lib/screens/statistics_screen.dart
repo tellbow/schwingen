@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../data/models.dart';
 import '../data/queries.dart';
+import '../data/statistics_queries.dart';
 import 'context.dart';
 import 'widgets.dart';
 
