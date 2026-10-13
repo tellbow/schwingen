@@ -36,10 +36,13 @@ GitHub release on first launch; an update keeps the data it has.
    missing from the keychain
    (https://www.apple.com/certificateauthority/AppleWWDRCAG3.cer): report
    that, do not change the keychain.
-   «No Accounts» or «No profiles for 'ch.tellbow.schwingen' were found»
-   mean Xcode has no Apple ID signed in, so it cannot create the profile
-   for this app: report that the user must add the Apple ID in Xcode →
-   Settings → Accounts; do not try to sign in.
+   «No Accounts» means the shell cannot reach the keychain: run the build
+   outside the sandbox. «No profiles for 'ch.tellbow.schwingen' were
+   found» means Xcode has not made the app's profile yet, which only the
+   Xcode app does: report that the user must open
+   `app/ios/Runner.xcworkspace`, check Runner → Signing & Capabilities
+   (team set, automatic signing on) and build once (⌘B) with Wodan
+   selected. Do not change the project or try to sign in.
 
 Answer in a few lines: the commit installed (`git describe --tags --always`),
 whether it is installed and started, or the step that failed with its error
