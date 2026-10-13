@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as p;
@@ -29,9 +30,9 @@ class DataStore {
   Future<File> fetch(Release release, void Function(double) onProgress) async {
     await dir.create(recursive: true);
     await download(client, release, _partial, onProgress);
-    if (!await isSqlite(_partial)) {
+    if (!await isCompleteSqlite(_partial)) {
       await _partial.delete();
-      throw const FormatException('data.db is not a SQLite database');
+      throw const FormatException('The download is not a complete SQLite database');
     }
     return _partial;
   }
@@ -42,7 +43,11 @@ class DataStore {
   }
 }
 
-Future<bool> isSqlite(File file) async {
-  final head = await file.openRead(0, 16).fold<List<int>>([], (all, chunk) => all..addAll(chunk));
-  return String.fromCharCodes(head) == 'SQLite format 3\u0000';
+Future<bool> isCompleteSqlite(File file) async {
+  final head = await file.openRead(0, 100).fold<List<int>>([], (all, chunk) => all..addAll(chunk));
+  if (head.length < 100 || String.fromCharCodes(head.sublist(0, 16)) != 'SQLite format 3\u0000') return false;
+  final header = ByteData.sublistView(Uint8List.fromList(head));
+  final pageSize = header.getUint16(16) == 1 ? 65536 : header.getUint16(16);
+  final sizeRecorded = header.getUint32(92) == header.getUint32(24);
+  return !sizeRecorded || await file.length() == pageSize * header.getUint32(28);
 }

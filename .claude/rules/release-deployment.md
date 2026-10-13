@@ -10,7 +10,7 @@
 ## Release flow
 
 1. The user pushes a signed tag (`git tag -s vX.Y.Z`, key in `.github/release-signers.asc`), creates the GitHub release from it and uploads `data.db` by hand.
-2. `release.yml` verifies the tag signature, strips auth records from the asset (`scripts/strip-auth-records.sh`) and pushes both images tagged `X.Y.Z` and `sha-<commit>`, with SBOM, provenance and a keyless cosign signature.
+2. `release.yml` verifies the tag signature, strips auth records from the asset (`scripts/strip-auth-records.sh`), attaches `app.db.gz` for the iOS app (`scripts/build-app-db.sh`) and pushes both images tagged `X.Y.Z` and `sha-<commit>`, with SBOM, provenance and a keyless cosign signature.
 3. Flux image automation bumps both deployments to `X.Y.Z`.
 4. The pocketbase initContainer compares the latest release tag with `pb_data/.release` and swaps in the new `data.db` when it differs (old one kept as `data.db.previous`).
 

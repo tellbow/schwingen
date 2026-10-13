@@ -11,11 +11,11 @@ const schema = [
   'CREATE TABLE wrestler (id TEXT PRIMARY KEY, name TEXT, vorname TEXT, year TEXT, club TEXT, status TEXT, metadata TEXT)',
   'CREATE TABLE placeType (id TEXT PRIMARY KEY, type TEXT)',
   'CREATE TABLE places (id TEXT PRIMARY KEY, name TEXT, location TEXT, year TEXT, placeType TEXT)',
-  'CREATE TABLE rankings (id TEXT PRIMARY KEY, created TEXT, place TEXT, wrestler TEXT, rank TEXT, rank2 TEXT, '
+  'CREATE TABLE rankings (id TEXT PRIMARY KEY, place TEXT, wrestler TEXT, rank TEXT, rank2 TEXT, '
       'points TEXT, result TEXT, wreath BOOLEAN, final BOOLEAN, status TEXT)',
-  'CREATE TABLE bouts (id TEXT PRIMARY KEY, place TEXT, wrestler TEXT, opponent TEXT, fight_round NUMERIC, result TEXT, points TEXT)',
-  'CREATE TABLE elo2024 (id TEXT PRIMARY KEY, created TEXT, wrestler TEXT, rating NUMERIC)',
-  'CREATE TABLE elo2025 (id TEXT PRIMARY KEY, created TEXT, wrestler TEXT, rating NUMERIC)',
+  'CREATE TABLE bouts (place TEXT, wrestler TEXT, opponent TEXT, fight_round NUMERIC, result TEXT, points TEXT)',
+  'CREATE TABLE elo2024 (wrestler TEXT, rating NUMERIC)',
+  'CREATE TABLE elo2025 (wrestler TEXT, rating NUMERIC)',
   "CREATE VIEW mostWins2025 AS SELECT w.id, w.name, w.vorname, COUNT(*) AS wins, SUM(r.wreath) AS wreath "
       "FROM rankings r JOIN wrestler w ON w.id = r.wrestler WHERE r.rank = '1' GROUP BY w.id",
   "CREATE VIEW mostWinsOverall AS SELECT * FROM mostWins2025",
@@ -52,19 +52,19 @@ const data = [
       "('p2', 'Eidgenössisches', 'Mollis', '2025-08-30 00:00:00.000Z', 't2'), "
       "('p3', 'Oberländisches', 'Thun', '2024-06-01 00:00:00.000Z', 't1')",
   "INSERT INTO rankings VALUES "
-      "('r1', '1', 'p1', 'w1', '1', '', '58.25', '++++-+', 1, 1, ''), "
-      "('r2', '2', 'p1', 'w2', '2', 'a', '57.00', 'o+++++', 1, 1, ''), "
-      "('r3', '3', 'p1', 'w3', '2', 'b', '56.75', '+o+++', 0, 0, ''), "
-      "('r4', '4', 'p1', 'w4', '10', '', '54.00', 'ooo', 0, 0, 'Unfall'), "
-      "('r5', '5', 'p2', 'w1', '1', '', '77.00', '+++++++-', 1, 1, ''), "
-      "('r6', '6', 'p3', 'w1', '3', '', '57.00', '++o+++', 1, 0, '')",
+      "('r1', 'p1', 'w1', '1', '', '58.25', '++++-+', 1, 1, ''), "
+      "('r2', 'p1', 'w2', '2', 'a', '57.00', 'o+++++', 1, 1, ''), "
+      "('r3', 'p1', 'w3', '2', 'b', '56.75', '+o+++', 0, 0, ''), "
+      "('r4', 'p1', 'w4', '10', '', '54.00', 'ooo', 0, 0, 'Unfall'), "
+      "('r5', 'p2', 'w1', '1', '', '77.00', '+++++++-', 1, 1, ''), "
+      "('r6', 'p3', 'w1', '3', '', '57.00', '++o+++', 1, 0, '')",
   "INSERT INTO bouts VALUES "
-      "('b1', 'p1', 'w1', 'w2', 1, '+', '10.00'), ('b2', 'p1', 'w2', 'w1', 1, 'o', '8.75'), "
-      "('b3', 'p1', 'w1', 'w3', 2, '+', '9.75'), ('b4', 'p1', 'w3', 'w1', 2, 'o', '8.50'), "
-      "('b5', 'p3', 'w1', 'w2', 3, 'o', '8.75'), ('b6', 'p3', 'w2', 'w1', 3, '+', '10.00'), "
-      "('b7', 'p2', 'w1', 'w2', 6, '-', '9.00'), ('b8', 'p2', 'w2', 'w1', 6, '-', '9.00')",
-  "INSERT INTO elo2024 VALUES ('e1', '1', 'w1', 1490), ('e2', '1', 'w4', 1300)",
-  "INSERT INTO elo2025 VALUES ('e3', '1', 'w1', 1520), ('e4', '1', 'w2', 1501)",
+      "('p1', 'w1', 'w2', 1, '+', '10.00'), ('p1', 'w2', 'w1', 1, 'o', '8.75'), "
+      "('p1', 'w1', 'w3', 2, '+', '9.75'), ('p1', 'w3', 'w1', 2, 'o', '8.50'), "
+      "('p3', 'w1', 'w2', 3, 'o', '8.75'), ('p3', 'w2', 'w1', 3, '+', '10.00'), "
+      "('p2', 'w1', 'w2', 6, '-', '9.00'), ('p2', 'w2', 'w1', 6, '-', '9.00')",
+  "INSERT INTO elo2024 VALUES ('w1', 1490), ('w4', 1300)",
+  "INSERT INTO elo2025 VALUES ('w1', 1520), ('w2', 1501)",
 ];
 
 void main() {

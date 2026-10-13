@@ -33,7 +33,8 @@ one. `.claude/rules/release-deployment.md` has the rules.
    stripped `data.db`, by hand or with
    `! gh release create vX.Y.Z <scratchpad>/data.db --verify-tag --title "Tellbow X.Y.Z" --notes "<what changed>"`.
    Publishing it starts the `release` workflow.
-5. **Images:** the workflow verifies the tag, strips the asset and builds
+5. **Images:** the workflow verifies the tag, strips the asset, attaches
+   `app.db.gz` for the iOS app (check with `gh release view vX.Y.Z`) and builds
    `ghcr.io/tellbow/schwingen-{frontend,pocketbase}` as `X.Y.Z`.
    `gh run list -L 2 --workflow release.yml` for its id, then
    `gh run watch <id> --exit-status`.

@@ -5,13 +5,16 @@ head-to-head and the yearly statistics, without internet once the data is there.
 
 ## Data
 
-The app reads the `data.db` of a GitHub release of `tellbow/schwingen` (the same file the
-pocketbase initContainer loads), read-only with sqflite:
+The app reads a GitHub release of `tellbow/schwingen`, read-only with sqflite. Since the release
+workflow builds it, a release carries `app.db.gz` (`scripts/build-app-db.sh`): only the tables,
+columns and views the app reads, about 34 MB to download and 120 MB on the phone. Older releases
+have only `data.db` (about 200 MB), which the app takes instead.
 
-- First launch: it looks up the newest release with a `data.db` (`api.github.com`, no token) and
-  downloads it (about 200 MB) to `Application Support/data/`, excluded from iCloud backup.
+- First launch: it looks up the newest release with either file (`api.github.com`, no token),
+  downloads it, decompressing on the way, to `Application Support/data/`, excluded from iCloud backup.
 - Later launches: it opens the installed copy at once and checks for a newer release in the
-  background; a banner offers it. The new file is checked to be SQLite before it replaces the old one.
+  background; a banner offers it. A new file replaces the old one only when its size matches the
+  page count in its SQLite header.
 
 Queries run on the PocketBase tables and views as they are in the release (`lib/data/queries.dart`).
 A schema change on the web side (`pb_migrations/`) that renames a column or view breaks the app
@@ -28,7 +31,7 @@ flutter run -d <simulator id>
 ```sh
 flutter analyze
 flutter test                                            # stats, download, queries on a fixture
-TELLBOW_DB=/path/to/data.db flutter test test/release_database_test.dart   # every query on a real release
+TELLBOW_DB=/path/to/app.db flutter test test/release_database_test.dart    # every query on a real release (app.db or data.db)
 flutter test integration_test/app_test.dart -d <simulator id>             # download and every tab
 ```
 

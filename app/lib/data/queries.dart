@@ -79,7 +79,7 @@ class Queries {
       JOIN places p ON p.id = r.place
       LEFT JOIN placeType t ON t.id = p.placeType
       WHERE r.wrestler = ? AND ${range.where}
-      ORDER BY p.year DESC, r.created DESC''',
+      ORDER BY p.year DESC, p.name''',
       [wrestlerId, ...range.args],
     );
     return [
@@ -226,7 +226,7 @@ class Queries {
             FROM elo$year e
             JOIN wrestler w ON w.id = e.wrestler
             LEFT JOIN wrestlerStatus s ON s.id = w.status
-            ORDER BY e.rating DESC, e.created DESC
+            ORDER BY e.rating DESC, w.name, w.vorname
             LIMIT 5''')
         : <StatEntry>[];
     final ratio = await db.rawQuery(

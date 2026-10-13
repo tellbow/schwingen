@@ -1,7 +1,8 @@
 name: release
 
 # Publishing a GitHub release (tag vX.Y.Z, data.db attached by hand) strips
-# account and login records from its data.db, then builds both images as
+# account and login records from its data.db, adds app.db.gz for the iOS
+# app (scripts/build-app-db.sh), then builds both images as
 # X.Y.Z, each with an SBOM, its provenance and a cosign signature. Flux bumps
 # the cluster to X.Y.Z and the pocketbase initContainer pulls that release's
 # data.db.
@@ -40,7 +41,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - name: Strip auth records from data.db
+      - name: Strip auth records from data.db, build the app's app.db.gz
         run: |
           if ! gh release download "$TAG" -R "$GITHUB_REPOSITORY" -p data.db -D "$RUNNER_TEMP"; then
             echo "::warning::release $TAG has no data.db; the cluster keeps its current database"
@@ -54,6 +55,8 @@ jobs:
           if [ "$(sha256sum "$db")" != "$before" ]; then
             gh release upload "$TAG" "$db" -R "$GITHUB_REPOSITORY" --clobber
           fi
+          ./scripts/build-app-db.sh "$db" "$RUNNER_TEMP/app.db.gz"
+          gh release upload "$TAG" "$RUNNER_TEMP/app.db.gz" -R "$GITHUB_REPOSITORY" --clobber
 
   image:
     needs: data

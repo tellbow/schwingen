@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
@@ -7,15 +8,33 @@ import 'package:http/testing.dart';
 import 'package:tellbow/data/release.dart';
 import 'package:tellbow/data/store.dart';
 
-final sqliteBytes = [...utf8.encode('SQLite format 3'), 0, ...List.filled(100, 1)];
+final sqliteBytes = sqliteFile(pages: 4);
 
-Map<String, Object?> releaseJson(String tag, {bool draft = false, bool prerelease = false, bool withData = true}) => {
+List<int> sqliteFile({required int pages}) {
+  final bytes = Uint8List.fromList([for (var i = 0; i < 512 * pages; i++) i * 31 % 251]);
+  bytes.setAll(0, utf8.encode('SQLite format 3\u0000'));
+  ByteData.sublistView(bytes)
+    ..setUint16(16, 512)
+    ..setUint32(24, 7)
+    ..setUint32(28, pages)
+    ..setUint32(92, 7);
+  return bytes;
+}
+
+Map<String, Object?> releaseJson(
+  String tag, {
+  bool draft = false,
+  bool prerelease = false,
+  bool withData = true,
+  bool withApp = false,
+}) => {
   'tag_name': tag,
   'draft': draft,
   'prerelease': prerelease,
   'assets': [
     {'name': 'notes.txt', 'browser_download_url': 'https://example.test/notes', 'size': 1},
     if (withData) {'name': 'data.db', 'browser_download_url': 'https://example.test/$tag/data.db', 'size': 116},
+    if (withApp) {'name': 'app.db.gz', 'browser_download_url': 'https://example.test/$tag/app.db.gz', 'size': 40},
   ],
 };
 
@@ -42,6 +61,13 @@ void main() {
       expect(release?.tag, 'v2.1.2');
       expect(release?.url, Uri.parse('https://example.test/v2.1.2/data.db'));
       expect(release?.size, 116);
+    });
+
+    test('prefers the compressed app database', () {
+      final release = newestWithData([releaseJson('v2.2.0', withApp: true)]);
+      expect(release?.url, Uri.parse('https://example.test/v2.2.0/app.db.gz'));
+      expect(release?.compressed, isTrue);
+      expect(newestWithData([releaseJson('v2.1.2')])?.compressed, isFalse);
     });
 
     test('is null when no release has data', () {
@@ -78,6 +104,23 @@ void main() {
       expect(await store.newerRelease(), isNull);
     });
 
+    test('decompresses app.db.gz while downloading', () async {
+      final store = DataStore(dir, github([releaseJson('v2.2.0', withApp: true)], body: gzip.encode(sqliteBytes)));
+      final release = (await store.newerRelease())!;
+      await store.swap(await store.fetch(release, (_) {}), release);
+      expect(await store.database.readAsBytes(), sqliteBytes);
+    });
+
+    test('rejects an app.db.gz that decompresses to a cut-off database', () async {
+      final store = DataStore(
+        dir,
+        github([releaseJson('v2.2.0', withApp: true)], body: gzip.encode(sqliteBytes.sublist(0, 1024))),
+      );
+      final release = (await store.newerRelease())!;
+      await expectLater(store.fetch(release, (_) {}), throwsFormatException);
+      expect(store.installed, isFalse);
+    });
+
     test('offers a newer release', () async {
       await File('${dir.path}/release').writeAsString('v2.1.1');
       expect((await DataStore(dir, github([releaseJson('v2.1.2')])).newerRelease())?.tag, 'v2.1.2');
@@ -96,7 +139,10 @@ void main() {
     });
 
     test('rejects an incomplete or failed download', () async {
-      final short = DataStore(dir, github([releaseJson('v2.1.2')], body: sqliteBytes.sublist(0, 50), announced: 116));
+      final short = DataStore(
+        dir,
+        github([releaseJson('v2.1.2')], body: sqliteBytes.sublist(0, 50), announced: sqliteBytes.length),
+      );
       final release = (await short.newerRelease())!;
       await expectLater(short.fetch(release, (_) {}), throwsA(isA<HttpException>()));
 

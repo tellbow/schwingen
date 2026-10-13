@@ -104,7 +104,7 @@ The app runs on **Kubernetes**. Keep this in mind when writing code:
 
 - Data is scraped and imported locally (`tellbow/schwingen-data` → local PocketBase), never in production
 - A GitHub release `vX.Y.Z` with `data.db` attached by hand ships code and data together; its tag must be signed with a key in `.github/release-signers.asc`
-- `.github/workflows/release.yml` verifies the tag, strips account/login records from the asset, then pushes both images as `X.Y.Z` with SBOM, provenance and a cosign signature
+- `.github/workflows/release.yml` verifies the tag, strips account/login records from the asset, attaches `app.db.gz` for the iOS app (`scripts/build-app-db.sh`), then pushes both images as `X.Y.Z` with SBOM, provenance and a cosign signature
 - Flux bumps the deployments; the pocketbase initContainer downloads the latest release's `data.db` on start
 - Production has no PocketBase superuser — the published `data.db` contains no accounts
 - The `release` skill (`/release`) walks through a release step by step
@@ -131,7 +131,7 @@ bun run format  # Prettier write
 ### iOS App (`app/`)
 
 - Flutter, iOS only (`ch.tellbow.schwingen`), plain `StatefulWidget`/`setState`, DE/FR from `lib/l10n/app_{de,fr}.arb` (gen-l10n)
-- Data: downloads the newest GitHub release's `data.db` on first launch and opens it read-only with sqflite; later launches check for a newer release in the background (`lib/data/release.dart`, `store.dart`)
+- Data: downloads the newest GitHub release's `app.db.gz` (only the tables and views the app reads, ~34 MB; `data.db` for releases without it) on first launch and opens it read-only with sqflite; later launches check for a newer release in the background (`lib/data/release.dart`, `store.dart`)
 - All SQL lives in `lib/data/queries.dart`, on the PocketBase tables and views as they ship in the release — **a migration that renames or drops a column or view breaks the app**; run `TELLBOW_DB=<release data.db> flutter test test/release_database_test.dart` after schema changes
 - Screens in `lib/screens/`: wrestlers, festivals (`places`), head-to-head, statistics; shared widgets in `widgets.dart`, navigation and formatting in `context.dart`
 - Verify: `flutter analyze`, `flutter test` (in `app/`); `integration_test/app_test.dart` drives the real app on a simulator
@@ -274,7 +274,7 @@ bun run build   # Verify production build succeeds
 │   ├── favicon.ico
 │   └── topo/                # GeoJSON for map charts
 ├── pb_migrations/           # PocketBase migrations, baked into the pocketbase image
-├── scripts/                 # strip-auth-records.sh, swap-pocketbase-db.sh
+├── scripts/                 # strip-auth-records.sh, swap-pocketbase-db.sh, build-app-db.sh
 ├── docker/                  # frontend/ and pocketbase/ Dockerfiles
 ├── docker-compose.yml
 ├── app/                     # Flutter iOS app (local SQLite from a release's data.db)
