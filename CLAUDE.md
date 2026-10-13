@@ -134,7 +134,7 @@ bun run format  # Prettier write
 - Data: downloads the newest GitHub release's `app.db.gz` (only the tables and views the app reads, ~34 MB; `data.db` for releases without it) on first launch and opens it read-only with sqflite; later launches check for a newer release in the background (`lib/data/release.dart`, `store.dart`)
 - All SQL lives in `lib/data/queries.dart`, on the PocketBase tables and views as they ship in the release — **a migration that renames or drops a column or view breaks the app**; run `TELLBOW_DB=<release data.db> flutter test test/release_database_test.dart` after schema changes
 - Screens in `lib/screens/`: wrestlers, festivals (`places`), head-to-head, statistics; shared widgets in `widgets.dart`, navigation and formatting in `context.dart`
-- Verify: `flutter analyze`, `flutter test` (in `app/`); `integration_test/app_test.dart` drives the real app on a simulator
+- Verify: `flutter analyze`, `flutter test` (in `app/`, also the `app` job in `ci.yml`); `integration_test/app_test.dart` drives the real app on a simulator
 - Web lint (`bun run lint`) ignores `app/`; the Dart formatter (`page_width: 120`) applies there
 
 ### Claude Skills and Commands
@@ -278,7 +278,7 @@ bun run build   # Verify production build succeeds
 ├── docker/                  # frontend/ and pocketbase/ Dockerfiles
 ├── docker-compose.yml
 ├── app/                     # Flutter iOS app (local SQLite from a release's data.db)
-└── .github/workflows/       # ci.yml (push/PR/weekly: lint, tests, osv-scanner, zizmor, gitleaks, semgrep), release.yml (published release)
+└── .github/workflows/       # ci.yml (push/PR/weekly: lint, tests, app, osv-scanner, zizmor, gitleaks, semgrep), release.yml (published release)
 ```
 
 ### Key Principles
