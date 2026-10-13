@@ -144,6 +144,7 @@ bun run format  # Prettier write
 - Skills (`.claude/skills/`):
   - `screenshot` — captures a state of the website (via `screenshot-capture`, Playwright on Haiku against the running dev server), shows it in the terminal and asks whether it fits. `.claude/rules/screenshots.md` says when: after every user-visible change
   - `release` — the release flow; only when the user asks for a release
+  - `iphone-install` — builds the iOS app in release mode and installs it on the user's iPhone over Wi-Fi (Haiku, forked)
   - `web-design-guidelines` — UI review against Vercel's Web Interface Guidelines; installed with `npx skills` (`.agents/skills/`, `skills-lock.json`), symlinked into `.claude/skills/`
 
 ---
