@@ -84,3 +84,6 @@ Color resultColor(ColorScheme scheme, String result) => switch (result) {
   'o' => scheme.error,
   _ => scheme.onSurfaceVariant,
 };
+
+Color seriesColor(ColorScheme scheme) =>
+    scheme.brightness == Brightness.dark ? const Color(0xFFB8862F) : const Color(0xFF8C6418);

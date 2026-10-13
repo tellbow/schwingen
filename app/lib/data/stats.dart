@@ -65,3 +65,34 @@ int compareRanks(String rankA, String rank2A, String rankB, String rank2B) {
   final byNumber = (int.tryParse(rankA) ?? 0).compareTo(int.tryParse(rankB) ?? 0);
   return byNumber != 0 ? byNumber : rank2A.compareTo(rank2B);
 }
+
+class SeasonTrend {
+  const SeasonTrend(this.year, this.winPercent, this.averagePoints);
+
+  final int year;
+  final int? winPercent;
+  final double? averagePoints;
+}
+
+List<SeasonTrend> seasonTrends(List<Ranking> rankings) {
+  final bySeason = <int, List<Ranking>>{};
+  for (final r in rankings) {
+    final year = int.tryParse(r.place.date.length >= 4 ? r.place.date.substring(0, 4) : '');
+    if (year != null) (bySeason[year] ??= []).add(r);
+  }
+  final years = bySeason.keys.toList()..sort();
+  return [
+    for (final year in years)
+      if (boutCounts(bySeason[year]!.map((r) => r.result)) case final counts)
+        SeasonTrend(year, counts.total == 0 ? null : counts.winPercent, averagePoints(bySeason[year]!)),
+  ];
+}
+
+List<(int, num?)> yearSeries(Map<int, num?> byYear) {
+  final years = [
+    for (final MapEntry(:key, :value) in byYear.entries)
+      if (value != null) key,
+  ]..sort();
+  if (years.length < 2) return const [];
+  return [for (var y = years.first; y <= years.last; y++) (y, byYear[y])];
+}

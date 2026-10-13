@@ -166,6 +166,11 @@ void main() {
     });
   });
 
+  test('eloHistory lists every year with a rating, oldest first', () async {
+    expect((await q.eloHistory('w1')).map((e) => (e.year, e.rating)), [(2024, 1490), (2025, 1520)]);
+    expect(await q.eloHistory('w3'), isEmpty);
+  });
+
   test('rankingsOf lists the newest festival first and filters by year', () async {
     final all = await q.rankingsOf('w1', null);
     expect(all.map((r) => r.place.id), ['p2', 'p1', 'p3']);

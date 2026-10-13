@@ -469,6 +469,18 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Vergleich'**
   String get navHeadToHead;
+
+  /// No description provided for @trends.
+  ///
+  /// In de, this message translates to:
+  /// **'Verlauf'**
+  String get trends;
+
+  /// No description provided for @winRate.
+  ///
+  /// In de, this message translates to:
+  /// **'Siegquote'**
+  String get winRate;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

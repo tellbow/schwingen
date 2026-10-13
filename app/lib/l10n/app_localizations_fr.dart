@@ -216,4 +216,10 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get navHeadToHead => 'Duel';
+
+  @override
+  String get trends => 'Évolution';
+
+  @override
+  String get winRate => 'Taux de victoires';
 }

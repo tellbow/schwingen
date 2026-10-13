@@ -216,4 +216,10 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get navHeadToHead => 'Vergleich';
+
+  @override
+  String get trends => 'Verlauf';
+
+  @override
+  String get winRate => 'Siegquote';
 }

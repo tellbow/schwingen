@@ -69,6 +69,15 @@ class Queries {
     return null;
   }
 
+  Future<List<Elo>> eloHistory(String wrestlerId) async {
+    final history = <Elo>[];
+    for (final year in (await eloYears()).reversed) {
+      final rows = await db.rawQuery('SELECT rating FROM elo$year WHERE wrestler = ? LIMIT 1', [wrestlerId]);
+      if (rows.isNotEmpty) history.add(Elo(year: year, rating: rows.first['rating'] as num));
+    }
+    return history;
+  }
+
   Future<List<Ranking>> rankingsOf(String wrestlerId, int? year) async {
     final range = _yearRange(year);
     final rows = await db.rawQuery(

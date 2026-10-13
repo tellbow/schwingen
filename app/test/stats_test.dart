@@ -3,6 +3,8 @@ import 'package:tellbow/data/models.dart';
 import 'package:tellbow/data/stats.dart';
 
 Ranking ranking({
+  String date = '',
+  String result = '',
   String rank = '1',
   String points = '57.00',
   String status = '',
@@ -12,10 +14,10 @@ Ranking ranking({
   rank: rank,
   rank2: '',
   points: points,
-  result: '',
+  result: result,
   wreath: wreath,
   status: status,
-  place: PlaceSummary(id: 'p', name: 'Fest', location: '', date: '', type: type),
+  place: PlaceSummary(id: 'p', name: 'Fest', location: '', date: date, type: type),
 );
 
 void main() {
@@ -80,5 +82,35 @@ void main() {
   test('compareRanks sorts by number, then by letter', () {
     final ranks = [('10', ''), ('2', 'b'), ('1', ''), ('2', 'a')]..sort((a, b) => compareRanks(a.$1, a.$2, b.$1, b.$2));
     expect(ranks, [('1', ''), ('2', 'a'), ('2', 'b'), ('10', '')]);
+  });
+
+  test('seasonTrends gives each season its win rate and average points', () {
+    final trends = seasonTrends([
+      for (var i = 0; i < 5; i++) ranking(date: '2024-06-0${i + 1} 00:00:00.000Z', result: '++o+', points: '57.00'),
+      ranking(date: '2025-05-01 00:00:00.000Z', result: '+-'),
+      ranking(date: '', result: '+'),
+    ]);
+    expect(trends.map((t) => (t.year, t.winPercent, t.averagePoints)), [(2024, 75, 57.0), (2025, 50, null)]);
+  });
+
+  test('seasonTrends has no win rate for a season without bouts', () {
+    expect(seasonTrends([ranking(date: '2023-05-01')]).single.winPercent, isNull);
+  });
+
+  group('yearSeries', () {
+    test('fills the years between the first and last value, missing ones as gaps', () {
+      expect(yearSeries({2019: 1400, 2021: 1450, 2022: null, 2023: 1500}), [
+        (2019, 1400),
+        (2020, null),
+        (2021, 1450),
+        (2022, null),
+        (2023, 1500),
+      ]);
+    });
+
+    test('is empty with fewer than two values', () {
+      expect(yearSeries({2024: 1500, 2025: null}), isEmpty);
+      expect(yearSeries({}), isEmpty);
+    });
   });
 }

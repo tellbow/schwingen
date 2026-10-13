@@ -6,9 +6,10 @@ import '../data/queries.dart';
 import '../data/stats.dart';
 import 'context.dart';
 import 'stat_grid.dart';
+import 'trend_chart.dart';
 import 'widgets.dart';
 
-typedef _Season = ({List<Ranking> rankings, List<OpponentRecord> opponents, Elo? elo});
+typedef _Season = ({List<Ranking> rankings, List<OpponentRecord> opponents, Elo? elo, List<Elo> eloHistory});
 
 class WrestlerScreen extends StatefulWidget {
   const WrestlerScreen({super.key, required this.queries, required this.id});
@@ -31,6 +32,7 @@ class _WrestlerScreenState extends State<WrestlerScreen> {
       rankings: await q.rankingsOf(widget.id, _year),
       opponents: await q.opponents(widget.id, _year),
       elo: await q.elo(widget.id, _year),
+      eloHistory: _year == null ? await q.eloHistory(widget.id) : const <Elo>[],
     );
   }
 
@@ -167,6 +169,7 @@ class _SeasonView extends StatelessWidget {
               ),
           ],
         ),
+        if (season.eloHistory.isNotEmpty || season.rankings.isNotEmpty) _Trends(season),
         if (season.opponents.isNotEmpty)
           Section(
             title: l10n.opponents,
@@ -182,5 +185,30 @@ class _SeasonView extends StatelessWidget {
           ),
       ],
     );
+  }
+}
+
+class _Trends extends StatelessWidget {
+  const _Trends(this.season);
+
+  final _Season season;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final trends = seasonTrends(season.rankings);
+    final elo = {for (final e in season.eloHistory) e.year: e.rating};
+    final wins = {for (final t in trends) t.year: t.winPercent};
+    final points = {for (final t in trends) t.year: t.averagePoints};
+    final charts = [
+      if (yearSeries(elo) case final s when s.isNotEmpty)
+        TrendChart(title: 'ELO', points: s, format: (v) => '${v.round()}'),
+      if (yearSeries(wins) case final s when s.isNotEmpty)
+        TrendChart(title: l10n.winRate, points: s, format: (v) => '${v.round()} %', range: const AxisRange(0, 100, 25)),
+      if (yearSeries(points) case final s when s.isNotEmpty)
+        TrendChart(title: l10n.averagePoints, points: s, format: context.decimal),
+    ];
+    if (charts.isEmpty) return const SizedBox();
+    return Section(title: l10n.trends, children: charts);
   }
 }

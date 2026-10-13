@@ -61,5 +61,7 @@
   "cantons": "Cantons / fédérations régionales",
   "clubs": "Clubs de lutte",
   "navPlaces": "Fêtes",
-  "navHeadToHead": "Duel"
+  "navHeadToHead": "Duel",
+  "trends": "Évolution",
+  "winRate": "Taux de victoires"
 }

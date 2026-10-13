@@ -1,3 +1,4 @@
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
@@ -48,6 +49,12 @@ void main() {
     await tester.tap(rich('Fabian Staudenmann').first);
     await pumpUntil(tester, find.text('Gestellte'));
     await shot(tester, 'wrestler');
+
+    await tester.scrollUntilVisible(find.byType(LineChart).first, 300, scrollable: page);
+    await tester.ensureVisible(find.text('Verlauf'));
+    await tester.pump(const Duration(milliseconds: 300));
+    await shot(tester, 'trends');
+    await tester.scrollUntilVisible(find.text('2025'), -300, scrollable: page);
 
     await tester.tap(find.text('2025'));
     await pumpUntil(tester, find.text('ELO 2025'));

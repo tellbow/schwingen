@@ -134,5 +134,7 @@
     }
   },
   "navPlaces": "Feste",
-  "navHeadToHead": "Vergleich"
+  "navHeadToHead": "Vergleich",
+  "trends": "Verlauf",
+  "winRate": "Siegquote"
 }
