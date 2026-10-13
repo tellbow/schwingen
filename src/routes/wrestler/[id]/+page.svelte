@@ -6,6 +6,7 @@
 		WithExpand,
 		WrestlerRecord
 	} from '$lib/types/pocketbase';
+	import { untrack } from 'svelte';
 	import { page } from '$app/stores';
 	import { getClientPb } from '$lib/pb';
 	import { yearOnly } from '$lib/utils/format';
@@ -144,10 +145,12 @@
 	// every wrestler, including the first one.
 	$effect(() => {
 		void wrestler.id;
-		selectedYear = 'Alle';
-		loadElo();
-		loadRankings();
-		loadOpponents();
+		untrack(() => {
+			selectedYear = 'Alle';
+			loadElo();
+			loadRankings();
+			loadOpponents();
+		});
 	});
 </script>
 

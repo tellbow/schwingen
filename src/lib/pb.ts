@@ -18,7 +18,7 @@ export function getClientPb(): PocketBase {
 	if (!clientPb) {
 		// In browser, use relative URL (goes through SvelteKit proxy)
 		const base = typeof window !== 'undefined' ? '/api/pb' : PB_URL;
-		clientPb = new PocketBase(base);
+		clientPb = new PocketBase(base).autoCancellation(false);
 	}
 	return clientPb;
 }
