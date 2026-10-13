@@ -2,6 +2,7 @@ import type { PageServerLoad } from './$types';
 import { createServerPb } from '$lib/pb';
 import { buildSafeFilter, sanitizeSort } from '$lib/utils/filter';
 import { yearOnly } from '$lib/utils/format';
+import type { BoutRecord } from '$lib/types/pocketbase';
 
 export const load: PageServerLoad = async ({ url }) => {
 	const pb = createServerPb();
@@ -22,7 +23,7 @@ export const load: PageServerLoad = async ({ url }) => {
 	const sort = sanitizeSort(url.searchParams.get('sort'), '-place.year,-created');
 
 	try {
-		const data = await pb.collection('bouts').getList(page, perPage, {
+		const data = await pb.collection('bouts').getList<BoutRecord>(page, perPage, {
 			expand: 'wrestler,opponent,place',
 			filter,
 			sort,
@@ -31,7 +32,7 @@ export const load: PageServerLoad = async ({ url }) => {
 		});
 
 		return {
-			bouts: data.items.map((item: any) => ({
+			bouts: data.items.map((item) => ({
 				...item,
 				year: yearOnly(item.expand?.place?.year)
 			})),

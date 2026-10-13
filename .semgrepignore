@@ -1,0 +1,8 @@
+# semgrep (CI job «semgrep»): tests, lockfiles, generated migrations.
+# (A .semgrepignore replaces semgrep's own list, which left out tests.)
+*.test.ts
+*.lock
+pb_migrations/
+build/
+node_modules/
+.svelte-kit/

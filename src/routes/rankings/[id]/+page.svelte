@@ -13,15 +13,24 @@
 
 <svelte:head>
 	<title>{place.name} {place.year} - {t(locale, 'rankings.detailTitleSuffix')}</title>
-	<meta name="description" content="{t(locale, 'rankings.detailDescriptionPrefix')} {place.name} {place.year}." />
-	<meta property="og:title" content="{place.name} {place.year} - {t(locale, 'rankings.detailTitleSuffix')}" />
-	<meta property="og:description" content="{t(locale, 'rankings.detailDescriptionPrefix')} {place.name} {place.year}." />
+	<meta
+		name="description"
+		content="{t(locale, 'rankings.detailDescriptionPrefix')} {place.name} {place.year}."
+	/>
+	<meta
+		property="og:title"
+		content="{place.name} {place.year} - {t(locale, 'rankings.detailTitleSuffix')}"
+	/>
+	<meta
+		property="og:description"
+		content="{t(locale, 'rankings.detailDescriptionPrefix')} {place.name} {place.year}."
+	/>
 </svelte:head>
 
-<div class="max-w-4xl mx-auto">
+<div class="mx-auto max-w-4xl">
 	<div class="card mb-4">
 		<h1 class="text-xl font-bold">{place.name}</h1>
-		<p class="text-sm text-muted-foreground mt-1">
+		<p class="mt-1 text-sm text-muted-foreground">
 			{place.year} &nbsp;|&nbsp; {place.location ?? ''}
 			{#if place.expand?.placeType?.type}
 				&nbsp;|&nbsp; {place.expand.placeType.type}
@@ -31,9 +40,9 @@
 
 	<div class="card">
 		<h2 class="card-title">{t(locale, 'rankings.resultsTitle')}</h2>
-		<div class="flex gap-2 border-b border-border mb-4">
+		<div class="mb-4 flex gap-2 border-b border-border">
 			<button
-				class="px-3 py-2 text-sm font-medium border-b-2 -mb-px transition-colors"
+				class="-mb-px border-b-2 px-3 py-2 text-sm font-medium transition-colors"
 				class:border-primary={activeTab === 'rangliste'}
 				class:text-primary={activeTab === 'rangliste'}
 				class:border-transparent={activeTab !== 'rangliste'}
@@ -43,7 +52,7 @@
 				{t(locale, 'rankings.tabRangliste')}
 			</button>
 			<button
-				class="px-3 py-2 text-sm font-medium border-b-2 -mb-px transition-colors"
+				class="-mb-px border-b-2 px-3 py-2 text-sm font-medium transition-colors"
 				class:border-primary={activeTab === 'statistik'}
 				class:text-primary={activeTab === 'statistik'}
 				class:border-transparent={activeTab !== 'statistik'}
@@ -71,9 +80,13 @@
 					</thead>
 					<tbody>
 						{#if rankings.length === 0}
-							<tr><td colspan="8" class="text-center py-8 text-muted-foreground">{t(locale, 'rankings.noResultsFound')}</td></tr>
+							<tr
+								><td colspan="8" class="py-8 text-center text-muted-foreground"
+									>{t(locale, 'rankings.noResultsFound')}</td
+								></tr
+							>
 						{/if}
-						{#each rankings as r}
+						{#each rankings as r (r.id)}
 							<tr>
 								<td>{r.rank}{r.rank2}</td>
 								<td>{r.points}</td>
@@ -81,13 +94,15 @@
 									<a href="/wrestler/{r.expand?.wrestler?.id}" class="hover:underline">
 										{r.expand?.wrestler?.name ?? '-'}
 									</a>
-									<span class="md:hidden text-muted-foreground text-xs"> {r.expand?.wrestler?.vorname ?? ''}</span>
+									<span class="text-xs text-muted-foreground md:hidden">
+										{r.expand?.wrestler?.vorname ?? ''}</span
+									>
 								</td>
 								<td class="hidden md:table-cell">{r.expand?.wrestler?.vorname ?? '-'}</td>
 								<td class="font-mono text-xs">{r.result}</td>
 								<td class="hidden md:table-cell">{r.final ? '🏁' : ''}</td>
 								<td class="hidden md:table-cell">{r.wreath ? '🏆' : ''}</td>
-								<td class="hidden md:table-cell text-xs">{r.status ?? ''}</td>
+								<td class="hidden text-xs md:table-cell">{r.status ?? ''}</td>
 							</tr>
 						{/each}
 					</tbody>

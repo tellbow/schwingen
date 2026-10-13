@@ -3,29 +3,36 @@
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 	import type { Chart } from 'chart.js';
+	import type {
+		IChoroplethControllerDatasetOptions,
+		IChoroplethDataPoint
+	} from 'chartjs-chart-geo';
 	import { getDark } from '$lib/dark-mode.svelte';
 	import { t, localizePath, type Locale } from '$lib/i18n/index.svelte';
 	import {
 		buildAssociationFeatures,
 		buildCantonFeatures,
 		buildGauverbandFeatures,
-		type MergedMapFeature
+		type MapFeature,
+		type MergedMapFeature,
+		type TopologyFeatureReader
 	} from '$lib/utils/associations-map';
+	import type { CantonStatsRecord, ClubStatsRecord } from '$lib/types/pocketbase';
 
 	let { data } = $props();
 	const locale = $derived($page.data.locale as Locale);
 
 	// $state() required for bind:this in Svelte 5 runes mode
 	let mapCanvas = $state<HTMLCanvasElement | null>(null);
-	let mapChart: Chart | null = null;
+	let mapChart: Chart<'choropleth'> | null = null;
 	let expandedAssociation = $state<string | null>(null);
 	let expandedCanton = $state<string | null>(null);
 	let mapMode = $state<'association' | 'canton' | 'gauverband'>('association');
 
 	// Topo canton features, country outline and Bern Gauverband features — populated in onMount
-	let cantonFeatures: any[] = [];
-	let countryFeature: any = null;
-	let gauverbandFeatures: any[] = [];
+	let cantonFeatures: MapFeature[] = [];
+	let countryFeature: MapFeature | null = null;
+	let gauverbandFeatures: MapFeature[] = [];
 
 	const mapLabel = $derived(
 		mapMode === 'association'
@@ -53,31 +60,33 @@
 		}
 	}
 
+	function toChoroplethPoints(features: MergedMapFeature[]): IChoroplethDataPoint[] {
+		return features.map((f) => ({
+			feature: f as unknown as IChoroplethDataPoint['feature'],
+			value: f.wrestlerActive || 0
+		}));
+	}
+
 	function updateMap(mode: 'association' | 'canton' | 'gauverband', associationId?: string) {
 		if (!mapChart) return;
 		mapMode = mode;
 
 		let features: MergedMapFeature[];
 		if (mode === 'association') {
-			features = buildAssociationFeatures(cantonFeatures, data.associations as any);
+			features = buildAssociationFeatures(cantonFeatures, data.associations);
 		} else if (mode === 'gauverband') {
-			const bksvCantons = (data.cantons as any[]).filter(
-				(c: any) => c.association === associationId
-			);
+			const bksvCantons = data.cantons.filter((c) => c.association === associationId);
 			features = buildGauverbandFeatures(
-				buildCantonFeatures(cantonFeatures, data.cantons as any, associationId),
+				buildCantonFeatures(cantonFeatures, data.cantons, associationId),
 				gauverbandFeatures,
 				bksvCantons
 			);
 		} else {
-			features = buildCantonFeatures(cantonFeatures, data.cantons as any, associationId);
+			features = buildCantonFeatures(cantonFeatures, data.cantons, associationId);
 		}
 
 		mapChart.data.labels = features.map((f) => f.properties?.name || '');
-		mapChart.data.datasets[0].data = features.map((f) => ({
-			feature: f,
-			value: f.wrestlerActive || 0
-		})) as any;
+		mapChart.data.datasets[0].data = toChoroplethPoints(features);
 		mapChart.update();
 	}
 
@@ -91,33 +100,33 @@
 			return;
 		}
 
-		const association = data.associations.find((a: any) => a.id === expandedAssociation);
+		const association = data.associations.find((a) => a.id === expandedAssociation);
 		updateMap(association?.abbreviation === 'BKSV' ? 'gauverband' : 'canton', expandedAssociation);
 	}
 
 	// Group cantons by association ID
 	const cantonsByAssociation = $derived(
 		data.cantons.reduce(
-			(acc: Record<string, any[]>, c: any) => {
+			(acc: Record<string, CantonStatsRecord[]>, c) => {
 				const key = c.association || 'other';
 				if (!acc[key]) acc[key] = [];
 				acc[key].push(c);
 				return acc;
 			},
-			{} as Record<string, any[]>
+			{} as Record<string, CantonStatsRecord[]>
 		)
 	);
 
 	// Group clubs by canton ID
 	const clubsByCanton = $derived(
 		data.clubs.reduce(
-			(acc: Record<string, any[]>, c: any) => {
+			(acc: Record<string, ClubStatsRecord[]>, c) => {
 				const key = c.canton || 'other';
 				if (!acc[key]) acc[key] = [];
 				acc[key].push(c);
 				return acc;
 			},
-			{} as Record<string, any[]>
+			{} as Record<string, ClubStatsRecord[]>
 		)
 	);
 
@@ -143,26 +152,29 @@
 			const maps = await mapsResponse.json();
 			const bernGauverbandGeo = await gauverbandResponse.json();
 
-			countryFeature = (topojson as any).feature(maps, maps.objects.country).features[0];
-			cantonFeatures = (topojson as any).feature(maps, maps.objects.cantons).features;
+			countryFeature = (topojson as unknown as TopologyFeatureReader).feature(
+				maps,
+				maps.objects.country
+			).features[0];
+			cantonFeatures = (topojson as unknown as TopologyFeatureReader).feature(
+				maps,
+				maps.objects.cantons
+			).features;
 			gauverbandFeatures = bernGauverbandGeo.features;
 
-			const features = buildAssociationFeatures(cantonFeatures, data.associations as any);
+			const features = buildAssociationFeatures(cantonFeatures, data.associations);
 
 			const dark = getDark();
 
 			mapChart = new ChartJS(mapCanvas, {
 				type: 'choropleth',
 				data: {
-					labels: features.map((f: any) => f.properties?.name || ''),
+					labels: features.map((f) => f.properties?.name || ''),
 					datasets: [
 						{
 							label: t(locale, 'associations.chartDatasetLabel'),
-							outline: countryFeature,
-							data: features.map((f: any) => ({
-								feature: f,
-								value: f.wrestlerActive || 0
-							}))
+							outline: countryFeature as unknown as IChoroplethControllerDatasetOptions['outline'],
+							data: toChoroplethPoints(features)
 						}
 					]
 				},
@@ -192,7 +204,7 @@
 							}
 						}
 					}
-				} as any
+				}
 			});
 		} catch (e) {
 			console.error('Error loading map:', e);
@@ -209,11 +221,12 @@
 
 <h1 class="sr-only">{t(locale, 'associations.metaTitle')}</h1>
 
-<div class="max-w-4xl mx-auto space-y-4">
+<div class="mx-auto max-w-4xl space-y-4">
 	<!-- Map -->
 	<div class="card">
 		<h2 class="card-title">
-			{t(locale, 'associations.activeSchwingerByLabel')} {mapLabel}
+			{t(locale, 'associations.activeSchwingerByLabel')}
+			{mapLabel}
 		</h2>
 		<!-- Explicit height required for maintainAspectRatio: false to work -->
 		<div style="position: relative; height: 420px; overflow: hidden;">
@@ -225,37 +238,42 @@
 	<div class="card">
 		<h2 class="card-title">{t(locale, 'associations.accordionTitle')}</h2>
 		<div class="space-y-2">
-			{#each data.associations as assoc}
-				<div class="border border-border rounded-lg">
+			{#each data.associations as assoc (assoc.id)}
+				<div class="rounded-lg border border-border">
 					<button
-						class="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-surface-low font-medium transition-colors"
+						class="flex w-full items-center justify-between px-4 py-3 text-left font-medium transition-colors hover:bg-surface-low"
 						onclick={() => toggleAssociation(assoc.id)}
 					>
 						<span class="flex flex-col">
 							<span>
 								<a
 									href="/associations/association/{assoc.id}"
-									class="underline hover:text-primary mr-2"
+									class="mr-2 underline hover:text-primary"
 									onclick={(e) => e.stopPropagation()}
 								>
 									{assoc.abbreviation}
 								</a>
 								{assoc.name}
 							</span>
-							<span class="text-xs text-muted-foreground font-normal mt-0.5">
-								{assoc.wrestlerActive} {t(locale, 'associations.activeLabel')} &nbsp;·&nbsp; * {assoc.wrestler1Star} &nbsp;·&nbsp; ** {assoc.wrestler2Star} &nbsp;·&nbsp; *** {assoc.wrestler3Star}
+							<span class="mt-0.5 text-xs font-normal text-muted-foreground">
+								{assoc.wrestlerActive}
+								{t(locale, 'associations.activeLabel')} &nbsp;·&nbsp; * {assoc.wrestler1Star} &nbsp;·&nbsp;
+								** {assoc.wrestler2Star} &nbsp;·&nbsp; *** {assoc.wrestler3Star}
 							</span>
 						</span>
-						<span class="text-outline ml-3 shrink-0">{expandedAssociation === assoc.id ? '▲' : '▼'}</span>
+						<span class="ml-3 shrink-0 text-outline"
+							>{expandedAssociation === assoc.id ? '▲' : '▼'}</span
+						>
 					</button>
 
 					{#if expandedAssociation === assoc.id}
-						<div class="px-4 pb-2 space-y-1">
-							{#each cantonsByAssociation[assoc.id] || [] as canton}
+						<div class="space-y-1 px-4 pb-2">
+							{#each cantonsByAssociation[assoc.id] || [] as canton (canton.id)}
 								<div class="border-l-2 border-outline-variant pl-3">
 									<button
-										class="w-full flex justify-between items-center py-1 text-left text-sm hover:bg-surface-low transition-colors"
-										onclick={() => expandedCanton = expandedCanton === canton.id ? null : canton.id}
+										class="flex w-full items-center justify-between py-1 text-left text-sm transition-colors hover:bg-surface-low"
+										onclick={() =>
+											(expandedCanton = expandedCanton === canton.id ? null : canton.id)}
 									>
 										<a
 											href="/associations/canton/{canton.id}"
@@ -265,30 +283,40 @@
 											{canton.name}
 										</a>
 										<span class="text-xs text-muted-foreground">
-											{canton.wrestlerActive} {t(locale, 'associations.activeLabel')}
+											{canton.wrestlerActive}
+											{t(locale, 'associations.activeLabel')}
 											{expandedCanton === canton.id ? ' ▲' : ' ▼'}
 										</span>
 									</button>
 
 									{#if expandedCanton === canton.id}
-										<div class="pl-3 space-y-0.5">
-											{#each clubsByCanton[canton.id] || [] as club}
-												<div class="flex justify-between items-center py-0.5 text-xs border-b border-outline-variant/20 hover:bg-surface-container transition-colors">
-													<a href="/associations/club/{club.id}" class="underline hover:text-primary">
+										<div class="space-y-0.5 pl-3">
+											{#each clubsByCanton[canton.id] || [] as club (club.id)}
+												<div
+													class="flex items-center justify-between border-b border-outline-variant/20 py-0.5 text-xs transition-colors hover:bg-surface-container"
+												>
+													<a
+														href="/associations/club/{club.id}"
+														class="underline hover:text-primary"
+													>
 														{club.name}
 													</a>
-													<span class="text-muted-foreground">{club.wrestlerActive} {t(locale, 'associations.activeLabel')}</span>
+													<span class="text-muted-foreground"
+														>{club.wrestlerActive} {t(locale, 'associations.activeLabel')}</span
+													>
 												</div>
 											{/each}
 											{#if (clubsByCanton[canton.id] || []).length === 0}
-												<p class="text-xs text-outline py-1">{t(locale, 'associations.noClubsFound')}</p>
+												<p class="py-1 text-xs text-outline">
+													{t(locale, 'associations.noClubsFound')}
+												</p>
 											{/if}
 										</div>
 									{/if}
 								</div>
 							{/each}
 							{#if (cantonsByAssociation[assoc.id] || []).length === 0}
-								<p class="text-sm text-outline py-1">{t(locale, 'associations.noCantonsFound')}</p>
+								<p class="py-1 text-sm text-outline">{t(locale, 'associations.noCantonsFound')}</p>
 							{/if}
 						</div>
 					{/if}

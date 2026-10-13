@@ -1,6 +1,7 @@
 import type { PageServerLoad } from './$types';
 import { createServerPb } from '$lib/pb';
 import { buildSafeFilter, escapeFilterValue, sanitizeSort } from '$lib/utils/filter';
+import type { RankingRecord } from '$lib/types/pocketbase';
 
 export const load: PageServerLoad = async ({ url }) => {
 	const pb = createServerPb();
@@ -24,7 +25,7 @@ export const load: PageServerLoad = async ({ url }) => {
 	const sort = sanitizeSort(url.searchParams.get('sort'), '-place.year,-created');
 
 	try {
-		const data = await pb.collection('rankings').getList(page, perPage, {
+		const data = await pb.collection('rankings').getList<RankingRecord>(page, perPage, {
 			expand: 'wrestler,place',
 			filter,
 			sort,
@@ -33,7 +34,7 @@ export const load: PageServerLoad = async ({ url }) => {
 		});
 
 		return {
-			rankings: data.items.map((item: any) => ({
+			rankings: data.items.map((item) => ({
 				...item,
 				year: item.expand?.place?.year?.substring(0, 4) || ''
 			})),

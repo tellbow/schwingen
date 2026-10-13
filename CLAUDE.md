@@ -69,10 +69,11 @@ Denormalized view collections:
 
 ### Observability
 
-- `src/lib/metrics.ts` — Prometheus metrics (HTTP request counters + duration histograms)
-- `src/lib/tracing.ts` — OpenTelemetry NodeSDK with OTLP HTTP exporter
-- Both wired in `src/hooks.server.ts` — do not modify the instrumentation setup
-- Metrics available at `/metrics`, health check at `/health`
+- SvelteKit's own OpenTelemetry spans (`kit.experimental.tracing` in `svelte.config.js`): handle, load, resolve
+- `src/instrumentation.server.ts` loads before the app: traces by OTLP when `OTEL_EXPORTER_OTLP_ENDPOINT` is set, Prometheus metrics on `METRICS_PORT` (9464 in the cluster, not routed by the ingress); `OTEL_SDK_DISABLED=true` turns both off
+- `src/hooks.server.ts` records `http.server.request.duration` per route id
+- The OpenTelemetry packages stay in `dependencies`: svelte-adapter-bun bundles devDependencies for the browser platform, which picks the OTLP exporter's fetch transport
+- Health check at `/health`
 
 ---
 
@@ -99,8 +100,8 @@ The app runs on **Kubernetes**. Keep this in mind when writing code:
 ### Releases and data
 
 - Data is scraped and imported locally (`tellbow/schwingen-data` → local PocketBase), never in production
-- A GitHub release `vX.Y.Z` with `data.db` attached by hand ships code and data together
-- `.github/workflows/release.yml` strips account/login records from the asset, then pushes both images as `X.Y.Z`
+- A GitHub release `vX.Y.Z` with `data.db` attached by hand ships code and data together; its tag must be signed with a key in `.github/release-signers.asc`
+- `.github/workflows/release.yml` verifies the tag, strips account/login records from the asset, then pushes both images as `X.Y.Z` with SBOM, provenance and a cosign signature
 - Flux bumps the deployments; the pocketbase initContainer downloads the latest release's `data.db` on start
 - Production has no PocketBase superuser — the published `data.db` contains no accounts
 
@@ -119,6 +120,8 @@ The app runs on **Kubernetes**. Keep this in mind when writing code:
 bun run dev     # Start PocketBase + SvelteKit concurrently (via start.ts)
 bun run build   # Production build
 bun run start   # Start production server (via start.ts --prod)
+bun run lint    # Prettier check + ESLint
+bun run format  # Prettier write
 ```
 
 ---
@@ -208,6 +211,7 @@ Follow these rules strictly to keep the codebase clean and consistent.
 **Verification after every change:**
 
 ```bash
+bun run lint    # Prettier + ESLint
 bun run check   # TypeScript/Svelte type checking
 bun run build   # Verify production build succeeds
 ```
@@ -251,7 +255,7 @@ bun run build   # Verify production build succeeds
 ├── scripts/                 # strip-auth-records.sh, swap-pocketbase-db.sh
 ├── docker/                  # frontend/ and pocketbase/ Dockerfiles
 ├── docker-compose.yml
-└── .github/workflows/       # ci.yml (push/PR), release.yml (published release)
+└── .github/workflows/       # ci.yml (push/PR/weekly: lint, tests, osv-scanner, zizmor, gitleaks, semgrep), release.yml (published release)
 ```
 
 ### Key Principles

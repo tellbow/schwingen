@@ -78,6 +78,7 @@ make up
 ```
 
 This starts:
+
 - **PocketBase** on port 8090 (`pb_data/` is mounted from `./pb_data`)
 - **Frontend** on port 3000
 

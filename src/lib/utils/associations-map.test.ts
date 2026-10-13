@@ -1,5 +1,9 @@
 import { describe, it, expect } from 'vitest';
-import { buildAssociationFeatures, buildCantonFeatures, buildGauverbandFeatures } from './associations-map';
+import {
+	buildAssociationFeatures,
+	buildCantonFeatures,
+	buildGauverbandFeatures
+} from './associations-map';
 
 const cantonFeatures = [
 	{ properties: { name: 'Bern' } },
@@ -64,8 +68,12 @@ describe('buildCantonFeatures', () => {
 		const result = buildCantonFeatures(cantonFeatures, [
 			{ id: 'appenzell', name: 'Appenzell', association: 'nosv', wrestlerActive: 2 }
 		]);
-		expect(result.find((f) => f.properties?.name === 'Appenzell Ausserrhoden')?.id).toBe('appenzell');
-		expect(result.find((f) => f.properties?.name === 'Appenzell Innerrhoden')?.id).toBe('appenzell');
+		expect(result.find((f) => f.properties?.name === 'Appenzell Ausserrhoden')?.id).toBe(
+			'appenzell'
+		);
+		expect(result.find((f) => f.properties?.name === 'Appenzell Innerrhoden')?.id).toBe(
+			'appenzell'
+		);
 	});
 
 	it('maps a direct name match one-to-one', () => {
@@ -88,7 +96,10 @@ describe('buildCantonFeatures', () => {
 describe('buildGauverbandFeatures', () => {
 	it('replaces the Bern tile with per-Gauverband tiles carrying canton ids', () => {
 		const cantonLevelFeatures = buildCantonFeatures(cantonFeatures, []);
-		const gauverbandFeatures = [{ properties: { name: 'Emmental' } }, { properties: { name: 'Seeland' } }];
+		const gauverbandFeatures = [
+			{ properties: { name: 'Emmental' } },
+			{ properties: { name: 'Seeland' } }
+		];
 		const result = buildGauverbandFeatures(cantonLevelFeatures, gauverbandFeatures, [
 			{ id: 'emmental-id', name: 'Emmental', association: 'bksv', wrestlerActive: 6 },
 			{ id: 'seeland-id', name: 'Seeland', association: 'bksv', wrestlerActive: 8 }
@@ -104,7 +115,11 @@ describe('buildGauverbandFeatures', () => {
 
 	it('defaults to zero wrestlerActive when no matching canton record exists', () => {
 		const cantonLevelFeatures = buildCantonFeatures(cantonFeatures, []);
-		const result = buildGauverbandFeatures(cantonLevelFeatures, [{ properties: { name: 'Oberaargau' } }], []);
+		const result = buildGauverbandFeatures(
+			cantonLevelFeatures,
+			[{ properties: { name: 'Oberaargau' } }],
+			[]
+		);
 		const oberaargau = result.find((f) => f.properties?.name === 'Oberaargau');
 		expect(oberaargau?.wrestlerActive).toBe(0);
 		expect(oberaargau?.id).toBeUndefined();

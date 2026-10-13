@@ -1,6 +1,9 @@
 import type { RequestHandler } from '@sveltejs/kit';
 import { createServerPb } from '$lib/pb';
 import { LOCALES, localizePath } from '$lib/i18n/index.svelte';
+import type { WrestlerRecord } from '$lib/types/pocketbase';
+
+type SitemapRecord = Pick<WrestlerRecord, 'id' | 'updated'>;
 
 const ORIGIN = 'https://schwingen.tellbow.ch';
 const CACHE_TTL_MS = 60 * 60 * 1000;
@@ -11,7 +14,8 @@ function url(path: string, lastmod?: string): string {
 	const lastmodTag = lastmod ? `<lastmod>${lastmod}</lastmod>` : '';
 	return LOCALES.map((locale) => {
 		const alternates = LOCALES.map(
-			(alt) => `<xhtml:link rel="alternate" hreflang="${alt}" href="${ORIGIN}${localizePath(path, alt)}"/>`
+			(alt) =>
+				`<xhtml:link rel="alternate" hreflang="${alt}" href="${ORIGIN}${localizePath(path, alt)}"/>`
 		).join('');
 		return `<url><loc>${ORIGIN}${localizePath(path, locale)}</loc>${lastmodTag}${alternates}</url>`;
 	}).join('\n');
@@ -21,11 +25,26 @@ async function generateSitemap(): Promise<string> {
 	const pb = createServerPb();
 
 	const [wrestlers, places, associations, cantons, clubs] = await Promise.all([
-		pb.collection('wrestler').getFullList({ fields: 'id,updated', skipTotal: true }).catch(() => []),
-		pb.collection('places').getFullList({ fields: 'id,updated', skipTotal: true }).catch(() => []),
-		pb.collection('wrestlersByAssociation').getFullList({ fields: 'id', skipTotal: true }).catch(() => []),
-		pb.collection('wrestlersByCanton').getFullList({ fields: 'id', skipTotal: true }).catch(() => []),
-		pb.collection('wrestlersByClub').getFullList({ fields: 'id', skipTotal: true }).catch(() => [])
+		pb
+			.collection('wrestler')
+			.getFullList<SitemapRecord>({ fields: 'id,updated', skipTotal: true })
+			.catch(() => []),
+		pb
+			.collection('places')
+			.getFullList<SitemapRecord>({ fields: 'id,updated', skipTotal: true })
+			.catch(() => []),
+		pb
+			.collection('wrestlersByAssociation')
+			.getFullList<SitemapRecord>({ fields: 'id', skipTotal: true })
+			.catch(() => []),
+		pb
+			.collection('wrestlersByCanton')
+			.getFullList<SitemapRecord>({ fields: 'id', skipTotal: true })
+			.catch(() => []),
+		pb
+			.collection('wrestlersByClub')
+			.getFullList<SitemapRecord>({ fields: 'id', skipTotal: true })
+			.catch(() => [])
 	]);
 
 	const staticUrls = [
@@ -38,17 +57,13 @@ async function generateSitemap(): Promise<string> {
 		url('/associations')
 	];
 
-	const wrestlerUrls = wrestlers.map((w: any) =>
-		url(`/wrestler/${w.id}`, w.updated?.substring(0, 10))
-	);
+	const wrestlerUrls = wrestlers.map((w) => url(`/wrestler/${w.id}`, w.updated?.substring(0, 10)));
 
-	const placeUrls = places.map((p: any) =>
-		url(`/rankings/${p.id}`, p.updated?.substring(0, 10))
-	);
+	const placeUrls = places.map((p) => url(`/rankings/${p.id}`, p.updated?.substring(0, 10)));
 
-	const associationUrls = associations.map((a: any) => url(`/associations/association/${a.id}`));
-	const cantonUrls = cantons.map((c: any) => url(`/associations/canton/${c.id}`));
-	const clubUrls = clubs.map((c: any) => url(`/associations/club/${c.id}`));
+	const associationUrls = associations.map((a) => url(`/associations/association/${a.id}`));
+	const cantonUrls = cantons.map((c) => url(`/associations/canton/${c.id}`));
+	const clubUrls = clubs.map((c) => url(`/associations/club/${c.id}`));
 
 	return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">

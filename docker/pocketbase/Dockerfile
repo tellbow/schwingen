@@ -1,13 +1,11 @@
 # syntax=docker/dockerfile:1
-FROM alpine:3.21
+# The download runs natively; only the binary goes into the target image.
+FROM --platform=$BUILDPLATFORM alpine:3.21 AS download
 
 ARG PB_VERSION=0.40.5
 ARG TARGETARCH
 
-RUN apk add --no-cache \
-    ca-certificates \
-    unzip \
-    wget
+RUN apk add --no-cache unzip wget
 
 # Download PocketBase for the target architecture
 RUN set -eux; \
@@ -22,6 +20,11 @@ RUN set -eux; \
     rm /tmp/pocketbase.zip && \
     chmod +x /pb/pocketbase
 
+FROM alpine:3.21
+
+RUN apk add --no-cache ca-certificates wget
+
+COPY --from=download /pb/pocketbase /pb/pocketbase
 COPY pb_migrations /pb/pb_migrations
 
 VOLUME ["/pb/pb_data"]

@@ -21,14 +21,25 @@
 </script>
 
 {#if totalPages > 1}
-	<div class="flex flex-col items-center gap-1 mt-4 py-3">
+	<div class="mt-4 flex flex-col items-center gap-1 py-3">
 		<div class="flex gap-1">
-			<button class="pagination-btn" disabled={page <= 1} onclick={() => onNavigate(page - 1)}>‹</button>
-			{#each pageNumbers as p}
-				<button class="pagination-btn {p === page ? 'pagination-active' : ''}" onclick={() => onNavigate(p)}>{p}</button>
+			<button class="pagination-btn" disabled={page <= 1} onclick={() => onNavigate(page - 1)}
+				>‹</button
+			>
+			{#each pageNumbers as p (p)}
+				<button
+					class="pagination-btn {p === page ? 'pagination-active' : ''}"
+					onclick={() => onNavigate(p)}>{p}</button
+				>
 			{/each}
-			<button class="pagination-btn" disabled={page >= totalPages} onclick={() => onNavigate(page + 1)}>›</button>
+			<button
+				class="pagination-btn"
+				disabled={page >= totalPages}
+				onclick={() => onNavigate(page + 1)}>›</button
+			>
 		</div>
-		<span class="text-sm text-muted-foreground">{t(locale, 'common.page')} {page} {t(locale, 'common.of')} {totalPages}</span>
+		<span class="text-sm text-muted-foreground"
+			>{t(locale, 'common.page')} {page} {t(locale, 'common.of')} {totalPages}</span
+		>
 	</div>
 {/if}

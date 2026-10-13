@@ -12,7 +12,10 @@ export type SafeFilterField =
 	| { param: string; column: string; match: 'boolean' }
 	| { param: string; enum: Record<string, string> };
 
-export const buildSafeFilter = (searchParams: URLSearchParams, fields: SafeFilterField[]): string => {
+export const buildSafeFilter = (
+	searchParams: URLSearchParams,
+	fields: SafeFilterField[]
+): string => {
 	const parts: string[] = [];
 
 	for (const field of fields) {
@@ -39,7 +42,10 @@ export const buildSafeFilter = (searchParams: URLSearchParams, fields: SafeFilte
 	return parts.join(' && ');
 };
 
-export const buildQuickSearchFilter = (searchParams: URLSearchParams, columns: string[]): string => {
+export const buildQuickSearchFilter = (
+	searchParams: URLSearchParams,
+	columns: string[]
+): string => {
 	const value = searchParams.get('q');
 	if (!value) return '';
 

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import type { WrestlerRecord } from '$lib/types/pocketbase';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 	import { getClientPb } from '$lib/pb';
@@ -9,10 +10,10 @@
 
 	let searchTerm1 = $state('');
 	let searchTerm2 = $state('');
-	let results1 = $state<any[]>([]);
-	let results2 = $state<any[]>([]);
-	let selected1 = $state<any>(null);
-	let selected2 = $state<any>(null);
+	let results1 = $state<WrestlerRecord[]>([]);
+	let results2 = $state<WrestlerRecord[]>([]);
+	let selected1 = $state<WrestlerRecord | null>(null);
+	let selected2 = $state<WrestlerRecord | null>(null);
 	let searching1 = $state(false);
 	let searching2 = $state(false);
 
@@ -31,7 +32,7 @@
 
 		try {
 			const escaped = escapeFilterValue(term);
-			const d = await pb.collection('wrestler').getList(1, 10, {
+			const d = await pb.collection('wrestler').getList<WrestlerRecord>(1, 10, {
 				filter: `name ~ "${escaped}" || vorname ~ "${escaped}"`,
 				sort: '-status.symbol,name',
 				fields: 'id,name,vorname'
@@ -56,7 +57,7 @@
 		}
 	}
 
-	function select(wrestler: any, num: 1 | 2) {
+	function select(wrestler: WrestlerRecord, num: 1 | 2) {
 		if (num === 1) {
 			selected1 = wrestler;
 			searchTerm1 = `${wrestler.name} ${wrestler.vorname}`;
@@ -84,13 +85,13 @@
 	<meta property="og:description" content={t(locale, 'head2head.metaDescription')} />
 </svelte:head>
 
-<div class="max-w-2xl mx-auto">
-	<h1 class="text-xl font-bold mb-4">{t(locale, 'head2head.title')}</h1>
+<div class="mx-auto max-w-2xl">
+	<h1 class="mb-4 text-xl font-bold">{t(locale, 'head2head.title')}</h1>
 
-	<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+	<div class="grid grid-cols-1 gap-6 md:grid-cols-2">
 		<!-- Wrestler 1 -->
 		<div class="card">
-			<h2 class="font-semibold mb-2">{t(locale, 'head2head.wrestler1')}</h2>
+			<h2 class="mb-2 font-semibold">{t(locale, 'head2head.wrestler1')}</h2>
 			<div class="relative">
 				<input
 					type="text"
@@ -100,17 +101,20 @@
 					oninput={() => debounceSearch(searchTerm1, 1)}
 				/>
 				{#if searching1}
-					<div class="absolute right-2 top-2"><div class="spinner w-4 h-4"></div></div>
+					<div class="absolute top-2 right-2"><div class="spinner h-4 w-4"></div></div>
 				{/if}
 				{#if results1.length > 0}
-					<ul class="absolute z-10 w-full bg-surface-lowest border border-border rounded-lg mt-1 max-h-48 overflow-y-auto">
-						{#each results1 as w}
+					<ul
+						class="absolute z-10 mt-1 max-h-48 w-full overflow-y-auto rounded-lg border border-border bg-surface-lowest"
+					>
+						{#each results1 as w (w.id)}
 							<li>
 								<button
-									class="w-full text-left px-3 py-2 text-lg md:text-sm hover:bg-surface-container transition-colors cursor-pointer"
+									class="w-full cursor-pointer px-3 py-2 text-left text-lg transition-colors hover:bg-surface-container md:text-sm"
 									onclick={() => select(w, 1)}
 								>
-									{w.name} {w.vorname}
+									{w.name}
+									{w.vorname}
 								</button>
 							</li>
 						{/each}
@@ -118,13 +122,17 @@
 				{/if}
 			</div>
 			{#if selected1}
-				<p class="text-xs text-tertiary mt-1">{t(locale, 'head2head.selectedLabel')} {selected1.name} {selected1.vorname}</p>
+				<p class="mt-1 text-xs text-tertiary">
+					{t(locale, 'head2head.selectedLabel')}
+					{selected1.name}
+					{selected1.vorname}
+				</p>
 			{/if}
 		</div>
 
 		<!-- Wrestler 2 -->
 		<div class="card">
-			<h2 class="font-semibold mb-2">{t(locale, 'head2head.wrestler2')}</h2>
+			<h2 class="mb-2 font-semibold">{t(locale, 'head2head.wrestler2')}</h2>
 			<div class="relative">
 				<input
 					type="text"
@@ -134,17 +142,20 @@
 					oninput={() => debounceSearch(searchTerm2, 2)}
 				/>
 				{#if searching2}
-					<div class="absolute right-2 top-2"><div class="spinner w-4 h-4"></div></div>
+					<div class="absolute top-2 right-2"><div class="spinner h-4 w-4"></div></div>
 				{/if}
 				{#if results2.length > 0}
-					<ul class="absolute z-10 w-full bg-surface-lowest border border-border rounded-lg mt-1 max-h-48 overflow-y-auto">
-						{#each results2 as w}
+					<ul
+						class="absolute z-10 mt-1 max-h-48 w-full overflow-y-auto rounded-lg border border-border bg-surface-lowest"
+					>
+						{#each results2 as w (w.id)}
 							<li>
 								<button
-									class="w-full text-left px-3 py-2 text-lg md:text-sm hover:bg-surface-container transition-colors cursor-pointer"
+									class="w-full cursor-pointer px-3 py-2 text-left text-lg transition-colors hover:bg-surface-container md:text-sm"
 									onclick={() => select(w, 2)}
 								>
-									{w.name} {w.vorname}
+									{w.name}
+									{w.vorname}
 								</button>
 							</li>
 						{/each}
@@ -152,21 +163,21 @@
 				{/if}
 			</div>
 			{#if selected2}
-				<p class="text-xs text-tertiary mt-1">{t(locale, 'head2head.selectedLabel')} {selected2.name} {selected2.vorname}</p>
+				<p class="mt-1 text-xs text-tertiary">
+					{t(locale, 'head2head.selectedLabel')}
+					{selected2.name}
+					{selected2.vorname}
+				</p>
 			{/if}
 		</div>
 	</div>
 
 	{#if selected1 && selected2 && selected1.id === selected2.id}
-		<p class="mt-4 text-error text-sm">{t(locale, 'head2head.selectDifferentWarning')}</p>
+		<p class="mt-4 text-sm text-error">{t(locale, 'head2head.selectDifferentWarning')}</p>
 	{/if}
 
 	<div class="mt-6">
-		<button
-			class="btn-primary px-6 py-2"
-			onclick={compare}
-			disabled={!canCompare}
-		>
+		<button class="btn-primary px-6 py-2" onclick={compare} disabled={!canCompare}>
 			{t(locale, 'head2head.compareButton')}
 		</button>
 	</div>

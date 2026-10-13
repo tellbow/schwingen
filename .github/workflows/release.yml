@@ -2,8 +2,9 @@ name: release
 
 # Publishing a GitHub release (tag vX.Y.Z, data.db attached by hand) strips
 # account and login records from its data.db, then builds both images as
-# X.Y.Z. Flux bumps the cluster to X.Y.Z and the pocketbase initContainer
-# pulls that release's data.db.
+# X.Y.Z, each with an SBOM, its provenance and a cosign signature. Flux bumps
+# the cluster to X.Y.Z and the pocketbase initContainer pulls that release's
+# data.db.
 on:
   release:
     types: [published]
@@ -12,7 +13,23 @@ permissions:
   contents: read
 
 jobs:
+  # Only a tag signed with a key of .github/release-signers.asc releases:
+  # the images and the data.db are what its signer tagged.
+  verify:
+    runs-on: ubuntu-latest
+    env:
+      TAG: ${{ github.event.release.tag_name }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0 # with the tag objects, not only the commit
+      - run: |
+          gpg --batch --import .github/release-signers.asc
+          git verify-tag "$TAG"
+
   data:
+    needs: verify
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -44,6 +61,7 @@ jobs:
     permissions:
       contents: read
       packages: write
+      id-token: write # keyless signing (cosign)
     strategy:
       fail-fast: false
       matrix:
@@ -67,7 +85,8 @@ jobs:
           tags: |
             type=semver,pattern={{version}}
             type=sha
-      - uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+      - id: build
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:
           context: .
           file: docker/${{ matrix.name }}/Dockerfile
@@ -77,3 +96,15 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha,scope=${{ matrix.name }}
           cache-to: type=gha,mode=max,scope=${{ matrix.name }}
+          # What is in the image and how it was built, pushed with it
+          # (docker buildx imagetools inspect … --format '{{json .SBOM}}').
+          sbom: true
+          provenance: mode=max
+      - uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6 # v4.1.2
+      # Signed with this workflow's identity (Sigstore's certificate, entered in
+      # its public transparency log).
+      - name: Sign the image
+        env:
+          IMAGE: ghcr.io/${{ github.repository_owner }}/schwingen-${{ matrix.name }}
+          DIGEST: ${{ steps.build.outputs.digest }}
+        run: cosign sign --yes "$IMAGE@$DIGEST"

@@ -1,0 +1,4 @@
+bun.lock
+static/
+pb_migrations/
+.claude/

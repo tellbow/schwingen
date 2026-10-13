@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { buildSearchParams } from '$lib/utils/search-params';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 	import { formatDate } from '$lib/utils/format';
@@ -17,7 +18,21 @@
 
 	let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 
-	const YEARS = ['', '2015', '2016', '2017', '2018', '2019', '2020', '2021', '2022', '2023', '2024', '2025', '2026'];
+	const YEARS = [
+		'',
+		'2015',
+		'2016',
+		'2017',
+		'2018',
+		'2019',
+		'2020',
+		'2021',
+		'2022',
+		'2023',
+		'2024',
+		'2025',
+		'2026'
+	];
 	const PLACE_TYPES = [
 		{ value: '', labelKey: 'common.all' },
 		{ value: 'Sonstige', labelKey: 'places.typeSonstige' },
@@ -31,21 +46,26 @@
 	];
 
 	function buildParams(pageNum: number): URLSearchParams {
-		const params = new URLSearchParams();
-		if (filterNumber) params.set('number', filterNumber);
-		if (filterName) params.set('name', filterName);
-		if (filterLocation) params.set('location', filterLocation);
-		if (filterYear) params.set('year', filterYear);
-		if (filterType) params.set('type', filterType);
-		if (pageNum > 1) params.set('page', String(pageNum));
-		return params;
+		return buildSearchParams(
+			{
+				number: filterNumber,
+				name: filterName,
+				location: filterLocation,
+				year: filterYear,
+				type: filterType
+			},
+			pageNum
+		);
 	}
 
 	function search() {
 		if (debounceTimer) clearTimeout(debounceTimer);
 		debounceTimer = setTimeout(async () => {
 			loading = true;
-			await goto(localizePath(`/places?${buildParams(1).toString()}`, locale), { invalidateAll: true, keepFocus: true });
+			await goto(localizePath(`/places?${buildParams(1).toString()}`, locale), {
+				invalidateAll: true,
+				keepFocus: true
+			});
 			loading = false;
 		}, 300);
 	}
@@ -77,25 +97,43 @@
 				<th class="hidden md:table-cell">{t(locale, 'places.type')}</th>
 			</tr>
 			<tr class="bg-surface-low">
-				<th class="p-1 hidden md:table-cell">
-					<input type="text" class="filter-input" placeholder={t(locale, 'places.number')} bind:value={filterNumber} oninput={search} />
+				<th class="hidden p-1 md:table-cell">
+					<input
+						type="text"
+						class="filter-input"
+						placeholder={t(locale, 'places.number')}
+						bind:value={filterNumber}
+						oninput={search}
+					/>
 				</th>
 				<th class="p-1">
-					<input type="text" class="filter-input" placeholder={t(locale, 'places.name')} bind:value={filterName} oninput={search} />
+					<input
+						type="text"
+						class="filter-input"
+						placeholder={t(locale, 'places.name')}
+						bind:value={filterName}
+						oninput={search}
+					/>
 				</th>
-				<th class="p-1 hidden md:table-cell">
-					<input type="text" class="filter-input" placeholder={t(locale, 'places.location')} bind:value={filterLocation} oninput={search} />
+				<th class="hidden p-1 md:table-cell">
+					<input
+						type="text"
+						class="filter-input"
+						placeholder={t(locale, 'places.location')}
+						bind:value={filterLocation}
+						oninput={search}
+					/>
 				</th>
 				<th class="p-1">
 					<select class="filter-input" bind:value={filterYear} onchange={search}>
-						{#each YEARS as y}
+						{#each YEARS as y (y)}
 							<option value={y}>{y || t(locale, 'common.all')}</option>
 						{/each}
 					</select>
 				</th>
-				<th class="p-1 hidden md:table-cell">
+				<th class="hidden p-1 md:table-cell">
 					<select class="filter-input" bind:value={filterType} onchange={search}>
-						{#each PLACE_TYPES as opt}
+						{#each PLACE_TYPES as opt (opt.value)}
 							<option value={opt.value}>{t(locale, opt.labelKey)}</option>
 						{/each}
 					</select>
@@ -104,22 +142,31 @@
 		</thead>
 		<tbody>
 			{#if loading}
-				<tr><td colspan="5" class="text-center py-8"><div class="spinner mx-auto"></div></td></tr>
+				<tr><td colspan="5" class="py-8 text-center"><div class="spinner mx-auto"></div></td></tr>
 			{:else if data.places.length === 0}
-				<tr><td colspan="5" class="text-center py-8 text-muted-foreground">{t(locale, 'places.noResultsFound')}</td></tr>
+				<tr
+					><td colspan="5" class="py-8 text-center text-muted-foreground"
+						>{t(locale, 'places.noResultsFound')}</td
+					></tr
+				>
 			{:else}
-				{#each data.places as p}
-					<tr class="cursor-pointer" onclick={() => goto(localizePath(`/rankings/${p.id}`, locale))}>
+				{#each data.places as p (p.id)}
+					<tr
+						class="cursor-pointer"
+						onclick={() => goto(localizePath(`/rankings/${p.id}`, locale))}
+					>
 						<td class="hidden md:table-cell">{p.number}</td>
 						<td class="font-medium">
 							<a href="/rankings/{p.id}" class="hover:underline">
 								{p.name}
 							</a>
-							<span class="block text-xs text-muted-foreground md:hidden">{p.expand?.placeType?.type ?? ''}</span>
+							<span class="block text-xs text-muted-foreground md:hidden"
+								>{p.expand?.placeType?.type ?? ''}</span
+							>
 						</td>
 						<td class="hidden md:table-cell">{p.location ?? '-'}</td>
 						<td class="whitespace-nowrap">{formatDate(p.year, locale)}</td>
-						<td class="hidden md:table-cell text-xs">{p.expand?.placeType?.type ?? '-'}</td>
+						<td class="hidden text-xs md:table-cell">{p.expand?.placeType?.type ?? '-'}</td>
 					</tr>
 				{/each}
 			{/if}

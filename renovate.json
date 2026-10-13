@@ -1,0 +1,37 @@
+{
+	"$schema": "https://docs.renovatebot.com/renovate-schema.json",
+	"extends": ["config:recommended", "helpers:pinGitHubActionDigests", "docker:pinDigests"],
+	"timezone": "Europe/Zurich",
+	"schedule": ["before 6am on monday"],
+	"minimumReleaseAge": "7 days",
+	"packageRules": [
+		{
+			"matchManagers": ["bun", "npm"],
+			"groupName": "dependencies"
+		},
+		{
+			"matchManagers": ["github-actions"],
+			"groupName": "github actions"
+		},
+		{
+			"matchManagers": ["dockerfile", "docker-compose"],
+			"groupName": "images"
+		},
+		{
+			"description": "Small updates merge themselves once CI is green",
+			"matchUpdateTypes": ["patch", "digest", "pinDigest"],
+			"automerge": true
+		}
+	],
+	"customManagers": [
+		{
+			"description": "PocketBase in the image; the local binary must match it (.claude/rules/release-deployment.md)",
+			"customType": "regex",
+			"managerFilePatterns": ["/^docker/pocketbase/Dockerfile$/"],
+			"matchStrings": ["ARG PB_VERSION=(?<currentValue>\\d+\\.\\d+\\.\\d+)"],
+			"depNameTemplate": "pocketbase/pocketbase",
+			"datasourceTemplate": "github-releases",
+			"extractVersionTemplate": "^v(?<version>.*)$"
+		}
+	]
+}

@@ -3,6 +3,10 @@ export interface MapFeature {
 	[key: string]: unknown;
 }
 
+export interface TopologyFeatureReader {
+	feature(topology: unknown, object: unknown): { features: MapFeature[] };
+}
+
 export interface MergedMapFeature extends MapFeature {
 	id?: string;
 	wrestlerActive: number;
@@ -38,7 +42,14 @@ const ASSOCIATION_CANTONS: Record<string, string[]> = {
 	SWSV: ['Fribourgeoise', 'Genevoise', 'Jura', 'Neuchâteloise', 'Valaisanne', 'Vaudoise']
 };
 
-const BERN_SUB_REGIONS = ['Berner-Jura', 'Emmental', 'Mittelland', 'Oberaargau', 'Oberland', 'Seeland'];
+const BERN_SUB_REGIONS = [
+	'Berner-Jura',
+	'Emmental',
+	'Mittelland',
+	'Oberaargau',
+	'Oberland',
+	'Seeland'
+];
 
 const CANTON_NAME_ALIASES: Record<string, string[]> = {
 	'Ob- und Nidwalden': ['Obwalden', 'Nidwalden'],

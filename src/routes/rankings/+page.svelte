@@ -1,4 +1,6 @@
 <script lang="ts">
+	import type { BoutRecord, RankingRecord } from '$lib/types/pocketbase';
+	import { buildSearchParams } from '$lib/utils/search-params';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 	import { escapeFilterValue } from '$lib/utils/filter';
@@ -20,25 +22,40 @@
 	let loading = $state(false);
 
 	// Expanded rows: map of id -> bouts[]
-	let expandedBouts = $state<Record<string, any[]>>({});
+	let expandedBouts = $state<Record<string, BoutRecord[]>>({});
 	let loadingBouts = $state<Record<string, boolean>>({});
 
 	let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 
-	const YEARS = ['2015', '2016', '2017', '2018', '2019', '2020', '2021', '2022', '2023', '2024', '2025', '2026'];
+	const YEARS = [
+		'2015',
+		'2016',
+		'2017',
+		'2018',
+		'2019',
+		'2020',
+		'2021',
+		'2022',
+		'2023',
+		'2024',
+		'2025',
+		'2026'
+	];
 
 	function buildParams(pageNum: number): URLSearchParams {
-		const params = new URLSearchParams();
-		if (filterRank) params.set('rank', filterRank);
-		if (filterPoints) params.set('points', filterPoints);
-		if (filterFinal) params.set('final', 'true');
-		if (filterWreath) params.set('wreath', 'true');
-		if (filterWrestlerName) params.set('wrestlerName', filterWrestlerName);
-		if (filterWrestlerVorname) params.set('wrestlerVorname', filterWrestlerVorname);
-		if (filterPlaceName) params.set('placeName', filterPlaceName);
-		if (filterYear) params.set('year', filterYear);
-		if (pageNum > 1) params.set('page', String(pageNum));
-		return params;
+		return buildSearchParams(
+			{
+				rank: filterRank,
+				points: filterPoints,
+				final: filterFinal,
+				wreath: filterWreath,
+				wrestlerName: filterWrestlerName,
+				wrestlerVorname: filterWrestlerVorname,
+				placeName: filterPlaceName,
+				year: filterYear
+			},
+			pageNum
+		);
 	}
 
 	function search() {
@@ -57,28 +74,31 @@
 		goto(localizePath(`/rankings?${buildParams(p).toString()}`, locale), { invalidateAll: true });
 	}
 
-	async function toggleExpand(row: any) {
+	async function toggleExpand(row: RankingRecord) {
 		const key = row.id;
 		if (expandedBouts[key] !== undefined) {
-			const { [key]: _, ...rest } = expandedBouts;
+			const rest = { ...expandedBouts };
+			delete rest[key];
 			expandedBouts = rest;
 			return;
 		}
 		loadingBouts = { ...loadingBouts, [key]: true };
 		const pb = getClientPb();
 		try {
-			const d = await pb.collection('bouts').getList(1, 10, {
-				filter: `wrestler.id = '${escapeFilterValue(row.expand.wrestler.id)}' && place.id = '${escapeFilterValue(row.expand.place.id)}'`,
+			const d = await pb.collection('bouts').getList<BoutRecord>(1, 10, {
+				filter: `wrestler.id = '${escapeFilterValue(row.expand?.wrestler?.id ?? '')}' && place.id = '${escapeFilterValue(row.expand?.place?.id ?? '')}'`,
 				expand: 'opponent',
 				sort: 'fight_round,-created',
-				fields: 'id,result,points,fight_round,expand.opponent.id,expand.opponent.name,expand.opponent.vorname'
+				fields:
+					'id,result,points,fight_round,expand.opponent.id,expand.opponent.name,expand.opponent.vorname'
 			});
 			expandedBouts = { ...expandedBouts, [key]: d.items };
 		} catch (e) {
 			console.error(e);
 			expandedBouts = { ...expandedBouts, [key]: [] };
 		} finally {
-			const { [key]: _, ...rest } = loadingBouts;
+			const rest = { ...loadingBouts };
+			delete rest[key];
 			loadingBouts = rest;
 		}
 	}
@@ -114,32 +134,62 @@
 			<tr class="bg-surface-low">
 				<th class="p-1"></th>
 				<th class="p-1">
-					<input type="text" class="filter-input" placeholder={t(locale, 'rankings.filterRank')} bind:value={filterRank} oninput={search} />
+					<input
+						type="text"
+						class="filter-input"
+						placeholder={t(locale, 'rankings.filterRank')}
+						bind:value={filterRank}
+						oninput={search}
+					/>
 				</th>
-				<th class="p-1 hidden md:table-cell">
-					<input type="text" class="filter-input" placeholder={t(locale, 'rankings.filterPoints')} bind:value={filterPoints} oninput={search} />
+				<th class="hidden p-1 md:table-cell">
+					<input
+						type="text"
+						class="filter-input"
+						placeholder={t(locale, 'rankings.filterPoints')}
+						bind:value={filterPoints}
+						oninput={search}
+					/>
 				</th>
-				<th class="p-1 hidden md:table-cell">
+				<th class="hidden p-1 md:table-cell">
 					<input type="checkbox" bind:checked={filterFinal} onchange={search} />
 				</th>
-				<th class="p-1 hidden md:table-cell"></th>
-				<th class="p-1 hidden md:table-cell">
+				<th class="hidden p-1 md:table-cell"></th>
+				<th class="hidden p-1 md:table-cell">
 					<input type="checkbox" bind:checked={filterWreath} onchange={search} />
 				</th>
-				<th class="p-1 hidden md:table-cell"></th>
+				<th class="hidden p-1 md:table-cell"></th>
 				<th class="p-1">
-					<input type="text" class="filter-input" placeholder={t(locale, 'rankings.filterWrestlerName')} bind:value={filterWrestlerName} oninput={search} />
+					<input
+						type="text"
+						class="filter-input"
+						placeholder={t(locale, 'rankings.filterWrestlerName')}
+						bind:value={filterWrestlerName}
+						oninput={search}
+					/>
 				</th>
-				<th class="p-1 hidden md:table-cell">
-					<input type="text" class="filter-input" placeholder={t(locale, 'rankings.filterWrestlerVorname')} bind:value={filterWrestlerVorname} oninput={search} />
+				<th class="hidden p-1 md:table-cell">
+					<input
+						type="text"
+						class="filter-input"
+						placeholder={t(locale, 'rankings.filterWrestlerVorname')}
+						bind:value={filterWrestlerVorname}
+						oninput={search}
+					/>
 				</th>
 				<th class="p-1">
-					<input type="text" class="filter-input" placeholder={t(locale, 'rankings.filterPlaceName')} bind:value={filterPlaceName} oninput={search} />
+					<input
+						type="text"
+						class="filter-input"
+						placeholder={t(locale, 'rankings.filterPlaceName')}
+						bind:value={filterPlaceName}
+						oninput={search}
+					/>
 				</th>
-				<th class="p-1 hidden md:table-cell">
+				<th class="hidden p-1 md:table-cell">
 					<select class="filter-input" bind:value={filterYear} onchange={search}>
 						<option value="">{t(locale, 'common.all')}</option>
-						{#each YEARS as y}
+						{#each YEARS as y (y)}
 							<option value={y}>{y}</option>
 						{/each}
 					</select>
@@ -148,14 +198,20 @@
 		</thead>
 		<tbody>
 			{#if loading}
-				<tr><td colspan="11" class="text-center py-8"><div class="spinner mx-auto"></div></td></tr>
+				<tr><td colspan="11" class="py-8 text-center"><div class="spinner mx-auto"></div></td></tr>
 			{:else if data.rankings.length === 0}
-				<tr><td colspan="11" class="text-center py-8 text-muted-foreground">{t(locale, 'rankings.noResultsFound')}</td></tr>
+				<tr
+					><td colspan="11" class="py-8 text-center text-muted-foreground"
+						>{t(locale, 'rankings.noResultsFound')}</td
+					></tr
+				>
 			{:else}
-				{#each data.rankings as r}
+				{#each data.rankings as r (r.id)}
 					<tr class="cursor-pointer" onclick={() => toggleExpand(r)}>
 						<td class="text-center text-outline">
-							{expandedBouts[r.id] !== undefined ? t(locale, 'rankings.toggleHide') : t(locale, 'rankings.toggleShow')}
+							{expandedBouts[r.id] !== undefined
+								? t(locale, 'rankings.toggleHide')
+								: t(locale, 'rankings.toggleShow')}
 						</td>
 						<td>
 							{r.rank}{r.rank2}
@@ -163,9 +219,9 @@
 						</td>
 						<td class="hidden md:table-cell">{r.points}</td>
 						<td class="hidden md:table-cell">{r.final ? '🏁' : ''}</td>
-						<td class="hidden md:table-cell font-mono text-xs">{r.result}</td>
+						<td class="hidden font-mono text-xs md:table-cell">{r.result}</td>
 						<td class="hidden md:table-cell">{r.wreath ? '🏆' : ''}</td>
-						<td class="hidden md:table-cell text-xs">{r.status ?? ''}</td>
+						<td class="hidden text-xs md:table-cell">{r.status ?? ''}</td>
 						<td>
 							<a
 								href="/wrestler/{r.expand?.wrestler?.id}"
@@ -174,7 +230,9 @@
 							>
 								{r.expand?.wrestler?.name ?? '-'}
 							</a>
-							<span class="block text-xs text-muted-foreground md:hidden">{r.expand?.wrestler?.vorname ?? ''}</span>
+							<span class="block text-xs text-muted-foreground md:hidden"
+								>{r.expand?.wrestler?.vorname ?? ''}</span
+							>
 						</td>
 						<td class="hidden md:table-cell">{r.expand?.wrestler?.vorname ?? '-'}</td>
 						<td>
@@ -197,11 +255,11 @@
 						</tr>
 					{:else if expandedBouts[r.id] !== undefined}
 						<tr>
-							<td colspan="11" class="p-2 bg-surface-low">
+							<td colspan="11" class="bg-surface-low p-2">
 								{#if expandedBouts[r.id].length === 0}
 									<p class="text-sm text-muted-foreground">{t(locale, 'rankings.noBouts')}</p>
 								{:else}
-									<table class="w-full text-xs border border-border">
+									<table class="w-full border border-border text-xs">
 										<thead>
 											<tr class="bg-surface-container">
 												<th class="px-2 py-1 text-left">{t(locale, 'rankings.gang')}</th>
@@ -211,14 +269,15 @@
 											</tr>
 										</thead>
 										<tbody>
-											{#each expandedBouts[r.id] as b}
+											{#each expandedBouts[r.id] as b (b.id)}
 												<tr class="border-t border-outline-variant/20">
 													<td class="px-2 py-1">{b.fight_round}</td>
 													<td class="px-2 py-1 font-mono">{b.result}</td>
 													<td class="px-2 py-1">{b.points}</td>
 													<td class="px-2 py-1">
 														<a href="/wrestler/{b.expand?.opponent?.id}" class="underline">
-															{b.expand?.opponent?.name} {b.expand?.opponent?.vorname}
+															{b.expand?.opponent?.name}
+															{b.expand?.opponent?.vorname}
 														</a>
 													</td>
 												</tr>

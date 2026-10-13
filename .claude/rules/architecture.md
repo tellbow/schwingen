@@ -34,10 +34,11 @@ pb.collection("rankings").getList(1, 15, { expand: "wrestler,place" });
 
 ## Observability
 
-- `src/lib/metrics.ts` — Prometheus metrics (HTTP request counters + duration histograms)
-- `src/lib/tracing.ts` — OpenTelemetry NodeSDK with OTLP HTTP exporter
-- Both wired in `src/hooks.server.ts` — do not modify the instrumentation setup
-- Metrics available at `/metrics`, health check at `/health`
+- SvelteKit's own OpenTelemetry spans (`kit.experimental.tracing` in `svelte.config.js`): handle, load, resolve
+- `src/instrumentation.server.ts` loads before the app: traces by OTLP when `OTEL_EXPORTER_OTLP_ENDPOINT` is set, Prometheus metrics on `METRICS_PORT` (9464 in the cluster, not routed by the ingress); `OTEL_SDK_DISABLED=true` turns both off
+- `src/hooks.server.ts` records `http.server.request.duration` per route id
+- The OpenTelemetry packages stay in `dependencies`: svelte-adapter-bun bundles devDependencies for the browser platform, which picks the OTLP exporter's fetch transport
+- Health check at `/health`
 
 ## Routing
 
@@ -49,5 +50,5 @@ pb.collection("rankings").getList(1, 15, { expand: "wrestler,place" });
 
 - Never start or restart dev processes — assume they are already running
 - Never hardcode `localhost:8090` outside of `src/lib/pb.ts`
-- Never read environment variables outside of `src/lib/pb.ts` or `src/hooks.server.ts`
+- Never read environment variables outside of `src/lib/pb.ts`, `src/hooks.server.ts` or `src/instrumentation.server.ts`
 - Never use Svelte context (`getContext`/`setContext`) for app-level state — use module `$state`

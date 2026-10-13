@@ -10,7 +10,11 @@ const config = {
 			precompress: false
 		}),
 		alias: {
-			'$lib': './src/lib'
+			$lib: './src/lib'
+		},
+		experimental: {
+			tracing: { server: true },
+			instrumentation: { server: true }
 		}
 	}
 };

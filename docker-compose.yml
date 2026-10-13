@@ -9,9 +9,9 @@ services:
     environment:
       PB_ENCRYPTION_KEY: ${PB_ENCRYPTION_KEY}
     ports:
-      - "8090:8090"
+      - '8090:8090'
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost:8090/api/health"]
+      test: ['CMD', 'wget', '-qO-', 'http://localhost:8090/api/health']
       interval: 10s
       timeout: 5s
       retries: 5
@@ -26,9 +26,9 @@ services:
       pocketbase:
         condition: service_healthy
     environment:
-      PB_URL: "http://pocketbase:8090"
-      PORT: "3000"
-      HOST: "0.0.0.0"
+      PB_URL: 'http://pocketbase:8090'
+      PORT: '3000'
+      HOST: '0.0.0.0'
       ORIGIN: ${ORIGIN:-http://localhost:3000}
     ports:
-      - "3000:3000"
+      - '3000:3000'

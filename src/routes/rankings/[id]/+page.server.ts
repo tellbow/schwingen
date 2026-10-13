@@ -4,6 +4,7 @@ import { validateRouteParam } from '$lib/utils/filter';
 import { groupBoutsByWrestler } from '$lib/utils/rankings';
 import { yearOnly } from '$lib/utils/format';
 import { error } from '@sveltejs/kit';
+import type { BoutRecord, PlaceRecord, RankingRecord } from '$lib/types/pocketbase';
 
 export const load: PageServerLoad = async ({ params }) => {
 	let placeId: string;
@@ -15,18 +16,18 @@ export const load: PageServerLoad = async ({ params }) => {
 
 	const pb = createServerPb();
 
-	let place: any;
-	let rankingsResult: { items: any[] };
-	let bouts: any[];
+	let place: PlaceRecord;
+	let rankingsResult: { items: RankingRecord[] };
+	let bouts: BoutRecord[];
 	try {
 		[place, rankingsResult, bouts] = await Promise.all([
-			pb.collection('places').getOne(placeId, {
+			pb.collection('places').getOne<PlaceRecord>(placeId, {
 				expand: 'placeType',
 				fields: 'id,name,location,year,number,expand.placeType.type'
 			}),
 			pb
 				.collection('rankings')
-				.getList(1, 500, {
+				.getList<RankingRecord>(1, 500, {
 					filter: `place = "${placeId}"`,
 					expand: 'wrestler,wrestler.status',
 					sort: '-created',
@@ -41,7 +42,7 @@ export const load: PageServerLoad = async ({ params }) => {
 				}),
 			pb
 				.collection('bouts')
-				.getFullList(1000, {
+				.getFullList<BoutRecord>(1000, {
 					filter: `place = "${placeId}"`,
 					expand: 'opponent,opponent.status',
 					sort: 'wrestler.name,fight_round,-created',
@@ -61,18 +62,19 @@ export const load: PageServerLoad = async ({ params }) => {
 
 	place.year = yearOnly(place.year);
 
-	let rankings = rankingsResult.items.sort((a: any, b: any) => {
+	const rankings = rankingsResult.items.sort((a, b) => {
 		const na = parseInt(a.rank) || 0;
 		const nb = parseInt(b.rank) || 0;
 		if (na !== nb) return na - nb;
 		return (a.rank2 || '').localeCompare(b.rank2 || '');
 	});
 
-	const boutsByWrestler = groupBoutsByWrestler(bouts as any[]);
-	rankings = rankings.map((r) => ({
-		...r,
-		bouts: boutsByWrestler.get(r.expand?.wrestler?.id) ?? []
-	}));
-
-	return { place, rankings };
+	const boutsByWrestler = groupBoutsByWrestler(bouts);
+	return {
+		place,
+		rankings: rankings.map((r) => ({
+			...r,
+			bouts: (r.expand?.wrestler && boutsByWrestler.get(r.expand.wrestler.id)) || []
+		}))
+	};
 };

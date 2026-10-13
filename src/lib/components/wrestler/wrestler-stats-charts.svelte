@@ -1,15 +1,25 @@
 <script lang="ts">
+	import type { RankingRecord, WithExpand } from '$lib/types/pocketbase';
 	import { onDestroy } from 'svelte';
 	import type { Chart } from 'chart.js';
 	import { getDark } from '$lib/dark-mode.svelte';
 	import { t, type Locale } from '$lib/i18n/index.svelte';
-	import { computeBoutCounts, computeAverageRank, computeAveragePoints, computeWinRate } from '$lib/utils/wrestler-stats';
+	import {
+		computeBoutCounts,
+		computeAverageRank,
+		computeAveragePoints,
+		computeWinRate
+	} from '$lib/utils/wrestler-stats';
 
 	let {
 		rankingsData,
 		selectedYear,
 		locale
-	}: { rankingsData: any[]; selectedYear: string | number; locale: Locale } = $props();
+	}: {
+		rankingsData: WithExpand<RankingRecord, 'place'>[];
+		selectedYear: string | number;
+		locale: Locale;
+	} = $props();
 
 	let ChartJS: typeof Chart;
 	let pieCanvas = $state<HTMLCanvasElement | null>(null);
@@ -78,7 +88,7 @@
 		});
 
 		const grouped: Record<string, { win: number; draw: number; loss: number; total: number }> = {};
-		rankingsData.forEach(({ result, expand }: any) => {
+		rankingsData.forEach(({ result, expand }) => {
 			const key =
 				selectedYear === 'Alle'
 					? expand.place.year
@@ -109,7 +119,9 @@
 				datasets: [
 					{
 						label: `${t(locale, 'wrestler.win')} %`,
-						data: labels.map((k) => (grouped[k].total ? (grouped[k].win / grouped[k].total) * 100 : 0)),
+						data: labels.map((k) =>
+							grouped[k].total ? (grouped[k].win / grouped[k].total) * 100 : 0
+						),
 						backgroundColor: cWin
 					},
 					{
@@ -121,7 +133,9 @@
 					},
 					{
 						label: `${t(locale, 'wrestler.loss')} %`,
-						data: labels.map((k) => (grouped[k].total ? (grouped[k].loss / grouped[k].total) * 100 : 0)),
+						data: labels.map((k) =>
+							grouped[k].total ? (grouped[k].loss / grouped[k].total) * 100 : 0
+						),
 						backgroundColor: cLoss
 					}
 				]
@@ -131,9 +145,9 @@
 	}
 
 	$effect(() => {
-		rankingsData;
-		selectedYear;
-		locale;
+		void rankingsData;
+		void selectedYear;
+		void locale;
 		getDark();
 		ensureChartJS().then(draw);
 	});
@@ -145,10 +159,10 @@
 </script>
 
 {#if rankingsData.length > 0}
-	<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+	<div class="mb-4 grid grid-cols-1 gap-4 md:grid-cols-2">
 		<div class="card flex flex-col">
 			<h3 class="card-title">{t(locale, 'wrestler.overallStats')}</h3>
-			<div class="flex flex-wrap items-start justify-between gap-x-4 gap-y-2 mb-2">
+			<div class="mb-2 flex flex-wrap items-start justify-between gap-x-4 gap-y-2">
 				<div class="flex flex-wrap gap-2">
 					<span class="chip-win">✓ {boutCounts.win} {t(locale, 'wrestler.win')}</span>
 					<span class="chip-draw">— {boutCounts.draw} {t(locale, 'wrestler.draw')}</span>
@@ -165,8 +179,8 @@
 					</div>
 				</div>
 			</div>
-			<p class="text-xs text-outline mb-3">{winRate}% {t(locale, 'wrestler.winRateSuffix')}</p>
-			<div class="flex-1 flex items-center justify-center min-h-[200px]">
+			<p class="mb-3 text-xs text-outline">{winRate}% {t(locale, 'wrestler.winRateSuffix')}</p>
+			<div class="flex min-h-[200px] flex-1 items-center justify-center">
 				<div class="w-full max-w-[280px]">
 					<canvas bind:this={pieCanvas}></canvas>
 				</div>
@@ -174,7 +188,7 @@
 		</div>
 		<div class="card flex flex-col">
 			<h3 class="card-title">{t(locale, 'wrestler.winLossChartTitle')}</h3>
-			<div class="flex-1 min-h-[220px]">
+			<div class="min-h-[220px] flex-1">
 				<canvas bind:this={lineCanvas}></canvas>
 			</div>
 		</div>

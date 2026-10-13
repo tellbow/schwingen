@@ -3,6 +3,7 @@ import { createServerPb } from '$lib/pb';
 import { buildSafeFilter, validateRouteParam, WRESTLER_STATUS_FILTERS } from '$lib/utils/filter';
 import { yearOnly } from '$lib/utils/format';
 import { error } from '@sveltejs/kit';
+import type { ClubStatsRecord, WrestlerRecord } from '$lib/types/pocketbase';
 
 export const load: PageServerLoad = async ({ params, url }) => {
 	let clubId: string;
@@ -26,10 +27,14 @@ export const load: PageServerLoad = async ({ params, url }) => {
 
 	try {
 		const [club, wrestlers] = await Promise.all([
-			pb.collection('wrestlersByClub').getFirstListItem(`id = "${clubId}"`, {
-				fields: 'id,name,canton,wrestlerAmount,wrestlerActive,wrestler1Star,wrestler2Star,wrestler3Star'
-			}).catch(() => null),
-			pb.collection('wrestler').getList(page, perPage, {
+			pb
+				.collection('wrestlersByClub')
+				.getFirstListItem<ClubStatsRecord>(`id = "${clubId}"`, {
+					fields:
+						'id,name,canton,wrestlerAmount,wrestlerActive,wrestler1Star,wrestler2Star,wrestler3Star'
+				})
+				.catch(() => null),
+			pb.collection('wrestler').getList<WrestlerRecord>(page, perPage, {
 				filter,
 				expand: 'status',
 				sort: '-status.symbol,name,-created',
@@ -39,7 +44,7 @@ export const load: PageServerLoad = async ({ params, url }) => {
 
 		return {
 			club,
-			wrestlers: wrestlers.items.map((item: any) => ({
+			wrestlers: wrestlers.items.map((item) => ({
 				...item,
 				year: yearOnly(item.year)
 			})),

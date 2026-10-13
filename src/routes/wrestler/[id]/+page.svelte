@@ -1,4 +1,11 @@
 <script lang="ts">
+	import type {
+		BoutRecord,
+		EloRecord,
+		RankingRecord,
+		WithExpand,
+		WrestlerRecord
+	} from '$lib/types/pocketbase';
 	import { page } from '$app/stores';
 	import { getClientPb } from '$lib/pb';
 	import { yearOnly } from '$lib/utils/format';
@@ -12,9 +19,9 @@
 	const locale = $derived($page.data.locale as Locale);
 
 	let selectedYear = $state<string | number>('Alle');
-	let rankingsData = $state<any[]>([]);
-	let opponentsData = $state<any[]>([]);
-	let eloData = $state<any>(null);
+	let rankingsData = $state<WithExpand<RankingRecord, 'place'>[]>([]);
+	let opponentsData = $state<WrestlerRecord[]>([]);
+	let eloData = $state<{ rating: number | string } | null>(null);
 	let wreath1 = $state(0);
 	let wreath2 = $state(0);
 	let wreath3 = $state(0);
@@ -26,7 +33,7 @@
 
 	async function fetchEloForYear(pb: ReturnType<typeof getClientPb>, year: number) {
 		try {
-			const res = await pb.collection(`elo${year}`).getList(1, 1, {
+			const res = await pb.collection(`elo${year}`).getList<EloRecord>(1, 1, {
 				filter: `wrestler.id="${wrestler.id}"`,
 				skipTotal: true,
 				fields: 'id,rating'
@@ -65,18 +72,20 @@
 				: `wrestler.id = "${wrestler.id}" && place.year ~ "${selectedYear}"`;
 
 		try {
-			const d = await pb.collection('rankings').getFullList(200, {
-				filter,
-				expand: 'place,place.placeType',
-				sort: '-place.year,-created',
-				fields:
-					'id,rank,rank2,points,final,result,wreath,status,expand.place.id,expand.place.name,expand.place.year,expand.place.expand.placeType.type'
-			});
+			const d = await pb
+				.collection('rankings')
+				.getFullList<WithExpand<RankingRecord, 'place'>>(200, {
+					filter,
+					expand: 'place,place.placeType',
+					sort: '-place.year,-created',
+					fields:
+						'id,rank,rank2,points,final,result,wreath,status,expand.place.id,expand.place.name,expand.place.year,expand.place.expand.placeType.type'
+				});
 
 			wreath1 = 0;
 			wreath2 = 0;
 			wreath3 = 0;
-			d.forEach((item: any) => {
+			d.forEach((item) => {
 				if (item.wreath) {
 					const t = item.expand?.place?.expand?.placeType?.type;
 					if (t === 'Gauverband' || t === 'Kantonal') wreath1++;
@@ -106,18 +115,16 @@
 				: `wrestler.id = "${wrestler.id}" && place.year ~ "${selectedYear}"`;
 
 		try {
-			const d = await pb.collection('bouts').getFullList(200, {
+			const d = await pb.collection('bouts').getFullList<WithExpand<BoutRecord, 'opponent'>>(200, {
 				filter,
 				expand: 'opponent',
 				sort: 'opponent.name,-created',
 				fields: 'id,expand.opponent.id,expand.opponent.name,expand.opponent.vorname'
 			});
-			const map = new Map<string, any>();
-			d.forEach((item: any) => {
-				const opp = item.expand.opponent;
-				if (!map.has(opp.id)) map.set(opp.id, opp);
-			});
-			opponentsData = Array.from(map.values());
+			const opponents = d.map((item) => item.expand.opponent);
+			opponentsData = opponents.filter(
+				(opp, i) => opponents.findIndex((o) => o.id === opp.id) === i
+			);
 		} catch (e) {
 			console.error(e);
 			opponentsData = [];
@@ -146,21 +153,33 @@
 
 <svelte:head>
 	<title>{wrestler.vorname} {wrestler.name} - Tellbow</title>
-	<meta name="description" content="{t(locale, 'wrestler.metaDescriptionPrefix')} {wrestler.vorname} {wrestler.name}." />
+	<meta
+		name="description"
+		content="{t(locale, 'wrestler.metaDescriptionPrefix')} {wrestler.vorname} {wrestler.name}."
+	/>
 	<meta property="og:title" content="{wrestler.vorname} {wrestler.name} - Tellbow" />
-	<meta property="og:description" content="{t(locale, 'wrestler.metaDescriptionPrefix')} {wrestler.vorname} {wrestler.name}." />
+	<meta
+		property="og:description"
+		content="{t(locale, 'wrestler.metaDescriptionPrefix')} {wrestler.vorname} {wrestler.name}."
+	/>
 </svelte:head>
 
 <!-- Hero -->
-<div class="bg-surface-low rounded-2xl px-6 py-8 md:px-10 md:py-10 mb-4">
-	<p class="text-xs font-semibold uppercase tracking-widest text-outline mb-2">{t(locale, 'wrestler.profile')}</p>
-	<h1 class="text-4xl md:text-5xl font-extrabold tracking-tight text-foreground leading-none">
-		{wrestler.vorname} {wrestler.name}
+<div class="mb-4 rounded-2xl bg-surface-low px-6 py-8 md:px-10 md:py-10">
+	<p class="mb-2 text-xs font-semibold tracking-widest text-outline uppercase">
+		{t(locale, 'wrestler.profile')}
+	</p>
+	<h1 class="text-4xl leading-none font-extrabold tracking-tight text-foreground md:text-5xl">
+		{wrestler.vorname}
+		{wrestler.name}
 	</h1>
 
-	<div class="flex flex-wrap items-center gap-x-2 gap-y-1 mt-3 text-sm text-outline">
+	<div class="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-outline">
 		{#if wrestler.expand?.club}
-			<a href="/associations/club/{wrestler.expand.club.id}" class="hover:text-foreground transition-colors">
+			<a
+				href="/associations/club/{wrestler.expand.club.id}"
+				class="transition-colors hover:text-foreground"
+			>
 				{wrestler.expand.club.name}
 			</a>
 		{/if}
@@ -174,30 +193,38 @@
 		{/if}
 		{#if wrestler.expand?.metadata?.website}
 			<span>·</span>
-			<a href={wrestler.expand.metadata.website} target="_blank" rel="noopener" class="hover:text-foreground transition-colors underline underline-offset-2">{t(locale, 'wrestler.website')}</a>
+			<a
+				href={wrestler.expand.metadata.website}
+				target="_blank"
+				rel="noopener"
+				class="underline underline-offset-2 transition-colors hover:text-foreground"
+				>{t(locale, 'wrestler.website')}</a
+			>
 		{/if}
 	</div>
 
-	<div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-6">
-		<div class="bg-surface-lowest rounded-xl p-4">
-			<p class="text-xs text-outline mb-1">{t(locale, 'wrestler.eloRating')}</p>
+	<div class="mt-6 grid grid-cols-2 gap-3 md:grid-cols-4">
+		<div class="rounded-xl bg-surface-lowest p-4">
+			<p class="mb-1 text-xs text-outline">{t(locale, 'wrestler.eloRating')}</p>
 			<p class="text-2xl font-bold tracking-tight">{eloData?.rating ?? '…'}</p>
 		</div>
-		<div class="bg-surface-lowest rounded-xl p-4">
-			<p class="text-xs text-outline mb-1">{t(locale, 'wrestler.yearOfBirth')}</p>
+		<div class="rounded-xl bg-surface-lowest p-4">
+			<p class="mb-1 text-xs text-outline">{t(locale, 'wrestler.yearOfBirth')}</p>
 			<p class="text-2xl font-bold tracking-tight">{wrestler.year}</p>
 		</div>
-		<div class="bg-surface-lowest rounded-xl p-4">
-			<p class="text-xs text-outline mb-1">{t(locale, 'wrestler.wreaths')}</p>
-			<p class="text-base font-bold tracking-tight mt-1">{wreath1}* · {wreath2}** · {wreath3}***</p>
+		<div class="rounded-xl bg-surface-lowest p-4">
+			<p class="mb-1 text-xs text-outline">{t(locale, 'wrestler.wreaths')}</p>
+			<p class="mt-1 text-base font-bold tracking-tight">{wreath1}* · {wreath2}** · {wreath3}***</p>
 		</div>
-		<div class="bg-surface-lowest rounded-xl p-4">
-			<p class="text-xs text-outline mb-1">{t(locale, 'wrestler.status')}</p>
+		<div class="rounded-xl bg-surface-lowest p-4">
+			<p class="mb-1 text-xs text-outline">{t(locale, 'wrestler.status')}</p>
 			{#if wrestler.expand?.status}
-				<p class="text-sm font-semibold mt-1">{wrestler.expand.status.status}</p>
-				<p class="text-xs text-outline">{wrestler.category ? t(locale, 'wrestler.active') : t(locale, 'wrestler.inactive')}</p>
+				<p class="mt-1 text-sm font-semibold">{wrestler.expand.status.status}</p>
+				<p class="text-xs text-outline">
+					{wrestler.category ? t(locale, 'wrestler.active') : t(locale, 'wrestler.inactive')}
+				</p>
 			{:else}
-				<p class="text-sm font-semibold mt-1">—</p>
+				<p class="mt-1 text-sm font-semibold">—</p>
 			{/if}
 		</div>
 	</div>
@@ -210,17 +237,19 @@
 
 <!-- Resultate -->
 <div class="card mb-4">
-	<div class="flex items-center justify-between mb-4 flex-wrap gap-2">
+	<div class="mb-4 flex flex-wrap items-center justify-between gap-2">
 		<h3 class="card-title mb-0">{t(locale, 'rankings.resultsTitle')}</h3>
 		<div class="flex items-center gap-2">
-			<label class="text-xs text-outline font-medium" for="year-select">{t(locale, 'wrestler.yearLabel')}</label>
+			<label class="text-xs font-medium text-outline" for="year-select"
+				>{t(locale, 'wrestler.yearLabel')}</label
+			>
 			<select
 				id="year-select"
 				class="select-input"
 				bind:value={selectedYear}
 				onchange={onYearChange}
 			>
-				{#each YEARS as y}
+				{#each YEARS as y (y)}
 					<option value={y}>{y === 'Alle' ? t(locale, 'common.all') : y}</option>
 				{/each}
 			</select>
@@ -228,9 +257,9 @@
 	</div>
 
 	{#if loadingRankings}
-		<div class="text-center py-10"><div class="spinner mx-auto"></div></div>
+		<div class="py-10 text-center"><div class="spinner mx-auto"></div></div>
 	{:else if rankingsData.length === 0}
-		<p class="text-outline text-sm py-4">{t(locale, 'wrestler.noResultsAvailable')}</p>
+		<p class="py-4 text-sm text-outline">{t(locale, 'wrestler.noResultsAvailable')}</p>
 	{:else}
 		<div class="overflow-x-auto">
 			<table class="data-table w-full">
@@ -246,25 +275,24 @@
 					</tr>
 				</thead>
 				<tbody>
-					{#each rankingsData as r}
+					{#each rankingsData as r (r.id)}
 						<tr>
 							<td class="font-medium">
-								<a
-									href="/wrestler/{wrestler.id}-{r.expand?.place?.id}"
-									class="hover:underline"
-								>
+								<a href="/wrestler/{wrestler.id}-{r.expand?.place?.id}" class="hover:underline">
 									{r.expand?.place?.name ?? '-'}
 								</a>
 							</td>
-							<td class="hidden md:table-cell text-outline">{r.expand?.place?.year ?? '-'}</td>
+							<td class="hidden text-outline md:table-cell">{r.expand?.place?.year ?? '-'}</td>
 							<td class="font-semibold">{r.rank}{r.rank2}</td>
 							<td>{r.points}</td>
 							<td class="font-mono text-xs tracking-wider">
-								{#each r.result.split('') as char}
+								{#each r.result.split('') as char, i (i)}
 									{#if char === '+'}
-										<span class="text-on-tertiary-fixed-variant dark:text-tertiary-fixed font-bold">+</span>
+										<span class="font-bold text-on-tertiary-fixed-variant dark:text-tertiary-fixed"
+											>+</span
+										>
 									{:else if char === 'o'}
-										<span class="text-on-error-container dark:text-error font-bold">o</span>
+										<span class="font-bold text-on-error-container dark:text-error">o</span>
 									{:else}
 										<span class="text-secondary-solid">-</span>
 									{/if}

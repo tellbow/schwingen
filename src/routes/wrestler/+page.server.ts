@@ -7,6 +7,7 @@ import {
 	WRESTLER_STATUS_FILTERS
 } from '$lib/utils/filter';
 import { yearOnly } from '$lib/utils/format';
+import type { WrestlerRecord } from '$lib/types/pocketbase';
 
 export const load: PageServerLoad = async ({ url }) => {
 	const pb = createServerPb();
@@ -25,7 +26,7 @@ export const load: PageServerLoad = async ({ url }) => {
 	const sort = sanitizeSort(url.searchParams.get('sort'), '-status.symbol,name,-created');
 
 	try {
-		const data = await pb.collection('wrestler').getList(page, perPage, {
+		const data = await pb.collection('wrestler').getList<WrestlerRecord>(page, perPage, {
 			expand: 'club,status',
 			filter,
 			sort,
@@ -33,7 +34,7 @@ export const load: PageServerLoad = async ({ url }) => {
 		});
 
 		return {
-			wrestlers: data.items.map((item: any) => ({
+			wrestlers: data.items.map((item) => ({
 				...item,
 				year: yearOnly(item.year)
 			})),

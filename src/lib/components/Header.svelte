@@ -27,18 +27,24 @@
 </script>
 
 <header class="bg-surface-lowest shadow-sm">
-	<div class="max-w-screen-xl mx-auto px-4">
-		<div class="flex items-center h-14">
-			<a href={localizePath('/', locale)} class="flex items-center gap-2 mr-6 flex-shrink-0">
-				<img src="/images/logos/tellbow_circle.webp" alt="Tellbow" class="h-8 w-8" width="32" height="32" />
-				<span class="font-sans font-semibold text-lg tracking-tight text-primary">Tellbow</span>
+	<div class="mx-auto max-w-screen-xl px-4">
+		<div class="flex h-14 items-center">
+			<a href={localizePath('/', locale)} class="mr-6 flex flex-shrink-0 items-center gap-2">
+				<img
+					src="/images/logos/tellbow_circle.webp"
+					alt="Tellbow"
+					class="h-8 w-8"
+					width="32"
+					height="32"
+				/>
+				<span class="font-sans text-lg font-semibold tracking-tight text-primary">Tellbow</span>
 			</a>
 
-			<nav class="hidden md:flex items-center gap-0.5 flex-1">
-				{#each navItems as item}
+			<nav class="hidden flex-1 items-center gap-0.5 md:flex">
+				{#each navItems as item (item.href)}
 					<a
 						href={localizePath(item.href, locale)}
-						class="px-3 py-1.5 rounded-lg text-sm font-medium transition-colors
+						class="rounded-lg px-3 py-1.5 text-sm font-medium transition-colors
 						{isActive(item.href)
 							? 'bg-surface-high text-foreground'
 							: 'text-outline hover:bg-surface-low hover:text-foreground'}"
@@ -48,21 +54,19 @@
 				{/each}
 			</nav>
 
-			<div class="hidden md:flex items-center gap-1 ml-2">
-				{#each LOCALES as loc}
+			<div class="ml-2 hidden items-center gap-1 md:flex">
+				{#each LOCALES as loc (loc)}
 					<a
 						href={switchLocaleHref(loc)}
 						data-sveltekit-reload
-						class="px-2 py-0.5 text-xs font-semibold rounded-md transition-colors
-						{locale === loc
-							? 'bg-primary-container text-white'
-							: 'text-outline hover:text-foreground'}"
+						class="rounded-md px-2 py-0.5 text-xs font-semibold transition-colors
+						{locale === loc ? 'bg-primary-container text-white' : 'text-outline hover:text-foreground'}"
 					>
 						{loc.toUpperCase()}
 					</a>
 				{/each}
 				<button
-					class="ml-1 p-1.5 rounded-lg text-outline hover:bg-surface-low hover:text-foreground transition-colors"
+					class="ml-1 rounded-lg p-1.5 text-outline transition-colors hover:bg-surface-low hover:text-foreground"
 					onclick={toggleDark}
 					aria-label={t(locale, 'common.toggleDarkMode')}
 				>
@@ -75,7 +79,7 @@
 			</div>
 
 			<button
-				class="md:hidden ml-auto p-2 rounded-lg text-outline hover:bg-surface-low transition-colors"
+				class="ml-auto rounded-lg p-2 text-outline transition-colors hover:bg-surface-low md:hidden"
 				onclick={() => (mobileOpen = !mobileOpen)}
 				aria-label={mobileOpen ? t(locale, 'common.closeNav') : t(locale, 'common.openNav')}
 				aria-expanded={mobileOpen}
@@ -91,32 +95,34 @@
 	</div>
 
 	{#if mobileOpen}
-		<nav id="mobile-nav" class="md:hidden bg-surface-low px-4 pb-4 pt-1" transition:slide={{ duration: 150 }}>
-			{#each navItems as item}
+		<nav
+			id="mobile-nav"
+			class="bg-surface-low px-4 pt-1 pb-4 md:hidden"
+			transition:slide={{ duration: 150 }}
+		>
+			{#each navItems as item (item.href)}
 				<a
 					href={localizePath(item.href, locale)}
 					class="block py-2.5 text-sm font-medium transition-colors
-					{isActive(item.href) ? 'text-primary font-semibold' : 'text-outline hover:text-foreground'}"
+					{isActive(item.href) ? 'font-semibold text-primary' : 'text-outline hover:text-foreground'}"
 					onclick={() => (mobileOpen = false)}
 				>
 					{t(locale, item.key)}
 				</a>
 			{/each}
 			<div class="flex items-center gap-2 pt-3">
-				{#each LOCALES as loc}
+				{#each LOCALES as loc (loc)}
 					<a
 						href={switchLocaleHref(loc)}
 						data-sveltekit-reload
-						class="px-2 py-0.5 text-xs font-semibold rounded-md transition-colors
-						{locale === loc
-							? 'bg-primary-container text-white'
-							: 'text-outline hover:text-foreground'}"
+						class="rounded-md px-2 py-0.5 text-xs font-semibold transition-colors
+						{locale === loc ? 'bg-primary-container text-white' : 'text-outline hover:text-foreground'}"
 					>
 						{loc.toUpperCase()}
 					</a>
 				{/each}
 				<button
-					class="p-1.5 rounded-lg text-outline hover:text-foreground transition-colors"
+					class="rounded-lg p-1.5 text-outline transition-colors hover:text-foreground"
 					onclick={toggleDark}
 					aria-label={t(locale, 'common.toggleDarkMode')}
 				>

@@ -59,18 +59,25 @@
 <svelte:head>
 	<link rel="canonical" href={canonicalUrl} />
 	<meta property="og:url" content={canonicalUrl} />
-	{#each alternateUrls as alt}
+	{#each alternateUrls as alt (alt.locale)}
 		<link rel="alternate" hreflang={alt.locale} href={alt.href} />
 	{/each}
-	<link rel="alternate" hreflang="x-default" href={`https://schwingen.tellbow.ch${localizePath($page.url.pathname, 'de')}`} />
+	<link
+		rel="alternate"
+		hreflang="x-default"
+		href={`https://schwingen.tellbow.ch${localizePath($page.url.pathname, 'de')}`}
+	/>
 </svelte:head>
 
-<a href="#main-content" class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary focus:text-white focus:rounded-lg focus:outline-none">
+<a
+	href="#main-content"
+	class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:rounded-lg focus:bg-primary focus:px-4 focus:py-2 focus:text-white focus:outline-none"
+>
 	{t(locale, 'common.skipToContent')}
 </a>
-<div class="min-h-screen flex flex-col bg-background">
+<div class="flex min-h-screen flex-col bg-background">
 	<Header />
-	<main id="main-content" class="flex-1 container mx-auto px-3 md:px-6 py-6 max-w-screen-xl">
+	<main id="main-content" class="container mx-auto max-w-screen-xl flex-1 px-3 py-6 md:px-6">
 		{@render children()}
 	</main>
 	<Footer />

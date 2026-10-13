@@ -1,4 +1,5 @@
 <script lang="ts">
+	import type { BoutRecord, WithExpand, WrestlerRecord } from '$lib/types/pocketbase';
 	import { getClientPb } from '$lib/pb';
 	import { escapeFilterValue } from '$lib/utils/filter';
 	import { yearOnly } from '$lib/utils/format';
@@ -9,18 +10,22 @@
 		opponentsData,
 		loadingOpponents,
 		locale
-	}: { wrestlerId: string; opponentsData: any[]; loadingOpponents: boolean; locale: Locale } =
-		$props();
+	}: {
+		wrestlerId: string;
+		opponentsData: WrestlerRecord[];
+		loadingOpponents: boolean;
+		locale: Locale;
+	} = $props();
 
 	let selectedOpponent = $state('');
-	let boutsData = $state<any[]>([]);
+	let boutsData = $state<WithExpand<BoutRecord, 'place'>[]>([]);
 	let loadingBouts = $state(false);
 
 	// This component isn't gated by an #if in the parent, so SvelteKit
 	// reuses the same instance when navigating between wrestlers — reset
 	// the previous wrestler's selection and results when that happens.
 	$effect(() => {
-		wrestlerId;
+		void wrestlerId;
 		selectedOpponent = '';
 		boutsData = [];
 	});
@@ -30,13 +35,13 @@
 		loadingBouts = true;
 		const pb = getClientPb();
 		try {
-			const d = await pb.collection('bouts').getFullList(200, {
+			const d = await pb.collection('bouts').getFullList<WithExpand<BoutRecord, 'place'>>(200, {
 				filter: `wrestler.id = "${wrestlerId}" && opponent.id = "${escapeFilterValue(selectedOpponent)}"`,
 				expand: 'place',
 				sort: '-place.year,-created',
 				fields: 'id,result,points,expand.place.id,expand.place.name,expand.place.year'
 			});
-			d.forEach((item: any) => {
+			d.forEach((item) => {
 				item.expand.place.year = yearOnly(item.expand.place.year);
 			});
 			boutsData = d;
@@ -51,10 +56,10 @@
 
 <div class="card mb-4">
 	<h3 class="card-title">{t(locale, 'wrestler.oneVsOne')}</h3>
-	<div class="flex gap-2 items-center flex-wrap">
+	<div class="flex flex-wrap items-center gap-2">
 		<select class="select-input" bind:value={selectedOpponent} disabled={loadingOpponents}>
 			<option value="">{t(locale, 'wrestler.selectOpponent')}</option>
-			{#each opponentsData as opp}
+			{#each opponentsData as opp (opp.id)}
 				<option value={opp.id}>{opp.name} {opp.vorname}</option>
 			{/each}
 		</select>
@@ -63,7 +68,7 @@
 		</button>
 	</div>
 	{#if boutsData.length > 0}
-		<div class="overflow-x-auto mt-4">
+		<div class="mt-4 overflow-x-auto">
 			<table class="data-table w-full">
 				<thead>
 					<tr>
@@ -74,26 +79,23 @@
 					</tr>
 				</thead>
 				<tbody>
-					{#each boutsData as b}
+					{#each boutsData as b (b.id)}
 						<tr>
 							<td class="font-medium">
-								<a
-									href="/wrestler/{wrestlerId}-{b.expand.place.id}"
-									class="hover:underline"
-								>
+								<a href="/wrestler/{wrestlerId}-{b.expand.place.id}" class="hover:underline">
 									{b.expand.place.name}
 								</a>
 							</td>
 							<td class="text-outline">{b.expand.place.year}</td>
 							<td>{b.points}</td>
 							<td class="font-mono text-xs tracking-wider">
-								{#each b.result.split('') as char}
+								{#each b.result.split('') as char, i (i)}
 									{#if char === '+'}
-										<span class="text-on-tertiary-fixed-variant dark:text-tertiary-fixed font-bold"
+										<span class="font-bold text-on-tertiary-fixed-variant dark:text-tertiary-fixed"
 											>+</span
 										>
 									{:else if char === 'o'}
-										<span class="text-on-error-container dark:text-error font-bold">o</span>
+										<span class="font-bold text-on-error-container dark:text-error">o</span>
 									{:else}
 										<span class="text-secondary-solid">-</span>
 									{/if}

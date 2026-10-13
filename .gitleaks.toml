@@ -1,0 +1,3 @@
+# gitleaks (CI job «supply-chain»): the default rules.
+[extend]
+useDefault = true

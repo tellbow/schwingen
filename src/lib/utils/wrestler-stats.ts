@@ -1,12 +1,18 @@
+import type { RankingRecord } from '$lib/types/pocketbase';
+
+type PointsInput = Pick<RankingRecord, 'points' | 'status'> & {
+	expand?: { place?: { expand?: { placeType?: { type?: string } } } };
+};
+
 export interface BoutCounts {
 	win: number;
 	draw: number;
 	loss: number;
 }
 
-export function computeBoutCounts(rankingsData: any[]): BoutCounts {
+export function computeBoutCounts(rankingsData: Pick<RankingRecord, 'result'>[]): BoutCounts {
 	return rankingsData.reduce(
-		(acc: BoutCounts, { result }: any) => ({
+		(acc: BoutCounts, { result }) => ({
 			win: acc.win + (result.match(/\+/g) || []).length,
 			draw: acc.draw + (result.match(/-/g) || []).length,
 			loss: acc.loss + (result.match(/o/g) || []).length
@@ -15,23 +21,23 @@ export function computeBoutCounts(rankingsData: any[]): BoutCounts {
 	);
 }
 
-export function computeAverageRank(rankingsData: any[]): string {
-	const filtered = rankingsData.filter((r: any) => r.status !== 'Unfall');
+export function computeAverageRank(rankingsData: Pick<RankingRecord, 'rank' | 'status'>[]): string {
+	const filtered = rankingsData.filter((r) => r.status !== 'Unfall');
 	if (filtered.length < 5) return '-';
 	const total = filtered.reduce(
-		(s: number, r: any) => s + (parseInt(r.rank.replace(/\D/g, '')) || 0),
+		(s: number, r) => s + (parseInt(r.rank.replace(/\D/g, '')) || 0),
 		0
 	);
 	return (total / filtered.length).toFixed(2);
 }
 
-export function computeAveragePoints(rankingsData: any[]): string {
+export function computeAveragePoints(rankingsData: PointsInput[]): string {
 	const filtered = rankingsData.filter(
-		(r: any) =>
+		(r) =>
 			r.status !== 'Unfall' && !r.expand?.place?.expand?.placeType?.type?.includes('idgenössisch')
 	);
 	if (filtered.length < 5) return '-';
-	const total = filtered.reduce((s: number, r: any) => s + (parseFloat(r.points) || 0), 0);
+	const total = filtered.reduce((s: number, r) => s + (parseFloat(r.points) || 0), 0);
 	return (total / filtered.length).toFixed(2);
 }
 

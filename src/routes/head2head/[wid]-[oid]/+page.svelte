@@ -1,4 +1,5 @@
 <script lang="ts">
+	import type { RankingRecord } from '$lib/types/pocketbase';
 	import { onDestroy } from 'svelte';
 	import { page } from '$app/stores';
 	import type { Chart } from 'chart.js';
@@ -16,16 +17,20 @@
 	let bubbleChart: Chart | null = null;
 
 	// Compute stats
-	function calcStats(rankings: any[]) {
+	function calcStats(rankings: RankingRecord[]) {
 		const filtered = rankings.filter((r) => r.status !== 'Unfall');
-		const ranks = filtered.map((r) => parseInt(r.rank?.replace(/\D/g, '') || '0') || 0).filter((v) => v > 0);
+		const ranks = filtered
+			.map((r) => parseInt(r.rank?.replace(/\D/g, '') || '0') || 0)
+			.filter((v) => v > 0);
 		const points = filtered.map((r) => parseFloat(r.points) || 0).filter((v) => v > 0);
 		const wreaths = filtered.filter((r) => r.wreath).length;
 		const finals = filtered.filter((r) => r.final).length;
 
 		return {
 			avgRank: ranks.length ? (ranks.reduce((a, b) => a + b, 0) / ranks.length).toFixed(2) : '-',
-			avgPoints: points.length ? (points.reduce((a, b) => a + b, 0) / points.length).toFixed(2) : '-',
+			avgPoints: points.length
+				? (points.reduce((a, b) => a + b, 0) / points.length).toFixed(2)
+				: '-',
 			wreaths,
 			finals,
 			events: filtered.length
@@ -39,8 +44,15 @@
 
 	async function ensureChartJS() {
 		if (ChartJS) return;
-		const { Chart: ChartJSImport, BubbleController, PointElement, LinearScale, Legend, Tooltip, Title } =
-			await import('chart.js');
+		const {
+			Chart: ChartJSImport,
+			BubbleController,
+			PointElement,
+			LinearScale,
+			Legend,
+			Tooltip,
+			Title
+		} = await import('chart.js');
 		ChartJS = ChartJSImport;
 		ChartJS.register(BubbleController, PointElement, LinearScale, Legend, Tooltip, Title);
 	}
@@ -48,16 +60,20 @@
 	function drawBubbleChart() {
 		if (!bubbleCanvas || !rankingsW.length || !rankingsO.length) return;
 
-		const wPoints = rankingsW.filter((r) => r.status !== 'Unfall').map((r) => ({
-			x: parseFloat(r.points) || 0,
-			y: parseInt(r.rank?.replace(/\D/g, '') || '0') || 0,
-			r: 5
-		}));
-		const oPoints = rankingsO.filter((r) => r.status !== 'Unfall').map((r) => ({
-			x: parseFloat(r.points) || 0,
-			y: parseInt(r.rank?.replace(/\D/g, '') || '0') || 0,
-			r: 5
-		}));
+		const wPoints = rankingsW
+			.filter((r) => r.status !== 'Unfall')
+			.map((r) => ({
+				x: parseFloat(r.points) || 0,
+				y: parseInt(r.rank?.replace(/\D/g, '') || '0') || 0,
+				r: 5
+			}));
+		const oPoints = rankingsO
+			.filter((r) => r.status !== 'Unfall')
+			.map((r) => ({
+				x: parseFloat(r.points) || 0,
+				y: parseInt(r.rank?.replace(/\D/g, '') || '0') || 0,
+				r: 5
+			}));
 
 		bubbleChart?.destroy();
 		bubbleChart = new ChartJS(bubbleCanvas, {
@@ -90,9 +106,9 @@
 	// head2head comparisons (same route, different wid-oid), so onMount
 	// alone would only ever draw the chart for the first pair viewed.
 	$effect(() => {
-		rankingsW;
-		rankingsO;
-		locale;
+		void rankingsW;
+		void rankingsO;
+		void locale;
 		ensureChartJS().then(drawBubbleChart);
 	});
 
@@ -102,24 +118,52 @@
 </script>
 
 <svelte:head>
-	<title>{wrestler.vorname} {wrestler.name} {t(locale, 'head2head.vs')} {opponent.vorname} {opponent.name} - Tellbow</title>
-	<meta name="description" content="{t(locale, 'head2head.metaDescriptionPrefix')} {wrestler.vorname} {wrestler.name} {t(locale, 'head2head.and')} {opponent.vorname} {opponent.name}." />
-	<meta property="og:title" content="{wrestler.vorname} {wrestler.name} {t(locale, 'head2head.vs')} {opponent.vorname} {opponent.name} - Tellbow" />
-	<meta property="og:description" content="{t(locale, 'head2head.metaDescriptionPrefix')} {wrestler.vorname} {wrestler.name} {t(locale, 'head2head.and')} {opponent.vorname} {opponent.name}." />
+	<title
+		>{wrestler.vorname}
+		{wrestler.name}
+		{t(locale, 'head2head.vs')}
+		{opponent.vorname}
+		{opponent.name} - Tellbow</title
+	>
+	<meta
+		name="description"
+		content="{t(locale, 'head2head.metaDescriptionPrefix')} {wrestler.vorname} {wrestler.name} {t(
+			locale,
+			'head2head.and'
+		)} {opponent.vorname} {opponent.name}."
+	/>
+	<meta
+		property="og:title"
+		content="{wrestler.vorname} {wrestler.name} {t(
+			locale,
+			'head2head.vs'
+		)} {opponent.vorname} {opponent.name} - Tellbow"
+	/>
+	<meta
+		property="og:description"
+		content="{t(locale, 'head2head.metaDescriptionPrefix')} {wrestler.vorname} {wrestler.name} {t(
+			locale,
+			'head2head.and'
+		)} {opponent.vorname} {opponent.name}."
+	/>
 </svelte:head>
 
-<div class="max-w-4xl mx-auto space-y-4">
+<div class="mx-auto max-w-4xl space-y-4">
 	<h1 class="text-xl font-bold">
-		<a href="/wrestler/{wrestler.id}" class="underline hover:text-primary">{wrestler.vorname} {wrestler.name}</a>
+		<a href="/wrestler/{wrestler.id}" class="underline hover:text-primary"
+			>{wrestler.vorname} {wrestler.name}</a
+		>
 		{t(locale, 'head2head.vs')}
-		<a href="/wrestler/{opponent.id}" class="underline hover:text-primary">{opponent.vorname} {opponent.name}</a>
+		<a href="/wrestler/{opponent.id}" class="underline hover:text-primary"
+			>{opponent.vorname} {opponent.name}</a
+		>
 	</h1>
 
 	<!-- Stats Comparison -->
 	<div class="grid grid-cols-2 gap-4">
 		<div class="card">
-			<h2 class="font-semibold text-sm mb-2">{wrestler.name} {wrestler.vorname}</h2>
-			<div class="text-sm space-y-1">
+			<h2 class="mb-2 text-sm font-semibold">{wrestler.name} {wrestler.vorname}</h2>
+			<div class="space-y-1 text-sm">
 				<p>{t(locale, 'wrestler.avgRank')}: <strong>{statsW.avgRank}</strong></p>
 				<p>{t(locale, 'wrestler.avgPoints')}: <strong>{statsW.avgPoints}</strong></p>
 				<p>{t(locale, 'rankings.wreath')}: <strong>{statsW.wreaths}</strong></p>
@@ -128,8 +172,8 @@
 			</div>
 		</div>
 		<div class="card">
-			<h2 class="font-semibold text-sm mb-2">{opponent.name} {opponent.vorname}</h2>
-			<div class="text-sm space-y-1">
+			<h2 class="mb-2 text-sm font-semibold">{opponent.name} {opponent.vorname}</h2>
+			<div class="space-y-1 text-sm">
 				<p>{t(locale, 'wrestler.avgRank')}: <strong>{statsO.avgRank}</strong></p>
 				<p>{t(locale, 'wrestler.avgPoints')}: <strong>{statsO.avgPoints}</strong></p>
 				<p>{t(locale, 'rankings.wreath')}: <strong>{statsO.wreaths}</strong></p>
@@ -151,7 +195,7 @@
 	<div class="card">
 		<h2 class="card-title">{t(locale, 'head2head.commonBoutsTitle')} ({commonBouts.length})</h2>
 		{#if commonBouts.length === 0}
-			<p class="text-muted-foreground text-sm">{t(locale, 'head2head.noCommonBouts')}</p>
+			<p class="text-sm text-muted-foreground">{t(locale, 'head2head.noCommonBouts')}</p>
 		{:else}
 			<div class="overflow-x-auto">
 				<table class="data-table w-full text-sm">
@@ -164,7 +208,7 @@
 						</tr>
 					</thead>
 					<tbody>
-						{#each commonBouts as b}
+						{#each commonBouts as b (b.id)}
 							<tr>
 								<td>
 									<a href="/rankings/{b.expand?.place?.id}" class="hover:underline">

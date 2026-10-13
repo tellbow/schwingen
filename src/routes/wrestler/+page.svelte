@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { buildSearchParams } from '$lib/utils/search-params';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 	import { WRESTLER_STATUS_OPTIONS } from '$lib/utils/filter';
@@ -19,14 +20,16 @@
 	let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 
 	function buildParams(pageNum: number): URLSearchParams {
-		const params = new URLSearchParams();
-		if (filterName) params.set('name', filterName);
-		if (filterVorname) params.set('vorname', filterVorname);
-		if (filterYear) params.set('year', filterYear);
-		if (filterClub) params.set('club', filterClub);
-		if (filterStatus) params.set('status', filterStatus);
-		if (pageNum > 1) params.set('page', String(pageNum));
-		return params;
+		return buildSearchParams(
+			{
+				name: filterName,
+				vorname: filterVorname,
+				year: filterYear,
+				club: filterClub,
+				status: filterStatus
+			},
+			pageNum
+		);
 	}
 
 	function search(resetPage = true) {
@@ -78,7 +81,7 @@
 						oninput={() => search()}
 					/>
 				</th>
-				<th class="p-1 hidden md:table-cell">
+				<th class="hidden p-1 md:table-cell">
 					<input
 						type="text"
 						class="filter-input"
@@ -88,17 +91,13 @@
 					/>
 				</th>
 				<th class="p-1">
-					<select
-						class="filter-input"
-						bind:value={filterStatus}
-						onchange={() => search()}
-					>
-						{#each WRESTLER_STATUS_OPTIONS as opt}
+					<select class="filter-input" bind:value={filterStatus} onchange={() => search()}>
+						{#each WRESTLER_STATUS_OPTIONS as opt (opt.value)}
 							<option value={opt.value}>{t(locale, opt.labelKey)}</option>
 						{/each}
 					</select>
 				</th>
-				<th class="p-1 hidden md:table-cell">
+				<th class="hidden p-1 md:table-cell">
 					<input
 						type="text"
 						class="filter-input"
@@ -121,22 +120,27 @@
 		<tbody>
 			{#if loading}
 				<tr>
-					<td colspan="5" class="text-center py-8">
+					<td colspan="5" class="py-8 text-center">
 						<div class="spinner mx-auto"></div>
-						<p class="mt-2 text-muted-foreground text-sm">{t(locale, 'wrestler.loadingMessage')}</p>
+						<p class="mt-2 text-sm text-muted-foreground">{t(locale, 'wrestler.loadingMessage')}</p>
 					</td>
 				</tr>
 			{:else if data.wrestlers.length === 0}
 				<tr>
-					<td colspan="5" class="text-center py-8 text-muted-foreground">{t(locale, 'wrestler.noResultsFound')}</td>
+					<td colspan="5" class="py-8 text-center text-muted-foreground"
+						>{t(locale, 'wrestler.noResultsFound')}</td
+					>
 				</tr>
 			{:else}
-				{#each data.wrestlers as w}
-					<tr onclick={() => goto(localizePath(`/wrestler/${w.id}`, locale))} class="cursor-pointer">
+				{#each data.wrestlers as w (w.id)}
+					<tr
+						onclick={() => goto(localizePath(`/wrestler/${w.id}`, locale))}
+						class="cursor-pointer"
+					>
 						<td class="font-medium">
 							<a href="/wrestler/{w.id}" class="hover:underline">
 								{w.name}
-								<span class="md:hidden text-muted-foreground"> {w.vorname}</span>
+								<span class="text-muted-foreground md:hidden"> {w.vorname}</span>
 							</a>
 						</td>
 						<td class="hidden md:table-cell">{w.vorname}</td>

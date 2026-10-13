@@ -17,8 +17,6 @@ When a file exceeds its limit, split it immediately as part of the current task.
 | `pb.ts` | PocketBase client | `createServerPb()`, `getClientPb()` |
 | `utils.ts` | General utilities | `cn()` (Tailwind class merging), `WithElementRef<T>` |
 | `dark-mode.svelte.ts` | Dark mode state | reactive state, toggle, init functions |
-| `metrics.ts` | Prometheus metrics | `httpRequestsTotal`, `httpRequestDuration` |
-| `tracing.ts` | OpenTelemetry setup | NodeSDK initialization |
 
 ### Utils (`src/lib/utils/`)
 
@@ -58,7 +56,6 @@ src/routes/
 ├── api/
 │   └── pb/[...path]/       # CORS proxy to PocketBase — do not modify
 ├── health/                 # Health check endpoint
-├── metrics/                # Prometheus metrics endpoint
 ├── sitemap.xml/            # SEO sitemap
 ├── wrestler/               # Wrestler list + [id]/ detail
 ├── rankings/               # Rankings list + [id]/ detail

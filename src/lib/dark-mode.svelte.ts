@@ -12,7 +12,8 @@ export function toggleDark(): void {
 
 export function initDark(): void {
 	const saved = localStorage.getItem('dark-mode');
-	dark = saved !== null ? saved === 'true' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+	dark =
+		saved !== null ? saved === 'true' : window.matchMedia('(prefers-color-scheme: dark)').matches;
 	applyDark();
 }
 

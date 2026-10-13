@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { buildSearchParams } from '$lib/utils/search-params';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 	import { t, localizePath, type Locale } from '$lib/i18n/index.svelte';
@@ -21,30 +22,61 @@
 	let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 
 	const RESULTS = ['', 'o', '-', '+'];
-	const POINTS = ['', '0.25', '8.25', '8.50', '8.75', '9.00', '9.25', '9.50', '9.75', '10.00', '10.25'];
+	const POINTS = [
+		'',
+		'0.25',
+		'8.25',
+		'8.50',
+		'8.75',
+		'9.00',
+		'9.25',
+		'9.50',
+		'9.75',
+		'10.00',
+		'10.25'
+	];
 	const ROUNDS = ['', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
-	const YEARS = ['', '2015', '2016', '2017', '2018', '2019', '2020', '2021', '2022', '2023', '2024', '2025', '2026'];
+	const YEARS = [
+		'',
+		'2015',
+		'2016',
+		'2017',
+		'2018',
+		'2019',
+		'2020',
+		'2021',
+		'2022',
+		'2023',
+		'2024',
+		'2025',
+		'2026'
+	];
 
 	function buildParams(pageNum: number): URLSearchParams {
-		const params = new URLSearchParams();
-		if (filterResult) params.set('result', filterResult);
-		if (filterPoints) params.set('points', filterPoints);
-		if (filterRound) params.set('round', filterRound);
-		if (filterWrestlerName) params.set('wrestlerName', filterWrestlerName);
-		if (filterWrestlerVorname) params.set('wrestlerVorname', filterWrestlerVorname);
-		if (filterOpponentName) params.set('opponentName', filterOpponentName);
-		if (filterOpponentVorname) params.set('opponentVorname', filterOpponentVorname);
-		if (filterPlaceName) params.set('placeName', filterPlaceName);
-		if (filterYear) params.set('year', filterYear);
-		if (pageNum > 1) params.set('page', String(pageNum));
-		return params;
+		return buildSearchParams(
+			{
+				result: filterResult,
+				points: filterPoints,
+				round: filterRound,
+				wrestlerName: filterWrestlerName,
+				wrestlerVorname: filterWrestlerVorname,
+				opponentName: filterOpponentName,
+				opponentVorname: filterOpponentVorname,
+				placeName: filterPlaceName,
+				year: filterYear
+			},
+			pageNum
+		);
 	}
 
 	function search() {
 		if (debounceTimer) clearTimeout(debounceTimer);
 		debounceTimer = setTimeout(async () => {
 			loading = true;
-			await goto(localizePath(`/bouts?${buildParams(1).toString()}`, locale), { invalidateAll: true, keepFocus: true });
+			await goto(localizePath(`/bouts?${buildParams(1).toString()}`, locale), {
+				invalidateAll: true,
+				keepFocus: true
+			});
 			loading = false;
 		}, 300);
 	}
@@ -82,43 +114,73 @@
 			<tr class="bg-surface-low">
 				<th class="p-1">
 					<select class="filter-input" bind:value={filterResult} onchange={search}>
-						{#each RESULTS as r}
+						{#each RESULTS as r (r)}
 							<option value={r}>{r || t(locale, 'common.all')}</option>
 						{/each}
 					</select>
 				</th>
-				<th class="p-1 hidden md:table-cell">
+				<th class="hidden p-1 md:table-cell">
 					<select class="filter-input" bind:value={filterPoints} onchange={search}>
-						{#each POINTS as p}
+						{#each POINTS as p (p)}
 							<option value={p}>{p || t(locale, 'common.all')}</option>
 						{/each}
 					</select>
 				</th>
-				<th class="p-1 hidden md:table-cell">
+				<th class="hidden p-1 md:table-cell">
 					<select class="filter-input" bind:value={filterRound} onchange={search}>
-						{#each ROUNDS as r}
+						{#each ROUNDS as r (r)}
 							<option value={r}>{r || t(locale, 'common.all')}</option>
 						{/each}
 					</select>
 				</th>
 				<th class="p-1">
-					<input type="text" class="filter-input" placeholder={t(locale, 'wrestler.name')} bind:value={filterWrestlerName} oninput={search} />
+					<input
+						type="text"
+						class="filter-input"
+						placeholder={t(locale, 'wrestler.name')}
+						bind:value={filterWrestlerName}
+						oninput={search}
+					/>
 				</th>
-				<th class="p-1 hidden md:table-cell">
-					<input type="text" class="filter-input" placeholder={t(locale, 'wrestler.firstName')} bind:value={filterWrestlerVorname} oninput={search} />
+				<th class="hidden p-1 md:table-cell">
+					<input
+						type="text"
+						class="filter-input"
+						placeholder={t(locale, 'wrestler.firstName')}
+						bind:value={filterWrestlerVorname}
+						oninput={search}
+					/>
 				</th>
 				<th class="p-1">
-					<input type="text" class="filter-input" placeholder={t(locale, 'bouts.opponent')} bind:value={filterOpponentName} oninput={search} />
+					<input
+						type="text"
+						class="filter-input"
+						placeholder={t(locale, 'bouts.opponent')}
+						bind:value={filterOpponentName}
+						oninput={search}
+					/>
 				</th>
-				<th class="p-1 hidden md:table-cell">
-					<input type="text" class="filter-input" placeholder={t(locale, 'wrestler.firstName')} bind:value={filterOpponentVorname} oninput={search} />
+				<th class="hidden p-1 md:table-cell">
+					<input
+						type="text"
+						class="filter-input"
+						placeholder={t(locale, 'wrestler.firstName')}
+						bind:value={filterOpponentVorname}
+						oninput={search}
+					/>
 				</th>
 				<th class="p-1">
-					<input type="text" class="filter-input" placeholder={t(locale, 'rankings.colSchwingfest')} bind:value={filterPlaceName} oninput={search} />
+					<input
+						type="text"
+						class="filter-input"
+						placeholder={t(locale, 'rankings.colSchwingfest')}
+						bind:value={filterPlaceName}
+						oninput={search}
+					/>
 				</th>
-				<th class="p-1 hidden md:table-cell">
+				<th class="hidden p-1 md:table-cell">
 					<select class="filter-input" bind:value={filterYear} onchange={search}>
-						{#each YEARS as y}
+						{#each YEARS as y (y)}
 							<option value={y}>{y || t(locale, 'common.all')}</option>
 						{/each}
 					</select>
@@ -127,15 +189,21 @@
 		</thead>
 		<tbody>
 			{#if loading}
-				<tr><td colspan="9" class="text-center py-8"><div class="spinner mx-auto"></div></td></tr>
+				<tr><td colspan="9" class="py-8 text-center"><div class="spinner mx-auto"></div></td></tr>
 			{:else if data.bouts.length === 0}
-				<tr><td colspan="9" class="text-center py-8 text-muted-foreground">{t(locale, 'bouts.noResultsFound')}</td></tr>
+				<tr
+					><td colspan="9" class="py-8 text-center text-muted-foreground"
+						>{t(locale, 'bouts.noResultsFound')}</td
+					></tr
+				>
 			{:else}
-				{#each data.bouts as b}
+				{#each data.bouts as b (b.id)}
 					<tr>
 						<td class="font-mono">
 							{b.result}
-							<span class="block text-xs text-muted-foreground md:hidden">{b.points} · G{b.fight_round} · {b.year}</span>
+							<span class="block text-xs text-muted-foreground md:hidden"
+								>{b.points} · G{b.fight_round} · {b.year}</span
+							>
 						</td>
 						<td class="hidden md:table-cell">{b.points}</td>
 						<td class="hidden md:table-cell">{b.fight_round}</td>
@@ -143,14 +211,18 @@
 							<a href="/wrestler/{b.expand?.wrestler?.id}" class="underline">
 								{b.expand?.wrestler?.name ?? '-'}
 							</a>
-							<span class="block text-xs text-muted-foreground md:hidden">{b.expand?.wrestler?.vorname ?? ''}</span>
+							<span class="block text-xs text-muted-foreground md:hidden"
+								>{b.expand?.wrestler?.vorname ?? ''}</span
+							>
 						</td>
 						<td class="hidden md:table-cell">{b.expand?.wrestler?.vorname ?? '-'}</td>
 						<td>
 							<a href="/wrestler/{b.expand?.opponent?.id}" class="underline">
 								{b.expand?.opponent?.name ?? '-'}
 							</a>
-							<span class="block text-xs text-muted-foreground md:hidden">{b.expand?.opponent?.vorname ?? ''}</span>
+							<span class="block text-xs text-muted-foreground md:hidden"
+								>{b.expand?.opponent?.vorname ?? ''}</span
+							>
 						</td>
 						<td class="hidden md:table-cell">{b.expand?.opponent?.vorname ?? '-'}</td>
 						<td>

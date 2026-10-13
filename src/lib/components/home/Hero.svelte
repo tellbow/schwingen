@@ -24,8 +24,16 @@
 		try {
 			const pb = getClientPb();
 			const [wrestlerCount, placesCount] = await Promise.all([
-				pb.collection('wrestler').getList(1, 1, { filter: wrestlerFilter, fields: 'id' }).then((r) => r.totalItems).catch(() => 0),
-				pb.collection('places').getList(1, 1, { filter: placesFilter, fields: 'id' }).then((r) => r.totalItems).catch(() => 0)
+				pb
+					.collection('wrestler')
+					.getList(1, 1, { filter: wrestlerFilter, fields: 'id' })
+					.then((r) => r.totalItems)
+					.catch(() => 0),
+				pb
+					.collection('places')
+					.getList(1, 1, { filter: placesFilter, fields: 'id' })
+					.then((r) => r.totalItems)
+					.catch(() => 0)
 			]);
 
 			const target =
@@ -41,31 +49,41 @@
 
 <section class="relative overflow-hidden border-b border-border">
 	<div
-		class="absolute inset-0 pointer-events-none opacity-40"
+		class="pointer-events-none absolute inset-0 opacity-40"
 		style="background-image: repeating-linear-gradient(to bottom, transparent, transparent 27px, var(--color-outline-variant) 28px);"
 	></div>
-	<div class="absolute -top-52 -right-36 h-[520px] w-[520px] rounded-full border border-primary/15 pointer-events-none"></div>
-	<div class="absolute -top-36 -right-16 h-[380px] w-[380px] rounded-full border border-tertiary-container/20 pointer-events-none"></div>
+	<div
+		class="pointer-events-none absolute -top-52 -right-36 h-[520px] w-[520px] rounded-full border border-primary/15"
+	></div>
+	<div
+		class="pointer-events-none absolute -top-36 -right-16 h-[380px] w-[380px] rounded-full border border-tertiary-container/20"
+	></div>
 
-	<div class="relative max-w-screen-xl mx-auto px-4 pt-8 pb-6 md:pt-10 md:pb-8">
+	<div class="relative mx-auto max-w-screen-xl px-4 pt-8 pb-6 md:pt-10 md:pb-8">
 		<div class="max-w-xl">
-			<p class="text-xs font-bold uppercase tracking-[0.12em] text-outline mb-3">{t(locale, 'home.heroEyebrow')}</p>
-			<h1 class="font-serif font-semibold text-4xl md:text-5xl leading-[1.1] tracking-tight text-foreground mb-5 text-pretty">
+			<p class="mb-3 text-xs font-bold tracking-[0.12em] text-outline uppercase">
+				{t(locale, 'home.heroEyebrow')}
+			</p>
+			<h1
+				class="mb-5 font-serif text-4xl leading-[1.1] font-semibold tracking-tight text-pretty text-foreground md:text-5xl"
+			>
 				{t(locale, 'home.heroHeadline')}
 			</h1>
-			<p class="text-muted-foreground text-base md:text-lg leading-relaxed mb-8 max-w-md">
+			<p class="mb-8 max-w-md text-base leading-relaxed text-muted-foreground md:text-lg">
 				{t(locale, 'home.heroSubhead')}
 			</p>
 
-			<form class="flex items-center gap-3 mb-3" onsubmit={handleSearch}>
-				<div class="flex-1 max-w-sm flex items-center gap-2 bg-surface-container rounded-lg px-3 min-h-9">
-					<Search size={16} class="text-outline flex-shrink-0" />
+			<form class="mb-3 flex items-center gap-3" onsubmit={handleSearch}>
+				<div
+					class="flex min-h-9 max-w-sm flex-1 items-center gap-2 rounded-lg bg-surface-container px-3"
+				>
+					<Search size={16} class="flex-shrink-0 text-outline" />
 					<input
 						type="text"
 						bind:value={query}
 						disabled={loading}
 						placeholder={t(locale, 'home.searchPlaceholder')}
-						class="bg-transparent border-0 outline-none text-sm w-full placeholder:text-outline"
+						class="w-full border-0 bg-transparent text-sm outline-none placeholder:text-outline"
 					/>
 				</div>
 				<button type="submit" class="btn-primary whitespace-nowrap" disabled={loading}>

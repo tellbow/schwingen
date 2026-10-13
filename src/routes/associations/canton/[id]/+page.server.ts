@@ -15,14 +15,21 @@ export const load: PageServerLoad = async ({ params }) => {
 
 	try {
 		const [canton, clubs] = await Promise.all([
-			pb.collection('wrestlersByCanton').getFirstListItem(`id = "${cantonId}"`, {
-				fields: 'id,name,association,wrestlerAmount,wrestlerActive,wrestler1Star,wrestler2Star,wrestler3Star'
-			}).catch(() => null),
-			pb.collection('wrestlersByClub').getFullList(200, {
-				filter: `canton = "${cantonId}"`,
-				sort: 'name',
-				fields: 'id,name,wrestlerAmount,wrestlerActive,wrestler1Star,wrestler2Star,wrestler3Star'
-			}).catch(() => [])
+			pb
+				.collection('wrestlersByCanton')
+				.getFirstListItem(`id = "${cantonId}"`, {
+					fields:
+						'id,name,association,wrestlerAmount,wrestlerActive,wrestler1Star,wrestler2Star,wrestler3Star'
+				})
+				.catch(() => null),
+			pb
+				.collection('wrestlersByClub')
+				.getFullList(200, {
+					filter: `canton = "${cantonId}"`,
+					sort: 'name',
+					fields: 'id,name,wrestlerAmount,wrestlerActive,wrestler1Star,wrestler2Star,wrestler3Star'
+				})
+				.catch(() => [])
 		]);
 
 		return { canton, clubs };

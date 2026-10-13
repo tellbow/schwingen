@@ -9,9 +9,7 @@ const isProd = process.argv.includes('--prod');
 const pbUrl = process.env.PB_URL || 'http://localhost:8090';
 
 // Find PocketBase binary
-const pbBinary =
-	process.env.PB_BINARY ||
-	'/opt/homebrew/bin/pocketbase';
+const pbBinary = process.env.PB_BINARY || '/opt/homebrew/bin/pocketbase';
 
 const pbDataDir = resolve(import.meta.dir, 'pb_data');
 
@@ -20,7 +18,13 @@ console.log(`PocketBase data dir: ${pbDataDir}`);
 
 // Start PocketBase
 const pb = Bun.spawn(
-	[pbBinary, 'serve', '--http=0.0.0.0:8090', `--dir=${pbDataDir}`, '--encryptionEnv=PB_ENCRYPTION_KEY'],
+	[
+		pbBinary,
+		'serve',
+		'--http=0.0.0.0:8090',
+		`--dir=${pbDataDir}`,
+		'--encryptionEnv=PB_ENCRYPTION_KEY'
+	],
 	{
 		stdout: 'pipe',
 		stderr: 'pipe',
@@ -39,7 +43,7 @@ async function readPipe(reader: ReadableStreamDefaultReader<Uint8Array>, prefix:
 		if (done) break;
 		const text = decoder.decode(value);
 		for (const line of text.split('\n')) {
-			if (line.trim()) console.log(`[PocketBase] ${line}`);
+			if (line.trim()) console.log(`${prefix} ${line}`);
 		}
 	}
 }
@@ -53,8 +57,13 @@ let pbReady = false;
 for (let i = 0; i < 30; i++) {
 	try {
 		const res = await fetch(pbHealthUrl);
-		if (res.ok) { pbReady = true; break; }
-	} catch { /* not up yet */ }
+		if (res.ok) {
+			pbReady = true;
+			break;
+		}
+	} catch {
+		/* not up yet */
+	}
 	await Bun.sleep(500);
 }
 if (!pbReady) {

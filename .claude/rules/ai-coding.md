@@ -31,6 +31,7 @@ No comments — code must be discoverable by name:
 After every code change, verify:
 
 ```bash
+bun run lint    # Prettier + ESLint
 bun run check   # TypeScript/Svelte type checking
 bun run test    # Vitest unit tests
 bun run build   # Production build succeeds

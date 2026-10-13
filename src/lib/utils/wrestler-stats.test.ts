@@ -1,5 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { computeBoutCounts, computeAverageRank, computeAveragePoints, computeWinRate } from './wrestler-stats';
+import {
+	computeBoutCounts,
+	computeAverageRank,
+	computeAveragePoints,
+	computeWinRate
+} from './wrestler-stats';
 
 describe('computeBoutCounts', () => {
 	it('returns zeros for an empty list', () => {
@@ -14,7 +19,10 @@ describe('computeBoutCounts', () => {
 
 describe('computeAverageRank', () => {
 	it('returns "-" when fewer than 5 entries', () => {
-		const rankings = [{ rank: '1', status: '' }, { rank: '2', status: '' }];
+		const rankings = [
+			{ rank: '1', status: '' },
+			{ rank: '2', status: '' }
+		];
 		expect(computeAverageRank(rankings)).toBe('-');
 	});
 
