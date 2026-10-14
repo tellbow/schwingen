@@ -6,7 +6,7 @@
 - **Image policies:** `tellbow/gitops` → `cluster/flux-system/image-automation/schwingen.yaml` (`schwingen-frontend`, `schwingen-pocketbase`, semver).
 - **Data pipeline:** `tellbow/schwingen-data` imports into a *local* PocketBase. Production is never written to.
 - **Images:** `ghcr.io/tellbow/schwingen-frontend`, `ghcr.io/tellbow/schwingen-pocketbase`
-- **Bug reports (#45):** issues in the private `tellbow/schwingen-feedback`; the frontend gets `GITHUB_FEEDBACK_TOKEN` (fine-grained, Issues read/write on that repo only, from `schwingen-secret`) and `GITHUB_FEEDBACK_REPO` (`frontend-deployment.yaml`). `ADDRESS_HEADER=X-Real-IP` there gives the endpoint the client address for its rate limit; without it every visitor is `127.0.0.1`.
+- **Bug reports (#45):** issues in the private `tellbow/schwingen-feedback`; the frontend gets `GITHUB_FEEDBACK_TOKEN` (fine-grained, Issues and Contents read/write on that repo only, from `schwingen-secret`; Contents stores the screenshots) and `GITHUB_FEEDBACK_REPO` (`frontend-deployment.yaml`). `ADDRESS_HEADER=X-Real-IP` there gives the endpoint the client address for its rate limit; without it every visitor is `127.0.0.1`. `BODY_SIZE_LIMIT=6M` lets a report carry its screenshot.
 
 ## Release flow
 

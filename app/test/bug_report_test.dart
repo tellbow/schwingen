@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -23,6 +24,7 @@ void main() {
         place: '/wrestler/w1',
         version: '0.1.0',
         system: 'iOS 26',
+        screenshot: Uint8List.fromList([1, 2, 3]),
       );
       expect(sent.url, bugReportUrl);
       expect(jsonDecode(sent.body), {
@@ -31,6 +33,7 @@ void main() {
         'platform': 'ios',
         'version': '0.1.0',
         'system': 'iOS 26',
+        'screenshot': 'AQID',
       });
     });
 
@@ -70,20 +73,26 @@ void main() {
   });
 
   group('BugReportSheet', () {
-    Future<void> pump(WidgetTester tester, Future<void> Function(String) send) => tester.pumpWidget(
-      MaterialApp(
-        locale: const Locale('de'),
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-        home: Scaffold(
-          body: BugReportSheet(place: '/wrestler/w1', send: send),
-        ),
-      ),
+    final pixel = base64Decode(
+      'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==',
     );
+
+    Future<void> pump(WidgetTester tester, Future<void> Function(String, Uint8List?) send, {Uint8List? screenshot}) =>
+        tester.pumpWidget(
+          MaterialApp(
+            locale: const Locale('de'),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: Scaffold(
+              body: BugReportSheet(place: '/wrestler/w1', screenshot: screenshot, send: send),
+            ),
+          ),
+        );
 
     testWidgets('sends the description and confirms', (tester) async {
       String? sent;
-      await pump(tester, (description) async => sent = description);
+      await pump(tester, (description, _) async => sent = description);
+      expect(find.byType(CheckboxListTile), findsNothing);
       expect(find.textContaining('(/wrestler/w1)'), findsOneWidget);
       await tester.enterText(find.byType(TextField), '  Rang falsch  ');
       await tester.pump();
@@ -95,7 +104,7 @@ void main() {
 
     testWidgets('keeps the text after a failure and says when it is rate limited', (tester) async {
       var answer = 502;
-      await pump(tester, (_) async => throw BugReportException(answer));
+      await pump(tester, (_, _) async => throw BugReportException(answer));
       await tester.enterText(find.byType(TextField), 'Rang falsch');
       await tester.pump();
       await tester.tap(find.text('Senden'));
@@ -107,6 +116,28 @@ void main() {
       await tester.tap(find.text('Senden'));
       await tester.pumpAndSettle();
       expect(find.textContaining('zu viele Berichte'), findsOneWidget);
+    });
+
+    testWidgets('sends the screenshot by default', (tester) async {
+      Uint8List? sent;
+      await pump(tester, (_, screenshot) async => sent = screenshot, screenshot: pixel);
+      await tester.enterText(find.byType(TextField), 'Rang falsch');
+      await tester.pump();
+      expect(find.text('Bildschirmfoto mitsenden'), findsOneWidget);
+      await tester.tap(find.text('Senden'));
+      await tester.pumpAndSettle();
+      expect(sent, pixel);
+    });
+
+    testWidgets('leaves an unticked screenshot out', (tester) async {
+      final sent = <Uint8List?>[];
+      await pump(tester, (_, screenshot) async => sent.add(screenshot), screenshot: pixel);
+      await tester.enterText(find.byType(TextField), 'Rang falsch');
+      await tester.tap(find.byType(Checkbox));
+      await tester.pump();
+      await tester.tap(find.text('Senden'));
+      await tester.pumpAndSettle();
+      expect(sent, [null]);
     });
   });
 }

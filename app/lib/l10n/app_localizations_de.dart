@@ -330,7 +330,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String bugPrivacy(String place) {
-    return 'Der Bericht geht an das Tellbow-Team und ist nicht öffentlich: dein Text, wo du warst ($place), die App-Version und iOS-Version.';
+    return 'Der Bericht geht an das Tellbow-Team und ist nicht öffentlich: dein Text, wo du warst ($place), die App- und iOS-Version und, wenn angehakt, das Bildschirmfoto.';
   }
 
   @override
@@ -347,4 +347,10 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get close => 'Schliessen';
+
+  @override
+  String get bugWithScreenshot => 'Bildschirmfoto mitsenden';
+
+  @override
+  String get bugScreenshotAlt => 'Bildschirmfoto der App';
 }

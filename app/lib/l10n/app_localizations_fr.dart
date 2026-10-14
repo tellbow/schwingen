@@ -330,7 +330,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String bugPrivacy(String place) {
-    return 'Le rapport est envoyé à l\'équipe Tellbow et n\'est pas public : ton texte, où tu étais ($place), la version de l\'app et d\'iOS.';
+    return 'Le rapport est envoyé à l\'équipe Tellbow et n\'est pas public : ton texte, où tu étais ($place), les versions de l\'app et d\'iOS et, si cochée, la capture d\'écran.';
   }
 
   @override
@@ -347,4 +347,10 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get close => 'Fermer';
+
+  @override
+  String get bugWithScreenshot => 'Joindre la capture d\'écran';
+
+  @override
+  String get bugScreenshotAlt => 'Capture d\'écran de l\'app';
 }

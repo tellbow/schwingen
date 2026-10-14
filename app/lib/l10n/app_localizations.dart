@@ -689,7 +689,7 @@ abstract class AppLocalizations {
   /// No description provided for @bugPrivacy.
   ///
   /// In de, this message translates to:
-  /// **'Der Bericht geht an das Tellbow-Team und ist nicht öffentlich: dein Text, wo du warst ({place}), die App-Version und iOS-Version.'**
+  /// **'Der Bericht geht an das Tellbow-Team und ist nicht öffentlich: dein Text, wo du warst ({place}), die App- und iOS-Version und, wenn angehakt, das Bildschirmfoto.'**
   String bugPrivacy(String place);
 
   /// No description provided for @bugSend.
@@ -721,6 +721,18 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Schliessen'**
   String get close;
+
+  /// No description provided for @bugWithScreenshot.
+  ///
+  /// In de, this message translates to:
+  /// **'Bildschirmfoto mitsenden'**
+  String get bugWithScreenshot;
+
+  /// No description provided for @bugScreenshotAlt.
+  ///
+  /// In de, this message translates to:
+  /// **'Bildschirmfoto der App'**
+  String get bugScreenshotAlt;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

@@ -40,7 +40,8 @@ describe('POST /api/bug-report', () => {
 	it('rejects invalid input without calling GitHub', async () => {
 		expect((await send({ ...report, description: '' })).status).toBe(400);
 		expect((await send('not json')).status).toBe(400);
-		expect((await send({ ...report, description: 'x'.repeat(20_000) })).status).toBe(413);
+		expect((await send({ ...report, description: 'x'.repeat(5000) })).status).toBe(400);
+		expect((await send({ ...report, screenshot: 'x'.repeat(6_000_001) })).status).toBe(413);
 		expect(github).not.toHaveBeenCalled();
 	});
 

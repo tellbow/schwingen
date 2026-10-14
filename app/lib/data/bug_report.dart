@@ -1,8 +1,11 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:http/http.dart' as http;
 
 final bugReportUrl = Uri.parse('https://schwingen.tellbow.ch/api/bug-report');
+
+const maxScreenshotBytes = 4 * 1024 * 1024;
 
 class BugReportException implements Exception {
   const BugReportException(this.status);
@@ -21,6 +24,7 @@ Future<void> sendBugReport(
   required String place,
   required String version,
   required String system,
+  Uint8List? screenshot,
 }) async {
   final res = await client.post(
     bugReportUrl,
@@ -31,6 +35,7 @@ Future<void> sendBugReport(
       'platform': 'ios',
       'version': version,
       'system': system,
+      if (screenshot != null) 'screenshot': base64Encode(screenshot),
     }),
   );
   if (res.statusCode != 201) throw BugReportException(res.statusCode);

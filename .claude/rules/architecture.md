@@ -45,7 +45,7 @@ pb.collection("rankings").getList(1, 15, { expand: "wrestler,place" });
 - Pages that need data use `+page.server.ts` (SSR load) + `+page.svelte` (render)
 - API routes live under `src/routes/api/` and return `Response` objects
 - The PocketBase proxy at `/api/pb/[...path]` must remain untouched
-- `POST /api/bug-report` turns «Fehler melden» from the website and the app into issues in the private `tellbow/schwingen-feedback` (`$lib/server/bug-report.ts`: validation, issue text, per-IP rate limit kept in memory per pod)
+- `POST /api/bug-report` turns «Fehler melden» from the website and the app into issues in the private `tellbow/schwingen-feedback` (`$lib/server/bug-report.ts`: validation, screenshot stored in that repo, issue text, per-IP rate limit kept in memory per pod)
 
 ## Do Not
 

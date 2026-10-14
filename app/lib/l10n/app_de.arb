@@ -184,7 +184,7 @@
   },
   "bugReport": "Fehler melden",
   "bugWhat": "Was ist passiert?",
-  "bugPrivacy": "Der Bericht geht an das Tellbow-Team und ist nicht öffentlich: dein Text, wo du warst ({place}), die App-Version und iOS-Version.",
+  "bugPrivacy": "Der Bericht geht an das Tellbow-Team und ist nicht öffentlich: dein Text, wo du warst ({place}), die App- und iOS-Version und, wenn angehakt, das Bildschirmfoto.",
   "bugSend": "Senden",
   "bugSent": "Danke! Dein Bericht ist angekommen.",
   "bugFailed": "Das Senden hat nicht geklappt. Dein Text bleibt hier, versuch es gleich nochmals.",
@@ -196,5 +196,7 @@
         "type": "String"
       }
     }
-  }
+  },
+  "bugWithScreenshot": "Bildschirmfoto mitsenden",
+  "bugScreenshotAlt": "Bildschirmfoto der App"
 }

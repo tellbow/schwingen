@@ -4,6 +4,7 @@
 	import { slide } from 'svelte/transition';
 	import { t, localizePath, LOCALES, type Locale } from '$lib/i18n/index.svelte';
 	import { getDark, toggleDark } from '$lib/dark-mode.svelte';
+	import BugReport from '$lib/components/bug-report.svelte';
 
 	let mobileOpen = $state(false);
 
@@ -78,8 +79,10 @@
 				</button>
 			</div>
 
+			<BugReport />
+
 			<button
-				class="ml-auto rounded-lg p-2 text-outline transition-colors hover:bg-surface-low md:hidden"
+				class="ml-1 rounded-lg p-2 text-outline transition-colors hover:bg-surface-low md:hidden"
 				onclick={() => (mobileOpen = !mobileOpen)}
 				aria-label={mobileOpen ? t(locale, 'common.closeNav') : t(locale, 'common.openNav')}
 				aria-expanded={mobileOpen}

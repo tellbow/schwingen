@@ -5,8 +5,12 @@ import {
 	issueBody,
 	issueTitle,
 	openIssue,
-	parseBugReport
+	parseBugReport,
+	parseScreenshot
 } from './bug-report';
+
+const jpeg = '/9j/4AAQSkZJRgABAQ==';
+const png = 'iVBORw0KGgoAAAANSUhEUg==';
 
 const input = { description: 'Rangliste fehlt', place: '/rankings/abc', platform: 'web' };
 
@@ -42,6 +46,26 @@ describe('parseBugReport', () => {
 	});
 });
 
+describe('parseScreenshot', () => {
+	it('takes JPEG and PNG by their first bytes', () => {
+		expect(parseScreenshot(jpeg)).toEqual({ base64: jpeg, extension: 'jpg' });
+		expect(parseScreenshot(png)).toEqual({ base64: png, extension: 'png' });
+	});
+
+	it('rejects other formats, broken base64 and pictures over 4 MB', () => {
+		expect(parseScreenshot('R0lGODlhAQABAAAAACw=')).toBeNull();
+		expect(parseScreenshot('data:image/jpeg;base64,' + jpeg)).toBeNull();
+		expect(parseScreenshot(42)).toBeNull();
+		expect(parseScreenshot(jpeg + 'A'.repeat(5_600_000))).toBeNull();
+	});
+
+	it('makes a report with a broken screenshot invalid, and keeps a good one', () => {
+		expect(parseBugReport({ ...input, screenshot: 'R0lGODlhAQABAAAAACw=' }, 'v')).toBeNull();
+		expect(parseBugReport({ ...input, screenshot: png }, 'v')?.screenshot?.extension).toBe('png');
+		expect(parseBugReport(input, 'v')).not.toHaveProperty('screenshot');
+	});
+});
+
 describe('isHoneypotFilled', () => {
 	it('is true only when the hidden field has text', () => {
 		expect(isHoneypotFilled({ website: 'http://spam' })).toBe(true);
@@ -69,6 +93,21 @@ describe('issue text', () => {
 		expect(body).toContain("- Where: `/x'y`");
 		expect(body).toContain('- Platform: ios, version `0.1.0`');
 		expect(body).toContain('- System: `–`');
+		expect(body).not.toContain('Screenshot');
+	});
+
+	it('shows a stored screenshot and says when one was lost', () => {
+		const report = {
+			description: 'x',
+			place: '/',
+			platform: 'web' as const,
+			version: '',
+			system: ''
+		};
+		expect(issueBody(report, 'https://github.com/o/r/blob/main/s.jpg')).toContain(
+			'![Screenshot](https://github.com/o/r/blob/main/s.jpg?raw=true)'
+		);
+		expect(issueBody(report, null)).toContain('- Screenshot: could not be stored');
 	});
 });
 
@@ -88,6 +127,45 @@ describe('openIssue', () => {
 		expect(url).toBe('https://api.github.com/repos/tellbow/schwingen-feedback/issues');
 		expect((init.headers as Record<string, string>).Authorization).toBe('Bearer secret');
 		expect(JSON.parse(init.body as string)).toMatchObject({ title: 'Fehler', labels: ['bug'] });
+	});
+
+	it('stores the screenshot in the repo first and shows it in the issue', async () => {
+		const stored =
+			'https://github.com/tellbow/schwingen-feedback/blob/main/screenshots/2026-10/a.jpg';
+		const fetchFn = vi.fn(async (url: string) =>
+			url.includes('/contents/')
+				? Response.json({ content: { html_url: stored } }, { status: 201 })
+				: new Response('{}', { status: 201 })
+		);
+		await openIssue(
+			fetchFn as unknown as typeof fetch,
+			'tellbow/schwingen-feedback',
+			'secret',
+			{ ...report, screenshot: { base64: jpeg, extension: 'jpg' } },
+			new Date('2026-10-14T12:00:00Z')
+		);
+		const [[putUrl, put], [, post]] = fetchFn.mock.calls as unknown as [string, RequestInit][];
+		expect(putUrl).toMatch(
+			/^https:\/\/api\.github\.com\/repos\/tellbow\/schwingen-feedback\/contents\/screenshots\/2026-10\/[0-9a-f-]{36}\.jpg$/
+		);
+		expect(put.method).toBe('PUT');
+		expect(JSON.parse(put.body as string).content).toBe(jpeg);
+		expect(JSON.parse(post.body as string).body).toContain(`![Screenshot](${stored}?raw=true)`);
+	});
+
+	it('still opens the issue when the screenshot cannot be stored', async () => {
+		vi.spyOn(console, 'error').mockImplementation(() => {});
+		const fetchFn = vi.fn(async (url: string) =>
+			url.includes('/contents/')
+				? new Response('', { status: 403 })
+				: new Response('{}', { status: 201 })
+		);
+		await openIssue(fetchFn as unknown as typeof fetch, 'r', 't', {
+			...report,
+			screenshot: { base64: png, extension: 'png' }
+		});
+		const [, post] = fetchFn.mock.calls[1] as unknown as [string, RequestInit];
+		expect(JSON.parse(post.body as string).body).toContain('could not be stored');
 	});
 
 	it('fails when GitHub does not create the issue', async () => {

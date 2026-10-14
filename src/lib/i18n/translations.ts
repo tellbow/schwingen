@@ -33,8 +33,10 @@ const de: Translations = {
 		open: 'Fehler melden',
 		title: 'Fehler melden',
 		what: 'Was ist passiert?',
+		withScreenshot: 'Bildschirmfoto mitsenden',
+		screenshotAlt: 'Bildschirmfoto der Seite',
 		privacy:
-			'Der Bericht geht an das Tellbow-Team und ist nicht öffentlich: dein Text, die Seite ({place}), die Version und dein Browser.',
+			'Der Bericht geht an das Tellbow-Team und ist nicht öffentlich: dein Text, die Seite ({place}), die Version, dein Browser und, wenn angehakt, das Bildschirmfoto.',
 		send: 'Senden',
 		cancel: 'Abbrechen',
 		close: 'Schliessen',
@@ -279,8 +281,10 @@ const fr: Translations = {
 		open: 'Signaler un problème',
 		title: 'Signaler un problème',
 		what: "Que s'est-il passé ?",
+		withScreenshot: "Joindre la capture d'écran",
+		screenshotAlt: "Capture d'écran de la page",
 		privacy:
-			"Le rapport est envoyé à l'équipe Tellbow et n'est pas public : ton texte, la page ({place}), la version et ton navigateur.",
+			"Le rapport est envoyé à l'équipe Tellbow et n'est pas public : ton texte, la page ({place}), la version, ton navigateur et, si cochée, la capture d'écran.",
 		send: 'Envoyer',
 		cancel: 'Annuler',
 		close: 'Fermer',

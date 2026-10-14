@@ -24,12 +24,13 @@ When a file exceeds its limit, split it immediately as part of the current task.
 |------|---------|---------|
 | `filter.ts` | PocketBase filter helpers | `escapeFilterValue()`, `buildFilterString()`, `validateRouteParam()` |
 | `bug-report.ts` | Sending «Fehler melden» from the browser | `sendBugReport()`, `reportPlace()` |
+| `page-screenshot.ts` | The whole page as a JPEG for a bug report (lazy `html-to-image`) | `pageScreenshot()`, `screenshotBase64()`, `MAX_SCREENSHOT_BYTES` |
 
 ### Server only (`src/lib/server/`)
 
 | File | Purpose | Exports |
 |------|---------|---------|
-| `bug-report.ts` | Bug report validation, issue text, GitHub call, rate limit | `parseBugReport()`, `isHoneypotFilled()`, `issueTitle()`, `issueBody()`, `openIssue()`, `RateLimiter` |
+| `bug-report.ts` | Bug report validation, screenshot storage, issue text, GitHub calls, rate limit | `parseBugReport()`, `parseScreenshot()`, `isHoneypotFilled()`, `issueTitle()`, `issueBody()`, `openIssue()`, `storeScreenshot()`, `RateLimiter` |
 
 ### i18n (`src/lib/i18n/`)
 

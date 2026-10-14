@@ -68,7 +68,7 @@ Denormalized view collections:
 
 - Server-side load functions call PocketBase directly at `localhost:8090`
 - Client-side calls go through `/api/pb/[...path]` proxy (avoids CORS)
-- «Fehler melden» (footer on the website, edge tab in the app) posts to `/api/bug-report`, which opens an issue in the private `tellbow/schwingen-feedback`; no screenshots yet. The site version comes from the release tag at build time (`APP_VERSION` → `__APP_VERSION__`)
+- «Fehler melden» (bug button in the header on the website, edge tab in the app) posts to `/api/bug-report`, which opens an issue in the private `tellbow/schwingen-feedback`; an optional screenshot (`html-to-image` on the web, `RepaintBoundary` in the app, at most 4 MB) is committed to that repo under `screenshots/` and shown in the issue. The site version comes from the release tag at build time (`APP_VERSION` → `__APP_VERSION__`)
 - `src/lib/pb.ts` — single PocketBase JS SDK client
 
 ### Observability

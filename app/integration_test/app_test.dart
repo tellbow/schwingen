@@ -131,6 +131,8 @@ void main() {
     await pumpUntil(tester, find.text('Was ist passiert?'));
     await tester.enterText(find.byType(TextField).last, 'Der Klub hat zu wenige Schwinger.');
     await tester.pump(const Duration(milliseconds: 300));
+    FocusManager.instance.primaryFocus?.unfocus();
+    await tester.pump(const Duration(milliseconds: 500));
     await shot(tester, 'bug-report');
     await tester.tap(find.text('Abbrechen'));
     await tester.pump(const Duration(seconds: 1));
