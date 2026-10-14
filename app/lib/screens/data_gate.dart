@@ -10,8 +10,10 @@ import 'package:sqflite/sqflite.dart';
 import '../data/queries.dart';
 import '../data/release.dart';
 import '../data/store.dart';
+import '../settings.dart';
 import 'context.dart';
 import 'home_screen.dart';
+import 'settings_screen.dart';
 import 'widgets.dart';
 
 const _backup = MethodChannel('tellbow/backup');
@@ -24,9 +26,10 @@ Future<DataStore> openStore() async {
 }
 
 class DataGate extends StatefulWidget {
-  const DataGate({super.key, required this.store});
+  const DataGate({super.key, required this.store, required this.settings});
 
   final Future<DataStore> store;
+  final Settings settings;
 
   @override
   State<DataGate> createState() => _DataGateState();
@@ -88,6 +91,31 @@ class _DataGateState extends State<DataGate> {
     }
   }
 
+  Future<Release?> _checkNow() async {
+    final release = await _store!.newerRelease();
+    if (mounted) {
+      setState(() {
+        _release = release;
+        _dismissed = false;
+      });
+    }
+    return release;
+  }
+
+  Future<void> _reload() async {
+    if (_progress != null) return;
+    final old = _db;
+    setState(() {
+      _db = null;
+      _queries = null;
+      _release = null;
+    });
+    await old?.close();
+    await _store!.clear();
+    await _check();
+    if (mounted && _release != null) await _download();
+  }
+
   Future<void> _download() async {
     final store = _store!, release = _release!;
     setState(() {
@@ -122,10 +150,17 @@ class _DataGateState extends State<DataGate> {
     final queries = _queries;
     if (queries == null) return _firstDownload(context);
     final showBanner = _progress != null || (_release != null && !_dismissed);
+    final store = _store!;
     return HomeScreen(
       key: ObjectKey(queries),
       queries: queries,
-      dataTag: _store?.installedTag,
+      settings: (_) => SettingsScreen(
+        settings: widget.settings,
+        dataTag: store.installedTag,
+        dataBytes: store.database.lengthSync(),
+        onCheck: _checkNow,
+        onReload: _reload,
+      ),
       banner: showBanner ? _banner(context) : null,
     );
   }
@@ -146,7 +181,7 @@ class _DataGateState extends State<DataGate> {
               const SizedBox(height: 8),
               Text(l10n.dataTitle, style: theme.textTheme.titleLarge),
               const SizedBox(height: 16),
-              if (release != null) Text(l10n.dataText(_megabytes(release))),
+              if (release != null) Text(l10n.dataText(megabytes(release.size))),
               const SizedBox(height: 24),
               if (progress != null) ...[
                 LinearProgressIndicator(value: progress),
@@ -194,7 +229,7 @@ class _DataGateState extends State<DataGate> {
                     child: Text(
                       error != null
                           ? l10n.failed('$error')
-                          : l10n.updateAvailable(release?.tag ?? '', release == null ? 0 : _megabytes(release)),
+                          : l10n.updateAvailable(release?.tag ?? '', megabytes(release?.size ?? 0)),
                       style: TextStyle(color: scheme.onPrimaryContainer),
                     ),
                   ),
@@ -207,4 +242,4 @@ class _DataGateState extends State<DataGate> {
   }
 }
 
-int _megabytes(Release release) => (release.size / 1000000).round();
+int megabytes(int bytes) => (bytes / 1000000).round();

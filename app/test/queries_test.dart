@@ -126,12 +126,12 @@ void main() {
   group('groups', () {
     test('count all, active and wreathed wrestlers per association', () async {
       final association = (await q.groups(GroupLevel.association)).single;
-      expect((association.name, association.short), ('Bernisch-Kantonaler', 'BKSV'));
+      expect((association.name, association.short, association.parent), ('Bernisch-Kantonaler', 'BKSV', ''));
       expect((association.total, association.active, association.stars), (3, 2, (1, 0, 1)));
     });
 
     test('list the cantons of an association and the clubs of a canton by name', () async {
-      expect((await q.groups(GroupLevel.canton, parent: 'a1')).map((g) => g.id), ['c1']);
+      expect((await q.groups(GroupLevel.canton, parent: 'a1')).map((g) => (g.id, g.parent)), [('c1', 'a1')]);
       final clubs = await q.groups(GroupLevel.club, parent: 'c1');
       expect(clubs.map((g) => (g.name, g.total, g.active)), [('Schwingklub Sense', 1, 0), ('Schwingklub Thun', 2, 2)]);
       expect(await q.groups(GroupLevel.club, parent: 'nowhere'), isEmpty);

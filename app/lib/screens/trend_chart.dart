@@ -64,7 +64,7 @@ class TrendChart extends StatelessWidget {
                       reservedSize: 22,
                       getTitlesWidget: (value, meta) => SideTitleWidget(
                         meta: meta,
-                        child: Text('’${(value.toInt() % 100).toString().padLeft(2, '0')}', style: muted),
+                        child: Text(shortYear(value.toInt()), style: muted),
                       ),
                     ),
                   ),
@@ -123,6 +123,8 @@ class TrendChart extends StatelessWidget {
     );
   }
 }
+
+String shortYear(int year) => '’${(year % 100).toString().padLeft(2, '0')}';
 
 class AxisRange {
   const AxisRange(this.min, this.max, this.step);

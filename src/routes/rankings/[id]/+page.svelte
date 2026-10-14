@@ -2,6 +2,7 @@
 	import { page } from '$app/stores';
 	import { t, type Locale } from '$lib/i18n/index.svelte';
 	import RankingStatistics from '$lib/components/rankings/ranking-statistics.svelte';
+	import WreathMark from '$lib/components/rankings/wreath-mark.svelte';
 
 	let { data } = $props();
 	const place = $derived(data.place);
@@ -101,7 +102,9 @@
 								<td class="hidden md:table-cell">{r.expand?.wrestler?.vorname ?? '-'}</td>
 								<td class="font-mono text-xs">{r.result}</td>
 								<td class="hidden md:table-cell">{r.final ? '🏁' : ''}</td>
-								<td class="hidden md:table-cell">{r.wreath ? '🏆' : ''}</td>
+								<td class="hidden md:table-cell">
+									{#if r.wreath}<WreathMark {locale} />{/if}
+								</td>
 								<td class="hidden text-xs md:table-cell">{r.status ?? ''}</td>
 							</tr>
 						{/each}

@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
 
+import '../data/charts.dart';
 import '../data/models.dart';
 import '../data/queries.dart';
 import '../data/statistics_queries.dart';
+import '../theme.dart';
 import 'context.dart';
 import 'widgets.dart';
 
 class StatisticsScreen extends StatefulWidget {
-  const StatisticsScreen({super.key, required this.queries, required this.dataTag});
+  const StatisticsScreen({super.key, required this.queries, required this.onSettings});
 
   final Queries queries;
-  final String? dataTag;
+  final VoidCallback onSettings;
 
   @override
   State<StatisticsScreen> createState() => _StatisticsScreenState();
@@ -25,7 +27,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.tabStatistics)),
+      appBar: AppBar(title: Text(l10n.tabStatistics), actions: [SettingsButton(widget.onSettings)]),
       body: ListView(
         padding: const EdgeInsets.only(bottom: 24),
         children: [
@@ -69,9 +71,22 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                     entries: stats.mostWins,
                     value: whole,
                     detail: (e) => l10n.withWreath(e.extra?.round() ?? 0),
+                    bars: true,
                   ),
-                  _Top(queries: widget.queries, title: l10n.topWreaths, entries: stats.mostWreaths, value: whole),
-                  _Top(queries: widget.queries, title: l10n.topPlaces, entries: stats.mostPlacesAttended, value: whole),
+                  _Top(
+                    queries: widget.queries,
+                    title: l10n.topWreaths,
+                    entries: stats.mostWreaths,
+                    value: whole,
+                    bars: true,
+                  ),
+                  _Top(
+                    queries: widget.queries,
+                    title: l10n.topPlaces,
+                    entries: stats.mostPlacesAttended,
+                    value: whole,
+                    bars: true,
+                  ),
                   Section(
                     title: l10n.drawRatio,
                     subtitle: l10n.drawRatioCaption,
@@ -89,8 +104,6 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
               );
             },
           ),
-          if (widget.dataTag != null)
-            Padding(padding: const EdgeInsets.only(top: 16), child: Message(l10n.dataVersion(widget.dataTag!))),
         ],
       ),
     );
@@ -105,6 +118,7 @@ class _Top extends StatelessWidget {
     required this.value,
     this.subtitle,
     this.detail,
+    this.bars = false,
   });
 
   final Queries queries;
@@ -113,22 +127,52 @@ class _Top extends StatelessWidget {
   final List<StatEntry> entries;
   final String Function(StatEntry) value;
   final String Function(StatEntry)? detail;
+  final bool bars;
 
   @override
-  Widget build(BuildContext context) => Section(
-    title: title,
-    subtitle: subtitle,
+  Widget build(BuildContext context) {
+    final shares = shareOfMax([for (final e in entries) e.value]);
+    return Section(
+      title: title,
+      subtitle: subtitle,
+      children: [
+        if (entries.isEmpty) Message(context.l10n.noData),
+        for (final (i, e) in entries.indexed)
+          ListTile(
+            dense: true,
+            leading: Text('${i + 1}.', style: const TextStyle(fontWeight: FontWeight.w600)),
+            title: bars ? _Bar(share: shares[i], child: PersonName(e.person)) : PersonName(e.person),
+            subtitle: detail == null ? null : Text(detail!(e)),
+            trailing: Text(value(e), style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
+            onTap: () => openWrestler(context, queries, e.person.id),
+          ),
+      ],
+    );
+  }
+}
+
+class _Bar extends StatelessWidget {
+  const _Bar({required this.share, required this.child});
+
+  final double share;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      if (entries.isEmpty) Message(context.l10n.noData),
-      for (final (i, e) in entries.indexed)
-        ListTile(
-          dense: true,
-          leading: Text('${i + 1}.', style: const TextStyle(fontWeight: FontWeight.w600)),
-          title: PersonName(e.person),
-          subtitle: detail == null ? null : Text(detail!(e)),
-          trailing: Text(value(e), style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
-          onTap: () => openWrestler(context, queries, e.person.id),
+      child,
+      const SizedBox(height: 4),
+      FractionallySizedBox(
+        widthFactor: share,
+        child: Container(
+          height: 6,
+          decoration: BoxDecoration(
+            color: seriesColor(Theme.of(context).colorScheme),
+            borderRadius: BorderRadius.circular(3),
+          ),
         ),
+      ),
     ],
   );
 }

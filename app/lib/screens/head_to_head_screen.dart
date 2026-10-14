@@ -1,19 +1,24 @@
 import 'package:flutter/material.dart';
 
+import '../data/charts.dart';
 import '../data/models.dart';
 import '../data/queries.dart';
 import '../data/stats.dart';
+import 'charts.dart';
 import 'context.dart';
 import 'stat_grid.dart';
 import 'widgets.dart';
 import 'wrestlers_screen.dart';
 
+typedef _Duel = ({List<Meeting> meetings, List<(String, Map<int, double?>)> ranks});
+
 class HeadToHeadScreen extends StatefulWidget {
-  const HeadToHeadScreen({super.key, required this.queries, this.first, this.second});
+  const HeadToHeadScreen({super.key, required this.queries, this.first, this.second, this.onSettings});
 
   final Queries queries;
   final Person? first;
   final Person? second;
+  final VoidCallback? onSettings;
 
   @override
   State<HeadToHeadScreen> createState() => _HeadToHeadScreenState();
@@ -22,11 +27,19 @@ class HeadToHeadScreen extends StatefulWidget {
 class _HeadToHeadScreenState extends State<HeadToHeadScreen> {
   late Person? _first = widget.first;
   late Person? _second = widget.second;
-  late Future<List<Meeting>>? _meetings = _load();
+  late Future<_Duel>? _duel = _load();
 
-  Future<List<Meeting>>? _load() {
+  Future<_Duel>? _load() {
     final first = _first, second = _second;
-    return first == null || second == null ? null : widget.queries.meetings(first.id, second.id);
+    if (first == null || second == null) return null;
+    final q = widget.queries;
+    return (() async => (
+      meetings: await q.meetings(first.id, second.id),
+      ranks: [
+        for (final person in [first, second])
+          (person.fullName, averageRankBySeason(await q.rankingsOf(person.id, null))),
+      ],
+    ))();
   }
 
   Future<void> _pick(bool first) async {
@@ -36,7 +49,7 @@ class _HeadToHeadScreenState extends State<HeadToHeadScreen> {
     if (person == null) return;
     setState(() {
       first ? _first = person : _second = person;
-      _meetings = _load();
+      _duel = _load();
     });
   }
 
@@ -44,15 +57,18 @@ class _HeadToHeadScreenState extends State<HeadToHeadScreen> {
     final first = _first;
     _first = _second;
     _second = first;
-    _meetings = _load();
+    _duel = _load();
   });
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final meetings = _meetings;
+    final duel = _duel;
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.tabHeadToHead)),
+      appBar: AppBar(
+        title: Text(l10n.tabHeadToHead),
+        actions: [if (widget.onSettings case final open?) SettingsButton(open)],
+      ),
       body: ListView(
         padding: const EdgeInsets.only(bottom: 24),
         children: [
@@ -61,10 +77,21 @@ class _HeadToHeadScreenState extends State<HeadToHeadScreen> {
             child: IconButton(tooltip: l10n.swap, icon: const Icon(Icons.swap_vert), onPressed: _swap),
           ),
           _Picker(label: l10n.wrestler2, person: _second, onTap: () => _pick(false)),
-          if (meetings != null)
+          if (duel != null)
             Loader(
-              future: meetings,
-              builder: (context, list) => _Meetings(queries: widget.queries, meetings: list),
+              future: duel,
+              builder: (context, duel) => Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _Meetings(queries: widget.queries, meetings: duel.meetings),
+                  if (RankDuelChart.hasData(duel.ranks))
+                    Section(
+                      title: l10n.trends,
+                      subtitle: l10n.fiveEvents,
+                      children: [RankDuelChart(series: duel.ranks)],
+                    ),
+                ],
+              ),
             ),
         ],
       ),

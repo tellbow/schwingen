@@ -11,6 +11,7 @@
 	import { getClientPb } from '$lib/pb';
 	import { yearOnly } from '$lib/utils/format';
 	import { t, type Locale } from '$lib/i18n/index.svelte';
+	import WreathMark from '$lib/components/rankings/wreath-mark.svelte';
 	import WrestlerStatsCharts from '$lib/components/wrestler/wrestler-stats-charts.svelte';
 	import WrestlerHeadToHead from '$lib/components/wrestler/wrestler-head-to-head.svelte';
 	import WrestlerTopOpponents from '$lib/components/wrestler/wrestler-top-opponents.svelte';
@@ -303,7 +304,7 @@
 							</td>
 							<td class="hidden md:table-cell">{r.final ? '🏁' : ''}</td>
 							<td class="hidden md:table-cell">
-								{r.wreath ? '🏆' : ''}
+								{#if r.wreath}<WreathMark {locale} />{/if}
 								{r.status === 'Unfall' ? '🩹' : ''}
 							</td>
 						</tr>

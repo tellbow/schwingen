@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../data/charts.dart';
 import '../data/models.dart';
 import '../data/queries.dart';
 import '../data/stats.dart';
+import 'charts.dart';
 import 'context.dart';
 import 'stat_grid.dart';
 import 'trend_chart.dart';
@@ -197,6 +199,7 @@ class _Trends extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final trends = seasonTrends(season.rankings);
+    final results = trends.length == 1 ? festivalResults(season.rankings) : const <FestivalResult>[];
     final elo = {for (final e in season.eloHistory) e.year: e.rating};
     final wins = {for (final t in trends) t.year: t.winPercent};
     final points = {for (final t in trends) t.year: t.averagePoints};
@@ -205,8 +208,13 @@ class _Trends extends StatelessWidget {
         TrendChart(title: 'ELO', points: s, format: (v) => '${v.round()}'),
       if (yearSeries(wins) case final s when s.isNotEmpty)
         TrendChart(title: l10n.winRate, points: s, format: (v) => '${v.round()} %', range: const AxisRange(0, 100, 25)),
+      if (trends.where((t) => t.counts.total > 0).length >= 2) SeasonOutcomeChart(trends),
       if (yearSeries(points) case final s when s.isNotEmpty)
         TrendChart(title: l10n.averagePoints, points: s, format: context.decimal),
+      if (FestivalChart.hasData(results, rank: true))
+        FestivalChart(title: l10n.festivalRanks, results: results, rank: true),
+      if (FestivalChart.hasData(results, rank: false))
+        FestivalChart(title: l10n.festivalPoints, results: results, rank: false),
     ];
     if (charts.isEmpty) return const SizedBox();
     return Section(title: l10n.trends, children: charts);

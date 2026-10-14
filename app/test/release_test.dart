@@ -104,6 +104,19 @@ void main() {
       expect(await store.newerRelease(), isNull);
     });
 
+    test('clear removes the installed database so the next check offers it again', () async {
+      final store = DataStore(dir, github([releaseJson('v2.1.2')]));
+      final release = (await store.newerRelease())!;
+      await store.swap(await store.fetch(release, (_) {}), release);
+
+      await store.clear();
+
+      expect(store.installed, isFalse);
+      expect(store.installedTag, isNull);
+      expect(store.database.existsSync(), isFalse);
+      expect((await store.newerRelease())?.tag, 'v2.1.2');
+    });
+
     test('decompresses app.db.gz while downloading', () async {
       final store = DataStore(dir, github([releaseJson('v2.2.0', withApp: true)], body: gzip.encode(sqliteBytes)));
       final release = (await store.newerRelease())!;

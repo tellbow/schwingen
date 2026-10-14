@@ -20,7 +20,7 @@ extension GroupQueries on Queries {
     };
     final rows = await db.rawQuery(
       '''
-      SELECT g.id, g.name, $short AS short, COUNT(w.id) AS total,
+      SELECT g.id, g.name, $short AS short, $parentColumn AS parent, COUNT(w.id) AS total,
         COUNT(CASE WHEN w.category != '' THEN 1 END) AS active,
         COUNT(CASE WHEN w.category != '' AND s.symbol = '***' THEN 1 END) AS stars3,
         COUNT(CASE WHEN w.category != '' AND s.symbol = '**' THEN 1 END) AS stars2,
@@ -39,6 +39,7 @@ extension GroupQueries on Queries {
           id: text(r['id']),
           name: text(r['name']),
           short: text(r['short']),
+          parent: text(r['parent']),
           total: whole(r['total']),
           active: whole(r['active']),
           stars: (whole(r['stars3']), whole(r['stars2']), whole(r['stars1'])),

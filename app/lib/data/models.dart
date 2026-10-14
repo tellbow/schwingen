@@ -173,6 +173,7 @@ class Group {
     required this.id,
     required this.name,
     required this.short,
+    required this.parent,
     required this.total,
     required this.active,
     required this.stars,
@@ -182,6 +183,7 @@ class Group {
   final String id;
   final String name;
   final String short;
+  final String parent;
   final int total;
   final int active;
   final (int, int, int) stars;

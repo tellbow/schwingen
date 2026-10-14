@@ -192,6 +192,16 @@ class YearChips extends StatelessWidget {
   );
 }
 
+class SettingsButton extends StatelessWidget {
+  const SettingsButton(this.onPressed, {super.key});
+
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) =>
+      IconButton(tooltip: context.l10n.settings, icon: const Icon(Icons.settings_outlined), onPressed: onPressed);
+}
+
 class PersonName extends StatelessWidget {
   const PersonName(this.person, {super.key, this.style});
 
@@ -300,7 +310,11 @@ class Points extends StatelessWidget {
   Widget build(BuildContext context) => Row(
     mainAxisSize: MainAxisSize.min,
     children: [
-      if (wreath) Icon(Icons.eco, size: 18, color: Theme.of(context).colorScheme.tertiary),
+      if (wreath)
+        Semantics(
+          label: context.l10n.wreath,
+          child: const ExcludeSemantics(child: Text('🌿')),
+        ),
       const SizedBox(width: 4),
       Text(context.points(points), style: const TextStyle(fontWeight: FontWeight.w600)),
     ],

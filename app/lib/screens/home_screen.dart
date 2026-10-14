@@ -9,10 +9,10 @@ import 'statistics_screen.dart';
 import 'wrestlers_screen.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key, required this.queries, required this.dataTag, this.banner});
+  const HomeScreen({super.key, required this.queries, required this.settings, this.banner});
 
   final Queries queries;
-  final String? dataTag;
+  final WidgetBuilder settings;
   final Widget? banner;
 
   @override
@@ -24,12 +24,14 @@ class _HomeScreenState extends State<HomeScreen> {
   var _tab = 0;
 
   Widget _root(int tab) => switch (tab) {
-    0 => WrestlersScreen(queries: widget.queries),
-    1 => PlacesScreen(queries: widget.queries),
-    2 => HeadToHeadScreen(queries: widget.queries),
-    3 => AssociationsScreen(queries: widget.queries),
-    _ => StatisticsScreen(queries: widget.queries, dataTag: widget.dataTag),
+    0 => WrestlersScreen(queries: widget.queries, onSettings: _openSettings),
+    1 => PlacesScreen(queries: widget.queries, onSettings: _openSettings),
+    2 => HeadToHeadScreen(queries: widget.queries, onSettings: _openSettings),
+    3 => AssociationsScreen(queries: widget.queries, onSettings: _openSettings),
+    _ => StatisticsScreen(queries: widget.queries, onSettings: _openSettings),
   };
+
+  void _openSettings() => _navigators[_tab].currentState?.push(MaterialPageRoute(builder: widget.settings));
 
   void _select(int tab) {
     if (tab == _tab) {

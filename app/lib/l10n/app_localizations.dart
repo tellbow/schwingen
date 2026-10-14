@@ -404,12 +404,6 @@ abstract class AppLocalizations {
   /// **'Später'**
   String get later;
 
-  /// No description provided for @dataVersion.
-  ///
-  /// In de, this message translates to:
-  /// **'Daten {tag}'**
-  String dataVersion(String tag);
-
   /// No description provided for @openProfile.
   ///
   /// In de, this message translates to:
@@ -481,6 +475,204 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Siegquote'**
   String get winRate;
+
+  /// No description provided for @wreath.
+  ///
+  /// In de, this message translates to:
+  /// **'Kranz'**
+  String get wreath;
+
+  /// No description provided for @settings.
+  ///
+  /// In de, this message translates to:
+  /// **'Einstellungen'**
+  String get settings;
+
+  /// No description provided for @appearance.
+  ///
+  /// In de, this message translates to:
+  /// **'Darstellung'**
+  String get appearance;
+
+  /// No description provided for @system.
+  ///
+  /// In de, this message translates to:
+  /// **'System'**
+  String get system;
+
+  /// No description provided for @light.
+  ///
+  /// In de, this message translates to:
+  /// **'Hell'**
+  String get light;
+
+  /// No description provided for @dark.
+  ///
+  /// In de, this message translates to:
+  /// **'Dunkel'**
+  String get dark;
+
+  /// No description provided for @language.
+  ///
+  /// In de, this message translates to:
+  /// **'Sprache'**
+  String get language;
+
+  /// No description provided for @data.
+  ///
+  /// In de, this message translates to:
+  /// **'Daten'**
+  String get data;
+
+  /// No description provided for @installedData.
+  ///
+  /// In de, this message translates to:
+  /// **'Installierte Daten'**
+  String get installedData;
+
+  /// No description provided for @dataInstalled.
+  ///
+  /// In de, this message translates to:
+  /// **'{tag} · {size} MB'**
+  String dataInstalled(String tag, int size);
+
+  /// No description provided for @checkForData.
+  ///
+  /// In de, this message translates to:
+  /// **'Nach neuen Daten suchen'**
+  String get checkForData;
+
+  /// No description provided for @upToDate.
+  ///
+  /// In de, this message translates to:
+  /// **'Die Daten sind aktuell.'**
+  String get upToDate;
+
+  /// No description provided for @reloadData.
+  ///
+  /// In de, this message translates to:
+  /// **'Daten löschen und neu laden'**
+  String get reloadData;
+
+  /// No description provided for @reloadDataText.
+  ///
+  /// In de, this message translates to:
+  /// **'Die Daten werden vom iPhone gelöscht und gleich neu geladen. Dafür braucht es Internet.'**
+  String get reloadDataText;
+
+  /// No description provided for @cancel.
+  ///
+  /// In de, this message translates to:
+  /// **'Abbrechen'**
+  String get cancel;
+
+  /// No description provided for @reload.
+  ///
+  /// In de, this message translates to:
+  /// **'Neu laden'**
+  String get reload;
+
+  /// No description provided for @about.
+  ///
+  /// In de, this message translates to:
+  /// **'Über Tellbow'**
+  String get about;
+
+  /// No description provided for @version.
+  ///
+  /// In de, this message translates to:
+  /// **'Version'**
+  String get version;
+
+  /// No description provided for @website.
+  ///
+  /// In de, this message translates to:
+  /// **'Website'**
+  String get website;
+
+  /// No description provided for @dataSource.
+  ///
+  /// In de, this message translates to:
+  /// **'Datenquelle'**
+  String get dataSource;
+
+  /// No description provided for @dataSourceText.
+  ///
+  /// In de, this message translates to:
+  /// **'Ranglisten des Eidgenössischen Schwingerverbands (esv.ch)'**
+  String get dataSourceText;
+
+  /// No description provided for @licenses.
+  ///
+  /// In de, this message translates to:
+  /// **'Open-Source-Lizenzen'**
+  String get licenses;
+
+  /// No description provided for @outcomesBySeason.
+  ///
+  /// In de, this message translates to:
+  /// **'Siege, Gestellte und Niederlagen pro Saison'**
+  String get outcomesBySeason;
+
+  /// No description provided for @festivalRanks.
+  ///
+  /// In de, this message translates to:
+  /// **'Rang pro Fest'**
+  String get festivalRanks;
+
+  /// No description provided for @festivalPoints.
+  ///
+  /// In de, this message translates to:
+  /// **'Punkte pro Fest'**
+  String get festivalPoints;
+
+  /// No description provided for @rankAndPoints.
+  ///
+  /// In de, this message translates to:
+  /// **'Rang {rank} · {points} Punkte'**
+  String rankAndPoints(String rank, String points);
+
+  /// No description provided for @rankBySeason.
+  ///
+  /// In de, this message translates to:
+  /// **'Ø Rang pro Saison (Rang 1 oben)'**
+  String get rankBySeason;
+
+  /// No description provided for @pointsDistribution.
+  ///
+  /// In de, this message translates to:
+  /// **'Punkteverteilung'**
+  String get pointsDistribution;
+
+  /// No description provided for @withWreathLegend.
+  ///
+  /// In de, this message translates to:
+  /// **'mit Kranz'**
+  String get withWreathLegend;
+
+  /// No description provided for @withoutWreath.
+  ///
+  /// In de, this message translates to:
+  /// **'ohne Kranz'**
+  String get withoutWreath;
+
+  /// No description provided for @activeByAssociation.
+  ///
+  /// In de, this message translates to:
+  /// **'Aktive pro Verband'**
+  String get activeByAssociation;
+
+  /// No description provided for @activeByCanton.
+  ///
+  /// In de, this message translates to:
+  /// **'Aktive pro Kanton / Gauverband'**
+  String get activeByCanton;
+
+  /// No description provided for @mapHint.
+  ///
+  /// In de, this message translates to:
+  /// **'Tippe auf eine Region für die Zahl.'**
+  String get mapHint;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

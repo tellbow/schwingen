@@ -87,3 +87,14 @@ Color resultColor(ColorScheme scheme, String result) => switch (result) {
 
 Color seriesColor(ColorScheme scheme) =>
     scheme.brightness == Brightness.dark ? const Color(0xFFB8862F) : const Color(0xFF8C6418);
+
+Color secondSeriesColor(ColorScheme scheme) =>
+    scheme.brightness == Brightness.dark ? const Color(0xFF3987E5) : const Color(0xFF2A78D6);
+
+({Color win, Color draw, Color loss}) outcomeColors(ColorScheme scheme) => scheme.brightness == Brightness.dark
+    ? (win: const Color(0xFF5FA84A), draw: const Color(0xFF646058), loss: const Color(0xFFE8625C))
+    : (win: const Color(0xFF3B8A2A), draw: const Color(0xFF9A9184), loss: const Color(0xFFD03A35));
+
+Color mapColor(ColorScheme scheme, double share) => scheme.brightness == Brightness.dark
+    ? Color.lerp(const Color(0xFF3A3122), const Color(0xFFE2B565), share)!
+    : Color.lerp(const Color(0xFFF2E5C9), const Color(0xFF6B4A10), share)!;

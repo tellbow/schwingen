@@ -6,9 +6,10 @@ import 'context.dart';
 import 'widgets.dart';
 
 class PlacesScreen extends StatefulWidget {
-  const PlacesScreen({super.key, required this.queries});
+  const PlacesScreen({super.key, required this.queries, required this.onSettings});
 
   final Queries queries;
+  final VoidCallback onSettings;
 
   @override
   State<PlacesScreen> createState() => _PlacesScreenState();
@@ -21,7 +22,7 @@ class _PlacesScreenState extends State<PlacesScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: Text(context.l10n.tabPlaces)),
+    appBar: AppBar(title: Text(context.l10n.tabPlaces), actions: [SettingsButton(widget.onSettings)]),
     body: Column(
       children: [
         SearchBox(hint: context.l10n.searchPlaces, onChanged: (value) => setState(() => _search = value)),

@@ -6,13 +6,14 @@ import 'context.dart';
 import 'widgets.dart';
 
 class WrestlersScreen extends StatelessWidget {
-  const WrestlersScreen({super.key, required this.queries});
+  const WrestlersScreen({super.key, required this.queries, required this.onSettings});
 
   final Queries queries;
+  final VoidCallback onSettings;
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: Text(context.l10n.tabWrestlers)),
+    appBar: AppBar(title: Text(context.l10n.tabWrestlers), actions: [SettingsButton(onSettings)]),
     body: WrestlerSearch(queries: queries, onPick: (person) => openWrestler(context, queries, person.id)),
   );
 }

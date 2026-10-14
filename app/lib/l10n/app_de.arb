@@ -51,7 +51,6 @@
   "noRelease": "Keine Daten gefunden.",
   "updateAvailable": "Neue Daten verfügbar ({tag}, {size} MB)",
   "later": "Später",
-  "dataVersion": "Daten {tag}",
   "@eloOfYear": {
     "placeholders": {
       "year": {
@@ -104,13 +103,6 @@
       }
     }
   },
-  "@dataVersion": {
-    "placeholders": {
-      "tag": {
-        "type": "String"
-      }
-    }
-  },
   "openProfile": "Profil anzeigen",
   "winsWithRate": "Siege · {percent} %",
   "@winsWithRate": {
@@ -136,5 +128,58 @@
   "navPlaces": "Feste",
   "navHeadToHead": "Vergleich",
   "trends": "Verlauf",
-  "winRate": "Siegquote"
+  "winRate": "Siegquote",
+  "wreath": "Kranz",
+  "settings": "Einstellungen",
+  "appearance": "Darstellung",
+  "system": "System",
+  "light": "Hell",
+  "dark": "Dunkel",
+  "language": "Sprache",
+  "data": "Daten",
+  "installedData": "Installierte Daten",
+  "dataInstalled": "{tag} · {size} MB",
+  "checkForData": "Nach neuen Daten suchen",
+  "upToDate": "Die Daten sind aktuell.",
+  "reloadData": "Daten löschen und neu laden",
+  "reloadDataText": "Die Daten werden vom iPhone gelöscht und gleich neu geladen. Dafür braucht es Internet.",
+  "cancel": "Abbrechen",
+  "reload": "Neu laden",
+  "about": "Über Tellbow",
+  "version": "Version",
+  "website": "Website",
+  "dataSource": "Datenquelle",
+  "dataSourceText": "Ranglisten des Eidgenössischen Schwingerverbands (esv.ch)",
+  "licenses": "Open-Source-Lizenzen",
+  "@dataInstalled": {
+    "placeholders": {
+      "tag": {
+        "type": "String"
+      },
+      "size": {
+        "type": "int"
+      }
+    }
+  },
+  "outcomesBySeason": "Siege, Gestellte und Niederlagen pro Saison",
+  "festivalRanks": "Rang pro Fest",
+  "festivalPoints": "Punkte pro Fest",
+  "rankAndPoints": "Rang {rank} · {points} Punkte",
+  "rankBySeason": "Ø Rang pro Saison (Rang 1 oben)",
+  "pointsDistribution": "Punkteverteilung",
+  "withWreathLegend": "mit Kranz",
+  "withoutWreath": "ohne Kranz",
+  "activeByAssociation": "Aktive pro Verband",
+  "activeByCanton": "Aktive pro Kanton / Gauverband",
+  "mapHint": "Tippe auf eine Region für die Zahl.",
+  "@rankAndPoints": {
+    "placeholders": {
+      "rank": {
+        "type": "String"
+      },
+      "points": {
+        "type": "String"
+      }
+    }
+  }
 }

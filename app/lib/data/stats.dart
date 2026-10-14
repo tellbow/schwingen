@@ -67,26 +67,28 @@ int compareRanks(String rankA, String rank2A, String rankB, String rank2B) {
 }
 
 class SeasonTrend {
-  const SeasonTrend(this.year, this.winPercent, this.averagePoints);
+  const SeasonTrend(this.year, this.counts, this.averagePoints);
 
   final int year;
-  final int? winPercent;
+  final BoutCounts counts;
   final double? averagePoints;
+
+  int? get winPercent => counts.total == 0 ? null : counts.winPercent;
 }
 
-List<SeasonTrend> seasonTrends(List<Ranking> rankings) {
-  final bySeason = <int, List<Ranking>>{};
+Map<int, List<Ranking>> bySeason(List<Ranking> rankings) {
+  final seasons = <int, List<Ranking>>{};
   for (final r in rankings) {
     final year = int.tryParse(r.place.date.length >= 4 ? r.place.date.substring(0, 4) : '');
-    if (year != null) (bySeason[year] ??= []).add(r);
+    if (year != null) (seasons[year] ??= []).add(r);
   }
-  final years = bySeason.keys.toList()..sort();
-  return [
-    for (final year in years)
-      if (boutCounts(bySeason[year]!.map((r) => r.result)) case final counts)
-        SeasonTrend(year, counts.total == 0 ? null : counts.winPercent, averagePoints(bySeason[year]!)),
-  ];
+  return Map.fromEntries(seasons.entries.toList()..sort((a, b) => a.key - b.key));
 }
+
+List<SeasonTrend> seasonTrends(List<Ranking> rankings) => [
+  for (final MapEntry(key: year, value: season) in bySeason(rankings).entries)
+    SeasonTrend(year, boutCounts(season.map((r) => r.result)), averagePoints(season)),
+];
 
 List<(int, num?)> yearSeries(Map<int, num?> byYear) {
   final years = [

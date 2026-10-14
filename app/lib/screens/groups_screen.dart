@@ -3,24 +3,40 @@ import 'package:flutter/material.dart';
 import '../data/group_queries.dart';
 import '../data/models.dart';
 import '../data/queries.dart';
+import 'canton_map.dart';
 import 'context.dart';
 import 'stat_grid.dart';
 import 'widgets.dart';
 
 class AssociationsScreen extends StatelessWidget {
-  const AssociationsScreen({super.key, required this.queries});
+  const AssociationsScreen({super.key, required this.queries, required this.onSettings});
 
   final Queries queries;
+  final VoidCallback onSettings;
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: Text(context.l10n.tabAssociations)),
+    appBar: AppBar(title: Text(context.l10n.tabAssociations), actions: [SettingsButton(onSettings)]),
     body: Loader(
-      future: queries.groups(GroupLevel.association),
-      builder: (context, associations) => ListView(
-        padding: const EdgeInsets.only(bottom: 24),
-        children: [for (final group in associations) _GroupTile(queries: queries, group: group)],
-      ),
+      future: (() async => (await queries.groups(GroupLevel.association), await queries.groups(GroupLevel.canton)))(),
+      builder: (context, groups) {
+        final (associations, cantons) = groups;
+        final areas = {
+          for (final a in associations)
+            a.id: MapArea(label: _title(a), value: a.active, onOpen: () => openGroup(context, queries, a.level, a.id)),
+        };
+        return ListView(
+          padding: const EdgeInsets.only(bottom: 24),
+          children: [
+            _MapSection(
+              title: context.l10n.activeByAssociation,
+              areas: {for (final c in cantons) c.name: ?areas[c.parent]},
+            ),
+            const SizedBox(height: 8),
+            for (final group in associations) _GroupTile(queries: queries, group: group),
+          ],
+        );
+      },
     ),
   );
 }
@@ -71,6 +87,21 @@ class _GroupScreenState extends State<GroupScreen> {
                 StatTile(label: '**', value: '${group.stars.$2}'),
                 StatTile(label: '*', value: '${group.stars.$3}'),
               ]),
+              if (widget.level == GroupLevel.association)
+                Loader(
+                  future: _children,
+                  builder: (context, children) => _MapSection(
+                    title: l10n.activeByCanton,
+                    areas: {
+                      for (final c in children.whereType<Group>())
+                        c.name: MapArea(
+                          label: c.name,
+                          value: c.active,
+                          onOpen: () => openGroup(context, widget.queries, c.level, c.id),
+                        ),
+                    },
+                  ),
+                ),
               Loader(
                 future: _children,
                 builder: (context, children) => Section(
@@ -113,10 +144,30 @@ class _GroupTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final (three, two, one) = group.stars;
     return ListTile(
-      title: Text(group.short.isEmpty ? group.name : '${group.name} (${group.short})'),
+      title: Text(_title(group)),
       subtitle: Text('${context.l10n.activeCount(group.active)} · *** $three · ** $two · * $one'),
       trailing: const Icon(Icons.chevron_right),
       onTap: () => openGroup(context, queries, group.level, group.id),
     );
   }
 }
+
+class _MapSection extends StatelessWidget {
+  const _MapSection({required this.title, required this.areas});
+
+  final String title;
+  final Map<String, MapArea> areas;
+
+  @override
+  Widget build(BuildContext context) => Section(
+    title: title,
+    children: [
+      Loader(
+        future: loadCantonRegions(),
+        builder: (context, regions) => CantonMap(regions: regions, areas: areas),
+      ),
+    ],
+  );
+}
+
+String _title(Group group) => group.short.isEmpty ? group.name : '${group.name} (${group.short})';

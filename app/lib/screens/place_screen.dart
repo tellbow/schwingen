@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../data/charts.dart';
 import '../data/models.dart';
 import '../data/queries.dart';
+import 'charts.dart';
 import 'context.dart';
 import 'widgets.dart';
 
@@ -28,6 +30,7 @@ class _PlaceScreenState extends State<PlaceScreen> {
         final (place, rankings) = data;
         if (place == null) return Message(context.l10n.noData);
         final theme = Theme.of(context);
+        final bins = pointsHistogram(rankings);
         return ListView(
           padding: const EdgeInsets.only(bottom: 24),
           children: [
@@ -44,6 +47,7 @@ class _PlaceScreenState extends State<PlaceScreen> {
                 ],
               ),
             ),
+            if (bins.length >= 2) Section(title: context.l10n.tabStatistics, children: [PointsHistogramChart(bins)]),
             Section(
               title: context.l10n.rankings,
               children: [

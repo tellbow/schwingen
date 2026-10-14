@@ -14,24 +14,40 @@ dependencies:
     sdk: flutter
   http: ^1.6.0
   intl: ^0.20.2
+  package_info_plus: ^10.2.2
   path: ^1.9.1
   path_provider: ^2.1.6
+  shared_preferences: ^2.5.6
   sqflite: ^2.4.4+1
   url_launcher: ^6.3.3
 
 dev_dependencies:
+  flutter_launcher_icons: ^0.14.4
   flutter_lints: ^6.0.0
   flutter_test:
     sdk: flutter
   integration_test:
     sdk: flutter
+  shared_preferences_platform_interface: ^2.4.2
   sqflite_common_ffi: ^2.4.3
 
 flutter:
   generate: true
   uses-material-design: true
+  assets:
+    - assets/topo/
 
 hooks:
   user_defines:
     sqlite3:
       source: system
+
+flutter_launcher_icons:
+  android: false
+  ios: true
+  image_path: assets/icon/icon.png
+  remove_alpha_ios: true
+  background_color_ios: "#f9f7f4"
+  image_path_ios_dark_transparent: assets/icon/icon.png
+  image_path_ios_tinted_grayscale: assets/icon/icon.png
+  desaturate_tinted_to_grayscale_ios: true

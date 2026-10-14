@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import { t, type Locale } from '$lib/i18n/index.svelte';
+	import WreathMark from '$lib/components/rankings/wreath-mark.svelte';
 
 	let { data } = $props();
 	const wrestler = $derived(data.wrestler);
@@ -67,7 +68,10 @@
 				</div>
 				<div>
 					<p class="text-xs text-outline">{t(locale, 'wrestler.finalWreathLabel')}</p>
-					<p class="font-semibold">{ranking.final ? '🏁' : ''} {ranking.wreath ? '🏆' : ''}</p>
+					<p class="font-semibold">
+						{ranking.final ? '🏁' : ''}
+						{#if ranking.wreath}<WreathMark {locale} />{/if}
+					</p>
 				</div>
 			</div>
 		{/if}

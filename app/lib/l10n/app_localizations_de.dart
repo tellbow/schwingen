@@ -179,11 +179,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get later => 'Später';
 
   @override
-  String dataVersion(String tag) {
-    return 'Daten $tag';
-  }
-
-  @override
   String get openProfile => 'Profil anzeigen';
 
   @override
@@ -222,4 +217,108 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get winRate => 'Siegquote';
+
+  @override
+  String get wreath => 'Kranz';
+
+  @override
+  String get settings => 'Einstellungen';
+
+  @override
+  String get appearance => 'Darstellung';
+
+  @override
+  String get system => 'System';
+
+  @override
+  String get light => 'Hell';
+
+  @override
+  String get dark => 'Dunkel';
+
+  @override
+  String get language => 'Sprache';
+
+  @override
+  String get data => 'Daten';
+
+  @override
+  String get installedData => 'Installierte Daten';
+
+  @override
+  String dataInstalled(String tag, int size) {
+    return '$tag · $size MB';
+  }
+
+  @override
+  String get checkForData => 'Nach neuen Daten suchen';
+
+  @override
+  String get upToDate => 'Die Daten sind aktuell.';
+
+  @override
+  String get reloadData => 'Daten löschen und neu laden';
+
+  @override
+  String get reloadDataText =>
+      'Die Daten werden vom iPhone gelöscht und gleich neu geladen. Dafür braucht es Internet.';
+
+  @override
+  String get cancel => 'Abbrechen';
+
+  @override
+  String get reload => 'Neu laden';
+
+  @override
+  String get about => 'Über Tellbow';
+
+  @override
+  String get version => 'Version';
+
+  @override
+  String get website => 'Website';
+
+  @override
+  String get dataSource => 'Datenquelle';
+
+  @override
+  String get dataSourceText => 'Ranglisten des Eidgenössischen Schwingerverbands (esv.ch)';
+
+  @override
+  String get licenses => 'Open-Source-Lizenzen';
+
+  @override
+  String get outcomesBySeason => 'Siege, Gestellte und Niederlagen pro Saison';
+
+  @override
+  String get festivalRanks => 'Rang pro Fest';
+
+  @override
+  String get festivalPoints => 'Punkte pro Fest';
+
+  @override
+  String rankAndPoints(String rank, String points) {
+    return 'Rang $rank · $points Punkte';
+  }
+
+  @override
+  String get rankBySeason => 'Ø Rang pro Saison (Rang 1 oben)';
+
+  @override
+  String get pointsDistribution => 'Punkteverteilung';
+
+  @override
+  String get withWreathLegend => 'mit Kranz';
+
+  @override
+  String get withoutWreath => 'ohne Kranz';
+
+  @override
+  String get activeByAssociation => 'Aktive pro Verband';
+
+  @override
+  String get activeByCanton => 'Aktive pro Kanton / Gauverband';
+
+  @override
+  String get mapHint => 'Tippe auf eine Region für die Zahl.';
 }

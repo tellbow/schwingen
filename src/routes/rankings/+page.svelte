@@ -7,6 +7,7 @@
 	import { getClientPb } from '$lib/pb';
 	import { t, localizePath, type Locale } from '$lib/i18n/index.svelte';
 	import Pagination from '$lib/components/pagination.svelte';
+	import WreathMark from '$lib/components/rankings/wreath-mark.svelte';
 
 	let { data } = $props();
 	const locale = $derived($page.data.locale as Locale);
@@ -220,7 +221,9 @@
 						<td class="hidden md:table-cell">{r.points}</td>
 						<td class="hidden md:table-cell">{r.final ? '🏁' : ''}</td>
 						<td class="hidden font-mono text-xs md:table-cell">{r.result}</td>
-						<td class="hidden md:table-cell">{r.wreath ? '🏆' : ''}</td>
+						<td class="hidden md:table-cell">
+							{#if r.wreath}<WreathMark {locale} />{/if}
+						</td>
 						<td class="hidden text-xs md:table-cell">{r.status ?? ''}</td>
 						<td>
 							<a

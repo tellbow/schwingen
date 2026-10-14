@@ -41,6 +41,12 @@ class DataStore {
     await fetched.rename(database.path);
     await _tag.writeAsString(release.tag);
   }
+
+  Future<void> clear() async {
+    for (final file in [_tag, database, _partial]) {
+      if (await file.exists()) await file.delete();
+    }
+  }
 }
 
 Future<bool> isCompleteSqlite(File file) async {
