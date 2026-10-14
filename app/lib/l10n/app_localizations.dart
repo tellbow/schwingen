@@ -673,6 +673,54 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Tippe auf eine Region für die Zahl.'**
   String get mapHint;
+
+  /// No description provided for @bugReport.
+  ///
+  /// In de, this message translates to:
+  /// **'Fehler melden'**
+  String get bugReport;
+
+  /// No description provided for @bugWhat.
+  ///
+  /// In de, this message translates to:
+  /// **'Was ist passiert?'**
+  String get bugWhat;
+
+  /// No description provided for @bugPrivacy.
+  ///
+  /// In de, this message translates to:
+  /// **'Der Bericht geht an das Tellbow-Team und ist nicht öffentlich: dein Text, wo du warst ({place}), die App-Version und iOS-Version.'**
+  String bugPrivacy(String place);
+
+  /// No description provided for @bugSend.
+  ///
+  /// In de, this message translates to:
+  /// **'Senden'**
+  String get bugSend;
+
+  /// No description provided for @bugSent.
+  ///
+  /// In de, this message translates to:
+  /// **'Danke! Dein Bericht ist angekommen.'**
+  String get bugSent;
+
+  /// No description provided for @bugFailed.
+  ///
+  /// In de, this message translates to:
+  /// **'Das Senden hat nicht geklappt. Dein Text bleibt hier, versuch es gleich nochmals.'**
+  String get bugFailed;
+
+  /// No description provided for @bugBusy.
+  ///
+  /// In de, this message translates to:
+  /// **'Gerade kamen zu viele Berichte von hier. Versuch es in einer Stunde nochmals.'**
+  String get bugBusy;
+
+  /// No description provided for @close.
+  ///
+  /// In de, this message translates to:
+  /// **'Schliessen'**
+  String get close;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

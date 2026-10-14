@@ -321,4 +321,30 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get mapHint => 'Tippe auf eine Region für die Zahl.';
+
+  @override
+  String get bugReport => 'Fehler melden';
+
+  @override
+  String get bugWhat => 'Was ist passiert?';
+
+  @override
+  String bugPrivacy(String place) {
+    return 'Der Bericht geht an das Tellbow-Team und ist nicht öffentlich: dein Text, wo du warst ($place), die App-Version und iOS-Version.';
+  }
+
+  @override
+  String get bugSend => 'Senden';
+
+  @override
+  String get bugSent => 'Danke! Dein Bericht ist angekommen.';
+
+  @override
+  String get bugFailed => 'Das Senden hat nicht geklappt. Dein Text bleibt hier, versuch es gleich nochmals.';
+
+  @override
+  String get bugBusy => 'Gerade kamen zu viele Berichte von hier. Versuch es in einer Stunde nochmals.';
+
+  @override
+  String get close => 'Schliessen';
 }

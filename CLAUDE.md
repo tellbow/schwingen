@@ -68,6 +68,7 @@ Denormalized view collections:
 
 - Server-side load functions call PocketBase directly at `localhost:8090`
 - Client-side calls go through `/api/pb/[...path]` proxy (avoids CORS)
+- «Fehler melden» (footer on the website, edge tab in the app) posts to `/api/bug-report`, which opens an issue in the private `tellbow/schwingen-feedback`; no screenshots yet. The site version comes from the release tag at build time (`APP_VERSION` → `__APP_VERSION__`)
 - `src/lib/pb.ts` — single PocketBase JS SDK client
 
 ### Observability
@@ -267,6 +268,7 @@ bun run build   # Verify production build succeeds
 │       ├── +layout.svelte
 │       ├── +page.svelte     # Home/landing
 │       ├── api/pb/[...path]/  # CORS proxy to PocketBase
+│       ├── api/bug-report/    # «Fehler melden» → GitHub issue
 │       ├── wrestler/
 │       ├── rankings/
 │       ├── bouts/

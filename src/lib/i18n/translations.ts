@@ -29,6 +29,19 @@ const de: Translations = {
 	footer: {
 		tagline: 'Alles rund ums Schwingen'
 	},
+	bugReport: {
+		open: 'Fehler melden',
+		title: 'Fehler melden',
+		what: 'Was ist passiert?',
+		privacy:
+			'Der Bericht geht an das Tellbow-Team und ist nicht öffentlich: dein Text, die Seite ({place}), die Version und dein Browser.',
+		send: 'Senden',
+		cancel: 'Abbrechen',
+		close: 'Schliessen',
+		sent: 'Danke! Dein Bericht ist angekommen.',
+		failed: 'Das Senden hat nicht geklappt. Dein Text bleibt hier, versuch es gleich nochmals.',
+		busy: 'Gerade kamen zu viele Berichte von hier. Versuch es in einer Stunde nochmals.'
+	},
 	wrestler: {
 		title: 'Schwinger',
 		name: 'Name',
@@ -261,6 +274,19 @@ const fr: Translations = {
 	},
 	footer: {
 		tagline: 'Tout sur la lutte suisse'
+	},
+	bugReport: {
+		open: 'Signaler un problème',
+		title: 'Signaler un problème',
+		what: "Que s'est-il passé ?",
+		privacy:
+			"Le rapport est envoyé à l'équipe Tellbow et n'est pas public : ton texte, la page ({place}), la version et ton navigateur.",
+		send: 'Envoyer',
+		cancel: 'Annuler',
+		close: 'Fermer',
+		sent: 'Merci ! Ton rapport est bien arrivé.',
+		failed: "L'envoi n'a pas fonctionné. Ton texte reste ici, réessaie dans un instant.",
+		busy: "Trop de rapports sont arrivés d'ici. Réessaie dans une heure."
 	},
 	wrestler: {
 		title: 'Lutteurs',

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import { t, type Locale } from '$lib/i18n/index.svelte';
+	import BugReport from '$lib/components/bug-report.svelte';
 
 	const locale = $derived($page.data.locale as Locale);
 </script>
@@ -9,4 +10,7 @@
 	<p class="font-semibold tracking-tight text-outline">
 		© {new Date().getFullYear()} Tellbow – {t(locale, 'footer.tagline')}
 	</p>
+	<div class="mt-2">
+		<BugReport />
+	</div>
 </footer>

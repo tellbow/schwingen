@@ -181,5 +181,20 @@
         "type": "String"
       }
     }
+  },
+  "bugReport": "Fehler melden",
+  "bugWhat": "Was ist passiert?",
+  "bugPrivacy": "Der Bericht geht an das Tellbow-Team und ist nicht öffentlich: dein Text, wo du warst ({place}), die App-Version und iOS-Version.",
+  "bugSend": "Senden",
+  "bugSent": "Danke! Dein Bericht ist angekommen.",
+  "bugFailed": "Das Senden hat nicht geklappt. Dein Text bleibt hier, versuch es gleich nochmals.",
+  "bugBusy": "Gerade kamen zu viele Berichte von hier. Versuch es in einer Stunde nochmals.",
+  "close": "Schliessen",
+  "@bugPrivacy": {
+    "placeholders": {
+      "place": {
+        "type": "String"
+      }
+    }
   }
 }

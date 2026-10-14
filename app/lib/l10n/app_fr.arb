@@ -95,5 +95,13 @@
   "withoutWreath": "sans couronne",
   "activeByAssociation": "Actifs par association",
   "activeByCanton": "Actifs par canton / fédération",
-  "mapHint": "Touchez une région pour voir le nombre."
+  "mapHint": "Touchez une région pour voir le nombre.",
+  "bugReport": "Signaler un problème",
+  "bugWhat": "Que s'est-il passé ?",
+  "bugPrivacy": "Le rapport est envoyé à l'équipe Tellbow et n'est pas public : ton texte, où tu étais ({place}), la version de l'app et d'iOS.",
+  "bugSend": "Envoyer",
+  "bugSent": "Merci ! Ton rapport est bien arrivé.",
+  "bugFailed": "L'envoi n'a pas fonctionné. Ton texte reste ici, réessaie dans un instant.",
+  "bugBusy": "Trop de rapports sont arrivés d'ici. Réessaie dans une heure.",
+  "close": "Fermer"
 }

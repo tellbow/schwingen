@@ -9,6 +9,9 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const projectRoot = path.resolve(__dirname, '../../..');
 
 export default defineConfig({
+	define: {
+		__APP_VERSION__: JSON.stringify(process.env.APP_VERSION || 'dev')
+	},
 	test: {
 		environment: 'jsdom',
 		include: ['src/**/*.test.ts']

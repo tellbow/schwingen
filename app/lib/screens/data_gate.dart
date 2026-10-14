@@ -161,6 +161,8 @@ class _DataGateState extends State<DataGate> {
         onCheck: _checkNow,
         onReload: _reload,
       ),
+      client: store.client,
+      dataTag: store.installedTag,
       banner: showBanner ? _banner(context) : null,
     );
   }

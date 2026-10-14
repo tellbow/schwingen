@@ -29,24 +29,28 @@ extension Context on BuildContext {
 
 void openWrestler(BuildContext context, Queries queries, String id) => Navigator.of(context).push(
   MaterialPageRoute(
+    settings: RouteSettings(name: '/wrestler/$id'),
     builder: (_) => WrestlerScreen(queries: queries, id: id),
   ),
 );
 
 void openGroup(BuildContext context, Queries queries, GroupLevel level, String id) => Navigator.of(context).push(
   MaterialPageRoute(
+    settings: RouteSettings(name: '/associations/${level.name}/$id'),
     builder: (_) => GroupScreen(queries: queries, level: level, id: id),
   ),
 );
 
 void openPlace(BuildContext context, Queries queries, String id) => Navigator.of(context).push(
   MaterialPageRoute(
+    settings: RouteSettings(name: '/rankings/$id'),
     builder: (_) => PlaceScreen(queries: queries, id: id),
   ),
 );
 
 void openHeadToHead(BuildContext context, Queries queries, Person first, Person second) => Navigator.of(context).push(
   MaterialPageRoute(
+    settings: RouteSettings(name: '/head2head/${first.id}-${second.id}'),
     builder: (_) => HeadToHeadScreen(queries: queries, first: first, second: second),
   ),
 );

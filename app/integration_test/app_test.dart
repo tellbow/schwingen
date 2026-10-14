@@ -127,6 +127,14 @@ void main() {
     await pumpUntil(tester, tilesIn('Schwinger'));
     await shot(tester, 'club');
 
+    await tester.tap(find.byTooltip('Fehler melden'));
+    await pumpUntil(tester, find.text('Was ist passiert?'));
+    await tester.enterText(find.byType(TextField).last, 'Der Klub hat zu wenige Schwinger.');
+    await tester.pump(const Duration(milliseconds: 300));
+    await shot(tester, 'bug-report');
+    await tester.tap(find.text('Abbrechen'));
+    await tester.pump(const Duration(seconds: 1));
+
     await tester.tap(tab('Verbände'));
     await tester.pump(const Duration(seconds: 1));
     await tester.tap(find.byTooltip('Einstellungen'));

@@ -45,10 +45,11 @@ pb.collection("rankings").getList(1, 15, { expand: "wrestler,place" });
 - Pages that need data use `+page.server.ts` (SSR load) + `+page.svelte` (render)
 - API routes live under `src/routes/api/` and return `Response` objects
 - The PocketBase proxy at `/api/pb/[...path]` must remain untouched
+- `POST /api/bug-report` turns «Fehler melden» from the website and the app into issues in the private `tellbow/schwingen-feedback` (`$lib/server/bug-report.ts`: validation, issue text, per-IP rate limit kept in memory per pod)
 
 ## Do Not
 
 - Never start or restart dev processes — assume they are already running
 - Never hardcode `localhost:8090` outside of `src/lib/pb.ts`
-- Never read environment variables outside of `src/lib/pb.ts`, `src/hooks.server.ts` or `src/instrumentation.server.ts`
+- Never read environment variables outside of `src/lib/pb.ts`, `src/hooks.server.ts`, `src/instrumentation.server.ts` or `src/routes/api/bug-report/+server.ts` (`GITHUB_FEEDBACK_TOKEN`, `GITHUB_FEEDBACK_REPO`)
 - Never use Svelte context (`getContext`/`setContext`) for app-level state — use module `$state`

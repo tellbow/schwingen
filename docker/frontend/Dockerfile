@@ -7,6 +7,7 @@ COPY package.json bun.lock ./
 RUN bun install --frozen-lockfile
 
 COPY . .
+ARG APP_VERSION=dev
 RUN bun run build \
  && rm -rf node_modules \
  && bun install --frozen-lockfile --production
