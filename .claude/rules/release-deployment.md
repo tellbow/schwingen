@@ -6,6 +6,7 @@
 - **Image policies:** `tellbow/gitops` → `cluster/flux-system/image-automation/schwingen.yaml` (`schwingen-frontend`, `schwingen-pocketbase`, semver).
 - **Data pipeline:** `tellbow/schwingen-data` imports into a *local* PocketBase. Production is never written to.
 - **Images:** `ghcr.io/tellbow/schwingen-frontend`, `ghcr.io/tellbow/schwingen-pocketbase`
+- **Bug reports (#45):** issues in the private `tellbow/schwingen-feedback`; the frontend gets `GITHUB_FEEDBACK_TOKEN` (fine-grained, Issues read/write on that repo only, from `schwingen-secret`) and `GITHUB_FEEDBACK_REPO` (`frontend-deployment.yaml`).
 
 ## Release flow
 
