@@ -1,9 +1,9 @@
 <script lang="ts">
-	import { page } from '$app/stores';
-	import { t, type Locale } from '$lib/i18n/index.svelte';
+	import { page } from '$app/state';
+	import { t, type Locale } from '#lib/i18n/index.svelte.js';
 
 	let { data } = $props();
-	const locale = $derived($page.data.locale as Locale);
+	const locale = $derived(page.data.locale as Locale);
 </script>
 
 <svelte:head>
@@ -28,8 +28,8 @@
 			<h1 class="text-xl font-bold">{data.canton.name}</h1>
 			<p class="mt-1 text-sm text-muted-foreground">
 				{data.canton.wrestlerActive}
-				{t(locale, 'associations.activeLabel')} &nbsp;|&nbsp; * {data.canton.wrestler1Star} &nbsp;|&nbsp;
-				** {data.canton.wrestler2Star} &nbsp;|&nbsp; *** {data.canton.wrestler3Star}
+				{t(locale, 'associations.activeLabel')} | * {data.canton.wrestler1Star} | ** {data.canton
+					.wrestler2Star} | *** {data.canton.wrestler3Star}
 			</p>
 		</div>
 	{:else}

@@ -1,6 +1,6 @@
 import type { PageServerLoad } from './$types';
-import { createServerPb } from '$lib/pb';
-import { validateRouteParam } from '$lib/utils/filter';
+import { createServerPb } from '#lib/pb.js';
+import { validateRouteParam } from '#lib/utils/filter.js';
 import { error } from '@sveltejs/kit';
 
 export const load: PageServerLoad = async ({ params }) => {

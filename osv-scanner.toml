@@ -2,16 +2,6 @@
 # so each finding gets another look.
 
 [[IgnoredVulns]]
-id = "GHSA-27mw-82g8-phjj"
-ignoreUntil = 2027-02-01
-reason = "@sveltejs/kit: needs prerendering and setHeaders with an untrusted cache-control; the app uses neither. Fixed in Kit 3, which svelte-adapter-bun 1.0.2 does not support (peer ^2.4.0)."
-
-[[IgnoredVulns]]
-id = "GHSA-pfhg-q3qv-9q6r"
-ignoreUntil = 2027-02-01
-reason = "@sveltejs/kit: needs use:enhance; the app has no form actions. Fixed in Kit 3, which svelte-adapter-bun 1.0.2 does not support (peer ^2.4.0)."
-
-[[IgnoredVulns]]
 id = "GHSA-gcqx-w48m-w2h4"
 ignoreUntil = 2027-02-01
 reason = "deepmerge: no fixed version. Build-time only (vite-plugin-svelte, workbox-build), merging our own config."

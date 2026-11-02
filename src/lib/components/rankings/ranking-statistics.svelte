@@ -1,6 +1,6 @@
 <script lang="ts">
-	import type { RankingWithBouts } from '$lib/types/pocketbase';
-	import { t, type Locale } from '$lib/i18n/index.svelte';
+	import type { RankingWithBouts } from '#lib/types/pocketbase.js';
+	import { t, type Locale } from '#lib/i18n/index.svelte.js';
 
 	let { rankings, locale }: { rankings: RankingWithBouts[]; locale: Locale } = $props();
 </script>

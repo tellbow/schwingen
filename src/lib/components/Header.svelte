@@ -1,14 +1,14 @@
 <script lang="ts">
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import { Menu, X, Sun, Moon } from 'lucide-svelte';
 	import { slide } from 'svelte/transition';
-	import { t, localizePath, LOCALES, type Locale } from '$lib/i18n/index.svelte';
-	import { getDark, toggleDark } from '$lib/dark-mode.svelte';
-	import BugReport from '$lib/components/bug-report.svelte';
+	import { t, localizePath, LOCALES, type Locale } from '#lib/i18n/index.svelte.js';
+	import { getDark, toggleDark } from '#lib/dark-mode.svelte.js';
+	import BugReport from '#lib/components/bug-report.svelte';
 
 	let mobileOpen = $state(false);
 
-	const locale = $derived($page.data.locale as Locale);
+	const locale = $derived(page.data.locale as Locale);
 
 	const navItems = [
 		{ key: 'nav.wrestler', href: '/wrestler' },
@@ -19,11 +19,11 @@
 	];
 
 	function isActive(href: string): boolean {
-		return $page.url.pathname.startsWith(localizePath(href, locale));
+		return page.url.pathname.startsWith(localizePath(href, locale));
 	}
 
 	function switchLocaleHref(loc: Locale): string {
-		return `${localizePath($page.url.pathname, loc)}${$page.url.search}`;
+		return `${localizePath(page.url.pathname, loc)}${page.url.search}`;
 	}
 </script>
 
@@ -108,10 +108,8 @@
 					href={localizePath(item.href, locale)}
 					class="block py-2.5 text-sm font-medium transition-colors
 					{isActive(item.href) ? 'font-semibold text-primary' : 'text-outline hover:text-foreground'}"
-					onclick={() => (mobileOpen = false)}
+					onclick={() => (mobileOpen = false)}>{t(locale, item.key)}</a
 				>
-					{t(locale, item.key)}
-				</a>
 			{/each}
 			<div class="flex items-center gap-2 pt-3">
 				{#each LOCALES as loc (loc)}

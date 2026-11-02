@@ -1,7 +1,8 @@
 <script lang="ts">
 	import { User, MapPin, ArrowLeftRight, Landmark, ChartColumn, ChevronRight } from 'lucide-svelte';
-	import { page } from '$app/stores';
-	import { t, localizePath, type Locale } from '$lib/i18n/index.svelte';
+
+	import { page } from '$app/state';
+	import { t, localizePath, type Locale } from '#lib/i18n/index.svelte.js';
 
 	let {
 		eloTop5,
@@ -11,7 +12,7 @@
 		eloYear: string;
 	} = $props();
 
-	const locale = $derived($page.data.locale as Locale);
+	const locale = $derived(page.data.locale as Locale);
 
 	const maxRating = $derived(Math.max(...eloTop5.map((w) => w.rating), 1));
 	const minRating = $derived(Math.min(...eloTop5.map((w) => w.rating), maxRating));
@@ -69,6 +70,7 @@
 	<p class="mb-2 text-xs font-bold tracking-[0.12em] text-outline uppercase">
 		{t(locale, 'home.discoverEyebrow')}
 	</p>
+
 	<h2 class="mb-7 font-serif text-2xl font-semibold text-foreground md:text-3xl">
 		{t(locale, 'home.discoverHeading')}
 	</h2>
@@ -83,9 +85,11 @@
 			>
 				<ChartColumn size={24} class="text-tertiary-container" />
 			</div>
+
 			<div class="mb-2 font-serif text-xl font-semibold text-foreground">
 				{t(locale, 'nav.statistics')}
 			</div>
+
 			<p class="mb-5 max-w-sm text-sm leading-relaxed text-muted-foreground">
 				{t(locale, 'home.statisticsDesc')}
 			</p>

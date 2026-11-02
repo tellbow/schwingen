@@ -1,6 +1,6 @@
 import type { RequestHandler } from '@sveltejs/kit';
-import { PB_URL } from '$lib/pb';
-import { matchRecordsPath, cacheControlFor } from '$lib/utils/pb-proxy';
+import { PB_URL } from '#lib/pb.js';
+import { matchRecordsPath, cacheControlFor } from '#lib/utils/pb-proxy.js';
 
 const EMPTY_LIST = JSON.stringify({ page: 1, perPage: 1, totalItems: 0, totalPages: 0, items: [] });
 

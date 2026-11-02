@@ -1,12 +1,12 @@
 <script lang="ts">
 	import { Search } from 'lucide-svelte';
 	import { goto } from '$app/navigation';
-	import { page } from '$app/stores';
-	import { t, localizePath, type Locale } from '$lib/i18n/index.svelte';
-	import { escapeFilterValue } from '$lib/utils/filter';
-	import { getClientPb } from '$lib/pb';
+	import { page } from '$app/state';
+	import { t, localizePath, type Locale } from '#lib/i18n/index.svelte.js';
+	import { escapeFilterValue } from '#lib/utils/filter.js';
+	import { getClientPb } from '#lib/pb.js';
 
-	const locale = $derived($page.data.locale as Locale);
+	const locale = $derived(page.data.locale as Locale);
 
 	let query = $state('');
 	let loading = $state(false);
@@ -69,6 +69,7 @@
 			>
 				{t(locale, 'home.heroHeadline')}
 			</h1>
+
 			<p class="mb-8 max-w-md text-base leading-relaxed text-muted-foreground md:text-lg">
 				{t(locale, 'home.heroSubhead')}
 			</p>

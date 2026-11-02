@@ -1,4 +1,4 @@
-import type { BugReport, Screenshot } from '$lib/types/bug-report';
+import type { BugReport, Screenshot } from '#lib/types/bug-report.js';
 
 export const BUG_REPORT_LIMITS = {
 	body: 6_000_000,

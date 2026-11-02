@@ -1,13 +1,13 @@
 <script lang="ts">
-	import { buildSearchParams } from '$lib/utils/search-params';
+	import { buildSearchParams } from '#lib/utils/search-params.js';
 	import { goto } from '$app/navigation';
-	import { page } from '$app/stores';
-	import { formatDate } from '$lib/utils/format';
-	import { t, localizePath, type Locale } from '$lib/i18n/index.svelte';
-	import Pagination from '$lib/components/pagination.svelte';
+	import { page } from '$app/state';
+	import { formatDate } from '#lib/utils/format.js';
+	import { t, localizePath, type Locale } from '#lib/i18n/index.svelte.js';
+	import Pagination from '#lib/components/pagination.svelte';
 
 	let { data } = $props();
-	const locale = $derived($page.data.locale as Locale);
+	const locale = $derived(page.data.locale as Locale);
 
 	let filterNumber = $state('');
 	let filterName = $state('');
@@ -63,15 +63,15 @@
 		debounceTimer = setTimeout(async () => {
 			loading = true;
 			await goto(localizePath(`/places?${buildParams(1).toString()}`, locale), {
-				invalidateAll: true,
-				keepFocus: true
+				refreshAll: true,
+				reset: false
 			});
 			loading = false;
 		}, 300);
 	}
 
 	function goToPage(p: number) {
-		goto(localizePath(`/places?${buildParams(p).toString()}`, locale), { invalidateAll: true });
+		goto(localizePath(`/places?${buildParams(p).toString()}`, locale), { refreshAll: true });
 	}
 
 	const totalPages = $derived(Math.ceil(data.total / data.perPage));

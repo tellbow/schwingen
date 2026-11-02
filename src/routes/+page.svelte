@@ -1,11 +1,11 @@
 <script lang="ts">
-	import { page } from '$app/stores';
-	import { t, type Locale } from '$lib/i18n/index.svelte';
-	import Hero from '$lib/components/home/Hero.svelte';
-	import DestinationGrid from '$lib/components/home/DestinationGrid.svelte';
+	import { page } from '$app/state';
+	import { t, type Locale } from '#lib/i18n/index.svelte.js';
+	import Hero from '#lib/components/home/Hero.svelte';
+	import DestinationGrid from '#lib/components/home/DestinationGrid.svelte';
 
 	let { data } = $props();
-	const locale = $derived($page.data.locale as Locale);
+	const locale = $derived(page.data.locale as Locale);
 </script>
 
 <svelte:head>

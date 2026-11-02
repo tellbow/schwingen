@@ -18,7 +18,7 @@ Tellbow is a **public Swiss Schwingen (wrestling) statistics dashboard**.
 
 ## Tech Stack
 
-- **Frontend:** SvelteKit 2.x, Svelte 5, TypeScript
+- **Frontend:** SvelteKit 3.x (`@sveltejs/adapter-bun`, needs Bun 1.4+), Svelte 5, TypeScript
 - **UI Libraries:** TailwindCSS v4, lucide-svelte, shadcn-svelte (installed; Button, Input, Badge available)
 - **Charts:** chart.js, chartjs-chart-geo, chartjs-plugin-datalabels, svelte-chartjs
 - **PWA:** `vite-plugin-pwa` (service worker, offline caching)
@@ -73,10 +73,10 @@ Denormalized view collections:
 
 ### Observability
 
-- SvelteKit's own OpenTelemetry spans (`kit.experimental.tracing` in `svelte.config.js`): handle, load, resolve
+- SvelteKit's own OpenTelemetry spans (`tracing` on the `sveltekit` plugin in `vite.config.ts`): handle, load, resolve
 - `src/instrumentation.server.ts` loads before the app: traces by OTLP when `OTEL_EXPORTER_OTLP_ENDPOINT` is set, Prometheus metrics on `METRICS_PORT` (9464 in the cluster, not routed by the ingress); `OTEL_SDK_DISABLED=true` turns both off
 - `src/hooks.server.ts` records `http.server.request.duration` per route id
-- The OpenTelemetry packages stay in `dependencies`: svelte-adapter-bun bundles devDependencies for the browser platform, which picks the OTLP exporter's fetch transport
+- The OpenTelemetry packages stay in `dependencies`: @sveltejs/adapter-bun bundles devDependencies but leaves `dependencies` external
 - Health check at `/health`
 
 ---
@@ -207,10 +207,10 @@ Follow these rules strictly to keep the codebase clean and consistent.
 
 **Imports:**
 
-- shadcn-svelte: import from `$lib/components/ui/`
+- shadcn-svelte: import from `#lib/components/ui/`
 - Icons: import from `lucide-svelte`
 - Charts: `import { Chart } from "svelte-chartjs"` and chart.js registrations as needed
-- PocketBase client: `import pb from "$lib/pb"`
+- PocketBase client: `import pb from "#lib/pb"`
 
 **Internationalisation (DE/FR — implemented):**
 
@@ -251,7 +251,6 @@ bun run build   # Verify production build succeeds
 /
 ├── start.ts                 # Dev/prod process launcher (Bun)
 ├── package.json
-├── svelte.config.js
 ├── vite.config.ts
 ├── pb_data/                 # PocketBase data (gitignored, must be on PVC in k8s)
 ├── src/
@@ -292,4 +291,4 @@ bun run build   # Verify production build succeeds
 1. **Public read-only dashboard:** no auth, no user state, no writes from the frontend
 2. **Stateless frontend:** SvelteKit renders client-side only
 3. **Kubernetes-ready:** stateless containers, env-var config, health endpoints
-4. **Multi-language:** DE/FR implemented — use `t(locale, "key")` from `$lib/i18n/index.svelte` for all UI strings
+4. **Multi-language:** DE/FR implemented — use `t(locale, "key")` from `#lib/i18n/index.svelte.js` for all UI strings

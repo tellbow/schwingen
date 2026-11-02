@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { t, type Locale } from '$lib/i18n/index.svelte';
+	import { t, type Locale } from '#lib/i18n/index.svelte.js';
 
 	let { locale }: { locale: Locale } = $props();
 </script>

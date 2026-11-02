@@ -6,16 +6,16 @@ Every piece of logic has exactly one canonical home:
 
 | What | Where |
 |------|-------|
-| Types/interfaces | `$lib/types/*.ts` |
-| Pure utilities | `$lib/utils/<concern>.ts` |
-| PocketBase filter helpers | `$lib/utils/filter.ts` |
-| i18n translations | `$lib/i18n/translations.ts` |
-| i18n lookup and locale URLs | `$lib/i18n/index.svelte.ts` |
-| Reactive stores | `$lib/<name>.svelte.ts` |
-| UI primitives | `$lib/components/ui/<component>/` |
-| Domain components | `$lib/components/<domain>/` |
-| Global layout components | `$lib/components/Header.svelte`, `Footer.svelte` |
-| Page-specific logic | stays in the page file; extract to `$lib/utils/` when reused |
+| Types/interfaces | `#lib/types/*.ts` |
+| Pure utilities | `#lib/utils/<concern>.ts` |
+| PocketBase filter helpers | `#lib/utils/filter.ts` |
+| i18n translations | `#lib/i18n/translations.ts` |
+| i18n lookup and locale URLs | `#lib/i18n/index.svelte.ts` |
+| Reactive stores | `#lib/<name>.svelte.ts` |
+| UI primitives | `#lib/components/ui/<component>/` |
+| Domain components | `#lib/components/<domain>/` |
+| Global layout components | `#lib/components/Header.svelte`, `Footer.svelte` |
+| Page-specific logic | stays in the page file; extract to `#lib/utils/` when reused |
 
 ## Self-Documenting Code
 
@@ -39,9 +39,9 @@ bun run build   # Production build succeeds
 
 ## When Adding a New Feature
 
-1. **Define types first** — add to `$lib/types/`
-2. **Implement utilities** — add to `$lib/utils/<concern>.ts`
-3. **Add translations** — add DE and FR keys to `$lib/i18n/translations.ts`
+1. **Define types first** — add to `#lib/types/`
+2. **Implement utilities** — add to `#lib/utils/<concern>.ts`
+3. **Add translations** — add DE and FR keys to `#lib/i18n/translations.ts`
 4. **Implement the route/component** — use existing utilities and components
 5. **Write tests** — for every new utility function, alongside the source file
 6. **Verify** — run the checklist above

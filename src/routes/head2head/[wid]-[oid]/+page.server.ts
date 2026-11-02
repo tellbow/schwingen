@@ -1,9 +1,9 @@
 import type { PageServerLoad } from './$types';
-import { createServerPb } from '$lib/pb';
-import { validateRouteParam } from '$lib/utils/filter';
-import { yearOnly } from '$lib/utils/format';
+import { createServerPb } from '#lib/pb.js';
+import { validateRouteParam } from '#lib/utils/filter.js';
+import { yearOnly } from '#lib/utils/format.js';
 import { error } from '@sveltejs/kit';
-import type { BoutRecord, RankingRecord, WrestlerRecord } from '$lib/types/pocketbase';
+import type { BoutRecord, RankingRecord, WrestlerRecord } from '#lib/types/pocketbase.js';
 
 export const load: PageServerLoad = async ({ params }) => {
 	let wid: string, oid: string;

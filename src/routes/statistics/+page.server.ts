@@ -1,6 +1,6 @@
 import type { PageServerLoad } from './$types';
-import { createServerPb } from '$lib/pb';
-import type { EloRecord } from '$lib/types/pocketbase';
+import { createServerPb } from '#lib/pb.js';
+import type { EloRecord } from '#lib/types/pocketbase.js';
 import type {
 	AverageRankEntry,
 	AveragePointsEntry,
@@ -9,7 +9,7 @@ import type {
 	MostWinsEntry,
 	MostWreathsEntry,
 	StatisticsData
-} from '$lib/types/statistics';
+} from '#lib/types/statistics.js';
 
 const CACHE_TTL_MS = 60 * 60 * 1000;
 const cache = new Map<string, { data: StatisticsData; cachedAt: number }>();

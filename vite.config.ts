@@ -1,3 +1,5 @@
+import adapter from '@sveltejs/adapter-bun';
+import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig } from 'vitest/config';
 import tailwindcss from '@tailwindcss/vite';
@@ -23,8 +25,13 @@ export default defineConfig({
 	},
 	plugins: [
 		tailwindcss(),
-		sveltekit(),
+		sveltekit({
+			preprocess: vitePreprocess(),
+			adapter: adapter(),
+			tracing: { server: true }
+		}),
 		VitePWA({
+			outDir: '.svelte-kit/output/client',
 			registerType: 'autoUpdate',
 			includeAssets: ['favicon.ico', 'images/logos/*.png', 'images/logos/*.webp'],
 			manifest: {

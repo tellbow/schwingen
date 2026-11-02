@@ -39,8 +39,8 @@ vi.mock("$app/environment", () => ({ browser: true }));
 
 ## What to Test
 
-- Pure utility functions — `$lib/utils/filter.ts`, `$lib/utils.ts` (no mocks needed)
-- i18n structure — `$lib/i18n/translations.ts` (key completeness between DE/FR)
+- Pure utility functions — `#lib/utils/filter.ts`, `#lib/utils.ts` (no mocks needed)
+- i18n structure — `#lib/i18n/translations.ts` (key completeness between DE/FR)
 - State management logic — reactive stores in `.svelte.ts` files
 - Data transformation and formatting helpers
 

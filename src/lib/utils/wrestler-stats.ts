@@ -1,4 +1,4 @@
-import type { RankingRecord } from '$lib/types/pocketbase';
+import type { RankingRecord } from '#lib/types/pocketbase.js';
 
 type PointsInput = Pick<RankingRecord, 'points' | 'status'> & {
 	expand?: { place?: { expand?: { placeType?: { type?: string } } } };

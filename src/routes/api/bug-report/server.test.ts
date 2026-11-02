@@ -1,7 +1,14 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 const env: Record<string, string | undefined> = {};
-vi.mock('$env/dynamic/private', () => ({ env }));
+vi.mock('$app/env/private', () => ({
+	get GITHUB_FEEDBACK_TOKEN() {
+		return env.GITHUB_FEEDBACK_TOKEN;
+	},
+	get GITHUB_FEEDBACK_REPO() {
+		return env.GITHUB_FEEDBACK_REPO;
+	}
+}));
 
 type Handler = (event: unknown) => Promise<Response>;
 

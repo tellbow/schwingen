@@ -1,12 +1,12 @@
 <script lang="ts">
-	import { buildSearchParams } from '$lib/utils/search-params';
+	import { buildSearchParams } from '#lib/utils/search-params.js';
 	import { goto } from '$app/navigation';
-	import { page } from '$app/stores';
-	import { WRESTLER_STATUS_OPTIONS } from '$lib/utils/filter';
-	import { t, localizePath, type Locale } from '$lib/i18n/index.svelte';
+	import { page } from '$app/state';
+	import { WRESTLER_STATUS_OPTIONS } from '#lib/utils/filter.js';
+	import { t, localizePath, type Locale } from '#lib/i18n/index.svelte.js';
 
 	let { data } = $props();
-	const locale = $derived($page.data.locale as Locale);
+	const locale = $derived(page.data.locale as Locale);
 
 	let filterName = $state('');
 	let filterVorname = $state('');
@@ -16,7 +16,7 @@
 
 	let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 
-	const clubId = $derived($page.params.id);
+	const clubId = $derived(page.params.id);
 
 	function buildParams(pageNum: number): URLSearchParams {
 		return buildSearchParams(
@@ -37,7 +37,7 @@
 			await goto(
 				localizePath(`/associations/club/${clubId}?${buildParams(1).toString()}`, locale),
 				{
-					invalidateAll: true
+					refreshAll: true
 				}
 			);
 			loading = false;
@@ -46,7 +46,7 @@
 
 	function goToPage(p: number) {
 		goto(localizePath(`/associations/club/${clubId}?${buildParams(p).toString()}`, locale), {
-			invalidateAll: true
+			refreshAll: true
 		});
 	}
 
@@ -75,8 +75,8 @@
 			<h1 class="text-xl font-bold">{data.club.name}</h1>
 			<p class="mt-1 text-sm text-muted-foreground">
 				{data.club.wrestlerActive}
-				{t(locale, 'associations.activeLabel')} &nbsp;|&nbsp; * {data.club.wrestler1Star} &nbsp;|&nbsp;
-				** {data.club.wrestler2Star} &nbsp;|&nbsp; *** {data.club.wrestler3Star}
+				{t(locale, 'associations.activeLabel')} | * {data.club.wrestler1Star} | ** {data.club
+					.wrestler2Star} | *** {data.club.wrestler3Star}
 			</p>
 		</div>
 	{:else}

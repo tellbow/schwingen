@@ -1,6 +1,6 @@
 import type { PageServerLoad } from './$types';
-import { createServerPb } from '$lib/pb';
-import { buildQuickSearchFilter, buildSafeFilter, sanitizeSort } from '$lib/utils/filter';
+import { createServerPb } from '#lib/pb.js';
+import { buildQuickSearchFilter, buildSafeFilter, sanitizeSort } from '#lib/utils/filter.js';
 
 export const load: PageServerLoad = async ({ url }) => {
 	const pb = createServerPb();

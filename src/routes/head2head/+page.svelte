@@ -1,12 +1,12 @@
 <script lang="ts">
-	import type { WrestlerRecord } from '$lib/types/pocketbase';
+	import type { WrestlerRecord } from '#lib/types/pocketbase.js';
 	import { goto } from '$app/navigation';
-	import { page } from '$app/stores';
-	import { getClientPb } from '$lib/pb';
-	import { escapeFilterValue } from '$lib/utils/filter';
-	import { t, localizePath, type Locale } from '$lib/i18n/index.svelte';
+	import { page } from '$app/state';
+	import { getClientPb } from '#lib/pb.js';
+	import { escapeFilterValue } from '#lib/utils/filter.js';
+	import { t, localizePath, type Locale } from '#lib/i18n/index.svelte.js';
 
-	const locale = $derived($page.data.locale as Locale);
+	const locale = $derived(page.data.locale as Locale);
 
 	let searchTerm1 = $state('');
 	let searchTerm2 = $state('');

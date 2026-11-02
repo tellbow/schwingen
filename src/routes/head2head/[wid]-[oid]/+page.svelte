@@ -1,9 +1,9 @@
 <script lang="ts">
-	import type { RankingRecord } from '$lib/types/pocketbase';
+	import type { RankingRecord } from '#lib/types/pocketbase.js';
 	import { onDestroy } from 'svelte';
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import type { Chart } from 'chart.js';
-	import { t, type Locale } from '$lib/i18n/index.svelte';
+	import { t, type Locale } from '#lib/i18n/index.svelte.js';
 
 	let { data } = $props();
 	const wrestler = $derived(data.wrestler);
@@ -11,7 +11,7 @@
 	const rankingsW = $derived(data.rankingsW);
 	const rankingsO = $derived(data.rankingsO);
 	const commonBouts = $derived(data.commonBouts);
-	const locale = $derived($page.data.locale as Locale);
+	const locale = $derived(page.data.locale as Locale);
 
 	let bubbleCanvas = $state<HTMLCanvasElement | null>(null);
 	let bubbleChart: Chart | null = null;

@@ -1,4 +1,4 @@
-import type { BugReportRequest } from '$lib/types/bug-report';
+import type { BugReportRequest } from '#lib/types/bug-report.js';
 
 export type BugReportResult = 'sent' | 'busy' | 'failed';
 
@@ -19,6 +19,6 @@ export async function sendBugReport(
 	}
 }
 
-export function reportPlace(url: URL): string {
+export function reportPlace(url: Pick<URL, 'pathname' | 'search'>): string {
 	return url.pathname + url.search;
 }

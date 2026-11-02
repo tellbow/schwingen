@@ -1,8 +1,8 @@
 <script lang="ts">
-	import type { BoutRecord, WithExpand } from '$lib/types/pocketbase';
-	import type { TopOpponent } from '$lib/types/wrestler';
-	import { getClientPb } from '$lib/pb';
-	import { t, type Locale } from '$lib/i18n/index.svelte';
+	import type { BoutRecord, WithExpand } from '#lib/types/pocketbase.js';
+	import type { TopOpponent } from '#lib/types/wrestler.js';
+	import { getClientPb } from '#lib/pb.js';
+	import { t, type Locale } from '#lib/i18n/index.svelte.js';
 
 	let { wrestlerId, locale }: { wrestlerId: string; locale: Locale } = $props();
 

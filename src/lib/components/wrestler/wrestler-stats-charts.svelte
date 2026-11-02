@@ -1,15 +1,15 @@
 <script lang="ts">
-	import type { RankingRecord, WithExpand } from '$lib/types/pocketbase';
+	import type { RankingRecord, WithExpand } from '#lib/types/pocketbase.js';
 	import { onDestroy } from 'svelte';
 	import type { Chart } from 'chart.js';
-	import { getDark } from '$lib/dark-mode.svelte';
-	import { t, type Locale } from '$lib/i18n/index.svelte';
+	import { getDark } from '#lib/dark-mode.svelte.js';
+	import { t, type Locale } from '#lib/i18n/index.svelte.js';
 	import {
 		computeBoutCounts,
 		computeAverageRank,
 		computeAveragePoints,
 		computeWinRate
-	} from '$lib/utils/wrestler-stats';
+	} from '#lib/utils/wrestler-stats.js';
 
 	let {
 		rankingsData,

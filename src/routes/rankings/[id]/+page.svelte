@@ -1,13 +1,13 @@
 <script lang="ts">
-	import { page } from '$app/stores';
-	import { t, type Locale } from '$lib/i18n/index.svelte';
-	import RankingStatistics from '$lib/components/rankings/ranking-statistics.svelte';
-	import WreathMark from '$lib/components/rankings/wreath-mark.svelte';
+	import { page } from '$app/state';
+	import { t, type Locale } from '#lib/i18n/index.svelte.js';
+	import RankingStatistics from '#lib/components/rankings/ranking-statistics.svelte';
+	import WreathMark from '#lib/components/rankings/wreath-mark.svelte';
 
 	let { data } = $props();
 	const place = $derived(data.place);
 	const rankings = $derived(data.rankings);
-	const locale = $derived($page.data.locale as Locale);
+	const locale = $derived(page.data.locale as Locale);
 
 	let activeTab = $state<'rangliste' | 'statistik'>('rangliste');
 </script>
@@ -32,9 +32,9 @@
 	<div class="card mb-4">
 		<h1 class="text-xl font-bold">{place.name}</h1>
 		<p class="mt-1 text-sm text-muted-foreground">
-			{place.year} &nbsp;|&nbsp; {place.location ?? ''}
+			{place.year} | {place.location ?? ''}
 			{#if place.expand?.placeType?.type}
-				&nbsp;|&nbsp; {place.expand.placeType.type}
+				| {place.expand.placeType.type}
 			{/if}
 		</p>
 	</div>
@@ -48,20 +48,17 @@
 				class:text-primary={activeTab === 'rangliste'}
 				class:border-transparent={activeTab !== 'rangliste'}
 				class:text-outline={activeTab !== 'rangliste'}
-				onclick={() => (activeTab = 'rangliste')}
+				onclick={() => (activeTab = 'rangliste')}>{t(locale, 'rankings.tabRangliste')}</button
 			>
-				{t(locale, 'rankings.tabRangliste')}
-			</button>
+
 			<button
 				class="-mb-px border-b-2 px-3 py-2 text-sm font-medium transition-colors"
 				class:border-primary={activeTab === 'statistik'}
 				class:text-primary={activeTab === 'statistik'}
 				class:border-transparent={activeTab !== 'statistik'}
 				class:text-outline={activeTab !== 'statistik'}
-				onclick={() => (activeTab = 'statistik')}
+				onclick={() => (activeTab = 'statistik')}>{t(locale, 'rankings.tabStatistik')}</button
 			>
-				{t(locale, 'rankings.tabStatistik')}
-			</button>
 		</div>
 
 		{#if activeTab === 'rangliste'}
@@ -103,7 +100,9 @@
 								<td class="font-mono text-xs">{r.result}</td>
 								<td class="hidden md:table-cell">{r.final ? '🏁' : ''}</td>
 								<td class="hidden md:table-cell">
-									{#if r.wreath}<WreathMark {locale} />{/if}
+									{#if r.wreath}
+										<WreathMark {locale} />
+									{/if}
 								</td>
 								<td class="hidden text-xs md:table-cell">{r.status ?? ''}</td>
 							</tr>

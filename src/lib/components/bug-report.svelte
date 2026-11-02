@@ -1,13 +1,13 @@
 <script lang="ts">
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import { Bug } from 'lucide-svelte';
-	import { Button } from '$lib/components/ui/button';
-	import { t, type Locale } from '$lib/i18n/index.svelte';
-	import { reportPlace, sendBugReport, type BugReportResult } from '$lib/utils/bug-report';
-	import { pageScreenshot, screenshotBase64 } from '$lib/utils/page-screenshot';
+	import { Button } from '#lib/components/ui/button/index.js';
+	import { t, type Locale } from '#lib/i18n/index.svelte.js';
+	import { reportPlace, sendBugReport, type BugReportResult } from '#lib/utils/bug-report.js';
+	import { pageScreenshot, screenshotBase64 } from '#lib/utils/page-screenshot.js';
 
-	const locale = $derived($page.data.locale as Locale);
-	const place = $derived(reportPlace($page.url));
+	const locale = $derived(page.data.locale as Locale);
+	const place = $derived(reportPlace(page.url));
 
 	let dialog = $state<HTMLDialogElement | null>(null);
 	let description = $state('');
@@ -109,9 +109,10 @@
 				</p>
 			{/if}
 			<div class="flex justify-end gap-2">
-				<Button type="button" variant="outline" onclick={() => dialog?.close()}>
-					{t(locale, 'bugReport.cancel')}
-				</Button>
+				<Button type="button" variant="outline" onclick={() => dialog?.close()}
+					>{t(locale, 'bugReport.cancel')}</Button
+				>
+
 				<Button
 					type="submit"
 					disabled={status === 'sending' || !description.trim()}

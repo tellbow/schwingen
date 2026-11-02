@@ -1,6 +1,6 @@
 import type { PageServerLoad } from './$types';
-import { createServerPb } from '$lib/pb';
-import type { EloRecord } from '$lib/types/pocketbase';
+import { createServerPb } from '#lib/pb.js';
+import type { EloRecord } from '#lib/types/pocketbase.js';
 
 const ELO_YEAR = '2026';
 

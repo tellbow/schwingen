@@ -2,8 +2,8 @@
 
 ## Hard Limits
 
-- **Svelte components** (`$lib/components/`): max 500 lines
-- **Svelte page files** (`routes/`): max 800 lines — extract logic into `$lib/` when approaching
+- **Svelte components** (`#lib/components/`): max 500 lines
+- **Svelte page files** (`routes/`): max 800 lines — extract logic into `#lib/` when approaching
 - **TypeScript utilities**: max 300 lines
 
 When a file exceeds its limit, split it immediately as part of the current task.
@@ -52,8 +52,8 @@ When a file exceeds its limit, split it immediately as part of the current task.
 ### Before creating a new file
 
 1. Check this file map — does an existing file already cover this concern?
-2. Check `$lib/utils/` — is there already a utility for this pattern?
-3. Check `$lib/types/` — is this type already defined?
+2. Check `#lib/utils/` — is there already a utility for this pattern?
+3. Check `#lib/types/` — is this type already defined?
 
 ## Routes Structure
 
@@ -81,5 +81,5 @@ src/routes/
 ## Thin Layers
 
 - **Page load functions** (`+page.server.ts`): query PocketBase → return data. No business logic beyond query construction.
-- **Svelte pages**: orchestrate components, manage local state, call load data. Extract reusable logic to `$lib/utils/`.
+- **Svelte pages**: orchestrate components, manage local state, call load data. Extract reusable logic to `#lib/utils/`.
 - **API routes** (`+server.ts`): validate → process → return Response. Keep thin.

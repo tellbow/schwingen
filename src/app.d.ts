@@ -1,4 +1,4 @@
-import type { Locale } from '$lib/i18n/translations';
+import type { Locale } from '#lib/i18n/translations.js';
 
 declare global {
 	const __APP_VERSION__: string;

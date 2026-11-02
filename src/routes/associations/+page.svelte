@@ -1,14 +1,14 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import type { Chart } from 'chart.js';
 	import type {
 		IChoroplethControllerDatasetOptions,
 		IChoroplethDataPoint
 	} from 'chartjs-chart-geo';
-	import { getDark } from '$lib/dark-mode.svelte';
-	import { t, localizePath, type Locale } from '$lib/i18n/index.svelte';
+	import { getDark } from '#lib/dark-mode.svelte.js';
+	import { t, localizePath, type Locale } from '#lib/i18n/index.svelte.js';
 	import {
 		buildAssociationFeatures,
 		buildCantonFeatures,
@@ -16,11 +16,11 @@
 		type MapFeature,
 		type MergedMapFeature,
 		type TopologyFeatureReader
-	} from '$lib/utils/associations-map';
-	import type { CantonStatsRecord, ClubStatsRecord } from '$lib/types/pocketbase';
+	} from '#lib/utils/associations-map.js';
+	import type { CantonStatsRecord, ClubStatsRecord } from '#lib/types/pocketbase.js';
 
 	let { data } = $props();
-	const locale = $derived($page.data.locale as Locale);
+	const locale = $derived(page.data.locale as Locale);
 
 	// $state() required for bind:this in Svelte 5 runes mode
 	let mapCanvas = $state<HTMLCanvasElement | null>(null);
@@ -257,8 +257,8 @@
 							</span>
 							<span class="mt-0.5 text-xs font-normal text-muted-foreground">
 								{assoc.wrestlerActive}
-								{t(locale, 'associations.activeLabel')} &nbsp;·&nbsp; * {assoc.wrestler1Star} &nbsp;·&nbsp;
-								** {assoc.wrestler2Star} &nbsp;·&nbsp; *** {assoc.wrestler3Star}
+								{t(locale, 'associations.activeLabel')} · * {assoc.wrestler1Star} · ** {assoc.wrestler2Star}
+								· *** {assoc.wrestler3Star}
 							</span>
 						</span>
 						<span class="ml-3 shrink-0 text-outline"

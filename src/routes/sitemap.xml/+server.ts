@@ -1,7 +1,7 @@
 import type { RequestHandler } from '@sveltejs/kit';
-import { createServerPb } from '$lib/pb';
-import { LOCALES, localizePath } from '$lib/i18n/index.svelte';
-import type { WrestlerRecord } from '$lib/types/pocketbase';
+import { createServerPb } from '#lib/pb.js';
+import { LOCALES, localizePath } from '#lib/i18n/index.svelte.js';
+import type { WrestlerRecord } from '#lib/types/pocketbase.js';
 
 type SitemapRecord = Pick<WrestlerRecord, 'id' | 'updated'>;
 

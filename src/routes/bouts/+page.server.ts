@@ -1,8 +1,8 @@
 import type { PageServerLoad } from './$types';
-import { createServerPb } from '$lib/pb';
-import { buildSafeFilter, sanitizeSort } from '$lib/utils/filter';
-import { yearOnly } from '$lib/utils/format';
-import type { BoutRecord } from '$lib/types/pocketbase';
+import { createServerPb } from '#lib/pb.js';
+import { buildSafeFilter, sanitizeSort } from '#lib/utils/filter.js';
+import { yearOnly } from '#lib/utils/format.js';
+import type { BoutRecord } from '#lib/types/pocketbase.js';
 
 export const load: PageServerLoad = async ({ url }) => {
 	const pb = createServerPb();

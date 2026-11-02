@@ -1,13 +1,13 @@
 <script lang="ts">
-	import { buildSearchParams } from '$lib/utils/search-params';
+	import { buildSearchParams } from '#lib/utils/search-params.js';
 	import { goto } from '$app/navigation';
-	import { page } from '$app/stores';
-	import { WRESTLER_STATUS_OPTIONS } from '$lib/utils/filter';
-	import { t, localizePath, type Locale } from '$lib/i18n/index.svelte';
-	import Pagination from '$lib/components/pagination.svelte';
+	import { page } from '$app/state';
+	import { WRESTLER_STATUS_OPTIONS } from '#lib/utils/filter.js';
+	import { t, localizePath, type Locale } from '#lib/i18n/index.svelte.js';
+	import Pagination from '#lib/components/pagination.svelte';
 
 	let { data } = $props();
-	const locale = $derived($page.data.locale as Locale);
+	const locale = $derived(page.data.locale as Locale);
 
 	// Filter state
 	let filterName = $state('');
@@ -38,15 +38,15 @@
 			loading = true;
 			const pageNum = resetPage ? 1 : data.page;
 			await goto(localizePath(`/wrestler?${buildParams(pageNum).toString()}`, locale), {
-				invalidateAll: true,
-				keepFocus: true
+				refreshAll: true,
+				reset: false
 			});
 			loading = false;
 		}, 300);
 	}
 
 	function goToPage(p: number) {
-		goto(localizePath(`/wrestler?${buildParams(p).toString()}`, locale), { invalidateAll: true });
+		goto(localizePath(`/wrestler?${buildParams(p).toString()}`, locale), { refreshAll: true });
 	}
 
 	const totalPages = $derived(Math.ceil(data.total / data.perPage));

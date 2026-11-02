@@ -1,14 +1,14 @@
 <script lang="ts">
-	import { page } from '$app/stores';
-	import { t, type Locale } from '$lib/i18n/index.svelte';
-	import WreathMark from '$lib/components/rankings/wreath-mark.svelte';
+	import { page } from '$app/state';
+	import { t, type Locale } from '#lib/i18n/index.svelte.js';
+	import WreathMark from '#lib/components/rankings/wreath-mark.svelte';
 
 	let { data } = $props();
 	const wrestler = $derived(data.wrestler);
 	const place = $derived(data.place);
 	const ranking = $derived(data.ranking);
 	const bouts = $derived(data.bouts);
-	const locale = $derived($page.data.locale as Locale);
+	const locale = $derived(page.data.locale as Locale);
 </script>
 
 <svelte:head>
@@ -23,7 +23,9 @@
 			'wrestler.resultsAtMetaDescriptionInfix'
 		)} {place.name}."
 	/>
+
 	<meta property="og:title" content="{wrestler.vorname} {wrestler.name}, {place.name} - Tellbow" />
+
 	<meta
 		property="og:description"
 		content="{t(
@@ -46,9 +48,9 @@
 			@ {place.name}
 		</h1>
 		<p class="mt-1 text-sm text-muted-foreground">
-			{place.year} &nbsp;|&nbsp; {place.location ?? ''}
+			{place.year} | {place.location ?? ''}
 			{#if place.expand?.placeType?.type}
-				&nbsp;|&nbsp; {place.expand.placeType.type}
+				| {place.expand.placeType.type}
 			{/if}
 		</p>
 
@@ -70,7 +72,10 @@
 					<p class="text-xs text-outline">{t(locale, 'wrestler.finalWreathLabel')}</p>
 					<p class="font-semibold">
 						{ranking.final ? '🏁' : ''}
-						{#if ranking.wreath}<WreathMark {locale} />{/if}
+
+						{#if ranking.wreath}
+							<WreathMark {locale} />
+						{/if}
 					</p>
 				</div>
 			</div>

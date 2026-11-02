@@ -1,10 +1,10 @@
 import type { PageServerLoad } from './$types';
-import { createServerPb } from '$lib/pb';
+import { createServerPb } from '#lib/pb.js';
 import type {
 	AssociationStatsRecord,
 	CantonStatsRecord,
 	ClubStatsRecord
-} from '$lib/types/pocketbase';
+} from '#lib/types/pocketbase.js';
 
 export const load: PageServerLoad = async () => {
 	const pb = createServerPb();

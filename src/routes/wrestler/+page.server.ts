@@ -1,13 +1,13 @@
 import type { PageServerLoad } from './$types';
-import { createServerPb } from '$lib/pb';
+import { createServerPb } from '#lib/pb.js';
 import {
 	buildQuickSearchFilter,
 	buildSafeFilter,
 	sanitizeSort,
 	WRESTLER_STATUS_FILTERS
-} from '$lib/utils/filter';
-import { yearOnly } from '$lib/utils/format';
-import type { WrestlerRecord } from '$lib/types/pocketbase';
+} from '#lib/utils/filter.js';
+import { yearOnly } from '#lib/utils/format.js';
+import type { WrestlerRecord } from '#lib/types/pocketbase.js';
 
 export const load: PageServerLoad = async ({ url }) => {
 	const pb = createServerPb();

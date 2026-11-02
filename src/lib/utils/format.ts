@@ -1,4 +1,4 @@
-import type { Locale } from '$lib/i18n/translations';
+import type { Locale } from '#lib/i18n/translations.js';
 
 export function yearOnly(value: string | null | undefined): string {
 	return value ? value.split('-')[0] : '';

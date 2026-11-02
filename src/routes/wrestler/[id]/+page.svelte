@@ -5,20 +5,20 @@
 		RankingRecord,
 		WithExpand,
 		WrestlerRecord
-	} from '$lib/types/pocketbase';
+	} from '#lib/types/pocketbase.js';
 	import { untrack } from 'svelte';
-	import { page } from '$app/stores';
-	import { getClientPb } from '$lib/pb';
-	import { yearOnly } from '$lib/utils/format';
-	import { t, type Locale } from '$lib/i18n/index.svelte';
-	import WreathMark from '$lib/components/rankings/wreath-mark.svelte';
-	import WrestlerStatsCharts from '$lib/components/wrestler/wrestler-stats-charts.svelte';
-	import WrestlerHeadToHead from '$lib/components/wrestler/wrestler-head-to-head.svelte';
-	import WrestlerTopOpponents from '$lib/components/wrestler/wrestler-top-opponents.svelte';
+	import { page } from '$app/state';
+	import { getClientPb } from '#lib/pb.js';
+	import { yearOnly } from '#lib/utils/format.js';
+	import { t, type Locale } from '#lib/i18n/index.svelte.js';
+	import WreathMark from '#lib/components/rankings/wreath-mark.svelte';
+	import WrestlerStatsCharts from '#lib/components/wrestler/wrestler-stats-charts.svelte';
+	import WrestlerHeadToHead from '#lib/components/wrestler/wrestler-head-to-head.svelte';
+	import WrestlerTopOpponents from '#lib/components/wrestler/wrestler-top-opponents.svelte';
 
 	let { data } = $props();
 	const wrestler = $derived(data.wrestler);
-	const locale = $derived($page.data.locale as Locale);
+	const locale = $derived(page.data.locale as Locale);
 
 	let selectedYear = $state<string | number>('Alle');
 	let rankingsData = $state<WithExpand<RankingRecord, 'place'>[]>([]);
@@ -161,7 +161,9 @@
 		name="description"
 		content="{t(locale, 'wrestler.metaDescriptionPrefix')} {wrestler.vorname} {wrestler.name}."
 	/>
+
 	<meta property="og:title" content="{wrestler.vorname} {wrestler.name} - Tellbow" />
+
 	<meta
 		property="og:description"
 		content="{t(locale, 'wrestler.metaDescriptionPrefix')} {wrestler.vorname} {wrestler.name}."
@@ -169,10 +171,12 @@
 </svelte:head>
 
 <!-- Hero -->
+
 <div class="mb-4 rounded-2xl bg-surface-low px-6 py-8 md:px-10 md:py-10">
 	<p class="mb-2 text-xs font-semibold tracking-widest text-outline uppercase">
 		{t(locale, 'wrestler.profile')}
 	</p>
+
 	<h1 class="text-4xl leading-none font-extrabold tracking-tight text-foreground md:text-5xl">
 		{wrestler.vorname}
 		{wrestler.name}
@@ -304,7 +308,10 @@
 							</td>
 							<td class="hidden md:table-cell">{r.final ? '🏁' : ''}</td>
 							<td class="hidden md:table-cell">
-								{#if r.wreath}<WreathMark {locale} />{/if}
+								{#if r.wreath}
+									<WreathMark {locale} />
+								{/if}
+
 								{r.status === 'Unfall' ? '🩹' : ''}
 							</td>
 						</tr>

@@ -1,6 +1,5 @@
-import type { Handle } from '@sveltejs/kit';
 import { redirect } from '@sveltejs/kit';
-import { sequence } from '@sveltejs/kit/hooks';
+import { sequence, type Handle } from '@sveltejs/kit/hooks';
 import { metrics } from '@opentelemetry/api';
 import {
 	ATTR_HTTP_REQUEST_METHOD,

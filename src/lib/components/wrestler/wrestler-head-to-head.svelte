@@ -1,9 +1,9 @@
 <script lang="ts">
-	import type { BoutRecord, WithExpand, WrestlerRecord } from '$lib/types/pocketbase';
-	import { getClientPb } from '$lib/pb';
-	import { escapeFilterValue } from '$lib/utils/filter';
-	import { yearOnly } from '$lib/utils/format';
-	import { t, type Locale } from '$lib/i18n/index.svelte';
+	import type { BoutRecord, WithExpand, WrestlerRecord } from '#lib/types/pocketbase.js';
+	import { getClientPb } from '#lib/pb.js';
+	import { escapeFilterValue } from '#lib/utils/filter.js';
+	import { yearOnly } from '#lib/utils/format.js';
+	import { t, type Locale } from '#lib/i18n/index.svelte.js';
 
 	let {
 		wrestlerId,

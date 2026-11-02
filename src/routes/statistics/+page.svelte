@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { page } from '$app/stores';
-	import { t, localizePath, type Locale } from '$lib/i18n/index.svelte';
+	import { page } from '$app/state';
+	import { t, localizePath, type Locale } from '#lib/i18n/index.svelte.js';
 
 	let { data } = $props();
-	const locale = $derived($page.data.locale as Locale);
+	const locale = $derived(page.data.locale as Locale);
 
 	const YEARS = [
 		'2015',
@@ -24,7 +24,7 @@
 	let selectedYear = $derived(data.year);
 
 	function changeYear() {
-		goto(localizePath(`/statistics?year=${selectedYear}`, locale), { invalidateAll: true });
+		goto(localizePath(`/statistics?year=${selectedYear}`, locale), { refreshAll: true });
 	}
 </script>
 

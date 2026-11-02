@@ -10,12 +10,12 @@
 
 ```typescript
 // Server (load functions, hooks)
-import { createServerPb } from "$lib/pb";
+import { createServerPb } from "#lib/pb.js";
 const pb = createServerPb();
 const wrestlers = await pb.collection("wrestler").getList(1, 15, { filter: "..." });
 
 // Client (Svelte components, browser actions)
-import { getClientPb } from "$lib/pb";
+import { getClientPb } from "#lib/pb.js";
 const pb = getClientPb();
 ```
 
@@ -34,10 +34,10 @@ pb.collection("rankings").getList(1, 15, { expand: "wrestler,place" });
 
 ## Observability
 
-- SvelteKit's own OpenTelemetry spans (`kit.experimental.tracing` in `svelte.config.js`): handle, load, resolve
+- SvelteKit's own OpenTelemetry spans (`tracing` on the `sveltekit` plugin in `vite.config.ts`): handle, load, resolve
 - `src/instrumentation.server.ts` loads before the app: traces by OTLP when `OTEL_EXPORTER_OTLP_ENDPOINT` is set, Prometheus metrics on `METRICS_PORT` (9464 in the cluster, not routed by the ingress); `OTEL_SDK_DISABLED=true` turns both off
 - `src/hooks.server.ts` records `http.server.request.duration` per route id
-- The OpenTelemetry packages stay in `dependencies`: svelte-adapter-bun bundles devDependencies for the browser platform, which picks the OTLP exporter's fetch transport
+- The OpenTelemetry packages stay in `dependencies`: @sveltejs/adapter-bun bundles devDependencies but leaves `dependencies` external
 - Health check at `/health`
 
 ## Routing
@@ -45,11 +45,11 @@ pb.collection("rankings").getList(1, 15, { expand: "wrestler,place" });
 - Pages that need data use `+page.server.ts` (SSR load) + `+page.svelte` (render)
 - API routes live under `src/routes/api/` and return `Response` objects
 - The PocketBase proxy at `/api/pb/[...path]` must remain untouched
-- `POST /api/bug-report` turns «Fehler melden» from the website and the app into issues in the private `tellbow/schwingen-feedback` (`$lib/server/bug-report.ts`: validation, screenshot stored in that repo, issue text, per-IP rate limit kept in memory per pod)
+- `POST /api/bug-report` turns «Fehler melden» from the website and the app into issues in the private `tellbow/schwingen-feedback` (`#lib/server/bug-report.ts`: validation, screenshot stored in that repo, issue text, per-IP rate limit kept in memory per pod)
 
 ## Do Not
 
 - Never start or restart dev processes — assume they are already running
 - Never hardcode `localhost:8090` outside of `src/lib/pb.ts`
-- Never read environment variables outside of `src/lib/pb.ts`, `src/hooks.server.ts`, `src/instrumentation.server.ts` or `src/routes/api/bug-report/+server.ts` (`GITHUB_FEEDBACK_TOKEN`, `GITHUB_FEEDBACK_REPO`)
+- Never read environment variables outside of `src/lib/pb.ts`, `src/hooks.server.ts`, `src/instrumentation.server.ts` or `src/env.ts` (`GITHUB_FEEDBACK_TOKEN`, `GITHUB_FEEDBACK_REPO`, read through `$app/env/private`)
 - Never use Svelte context (`getContext`/`setContext`) for app-level state — use module `$state`

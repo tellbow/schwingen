@@ -1,16 +1,16 @@
 <script lang="ts">
-	import type { BoutRecord, RankingRecord } from '$lib/types/pocketbase';
-	import { buildSearchParams } from '$lib/utils/search-params';
+	import type { BoutRecord, RankingRecord } from '#lib/types/pocketbase.js';
+	import { buildSearchParams } from '#lib/utils/search-params.js';
 	import { goto } from '$app/navigation';
-	import { page } from '$app/stores';
-	import { escapeFilterValue } from '$lib/utils/filter';
-	import { getClientPb } from '$lib/pb';
-	import { t, localizePath, type Locale } from '$lib/i18n/index.svelte';
-	import Pagination from '$lib/components/pagination.svelte';
-	import WreathMark from '$lib/components/rankings/wreath-mark.svelte';
+	import { page } from '$app/state';
+	import { escapeFilterValue } from '#lib/utils/filter.js';
+	import { getClientPb } from '#lib/pb.js';
+	import { t, localizePath, type Locale } from '#lib/i18n/index.svelte.js';
+	import Pagination from '#lib/components/pagination.svelte';
+	import WreathMark from '#lib/components/rankings/wreath-mark.svelte';
 
 	let { data } = $props();
-	const locale = $derived($page.data.locale as Locale);
+	const locale = $derived(page.data.locale as Locale);
 
 	let filterRank = $state('');
 	let filterPoints = $state('');
@@ -64,15 +64,15 @@
 		debounceTimer = setTimeout(async () => {
 			loading = true;
 			await goto(localizePath(`/rankings?${buildParams(1).toString()}`, locale), {
-				invalidateAll: true,
-				keepFocus: true
+				refreshAll: true,
+				reset: false
 			});
 			loading = false;
 		}, 300);
 	}
 
 	function goToPage(p: number) {
-		goto(localizePath(`/rankings?${buildParams(p).toString()}`, locale), { invalidateAll: true });
+		goto(localizePath(`/rankings?${buildParams(p).toString()}`, locale), { refreshAll: true });
 	}
 
 	async function toggleExpand(row: RankingRecord) {
@@ -222,7 +222,9 @@
 						<td class="hidden md:table-cell">{r.final ? '🏁' : ''}</td>
 						<td class="hidden font-mono text-xs md:table-cell">{r.result}</td>
 						<td class="hidden md:table-cell">
-							{#if r.wreath}<WreathMark {locale} />{/if}
+							{#if r.wreath}
+								<WreathMark {locale} />
+							{/if}
 						</td>
 						<td class="hidden text-xs md:table-cell">{r.status ?? ''}</td>
 						<td>

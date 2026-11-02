@@ -1,20 +1,21 @@
 <script lang="ts">
 	import '../app.css';
 	import { onMount } from 'svelte';
-	import { page } from '$app/stores';
-	import { t, localizePath, LOCALES, type Locale } from '$lib/i18n/index.svelte';
-	import { initDark } from '$lib/dark-mode.svelte';
-	import Header from '$lib/components/Header.svelte';
-	import Footer from '$lib/components/Footer.svelte';
+	import { page } from '$app/state';
+	import { t, localizePath, LOCALES, type Locale } from '#lib/i18n/index.svelte.js';
+	import { initDark } from '#lib/dark-mode.svelte.js';
+	import Header from '#lib/components/Header.svelte';
+	import Footer from '#lib/components/Footer.svelte';
 
 	let { data, children } = $props();
 
 	const locale = $derived(data.locale as Locale);
-	const canonicalUrl = $derived(`https://schwingen.tellbow.ch${$page.url.pathname}`);
+	const canonicalUrl = $derived(`https://schwingen.tellbow.ch${page.url.pathname}`);
+
 	const alternateUrls = $derived(
 		LOCALES.map((loc) => ({
 			locale: loc,
-			href: `https://schwingen.tellbow.ch${localizePath($page.url.pathname, loc)}`
+			href: `https://schwingen.tellbow.ch${localizePath(page.url.pathname, loc)}`
 		}))
 	);
 
@@ -36,7 +37,7 @@
 	// every such call site localizes its own target with localizePath()
 	// instead. (A beforeNavigate-based catch-all for those was tried and
 	// removed: it couldn't forward the original goto() options like
-	// keepFocus/invalidateAll, since `beforeNavigate`'s nav object doesn't
+	// reset/refreshAll, since `beforeNavigate`'s nav object doesn't
 	// expose them, so search inputs lost focus on every keystroke in French.)
 	function localizeLinkHref(event: MouseEvent) {
 		if (locale !== 'fr') return;
@@ -65,7 +66,7 @@
 	<link
 		rel="alternate"
 		hreflang="x-default"
-		href={`https://schwingen.tellbow.ch${localizePath($page.url.pathname, 'de')}`}
+		href={`https://schwingen.tellbow.ch${localizePath(page.url.pathname, 'de')}`}
 	/>
 </svelte:head>
 
