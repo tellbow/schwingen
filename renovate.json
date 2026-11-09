@@ -21,6 +21,11 @@
 			"description": "Small updates merge themselves once CI is green",
 			"matchUpdateTypes": ["patch", "digest", "pinDigest"],
 			"automerge": true
+		},
+		{
+			"description": "The PocketBase host gives no release dates; without this, minimumReleaseAge holds every update back",
+			"matchDepNames": ["pocketbase"],
+			"minimumReleaseAgeBehaviour": "timestamp-optional"
 		}
 	],
 	"customManagers": [
@@ -29,9 +34,17 @@
 			"customType": "regex",
 			"managerFilePatterns": ["/^docker/pocketbase/Dockerfile$/"],
 			"matchStrings": ["ARG PB_VERSION=(?<currentValue>\\d+\\.\\d+\\.\\d+)"],
-			"depNameTemplate": "pocketbase/pocketbase",
-			"datasourceTemplate": "github-releases",
-			"extractVersionTemplate": "^v(?<version>.*)$"
+			"depNameTemplate": "pocketbase",
+			"datasourceTemplate": "custom.pocketbase"
 		}
-	]
+	],
+	"customDatasources": {
+		"pocketbase": {
+			"description": "PocketBase moved off GitHub in 0.41.0; its new host lists the git refs as JSON",
+			"defaultRegistryUrlTemplate": "https://ganigeorgiev.com/api/git/pocketbase/pocketbase/refs",
+			"transformTemplates": [
+				"{\"releases\": [$[$match(name, /^refs\\/tags\\/v\\d+\\.\\d+\\.\\d+$/)].{\"version\": $substringAfter(name, \"refs/tags/v\")}]}"
+			]
+		}
+	}
 }

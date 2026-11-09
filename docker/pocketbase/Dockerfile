@@ -2,7 +2,7 @@
 # The download runs natively; only the binary goes into the target image.
 FROM --platform=$BUILDPLATFORM alpine:3.21 AS download
 
-ARG PB_VERSION=0.40.5
+ARG PB_VERSION=0.41.1
 ARG TARGETARCH
 
 RUN apk add --no-cache unzip wget
@@ -15,7 +15,7 @@ RUN set -eux; \
         *) echo "Unsupported arch: ${TARGETARCH}" && exit 1 ;; \
     esac; \
     wget -qO /tmp/pocketbase.zip \
-        "https://github.com/pocketbase/pocketbase/releases/download/v${PB_VERSION}/pocketbase_${PB_VERSION}_${PB_ARCH}.zip" && \
+        "https://ganigeorgiev.com/meta/pocketbase/pocketbase/download/v${PB_VERSION}/pocketbase_${PB_VERSION}_${PB_ARCH}.zip" && \
     unzip /tmp/pocketbase.zip pocketbase -d /pb && \
     rm /tmp/pocketbase.zip && \
     chmod +x /pb/pocketbase
