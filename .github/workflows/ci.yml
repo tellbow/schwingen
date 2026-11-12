@@ -100,7 +100,9 @@ jobs:
   #     volume root owns (the pod drops all capabilities); the frontend
   #     image has a USER;
   #   prototype-pollution-loop: t() only reads translation keys from code;
-  #   react-insecure-request: start.ts polls the local dev PocketBase.
+  #   react-insecure-request: start.ts polls the local dev PocketBase;
+  #   dynamic-urllib-use-detected: the app-store skill's asc.py calls only
+  #     App Store Connect's API and its upload URLs.
   semgrep:
     runs-on: ubuntu-latest
     steps:
@@ -113,3 +115,4 @@ jobs:
           --exclude-rule dockerfile.security.missing-user-entrypoint.missing-user-entrypoint
           --exclude-rule javascript.lang.security.audit.prototype-pollution.prototype-pollution-loop.prototype-pollution-loop
           --exclude-rule typescript.react.security.react-insecure-request.react-insecure-request
+          --exclude-rule python.lang.security.audit.dynamic-urllib-use-detected.dynamic-urllib-use-detected
