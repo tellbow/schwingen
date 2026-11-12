@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { translations } from './translations';
 import type { Locale } from './translations';
+import { PRIVACY_SECTIONS } from './privacy';
 
 const LOCALES: Locale[] = ['de', 'fr'];
 
@@ -13,7 +14,15 @@ const REQUIRED_KEYS: Record<string, string[]> = {
 	bouts: ['title', 'round', 'result', 'points', 'opponent'],
 	statistics: ['title'],
 	head2head: ['title', 'wins', 'losses', 'draws', 'total'],
-	associations: ['title']
+	associations: ['title'],
+	footer: ['tagline', 'privacy'],
+	privacy: [
+		'title',
+		'metaDescription',
+		'updated',
+		'intro',
+		...PRIVACY_SECTIONS.flatMap((s) => [s, `${s}Title`])
+	]
 };
 
 describe('translations', () => {

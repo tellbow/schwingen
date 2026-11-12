@@ -54,7 +54,8 @@ async function generateSitemap(): Promise<string> {
 		url('/rankings'),
 		url('/statistics'),
 		url('/head2head'),
-		url('/associations')
+		url('/associations'),
+		url('/privacy')
 	];
 
 	const wrestlerUrls = wrestlers.map((w) => url(`/wrestler/${w.id}`, w.updated?.substring(0, 10)));

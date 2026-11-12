@@ -1,3 +1,5 @@
+import { privacyDe, privacyFr } from './privacy';
+
 export type Locale = 'de' | 'fr';
 
 export type Translations = Record<string, Record<string, string>>;
@@ -26,8 +28,10 @@ const de: Translations = {
 		skipToContent: 'Zum Inhalt springen',
 		all: 'Alle'
 	},
+	privacy: privacyDe,
 	footer: {
-		tagline: 'Alles rund ums Schwingen'
+		tagline: 'Alles rund ums Schwingen',
+		privacy: 'Datenschutz'
 	},
 	bugReport: {
 		open: 'Fehler melden',
@@ -274,8 +278,10 @@ const fr: Translations = {
 		skipToContent: 'Aller au contenu',
 		all: 'Tous'
 	},
+	privacy: privacyFr,
 	footer: {
-		tagline: 'Tout sur la lutte suisse'
+		tagline: 'Tout sur la lutte suisse',
+		privacy: 'Protection des données'
 	},
 	bugReport: {
 		open: 'Signaler un problème',

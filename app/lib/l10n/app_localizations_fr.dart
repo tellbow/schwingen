@@ -279,6 +279,12 @@ class AppLocalizationsFr extends AppLocalizations {
   String get website => 'Site web';
 
   @override
+  String get privacy => 'Protection des données';
+
+  @override
+  String get privacyUrl => 'https://schwingen.tellbow.ch/fr/privacy';
+
+  @override
   String get dataSource => 'Source des données';
 
   @override

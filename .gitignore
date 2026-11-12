@@ -8,3 +8,5 @@ build/
 *.local
 pb_data/
 .claude/worktrees/
+
+CLAUDE.local.md

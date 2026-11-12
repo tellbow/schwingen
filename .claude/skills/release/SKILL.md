@@ -55,3 +55,6 @@ one. `.claude/rules/release-deployment.md` has the rules.
    - the logs have no errors:
      `kubectl --context rk1 -n schwingen logs deploy/pocketbase --since=10m`
      and `-c fetch-data` for the swap, `deploy/frontend` likewise
+8. **Afterwards:** if the app changed (`git diff --stat vPREVIOUS -- app/`),
+   offer the `iphone-install` and `ipad-install` skills, the `testflight`
+   skill for TestFlight and then the `app-store` skill for the App Store.

@@ -148,6 +148,8 @@
   "about": "Über Tellbow",
   "version": "Version",
   "website": "Website",
+  "privacy": "Datenschutz",
+  "privacyUrl": "https://schwingen.tellbow.ch/privacy",
   "dataSource": "Datenquelle",
   "dataSourceText": "Ranglisten des Eidgenössischen Schwingerverbands (esv.ch)",
   "licenses": "Open-Source-Lizenzen",

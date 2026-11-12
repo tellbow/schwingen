@@ -139,6 +139,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                 ),
                 _LinkTile(title: l10n.website, url: websiteUrl),
+                _LinkTile(title: l10n.privacy, url: Uri.parse(l10n.privacyUrl)),
                 _LinkTile(title: l10n.dataSource, subtitle: l10n.dataSourceText, url: sourceUrl),
                 FutureBuilder(
                   future: _info,

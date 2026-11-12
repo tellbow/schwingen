@@ -148,6 +148,10 @@ bun run format  # Prettier write
   - `screenshot` — captures a state of the website (via `screenshot-capture`, Playwright on Haiku against the running dev server), shows it in the terminal and asks whether it fits. `.claude/rules/screenshots.md` says when: after every user-visible change
   - `release` — the release flow; only when the user asks for a release
   - `iphone-install` — builds the iOS app in release mode and installs it on the user's iPhone over Wi-Fi (Haiku, forked)
+  - `ipad-install` — the same for the user's iPad (Haiku, forked)
+  - `app-simulator-tests` — `integration_test/app_test.dart` on the iOS simulator
+  - `testflight` — builds a release tag's app and uploads it to App Store Connect (`app/ios/ExportOptions-upload.plist`, API key ids in `CLAUDE.local.md`); only when the user asks
+  - `app-store` — the App Store version, «Neuerungen», build and App Review submission (`asc.py`); only when the user asks
   - `web-design-guidelines` — UI review against Vercel's Web Interface Guidelines; installed with `npx skills` (`.agents/skills/`, `skills-lock.json`), symlinked into `.claude/skills/`
 
 ---

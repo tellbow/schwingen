@@ -23,6 +23,7 @@ class TellbowApp extends StatelessWidget {
   Widget build(BuildContext context) => ListenableBuilder(
     listenable: settings,
     builder: (context, _) => MaterialApp(
+      debugShowCheckedModeBanner: false,
       onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
       theme: tellbowTheme(Brightness.light),
       darkTheme: tellbowTheme(Brightness.dark),

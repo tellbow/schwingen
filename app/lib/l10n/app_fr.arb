@@ -82,6 +82,8 @@
   "about": "À propos de Tellbow",
   "version": "Version",
   "website": "Site web",
+  "privacy": "Protection des données",
+  "privacyUrl": "https://schwingen.tellbow.ch/fr/privacy",
   "dataSource": "Source des données",
   "dataSourceText": "Classements de l'Association fédérale de lutte suisse (esv.ch)",
   "licenses": "Licences open source",

@@ -590,6 +590,18 @@ abstract class AppLocalizations {
   /// **'Website'**
   String get website;
 
+  /// No description provided for @privacy.
+  ///
+  /// In de, this message translates to:
+  /// **'Datenschutz'**
+  String get privacy;
+
+  /// No description provided for @privacyUrl.
+  ///
+  /// In de, this message translates to:
+  /// **'https://schwingen.tellbow.ch/privacy'**
+  String get privacyUrl;
+
   /// No description provided for @dataSource.
   ///
   /// In de, this message translates to:
