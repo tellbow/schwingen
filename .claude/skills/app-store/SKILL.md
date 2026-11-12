@@ -62,8 +62,8 @@ there. Offer to draft the texts.
   (the app shows no third-party content it has no rights to), age rating
   questionnaire (all «None»: 4+).
 - **Pricing and Availability:** free, the countries.
-- **App Privacy:** a privacy policy URL (the website has no such page
-  yet) and the data: «Fehler melden» sends the user's text, an optional
+- **App Privacy:** the privacy policy URL (`https://schwingen.tellbow.ch/privacy`
+  and `/fr/privacy`) and the data: «Fehler melden» sends the user's text, an optional
   screenshot, the app version and the device; not linked to the user, no
   tracking. Settings stay on the phone.
 - **The version page**, per language (German, French): description,
