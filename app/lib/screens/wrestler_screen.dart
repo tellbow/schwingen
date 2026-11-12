@@ -9,6 +9,7 @@ import 'charts.dart';
 import 'context.dart';
 import 'stat_grid.dart';
 import 'trend_chart.dart';
+import 'wide.dart';
 import 'widgets.dart';
 
 typedef _Season = ({List<Ranking> rankings, List<OpponentRecord> opponents, Elo? elo, List<Elo> eloHistory});
@@ -41,32 +42,35 @@ class _WrestlerScreenState extends State<WrestlerScreen> {
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(),
-    body: Loader(
-      future: _base,
-      builder: (context, base) {
-        final (detail, years) = base;
-        if (detail == null) return Message(context.l10n.noData);
-        return ListView(
-          padding: const EdgeInsets.only(bottom: 24),
-          children: [
-            _Header(queries: widget.queries, detail: detail),
-            const SizedBox(height: 8),
-            YearChips(
-              years: years,
-              selected: _year,
-              onSelected: (year) => setState(() {
-                _year = year;
-                _season = _load();
-              }),
-            ),
-            Loader(
-              future: _season,
-              builder: (context, season) =>
-                  _SeasonView(queries: widget.queries, wrestler: detail.person, season: season),
-            ),
-          ],
-        );
-      },
+    body: Readable(
+      width: pageWidth,
+      child: Loader(
+        future: _base,
+        builder: (context, base) {
+          final (detail, years) = base;
+          if (detail == null) return Message(context.l10n.noData);
+          return ListView(
+            padding: const EdgeInsets.only(bottom: 24),
+            children: [
+              _Header(queries: widget.queries, detail: detail),
+              const SizedBox(height: 8),
+              YearChips(
+                years: years,
+                selected: _year,
+                onSelected: (year) => setState(() {
+                  _year = year;
+                  _season = _load();
+                }),
+              ),
+              Loader(
+                future: _season,
+                builder: (context, season) =>
+                    _SeasonView(queries: widget.queries, wrestler: detail.person, season: season),
+              ),
+            ],
+          );
+        },
+      ),
     ),
   );
 }
@@ -157,34 +161,38 @@ class _SeasonView extends StatelessWidget {
           StatTile(label: l10n.wreathRegional, value: '${wreaths.regional}'),
           StatTile(label: l10n.wreathFederal, value: '${wreaths.federal}'),
         ]),
-        Section(
-          title: l10n.rankings,
-          children: [
-            if (season.rankings.isEmpty) Message(l10n.noResults),
-            for (final r in season.rankings)
-              ListTile(
-                leading: RankBadge(r.rankLabel),
-                title: Text(r.place.name, maxLines: 2, overflow: TextOverflow.ellipsis),
-                subtitle: Text([context.date(r.place.date), r.result, r.status].where((s) => s.isNotEmpty).join(' · ')),
-                trailing: Points(points: r.points, wreath: r.wreath),
-                onTap: () => openPlace(context, queries, r.place.id),
-              ),
-          ],
-        ),
-        if (season.eloHistory.isNotEmpty || season.rankings.isNotEmpty) _Trends(season),
-        if (season.opponents.isNotEmpty)
+        Columns([
           Section(
-            title: l10n.opponents,
+            title: l10n.rankings,
             children: [
-              for (final o in season.opponents)
+              if (season.rankings.isEmpty) Message(l10n.noResults),
+              for (final r in season.rankings)
                 ListTile(
-                  title: PersonName(o.opponent),
-                  subtitle: Text('${o.wins} ${l10n.wins} · ${o.draws} ${l10n.draws} · ${o.losses} ${l10n.losses}'),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () => openHeadToHead(context, queries, wrestler, o.opponent),
+                  leading: RankBadge(r.rankLabel),
+                  title: Text(r.place.name, maxLines: 2, overflow: TextOverflow.ellipsis),
+                  subtitle: Text(
+                    [context.date(r.place.date), r.result, r.status].where((s) => s.isNotEmpty).join(' · '),
+                  ),
+                  trailing: Points(points: r.points, wreath: r.wreath),
+                  onTap: () => openPlace(context, queries, r.place.id),
                 ),
             ],
           ),
+          if (season.eloHistory.isNotEmpty || season.rankings.isNotEmpty) _Trends(season),
+          if (season.opponents.isNotEmpty)
+            Section(
+              title: l10n.opponents,
+              children: [
+                for (final o in season.opponents)
+                  ListTile(
+                    title: PersonName(o.opponent),
+                    subtitle: Text('${o.wins} ${l10n.wins} · ${o.draws} ${l10n.draws} · ${o.losses} ${l10n.losses}'),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () => openHeadToHead(context, queries, wrestler, o.opponent),
+                  ),
+              ],
+            ),
+        ]),
       ],
     );
   }

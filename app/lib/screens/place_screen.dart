@@ -5,6 +5,7 @@ import '../data/models.dart';
 import '../data/queries.dart';
 import 'charts.dart';
 import 'context.dart';
+import 'wide.dart';
 import 'widgets.dart';
 
 class PlaceScreen extends StatefulWidget {
@@ -24,40 +25,46 @@ class _PlaceScreenState extends State<PlaceScreen> {
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(),
-    body: Loader(
-      future: _data,
-      builder: (context, data) {
-        final (place, rankings) = data;
-        if (place == null) return Message(context.l10n.noData);
-        final theme = Theme.of(context);
-        final bins = pointsHistogram(rankings);
-        return ListView(
-          padding: const EdgeInsets.only(bottom: 24),
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(place.name, style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
-                  Text(
-                    [context.date(place.date), place.location, place.type].where((s) => s.isNotEmpty).join(' · '),
-                    style: TextStyle(color: theme.colorScheme.onSurfaceVariant),
-                  ),
-                ],
+    body: Readable(
+      width: pageWidth,
+      child: Loader(
+        future: _data,
+        builder: (context, data) {
+          final (place, rankings) = data;
+          if (place == null) return Message(context.l10n.noData);
+          final theme = Theme.of(context);
+          final bins = pointsHistogram(rankings);
+          return ListView(
+            padding: const EdgeInsets.only(bottom: 24),
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(place.name, style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
+                    Text(
+                      [context.date(place.date), place.location, place.type].where((s) => s.isNotEmpty).join(' · '),
+                      style: TextStyle(color: theme.colorScheme.onSurfaceVariant),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            if (bins.length >= 2) Section(title: context.l10n.tabStatistics, children: [PointsHistogramChart(bins)]),
-            Section(
-              title: context.l10n.rankings,
-              children: [
-                if (rankings.isEmpty) Message(context.l10n.noResults),
-                for (final r in rankings) _RankingTile(queries: widget.queries, ranking: r),
-              ],
-            ),
-          ],
-        );
-      },
+              Columns([
+                if (bins.length >= 2)
+                  Section(title: context.l10n.tabStatistics, children: [PointsHistogramChart(bins)]),
+                Section(
+                  title: context.l10n.rankings,
+                  children: [
+                    if (rankings.isEmpty) Message(context.l10n.noResults),
+                    for (final r in rankings) _RankingTile(queries: widget.queries, ranking: r),
+                  ],
+                ),
+              ]),
+            ],
+          );
+        },
+      ),
     ),
   );
 }

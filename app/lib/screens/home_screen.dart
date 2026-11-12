@@ -16,6 +16,7 @@ import 'head_to_head_screen.dart';
 import 'place_observer.dart';
 import 'places_screen.dart';
 import 'statistics_screen.dart';
+import 'wide.dart';
 import 'wrestlers_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -117,46 +118,72 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    final wide = isWide(context);
+    final tabs = [
+      (Icons.people_outline, l10n.tabWrestlers),
+      (Icons.emoji_events_outlined, l10n.navPlaces),
+      (Icons.compare_arrows, l10n.navHeadToHead),
+      (Icons.account_tree_outlined, l10n.tabAssociations),
+      (Icons.bar_chart, l10n.tabStatistics),
+    ];
+    final pages = Column(
+      children: [
+        Expanded(
+          child: Stack(
+            children: [
+              IndexedStack(
+                index: _tab,
+                children: [
+                  for (var i = 0; i < _navigators.length; i++)
+                    Navigator(
+                      key: _navigators[i],
+                      observers: [_observers[i]],
+                      onGenerateRoute: (_) => MaterialPageRoute(
+                        settings: RouteSettings(name: _places[i]),
+                        builder: (_) => _root(i),
+                      ),
+                    ),
+                ],
+              ),
+              if (!_taking) Positioned(right: 0, bottom: 24, child: _BugTab(onTap: _openBugReport)),
+            ],
+          ),
+        ),
+        ?widget.banner,
+      ],
+    );
     return RepaintBoundary(
       key: _boundary,
       child: Scaffold(
-        body: Column(
+        body: Row(
           children: [
-            Expanded(
-              child: Stack(
-                children: [
-                  IndexedStack(
-                    index: _tab,
-                    children: [
-                      for (var i = 0; i < _navigators.length; i++)
-                        Navigator(
-                          key: _navigators[i],
-                          observers: [_observers[i]],
-                          onGenerateRoute: (_) => MaterialPageRoute(
-                            settings: RouteSettings(name: _places[i]),
-                            builder: (_) => _root(i),
-                          ),
-                        ),
-                    ],
-                  ),
-                  if (!_taking) Positioned(right: 0, bottom: 24, child: _BugTab(onTap: _openBugReport)),
-                ],
+            if (wide)
+              SafeArea(
+                right: false,
+                child: NavigationRail(
+                  selectedIndex: _tab,
+                  onDestinationSelected: _select,
+                  labelType: NavigationRailLabelType.all,
+                  groupAlignment: 0,
+                  destinations: [
+                    for (final (icon, label) in tabs) NavigationRailDestination(icon: Icon(icon), label: Text(label)),
+                  ],
+                ),
               ),
+            if (wide) const VerticalDivider(width: 1),
+            Expanded(
+              key: const Key('pages'),
+              child: MediaQuery.removePadding(context: context, removeLeft: wide, child: pages),
             ),
-            ?widget.banner,
           ],
         ),
-        bottomNavigationBar: NavigationBar(
-          selectedIndex: _tab,
-          onDestinationSelected: _select,
-          destinations: [
-            NavigationDestination(icon: const Icon(Icons.people_outline), label: l10n.tabWrestlers),
-            NavigationDestination(icon: const Icon(Icons.emoji_events_outlined), label: l10n.navPlaces),
-            NavigationDestination(icon: const Icon(Icons.compare_arrows), label: l10n.navHeadToHead),
-            NavigationDestination(icon: const Icon(Icons.account_tree_outlined), label: l10n.tabAssociations),
-            NavigationDestination(icon: const Icon(Icons.bar_chart), label: l10n.tabStatistics),
-          ],
-        ),
+        bottomNavigationBar: wide
+            ? null
+            : NavigationBar(
+                selectedIndex: _tab,
+                onDestinationSelected: _select,
+                destinations: [for (final (icon, label) in tabs) NavigationDestination(icon: Icon(icon), label: label)],
+              ),
       ),
     );
   }

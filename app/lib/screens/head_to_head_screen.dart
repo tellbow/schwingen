@@ -7,6 +7,7 @@ import '../data/stats.dart';
 import 'charts.dart';
 import 'context.dart';
 import 'stat_grid.dart';
+import 'wide.dart';
 import 'widgets.dart';
 import 'wrestlers_screen.dart';
 
@@ -69,20 +70,34 @@ class _HeadToHeadScreenState extends State<HeadToHeadScreen> {
         title: Text(l10n.tabHeadToHead),
         actions: [if (widget.onSettings case final open?) SettingsButton(open)],
       ),
-      body: ListView(
-        padding: const EdgeInsets.only(bottom: 24),
-        children: [
-          _Picker(label: l10n.wrestler1, person: _first, onTap: () => _pick(true)),
-          Center(
-            child: IconButton(tooltip: l10n.swap, icon: const Icon(Icons.swap_vert), onPressed: _swap),
-          ),
-          _Picker(label: l10n.wrestler2, person: _second, onTap: () => _pick(false)),
-          if (duel != null)
-            Loader(
-              future: duel,
-              builder: (context, duel) => Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+      body: Readable(
+        width: pageWidth,
+        child: ListView(
+          padding: const EdgeInsets.only(bottom: 24),
+          children: [
+            if (isWide(context))
+              Row(
                 children: [
+                  Expanded(
+                    child: _Picker(label: l10n.wrestler1, person: _first, onTap: () => _pick(true)),
+                  ),
+                  IconButton(tooltip: l10n.swap, icon: const Icon(Icons.swap_horiz), onPressed: _swap),
+                  Expanded(
+                    child: _Picker(label: l10n.wrestler2, person: _second, onTap: () => _pick(false)),
+                  ),
+                ],
+              )
+            else ...[
+              _Picker(label: l10n.wrestler1, person: _first, onTap: () => _pick(true)),
+              Center(
+                child: IconButton(tooltip: l10n.swap, icon: const Icon(Icons.swap_vert), onPressed: _swap),
+              ),
+              _Picker(label: l10n.wrestler2, person: _second, onTap: () => _pick(false)),
+            ],
+            if (duel != null)
+              Loader(
+                future: duel,
+                builder: (context, duel) => Columns([
                   _Meetings(queries: widget.queries, meetings: duel.meetings),
                   if (RankDuelChart.hasData(duel.ranks))
                     Section(
@@ -90,10 +105,10 @@ class _HeadToHeadScreenState extends State<HeadToHeadScreen> {
                       subtitle: l10n.fiveEvents,
                       children: [RankDuelChart(series: duel.ranks)],
                     ),
-                ],
+                ]),
               ),
-            ),
-        ],
+          ],
+        ),
       ),
     );
   }

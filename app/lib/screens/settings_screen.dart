@@ -6,6 +6,7 @@ import '../data/release.dart';
 import '../settings.dart';
 import 'context.dart';
 import 'data_gate.dart';
+import 'wide.dart';
 import 'widgets.dart';
 
 final websiteUrl = Uri.parse('https://schwingen.tellbow.ch');
@@ -57,105 +58,107 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final settings = widget.settings;
     return Scaffold(
       appBar: AppBar(title: Text(l10n.settings)),
-      body: ListenableBuilder(
-        listenable: settings,
-        builder: (context, _) => ListView(
-          padding: const EdgeInsets.only(bottom: 24),
-          children: [
-            Section(
-              title: l10n.appearance,
-              children: [
-                _Choice<ThemeMode>(
-                  selected: settings.themeMode,
-                  onSelected: settings.setThemeMode,
-                  options: {ThemeMode.system: l10n.system, ThemeMode.light: l10n.light, ThemeMode.dark: l10n.dark},
-                ),
-              ],
-            ),
-            Section(
-              title: l10n.language,
-              children: [
-                _Choice<String>(
-                  selected: settings.locale?.languageCode ?? '',
-                  onSelected: (code) => settings.setLocale(code.isEmpty ? null : Locale(code)),
-                  options: {'': l10n.system, 'de': 'Deutsch', 'fr': 'Français'},
-                ),
-              ],
-            ),
-            Section(
-              title: l10n.data,
-              children: [
-                ListTile(
-                  title: Text(l10n.installedData),
-                  subtitle: Text(l10n.dataInstalled(widget.dataTag ?? '–', megabytes(widget.dataBytes))),
-                ),
-                FutureBuilder(
-                  future: _check,
-                  builder: (context, snapshot) {
-                    final checking = snapshot.connectionState == ConnectionState.waiting;
-                    final done = snapshot.connectionState == ConnectionState.done;
-                    final release = snapshot.data;
-                    return ListTile(
-                      leading: const Icon(Icons.refresh),
-                      title: Text(l10n.checkForData),
-                      subtitle: !done
-                          ? null
-                          : Text(
-                              snapshot.hasError
-                                  ? l10n.failed('${snapshot.error}')
-                                  : release == null
-                                  ? l10n.upToDate
-                                  : l10n.updateAvailable(release.tag, megabytes(release.size)),
-                            ),
-                      trailing: checking
-                          ? const SizedBox.square(dimension: 20, child: CircularProgressIndicator.adaptive())
-                          : null,
-                      onTap: checking
-                          ? null
-                          : () => setState(() {
-                              _check = widget.onCheck();
-                            }),
-                    );
-                  },
-                ),
-                ListTile(
-                  leading: const Icon(Icons.delete_outline),
-                  title: Text(l10n.reloadData),
-                  onTap: _confirmReload,
-                ),
-              ],
-            ),
-            Section(
-              title: l10n.about,
-              children: [
-                FutureBuilder(
-                  future: _info,
-                  builder: (context, snapshot) => ListTile(
-                    title: Text(l10n.version),
-                    subtitle: Text(switch (snapshot.data) {
-                      final info? => '${info.version} (${info.buildNumber})',
-                      null => '–',
-                    }),
+      body: Readable(
+        child: ListenableBuilder(
+          listenable: settings,
+          builder: (context, _) => ListView(
+            padding: const EdgeInsets.only(bottom: 24),
+            children: [
+              Section(
+                title: l10n.appearance,
+                children: [
+                  _Choice<ThemeMode>(
+                    selected: settings.themeMode,
+                    onSelected: settings.setThemeMode,
+                    options: {ThemeMode.system: l10n.system, ThemeMode.light: l10n.light, ThemeMode.dark: l10n.dark},
                   ),
-                ),
-                _LinkTile(title: l10n.website, url: websiteUrl),
-                _LinkTile(title: l10n.privacy, url: Uri.parse(l10n.privacyUrl)),
-                _LinkTile(title: l10n.dataSource, subtitle: l10n.dataSourceText, url: sourceUrl),
-                FutureBuilder(
-                  future: _info,
-                  builder: (context, snapshot) => ListTile(
-                    title: Text(l10n.licenses),
-                    trailing: const Icon(Icons.chevron_right),
-                    onTap: () => showLicensePage(
-                      context: context,
-                      applicationName: l10n.appTitle,
-                      applicationVersion: snapshot.data?.version,
+                ],
+              ),
+              Section(
+                title: l10n.language,
+                children: [
+                  _Choice<String>(
+                    selected: settings.locale?.languageCode ?? '',
+                    onSelected: (code) => settings.setLocale(code.isEmpty ? null : Locale(code)),
+                    options: {'': l10n.system, 'de': 'Deutsch', 'fr': 'Français'},
+                  ),
+                ],
+              ),
+              Section(
+                title: l10n.data,
+                children: [
+                  ListTile(
+                    title: Text(l10n.installedData),
+                    subtitle: Text(l10n.dataInstalled(widget.dataTag ?? '–', megabytes(widget.dataBytes))),
+                  ),
+                  FutureBuilder(
+                    future: _check,
+                    builder: (context, snapshot) {
+                      final checking = snapshot.connectionState == ConnectionState.waiting;
+                      final done = snapshot.connectionState == ConnectionState.done;
+                      final release = snapshot.data;
+                      return ListTile(
+                        leading: const Icon(Icons.refresh),
+                        title: Text(l10n.checkForData),
+                        subtitle: !done
+                            ? null
+                            : Text(
+                                snapshot.hasError
+                                    ? l10n.failed('${snapshot.error}')
+                                    : release == null
+                                    ? l10n.upToDate
+                                    : l10n.updateAvailable(release.tag, megabytes(release.size)),
+                              ),
+                        trailing: checking
+                            ? const SizedBox.square(dimension: 20, child: CircularProgressIndicator.adaptive())
+                            : null,
+                        onTap: checking
+                            ? null
+                            : () => setState(() {
+                                _check = widget.onCheck();
+                              }),
+                      );
+                    },
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.delete_outline),
+                    title: Text(l10n.reloadData),
+                    onTap: _confirmReload,
+                  ),
+                ],
+              ),
+              Section(
+                title: l10n.about,
+                children: [
+                  FutureBuilder(
+                    future: _info,
+                    builder: (context, snapshot) => ListTile(
+                      title: Text(l10n.version),
+                      subtitle: Text(switch (snapshot.data) {
+                        final info? => '${info.version} (${info.buildNumber})',
+                        null => '–',
+                      }),
                     ),
                   ),
-                ),
-              ],
-            ),
-          ],
+                  _LinkTile(title: l10n.website, url: websiteUrl),
+                  _LinkTile(title: l10n.privacy, url: Uri.parse(l10n.privacyUrl)),
+                  _LinkTile(title: l10n.dataSource, subtitle: l10n.dataSourceText, url: sourceUrl),
+                  FutureBuilder(
+                    future: _info,
+                    builder: (context, snapshot) => ListTile(
+                      title: Text(l10n.licenses),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () => showLicensePage(
+                        context: context,
+                        applicationName: l10n.appTitle,
+                        applicationVersion: snapshot.data?.version,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

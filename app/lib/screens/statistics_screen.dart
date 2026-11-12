@@ -6,6 +6,7 @@ import '../data/queries.dart';
 import '../data/statistics_queries.dart';
 import '../theme.dart';
 import 'context.dart';
+import 'wide.dart';
 import 'widgets.dart';
 
 class StatisticsScreen extends StatefulWidget {
@@ -28,27 +29,28 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     final l10n = context.l10n;
     return Scaffold(
       appBar: AppBar(title: Text(l10n.tabStatistics), actions: [SettingsButton(widget.onSettings)]),
-      body: ListView(
-        padding: const EdgeInsets.only(bottom: 24),
-        children: [
-          FutureBuilder(
-            future: _years,
-            builder: (context, snapshot) => YearChips(
-              years: snapshot.data ?? const [],
-              selected: _year,
-              onSelected: (year) => setState(() {
-                _year = year;
-                _stats = widget.queries.statistics(year);
-              }),
+      body: Readable(
+        width: pageWidth,
+        child: ListView(
+          padding: const EdgeInsets.only(bottom: 24),
+          children: [
+            FutureBuilder(
+              future: _years,
+              builder: (context, snapshot) => YearChips(
+                years: snapshot.data ?? const [],
+                selected: _year,
+                onSelected: (year) => setState(() {
+                  _year = year;
+                  _stats = widget.queries.statistics(year);
+                }),
+              ),
             ),
-          ),
-          Loader(
-            future: _stats,
-            builder: (context, stats) {
-              String decimal(StatEntry e) => context.decimal(e.value);
-              String whole(StatEntry e) => '${e.value.round()}';
-              return Column(
-                children: [
+            Loader(
+              future: _stats,
+              builder: (context, stats) {
+                String decimal(StatEntry e) => context.decimal(e.value);
+                String whole(StatEntry e) => '${e.value.round()}';
+                return Columns([
                   if (_year != null)
                     _Top(queries: widget.queries, title: l10n.topElo, entries: stats.elo, value: whole),
                   _Top(
@@ -100,11 +102,11 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                       ),
                     ],
                   ),
-                ],
-              );
-            },
-          ),
-        ],
+                ]);
+              },
+            ),
+          ],
+        ),
       ),
     );
   }

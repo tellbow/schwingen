@@ -25,7 +25,9 @@ Future<void> shot(WidgetTester tester, String name) async {
   }
 }
 
-Finder tab(String label) => find.descendant(of: find.byType(NavigationBar), matching: find.text(label));
+final tabs = find.byWidgetPredicate((w) => w is NavigationBar || w is NavigationRail);
+
+Finder tab(String label) => find.descendant(of: tabs, matching: find.text(label));
 
 final page = find.byWidgetPredicate((w) => w is Scrollable && w.axisDirection == AxisDirection.down).first;
 
@@ -43,14 +45,17 @@ void main() {
     await settings.setLocale(const Locale(language));
     final l10n = lookupAppLocalizations(const Locale(language));
     await tester.pumpWidget(TellbowApp(store: openStore(), settings: settings));
-    await pumpUntil(tester, find.byWidgetPredicate((w) => w is NavigationBar || w is Text && w.data == l10n.download));
+    await pumpUntil(
+      tester,
+      find.byWidgetPredicate((w) => w is NavigationBar || w is NavigationRail || w is Text && w.data == l10n.download),
+    );
 
-    if (find.byType(NavigationBar).evaluate().isEmpty) {
+    if (tabs.evaluate().isEmpty) {
       await shot(tester, 'first-launch');
       await tester.tap(find.widgetWithText(FilledButton, l10n.download));
       await pumpUntil(tester, find.byType(LinearProgressIndicator));
       await shot(tester, 'downloading');
-      await pumpUntil(tester, find.byType(NavigationBar), timeout: const Duration(minutes: 10));
+      await pumpUntil(tester, tabs, timeout: const Duration(minutes: 10));
     }
     await pumpUntil(tester, find.byType(ListTile));
     await shot(tester, 'wrestlers');

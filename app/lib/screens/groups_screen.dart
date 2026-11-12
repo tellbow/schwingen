@@ -6,6 +6,7 @@ import '../data/queries.dart';
 import 'canton_map.dart';
 import 'context.dart';
 import 'stat_grid.dart';
+import 'wide.dart';
 import 'widgets.dart';
 
 class AssociationsScreen extends StatelessWidget {
@@ -17,26 +18,39 @@ class AssociationsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(title: Text(context.l10n.tabAssociations), actions: [SettingsButton(onSettings)]),
-    body: Loader(
-      future: (() async => (await queries.groups(GroupLevel.association), await queries.groups(GroupLevel.canton)))(),
-      builder: (context, groups) {
-        final (associations, cantons) = groups;
-        final areas = {
-          for (final a in associations)
-            a.id: MapArea(label: _title(a), value: a.active, onOpen: () => openGroup(context, queries, a.level, a.id)),
-        };
-        return ListView(
-          padding: const EdgeInsets.only(bottom: 24),
-          children: [
-            _MapSection(
-              title: context.l10n.activeByAssociation,
-              areas: {for (final c in cantons) c.name: ?areas[c.parent]},
-            ),
-            const SizedBox(height: 8),
-            for (final group in associations) _GroupTile(queries: queries, group: group),
-          ],
-        );
-      },
+    body: Readable(
+      width: pageWidth,
+      child: Loader(
+        future: (() async => (await queries.groups(GroupLevel.association), await queries.groups(GroupLevel.canton)))(),
+        builder: (context, groups) {
+          final (associations, cantons) = groups;
+          final areas = {
+            for (final a in associations)
+              a.id: MapArea(
+                label: _title(a),
+                value: a.active,
+                onOpen: () => openGroup(context, queries, a.level, a.id),
+              ),
+          };
+          return ListView(
+            padding: const EdgeInsets.only(bottom: 24),
+            children: [
+              Columns([
+                _MapSection(
+                  title: context.l10n.activeByAssociation,
+                  areas: {for (final c in cantons) c.name: ?areas[c.parent]},
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: Column(
+                    children: [for (final group in associations) _GroupTile(queries: queries, group: group)],
+                  ),
+                ),
+              ]),
+            ],
+          );
+        },
+      ),
     ),
   );
 }
@@ -66,69 +80,74 @@ class _GroupScreenState extends State<GroupScreen> {
     final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(),
-      body: Loader(
-        future: _group,
-        builder: (context, found) {
-          if (found.isEmpty) return Message(l10n.noData);
-          final group = found.single;
-          return ListView(
-            padding: const EdgeInsets.only(bottom: 24),
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Text(group.name, style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
-              ),
-              StatGrid([
-                StatTile(label: l10n.total, value: '${group.total}'),
-                StatTile(label: l10n.active, value: '${group.active}'),
-              ], columns: 2),
-              StatGrid([
-                StatTile(label: '***', value: '${group.stars.$1}'),
-                StatTile(label: '**', value: '${group.stars.$2}'),
-                StatTile(label: '*', value: '${group.stars.$3}'),
-              ]),
-              if (widget.level == GroupLevel.association)
-                Loader(
-                  future: _children,
-                  builder: (context, children) => _MapSection(
-                    title: l10n.activeByCanton,
-                    areas: {
-                      for (final c in children.whereType<Group>())
-                        c.name: MapArea(
-                          label: c.name,
-                          value: c.active,
-                          onOpen: () => openGroup(context, widget.queries, c.level, c.id),
-                        ),
-                    },
-                  ),
+      body: Readable(
+        width: pageWidth,
+        child: Loader(
+          future: _group,
+          builder: (context, found) {
+            if (found.isEmpty) return Message(l10n.noData);
+            final group = found.single;
+            return ListView(
+              padding: const EdgeInsets.only(bottom: 24),
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Text(group.name, style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
                 ),
-              Loader(
-                future: _children,
-                builder: (context, children) => Section(
-                  title: switch (widget.level) {
-                    GroupLevel.association => l10n.cantons,
-                    GroupLevel.canton => l10n.clubs,
-                    GroupLevel.club => l10n.tabWrestlers,
-                  },
-                  children: [
-                    if (children.isEmpty) Message(l10n.noResults),
-                    for (final child in children)
-                      switch (child) {
-                        Group() => _GroupTile(queries: widget.queries, group: child),
-                        WrestlerSummary() => ListTile(
-                          title: PersonName(child.person),
-                          subtitle: child.year.isEmpty ? null : Text(child.year),
-                          trailing: const Icon(Icons.chevron_right),
-                          onTap: () => openWrestler(context, widget.queries, child.person.id),
-                        ),
-                        _ => const SizedBox(),
+                StatGrid([
+                  StatTile(label: l10n.total, value: '${group.total}'),
+                  StatTile(label: l10n.active, value: '${group.active}'),
+                ], columns: 2),
+                StatGrid([
+                  StatTile(label: '***', value: '${group.stars.$1}'),
+                  StatTile(label: '**', value: '${group.stars.$2}'),
+                  StatTile(label: '*', value: '${group.stars.$3}'),
+                ]),
+                Columns([
+                  if (widget.level == GroupLevel.association)
+                    Loader(
+                      future: _children,
+                      builder: (context, children) => _MapSection(
+                        title: l10n.activeByCanton,
+                        areas: {
+                          for (final c in children.whereType<Group>())
+                            c.name: MapArea(
+                              label: c.name,
+                              value: c.active,
+                              onOpen: () => openGroup(context, widget.queries, c.level, c.id),
+                            ),
+                        },
+                      ),
+                    ),
+                  Loader(
+                    future: _children,
+                    builder: (context, children) => Section(
+                      title: switch (widget.level) {
+                        GroupLevel.association => l10n.cantons,
+                        GroupLevel.canton => l10n.clubs,
+                        GroupLevel.club => l10n.tabWrestlers,
                       },
-                  ],
-                ),
-              ),
-            ],
-          );
-        },
+                      children: [
+                        if (children.isEmpty) Message(l10n.noResults),
+                        for (final child in children)
+                          switch (child) {
+                            Group() => _GroupTile(queries: widget.queries, group: child),
+                            WrestlerSummary() => ListTile(
+                              title: PersonName(child.person),
+                              subtitle: child.year.isEmpty ? null : Text(child.year),
+                              trailing: const Icon(Icons.chevron_right),
+                              onTap: () => openWrestler(context, widget.queries, child.person.id),
+                            ),
+                            _ => const SizedBox(),
+                          },
+                      ],
+                    ),
+                  ),
+                ]),
+              ],
+            );
+          },
+        ),
       ),
     );
   }

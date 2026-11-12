@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../data/models.dart';
 import '../data/queries.dart';
 import 'context.dart';
+import 'wide.dart';
 import 'widgets.dart';
 
 class WrestlersScreen extends StatelessWidget {
@@ -14,7 +15,9 @@ class WrestlersScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(title: Text(context.l10n.tabWrestlers), actions: [SettingsButton(onSettings)]),
-    body: WrestlerSearch(queries: queries, onPick: (person) => openWrestler(context, queries, person.id)),
+    body: Readable(
+      child: WrestlerSearch(queries: queries, onPick: (person) => openWrestler(context, queries, person.id)),
+    ),
   );
 }
 
@@ -26,7 +29,9 @@ class WrestlerPickerScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(title: Text(context.l10n.pickWrestler)),
-    body: WrestlerSearch(queries: queries, autofocus: true, onPick: (person) => Navigator.of(context).pop(person)),
+    body: Readable(
+      child: WrestlerSearch(queries: queries, autofocus: true, onPick: (person) => Navigator.of(context).pop(person)),
+    ),
   );
 }
 
