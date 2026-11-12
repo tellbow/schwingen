@@ -17,9 +17,10 @@ tests against the schema that release shipped.
 3. **Report** passed or the failing test with its message.
 
 Pitfalls:
-- The test finds widgets by their German text. With empty settings the
-  app follows the simulator's language and falls back to German: a
-  simulator set to French fails it.
+- The test sets the app's language itself: German, or French with
+  `--dart-define=TELLBOW_TEST_LANG=fr`; the simulator's language does
+  not matter. App Store screenshots in both languages come from the two
+  runs (`SHOT <name>` lines, `xcrun simctl io <id> screenshot`).
 - A schema change not yet released: test the queries with
   `TELLBOW_DB=<data.db> flutter test test/release_database_test.dart`
   instead (CLAUDE.md, «iOS App»).

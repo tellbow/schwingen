@@ -32,7 +32,7 @@ flutter run -d <simulator id>
 flutter analyze
 flutter test                                            # stats, download, queries on a fixture
 TELLBOW_DB=/path/to/app.db flutter test test/release_database_test.dart    # every query on a real release (app.db or data.db)
-flutter test integration_test/app_test.dart -d <simulator id>             # download and every tab
+flutter test integration_test/app_test.dart -d <simulator id>             # download and every tab (--dart-define=TELLBOW_TEST_LANG=fr: in French)
 ```
 
 `flutter test` uses the operating system's SQLite (`hooks.user_defines` in `pubspec.yaml`), Apple's

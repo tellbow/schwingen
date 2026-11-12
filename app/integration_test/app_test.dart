@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:shared_preferences_platform_interface/in_memory_shared_preferences_async.dart';
 import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
+import 'package:tellbow/l10n/app_localizations.dart';
 import 'package:tellbow/main.dart';
 import 'package:tellbow/screens/canton_map.dart';
 import 'package:tellbow/screens/data_gate.dart';
@@ -30,18 +31,23 @@ final page = find.byWidgetPredicate((w) => w is Scrollable && w.axisDirection ==
 
 Finder rich(String text) => find.textContaining(text, findRichText: true);
 
+const language = String.fromEnvironment('TELLBOW_TEST_LANG', defaultValue: 'de');
+
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   WidgetController.hitTestWarningShouldBeFatal = true;
 
   testWidgets('downloads the data and shows every tab', (tester) async {
     SharedPreferencesAsyncPlatform.instance = InMemorySharedPreferencesAsync.empty();
-    await tester.pumpWidget(TellbowApp(store: openStore(), settings: await Settings.load()));
-    await pumpUntil(tester, find.byWidgetPredicate((w) => w is NavigationBar || w is Text && w.data == 'Laden'));
+    final settings = await Settings.load();
+    await settings.setLocale(const Locale(language));
+    final l10n = lookupAppLocalizations(const Locale(language));
+    await tester.pumpWidget(TellbowApp(store: openStore(), settings: settings));
+    await pumpUntil(tester, find.byWidgetPredicate((w) => w is NavigationBar || w is Text && w.data == l10n.download));
 
     if (find.byType(NavigationBar).evaluate().isEmpty) {
       await shot(tester, 'first-launch');
-      await tester.tap(find.widgetWithText(FilledButton, 'Laden'));
+      await tester.tap(find.widgetWithText(FilledButton, l10n.download));
       await pumpUntil(tester, find.byType(LinearProgressIndicator));
       await shot(tester, 'downloading');
       await pumpUntil(tester, find.byType(NavigationBar), timeout: const Duration(minutes: 10));
@@ -52,40 +58,40 @@ void main() {
     await tester.enterText(find.byType(TextField), 'staudenmann fabian');
     await pumpUntil(tester, rich('Fabian Staudenmann'));
     await tester.tap(rich('Fabian Staudenmann').first);
-    await pumpUntil(tester, find.text('Gestellte'));
+    await pumpUntil(tester, find.text(l10n.draws));
     await shot(tester, 'wrestler');
 
     await tester.scrollUntilVisible(find.byType(LineChart).first, 300, scrollable: page);
-    await tester.ensureVisible(find.text('Verlauf'));
+    await tester.ensureVisible(find.text(l10n.trends));
     await tester.pump(const Duration(milliseconds: 300));
     await shot(tester, 'trends');
-    await tester.scrollUntilVisible(find.text('Siege, Gestellte und Niederlagen pro Saison'), 300, scrollable: page);
+    await tester.scrollUntilVisible(find.text(l10n.outcomesBySeason), 300, scrollable: page);
     await shot(tester, 'outcomes');
     await tester.scrollUntilVisible(find.text('2025'), -300, scrollable: page);
 
     await tester.tap(find.text('2025'));
-    await pumpUntil(tester, find.text('ELO 2025'));
+    await pumpUntil(tester, find.text(l10n.eloOfYear(2025)));
     await shot(tester, 'wrestler-2025');
-    await tester.scrollUntilVisible(find.text('Rang pro Fest'), 300, scrollable: page);
-    await tester.ensureVisible(find.text('Rang pro Fest'));
+    await tester.scrollUntilVisible(find.text(l10n.festivalRanks), 300, scrollable: page);
+    await tester.ensureVisible(find.text(l10n.festivalRanks));
     await tester.pump(const Duration(milliseconds: 300));
     await shot(tester, 'festival-charts');
 
     final firstOpponent = find.descendant(
-      of: find.ancestor(of: find.text('Häufigste Gegner'), matching: find.byType(Card)),
+      of: find.ancestor(of: find.text(l10n.opponents), matching: find.byType(Card)),
       matching: find.byType(ListTile),
     );
     await tester.scrollUntilVisible(firstOpponent.first, 300, scrollable: page);
     await tester.ensureVisible(firstOpponent.first);
     await tester.pump(const Duration(milliseconds: 300));
     await tester.tap(firstOpponent.first);
-    await pumpUntil(tester, find.text('Begegnungen'));
+    await pumpUntil(tester, find.text(l10n.meetings));
     await shot(tester, 'head-to-head');
-    await tester.scrollUntilVisible(find.text('Ø Rang pro Saison (Rang 1 oben)'), 300, scrollable: page);
+    await tester.scrollUntilVisible(find.text(l10n.rankBySeason), 300, scrollable: page);
     await tester.pump(const Duration(milliseconds: 300));
     await shot(tester, 'rank-duel');
 
-    await tester.tap(tab('Feste'));
+    await tester.tap(tab(l10n.navPlaces));
     await pumpUntil(tester, find.byType(ListTile));
     await shot(tester, 'places');
     await tester.tap(find.byType(ListTile).first);
@@ -95,10 +101,10 @@ void main() {
     await tester.pump(const Duration(milliseconds: 500));
     await shot(tester, 'place');
 
-    await tester.tap(tab('Statistiken'));
-    await pumpUntil(tester, find.text('Top 5 – meiste Siege'));
+    await tester.tap(tab(l10n.tabStatistics));
+    await pumpUntil(tester, find.text(l10n.topWins));
     await shot(tester, 'statistics');
-    await tester.scrollUntilVisible(find.text('Top 5 – meiste Kränze'), 300, scrollable: page);
+    await tester.scrollUntilVisible(find.text(l10n.topWreaths), 300, scrollable: page);
     await tester.pump(const Duration(milliseconds: 300));
     await shot(tester, 'statistics-bars');
 
@@ -107,11 +113,11 @@ void main() {
       matching: find.byType(ListTile),
     );
 
-    await tester.tap(tab('Verbände'));
+    await tester.tap(tab(l10n.tabAssociations));
     await pumpUntil(tester, find.byType(CantonMap));
     await shot(tester, 'associations-map');
     await tester.tap(find.textContaining('(BKSV)'));
-    await pumpUntil(tester, tilesIn('Kantone / Gauverbände'));
+    await pumpUntil(tester, tilesIn(l10n.cantons));
     await pumpUntil(tester, find.byType(CantonMap));
     final map = find.descendant(of: find.byType(CantonMap), matching: find.byType(GestureDetector)).first;
     await tester.ensureVisible(map);
@@ -119,30 +125,30 @@ void main() {
     await tester.tap(map);
     await tester.pump(const Duration(milliseconds: 300));
     await shot(tester, 'association');
-    await tester.ensureVisible(tilesIn('Kantone / Gauverbände').first);
+    await tester.ensureVisible(tilesIn(l10n.cantons).first);
     await tester.pump(const Duration(milliseconds: 300));
-    await tester.tap(tilesIn('Kantone / Gauverbände').first);
-    await pumpUntil(tester, tilesIn('Schwingklubs'));
-    await tester.tap(tilesIn('Schwingklubs').first);
-    await pumpUntil(tester, tilesIn('Schwinger'));
+    await tester.tap(tilesIn(l10n.cantons).first);
+    await pumpUntil(tester, tilesIn(l10n.clubs));
+    await tester.tap(tilesIn(l10n.clubs).first);
+    await pumpUntil(tester, tilesIn(l10n.tabWrestlers));
     await shot(tester, 'club');
 
-    await tester.tap(find.byTooltip('Fehler melden'));
-    await pumpUntil(tester, find.text('Was ist passiert?'));
+    await tester.tap(find.byTooltip(l10n.bugReport));
+    await pumpUntil(tester, find.text(l10n.bugWhat));
     await tester.enterText(find.byType(TextField).last, 'Der Klub hat zu wenige Schwinger.');
     await tester.pump(const Duration(milliseconds: 300));
     FocusManager.instance.primaryFocus?.unfocus();
     await tester.pump(const Duration(milliseconds: 500));
     await shot(tester, 'bug-report');
-    await tester.tap(find.text('Abbrechen'));
+    await tester.tap(find.text(l10n.cancel));
     await tester.pump(const Duration(seconds: 1));
 
-    await tester.tap(tab('Verbände'));
+    await tester.tap(tab(l10n.tabAssociations));
     await tester.pump(const Duration(seconds: 1));
-    await tester.tap(find.byTooltip('Einstellungen'));
-    await pumpUntil(tester, find.text('Darstellung'));
+    await tester.tap(find.byTooltip(l10n.settings));
+    await pumpUntil(tester, find.text(l10n.appearance));
     await shot(tester, 'settings');
-    await tester.tap(find.text('Dunkel'));
+    await tester.tap(find.text(l10n.dark));
     await tester.pump(const Duration(milliseconds: 500));
     await tester.tap(find.text('Français'));
     await pumpUntil(tester, find.text('Apparence'));
