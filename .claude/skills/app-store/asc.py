@@ -183,17 +183,29 @@ def submit(args):
         sys.exit(f"no App Store version {args.version}: run prepare first")
     if not call("GET", f"/appStoreVersions/{ver['id']}/build")["data"]:
         sys.exit(f"version {args.version} has no build: run prepare first")
-    sub = call(
-        "POST",
-        "/reviewSubmissions",
-        {
-            "data": {
-                "type": "reviewSubmissions",
-                "attributes": {"platform": "IOS"},
-                "relationships": {"app": {"data": {"type": "apps", "id": app}}},
-            }
-        },
-    )["data"]
+    open_subs = call(
+        "GET", "/reviewSubmissions", **{"filter[app]": app, "filter[state]": "UNRESOLVED_ISSUES,READY_FOR_REVIEW"}
+    )
+    rejected = next((x for x in open_subs["data"] if x["attributes"]["state"] == "UNRESOLVED_ISSUES"), None)
+    if rejected:
+        resubmit(rejected["id"])
+        print(f"version {args.version} resubmitted for review")
+        return
+    draft = next((x for x in open_subs["data"] if x["attributes"]["state"] == "READY_FOR_REVIEW"), None)
+    sub = (
+        draft
+        or call(
+            "POST",
+            "/reviewSubmissions",
+            {
+                "data": {
+                    "type": "reviewSubmissions",
+                    "attributes": {"platform": "IOS"},
+                    "relationships": {"app": {"data": {"type": "apps", "id": app}}},
+                }
+            },
+        )["data"]
+    )
     call(
         "POST",
         "/reviewSubmissionItems",
@@ -213,6 +225,21 @@ def submit(args):
         {"data": {"type": "reviewSubmissions", "id": sub["id"], "attributes": {"submitted": True}}},
     )
     print(f"version {args.version} submitted for review")
+
+
+def resubmit(submission_id: str):
+    for item in call("GET", f"/reviewSubmissions/{submission_id}/items")["data"]:
+        if item["attributes"]["state"] == "REJECTED":
+            call(
+                "PATCH",
+                f"/reviewSubmissionItems/{item['id']}",
+                {"data": {"type": "reviewSubmissionItems", "id": item["id"], "attributes": {"resolved": True}}},
+            )
+    call(
+        "PATCH",
+        f"/reviewSubmissions/{submission_id}",
+        {"data": {"type": "reviewSubmissions", "id": submission_id, "attributes": {"submitted": True}}},
+    )
 
 
 def main():

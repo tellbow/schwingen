@@ -47,6 +47,11 @@ uv run .claude/skills/app-store/asc.py status X.Y.Z
    released by itself once approved. Report the state; Apple writes to
    the account's e-mail when it is approved or rejected, and a rejection
    is read in App Store Connect (Resolution Center).
+   After a rejection, fix the version (or rename it with `prepare` to a
+   new release), answer Apple in its review notes if asked, then `submit`
+   again: it marks the rejected item resolved and resubmits the open
+   submission («Nicht behobene Probleme»); a new submission would be
+   refused as «not in valid state».
 
 Errors come back as App Store Connect's own `title: detail` (e.g. a
 missing export compliance answer: `ITSAppUsesNonExemptEncryption` is
