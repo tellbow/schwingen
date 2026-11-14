@@ -55,10 +55,15 @@ export function issueBody(report: BugReport, screenshotUrl?: string | null): str
 			: screenshotUrl === null
 				? ['- Screenshot: could not be stored']
 				: ['', `![Screenshot](${screenshotUrl}?raw=true)`];
+	const longestTildes = Math.max(
+		0,
+		...(report.description.match(/~+/g) ?? []).map((run) => run.length)
+	);
+	const fence = '~'.repeat(Math.max(4, longestTildes + 1));
 	return [
-		'~~~~text',
-		report.description.replaceAll('~~~~', '~~~'),
-		'~~~~',
+		`${fence}text`,
+		report.description,
+		fence,
 		'',
 		`- Where: ${code(report.place)}`,
 		`- Platform: ${report.platform}, version ${code(report.version)}`,

@@ -89,10 +89,24 @@ describe('issue text', () => {
 			version: '0.1.0',
 			system: ''
 		});
-		expect(body).toContain('~~~~text\nkaputt ~~~ @someone\n~~~~');
+		expect(body).toContain('~~~~~text\nkaputt ~~~~ @someone\n~~~~~');
 		expect(body).toContain("- Where: `/x'y`");
 		expect(body).toContain('- Platform: ios, version `0.1.0`');
 		expect(body).toContain('- System: `–`');
+	});
+
+	it('uses a fence longer than any run of tildes in the description', () => {
+		const body = issueBody({
+			description: 'kaputt\n~~~~~\n@someone\n  ~~~~~~~',
+			place: '',
+			platform: 'web',
+			version: '',
+			system: ''
+		});
+		expect(body).toContain('~~~~~~~~text\nkaputt\n~~~~~\n@someone\n  ~~~~~~~\n~~~~~~~~\n');
+		expect(
+			issueBody({ description: 'ok', place: '', platform: 'web', version: '', system: '' })
+		).toContain('~~~~text\nok\n~~~~\n');
 		expect(body).not.toContain('Screenshot');
 	});
 
