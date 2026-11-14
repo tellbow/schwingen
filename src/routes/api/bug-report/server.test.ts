@@ -70,6 +70,13 @@ describe('POST /api/bug-report', () => {
 		expect(github).toHaveBeenCalledTimes(6);
 	});
 
+	it('bounds attempts per address while GitHub keeps failing', async () => {
+		github.mockResolvedValue(new Response('down', { status: 500 }));
+		for (let i = 0; i < 10; i++) expect((await send(report)).status).toBe(502);
+		expect((await send(report)).status).toBe(429);
+		expect(github).toHaveBeenCalledTimes(10);
+	});
+
 	it('is unavailable without a token', async () => {
 		env.GITHUB_FEEDBACK_TOKEN = undefined;
 		expect((await send(report)).status).toBe(503);

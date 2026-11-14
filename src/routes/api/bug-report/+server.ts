@@ -9,6 +9,7 @@ import {
 } from '#lib/server/bug-report.js';
 
 const limiter = new RateLimiter(5, 60, 60 * 60 * 1000);
+const attempts = new RateLimiter(10, 120, 60 * 60 * 1000);
 
 export const POST: RequestHandler = async ({ request, fetch, getClientAddress }) => {
 	const token = GITHUB_FEEDBACK_TOKEN;
@@ -29,7 +30,8 @@ export const POST: RequestHandler = async ({ request, fetch, getClientAddress })
 	if (!report) return Response.json({ error: 'invalid' }, { status: 400 });
 
 	const address = getClientAddress();
-	if (!limiter.take(address)) return Response.json({ error: 'busy' }, { status: 429 });
+	if (!attempts.take(address) || !limiter.take(address))
+		return Response.json({ error: 'busy' }, { status: 429 });
 	try {
 		await openIssue(fetch, repo, token, report);
 	} catch (error) {
