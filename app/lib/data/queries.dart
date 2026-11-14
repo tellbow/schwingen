@@ -11,6 +11,7 @@ class Queries {
 
   Future<List<WrestlerSummary>> wrestlers(String search, {String? club, int limit = 50, int offset = 0}) async {
     final match = matchWords(search, ['w.name', 'w.vorname', 'c.name']);
+    final byName = matchWords(search, ['w.name', 'w.vorname']);
     final rows = await db.rawQuery(
       '''
       SELECT w.id, w.name, w.vorname, w.year, c.name AS club, s.symbol
@@ -18,9 +19,9 @@ class Queries {
       LEFT JOIN club c ON c.id = w.club
       LEFT JOIN wrestlerStatus s ON s.id = w.status
       WHERE ${match.where} AND (? IS NULL OR w.club = ?)
-      ORDER BY s.symbol DESC, w.name, w.vorname
+      ORDER BY NOT (${byName.where}), s.symbol DESC, w.name, w.vorname
       LIMIT ? OFFSET ?''',
-      [...match.args, club, club, limit, offset],
+      [...match.args, club, club, ...byName.args, limit, offset],
     );
     return [
       for (final r in rows) WrestlerSummary(person: personOf(r), year: yearOf(text(r['year'])), club: text(r['club'])),

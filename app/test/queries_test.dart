@@ -92,9 +92,10 @@ void main() {
       expect(names, ['Staudenmann', 'Aebersold', 'Aebi', 'Muster_Mann']);
     });
 
-    test('matches every word against name, first name or club', () async {
+    test('matches every word against name, first name or club, name matches first', () async {
       expect((await q.wrestlers('fabian stauden')).map((w) => w.person.id), ['w1']);
       expect((await q.wrestlers('thun')).map((w) => w.person.id), ['w1', 'w2']);
+      expect((await q.wrestlers('n')).map((w) => w.person.id), ['w1', 'w3', 'w2']);
       expect((await q.wrestlers('fab')).map((w) => w.person.id), ['w1', 'w2']);
       expect(await q.wrestlers('nobody'), isEmpty);
     });
