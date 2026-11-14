@@ -66,6 +66,15 @@ void main() {
     });
   });
 
+  test('histogramLabelStep keeps at most seven labels on the points axis', () {
+    expect(histogramLabelStep(2.5), 1);
+    expect(histogramLabelStep(9), 2);
+    expect(histogramLabelStep(33), 5);
+    expect(histogramLabelStep(60), 10);
+    expect(histogramLabelStep(25), 5);
+    expect(histogramLabelStep(200), 20);
+  });
+
   test('shareOfMax scales to the largest value', () {
     expect(shareOfMax([10, 5, 0]), [1.0, 0.5, 0.0]);
     expect(shareOfMax([0, 0]), [0.0, 0.0]);

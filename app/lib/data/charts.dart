@@ -52,6 +52,8 @@ List<PointsBin> pointsHistogram(List<PlaceRanking> rankings, {double width = 0.5
   return [for (var i = 0; i <= last - first; i++) PointsBin((first + i) * width, wreath[i], other[i])];
 }
 
+int histogramLabelStep(double span) => [1, 2, 5, 10].firstWhere((step) => span / step <= 7, orElse: () => 20);
+
 List<double> shareOfMax(List<num> values) {
   final top = values.fold<num>(0, max);
   return [for (final v in values) top <= 0 ? 0 : v / top];

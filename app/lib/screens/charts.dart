@@ -310,6 +310,7 @@ class PointsHistogramChart extends StatelessWidget {
     final wreath = seriesColor(scheme), other = outcomeColors(scheme).draw;
     final axis = axisRange([0, ...bins.map((b) => b.total)]);
     final step = max(axis.step, 1.0);
+    final labelStep = histogramLabelStep(bins.last.from - bins.first.from);
     return ChartFrame(
       title: l10n.pointsDistribution,
       legend: [(wreath, l10n.withWreathLegend), (other, l10n.withoutWreath)],
@@ -324,7 +325,7 @@ class PointsHistogramChart extends StatelessWidget {
               context,
               bottom: (value) {
                 final from = bins[value.toInt()].from;
-                return from == from.roundToDouble() ? '${from.round()}' : '';
+                return from == from.roundToDouble() && from.round() % labelStep == 0 ? '${from.round()}' : '';
               },
               leftStep: step,
               left: (value) => '${value.round()}',
