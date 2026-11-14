@@ -1,5 +1,6 @@
 import type { PageServerLoad } from './$types';
 import { createServerPb } from '#lib/pb.js';
+import { throwLoadError } from '#lib/utils/load-error.js';
 import { buildSafeFilter, sanitizeSort } from '#lib/utils/filter.js';
 import { yearOnly } from '#lib/utils/format.js';
 import type { BoutRecord } from '#lib/types/pocketbase.js';
@@ -41,7 +42,6 @@ export const load: PageServerLoad = async ({ url }) => {
 			perPage
 		};
 	} catch (e) {
-		console.error('Error loading bouts:', e);
-		return { bouts: [], total: 0, page, perPage };
+		throwLoadError(e, 'Bouts not found');
 	}
 };

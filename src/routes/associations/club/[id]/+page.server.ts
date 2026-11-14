@@ -1,5 +1,6 @@
 import type { PageServerLoad } from './$types';
 import { createServerPb } from '#lib/pb.js';
+import { throwLoadError } from '#lib/utils/load-error.js';
 import { buildSafeFilter, validateRouteParam, WRESTLER_STATUS_FILTERS } from '#lib/utils/filter.js';
 import { yearOnly } from '#lib/utils/format.js';
 import { error } from '@sveltejs/kit';
@@ -27,13 +28,10 @@ export const load: PageServerLoad = async ({ params, url }) => {
 
 	try {
 		const [club, wrestlers] = await Promise.all([
-			pb
-				.collection('wrestlersByClub')
-				.getFirstListItem<ClubStatsRecord>(`id = "${clubId}"`, {
-					fields:
-						'id,name,canton,wrestlerAmount,wrestlerActive,wrestler1Star,wrestler2Star,wrestler3Star'
-				})
-				.catch(() => null),
+			pb.collection('wrestlersByClub').getFirstListItem<ClubStatsRecord>(`id = "${clubId}"`, {
+				fields:
+					'id,name,canton,wrestlerAmount,wrestlerActive,wrestler1Star,wrestler2Star,wrestler3Star'
+			}),
 			pb.collection('wrestler').getList<WrestlerRecord>(page, perPage, {
 				filter,
 				expand: 'status',
@@ -53,7 +51,6 @@ export const load: PageServerLoad = async ({ params, url }) => {
 			perPage
 		};
 	} catch (e) {
-		console.error(e);
-		throw error(404, 'Club not found');
+		throwLoadError(e, 'Club not found');
 	}
 };

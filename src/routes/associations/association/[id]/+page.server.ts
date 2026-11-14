@@ -1,5 +1,6 @@
 import type { PageServerLoad } from './$types';
 import { createServerPb } from '#lib/pb.js';
+import { throwLoadError } from '#lib/utils/load-error.js';
 import { validateRouteParam } from '#lib/utils/filter.js';
 import { error } from '@sveltejs/kit';
 
@@ -15,26 +16,19 @@ export const load: PageServerLoad = async ({ params }) => {
 
 	try {
 		const [association, cantons] = await Promise.all([
-			pb
-				.collection('wrestlersByAssociation')
-				.getFirstListItem(`id = "${assocId}"`, {
-					fields:
-						'id,name,abbreviation,wrestlerAmount,wrestlerActive,wrestler1Star,wrestler2Star,wrestler3Star'
-				})
-				.catch(() => null),
-			pb
-				.collection('wrestlersByCanton')
-				.getFullList(50, {
-					filter: `association = "${assocId}"`,
-					sort: 'name',
-					fields: 'id,name,wrestlerAmount,wrestlerActive,wrestler1Star,wrestler2Star,wrestler3Star'
-				})
-				.catch(() => [])
+			pb.collection('wrestlersByAssociation').getFirstListItem(`id = "${assocId}"`, {
+				fields:
+					'id,name,abbreviation,wrestlerAmount,wrestlerActive,wrestler1Star,wrestler2Star,wrestler3Star'
+			}),
+			pb.collection('wrestlersByCanton').getFullList(50, {
+				filter: `association = "${assocId}"`,
+				sort: 'name',
+				fields: 'id,name,wrestlerAmount,wrestlerActive,wrestler1Star,wrestler2Star,wrestler3Star'
+			})
 		]);
 
 		return { association, cantons };
 	} catch (e) {
-		console.error(e);
-		throw error(404, 'Association not found');
+		throwLoadError(e, 'Association not found');
 	}
 };

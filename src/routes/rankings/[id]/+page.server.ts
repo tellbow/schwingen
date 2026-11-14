@@ -1,5 +1,6 @@
 import type { PageServerLoad } from './$types';
 import { createServerPb } from '#lib/pb.js';
+import { throwLoadError } from '#lib/utils/load-error.js';
 import { validateRouteParam } from '#lib/utils/filter.js';
 import { groupBoutsByWrestler } from '#lib/utils/rankings.js';
 import { yearOnly } from '#lib/utils/format.js';
@@ -56,8 +57,7 @@ export const load: PageServerLoad = async ({ params }) => {
 				})
 		]);
 	} catch (e) {
-		console.error('Place not found:', placeId, e);
-		throw error(404, 'Place not found');
+		throwLoadError(e, 'Place not found');
 	}
 
 	place.year = yearOnly(place.year);

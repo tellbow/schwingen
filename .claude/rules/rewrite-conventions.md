@@ -25,6 +25,7 @@ When a file exceeds its limit, split it immediately as part of the current task.
 | `filter.ts` | PocketBase filter helpers | `escapeFilterValue()`, `buildFilterString()`, `validateRouteParam()` |
 | `bug-report.ts` | Sending «Fehler melden» from the browser | `sendBugReport()`, `reportPlace()` |
 | `page-screenshot.ts` | The whole page as a JPEG for a bug report (lazy `html-to-image`) | `pageScreenshot()`, `screenshotBase64()`, `MAX_SCREENSHOT_BYTES` |
+| `load-error.ts` | A failed PocketBase query in a load function: 404 for PocketBase's 404, else 503 | `throwLoadError()` |
 
 ### Server only (`src/lib/server/`)
 

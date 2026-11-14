@@ -1,5 +1,6 @@
 import type { PageServerLoad } from './$types';
 import { createServerPb } from '#lib/pb.js';
+import { throwLoadError } from '#lib/utils/load-error.js';
 import { validateRouteParam } from '#lib/utils/filter.js';
 import { yearOnly } from '#lib/utils/format.js';
 import { error } from '@sveltejs/kit';
@@ -45,7 +46,6 @@ export const load: PageServerLoad = async ({ params }) => {
 
 		return { wrestler, place, ranking, bouts };
 	} catch (e) {
-		console.error(e);
-		throw error(404, 'Wrestler or place not found');
+		throwLoadError(e, 'Wrestler or place not found');
 	}
 };

@@ -13,6 +13,7 @@
 - **PocketBase filtering**: Always use `buildFilterString()` from `#lib/utils/filter.ts`. Never build PocketBase filter strings manually.
 - **Input sanitization**: Always use `escapeFilterValue()` from `#lib/utils/filter.ts`. Never strip special characters inline.
 - **Route param validation**: Always use `validateRouteParam()` from `#lib/utils/filter.ts`. Never write inline regex validation for route params.
+- **Load errors**: Always end a load function's PocketBase `catch` with `throwLoadError(e, '… not found')` from `#lib/utils/load-error.ts`. Never answer 404 or an empty page for every error.
 - **Class merging**: Always use `cn()` from `#lib/utils.ts`. Never concatenate Tailwind classes manually.
 
 ### i18n
