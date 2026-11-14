@@ -72,9 +72,12 @@ void main() {
     await shot(tester, 'trends');
     await tester.scrollUntilVisible(find.text(l10n.outcomesBySeason), 300, scrollable: page);
     await shot(tester, 'outcomes');
-    await tester.scrollUntilVisible(find.text('2025'), -300, scrollable: page);
+    final years = find.byType(DropdownButton<int?>);
+    await tester.scrollUntilVisible(years, -300, scrollable: page);
 
-    await tester.tap(find.text('2025'));
+    await tester.tap(years);
+    await tester.pump(const Duration(milliseconds: 500));
+    await tester.tap(find.text('2025').last);
     await pumpUntil(tester, find.text(l10n.eloOfYear(2025)));
     await shot(tester, 'wrestler-2025');
     await tester.scrollUntilVisible(find.text(l10n.festivalRanks), 300, scrollable: page);

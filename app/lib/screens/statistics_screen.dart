@@ -36,7 +36,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
           children: [
             FutureBuilder(
               future: _years,
-              builder: (context, snapshot) => YearChips(
+              builder: (context, snapshot) => YearDropdown(
                 years: snapshot.data ?? const [],
                 selected: _year,
                 onSelected: (year) => setState(() {

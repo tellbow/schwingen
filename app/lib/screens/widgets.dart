@@ -164,32 +164,82 @@ class _PagedListState<T> extends State<PagedList<T>> {
   }
 }
 
-class YearChips extends StatelessWidget {
-  const YearChips({super.key, required this.years, required this.selected, required this.onSelected});
+class YearDropdown extends StatelessWidget {
+  const YearDropdown({super.key, required this.years, required this.selected, required this.onSelected});
 
   final List<int> years;
   final int? selected;
   final ValueChanged<int?> onSelected;
 
   @override
-  Widget build(BuildContext context) => SizedBox(
-    height: 48,
-    child: ListView(
-      scrollDirection: Axis.horizontal,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      children: [
-        for (final year in <int?>[null, ...years])
-          Padding(
-            padding: const EdgeInsets.only(right: 8),
-            child: ChoiceChip(
-              label: Text(year == null ? context.l10n.all : '$year'),
-              selected: selected == year,
-              onSelected: (_) => onSelected(year),
-            ),
-          ),
-      ],
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 16),
+    child: Align(
+      alignment: Alignment.centerLeft,
+      child: DropdownButton<int?>(
+        value: selected,
+        onChanged: onSelected,
+        items: [
+          for (final year in <int?>[null, ...years])
+            DropdownMenuItem(value: year, child: Text(year == null ? context.l10n.all : '$year')),
+        ],
+      ),
     ),
   );
+}
+
+class SearchableSection<T> extends StatefulWidget {
+  const SearchableSection({
+    super.key,
+    required this.title,
+    required this.hint,
+    required this.items,
+    required this.text,
+    required this.tile,
+  });
+
+  static const pageSize = 10;
+
+  final String title;
+  final String hint;
+  final List<T> items;
+  final String Function(T item) text;
+  final Widget Function(T item) tile;
+
+  @override
+  State<SearchableSection<T>> createState() => _SearchableSectionState<T>();
+}
+
+class _SearchableSectionState<T> extends State<SearchableSection<T>> {
+  var _query = '';
+  var _shown = SearchableSection.pageSize;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final words = _query.toLowerCase().split(' ').where((w) => w.isNotEmpty);
+    final found = [
+      for (final item in widget.items)
+        if (words.every(widget.text(item).toLowerCase().contains)) item,
+    ];
+    return Section(
+      title: widget.title,
+      children: [
+        if (widget.items.length > SearchableSection.pageSize)
+          SearchBox(
+            hint: widget.hint,
+            onChanged: (value) => setState(() {
+              _query = value;
+              _shown = SearchableSection.pageSize;
+            }),
+          ),
+        if (found.isEmpty) Message(l10n.noResults),
+        for (final item in found.take(_shown)) widget.tile(item),
+        if (found.length > _shown)
+          TextButton(onPressed: () => setState(() => _shown += SearchableSection.pageSize), child: Text(l10n.showMore)),
+      ],
+    );
+  }
 }
 
 class SettingsButton extends StatelessWidget {

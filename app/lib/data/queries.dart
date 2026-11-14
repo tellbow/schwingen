@@ -106,7 +106,7 @@ class Queries {
     ];
   }
 
-  Future<List<OpponentRecord>> opponents(String wrestlerId, int? year, {int limit = 20}) async {
+  Future<List<OpponentRecord>> opponents(String wrestlerId, int? year) async {
     final range = _yearRange(year);
     final rows = await db.rawQuery(
       '''
@@ -118,9 +118,8 @@ class Queries {
       LEFT JOIN wrestlerStatus s ON s.id = o.status
       WHERE b.wrestler = ? AND ${range.where}
       GROUP BY o.id
-      ORDER BY COUNT(*) DESC, o.name, o.vorname
-      LIMIT ?''',
-      [wrestlerId, ...range.args, limit],
+      ORDER BY COUNT(*) DESC, o.name, o.vorname''',
+      [wrestlerId, ...range.args],
     );
     return [
       for (final r in rows)

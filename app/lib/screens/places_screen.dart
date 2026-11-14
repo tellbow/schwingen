@@ -30,7 +30,7 @@ class _PlacesScreenState extends State<PlacesScreen> {
           SearchBox(hint: context.l10n.searchPlaces, onChanged: (value) => setState(() => _search = value)),
           FutureBuilder(
             future: _years,
-            builder: (context, snapshot) => YearChips(
+            builder: (context, snapshot) => YearDropdown(
               years: snapshot.data ?? const [],
               selected: _year,
               onSelected: (year) => setState(() => _year = year),

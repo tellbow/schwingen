@@ -30,6 +30,15 @@ class AppLocalizationsDe extends AppLocalizations {
   String get searchPlaces => 'Schwingfest oder Ort';
 
   @override
+  String get searchFestival => 'Schwingfest suchen';
+
+  @override
+  String get searchOpponent => 'Gegner suchen';
+
+  @override
+  String get showMore => 'Mehr anzeigen';
+
+  @override
   String get noResults => 'Keine Einträge gefunden';
 
   @override

@@ -30,6 +30,15 @@ class AppLocalizationsFr extends AppLocalizations {
   String get searchPlaces => 'Fête ou lieu';
 
   @override
+  String get searchFestival => 'Chercher une fête';
+
+  @override
+  String get searchOpponent => 'Chercher un adversaire';
+
+  @override
+  String get showMore => 'Afficher plus';
+
+  @override
   String get noResults => 'Aucun résultat trouvé';
 
   @override

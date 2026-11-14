@@ -134,6 +134,24 @@ abstract class AppLocalizations {
   /// **'Schwingfest oder Ort'**
   String get searchPlaces;
 
+  /// No description provided for @searchFestival.
+  ///
+  /// In de, this message translates to:
+  /// **'Schwingfest suchen'**
+  String get searchFestival;
+
+  /// No description provided for @searchOpponent.
+  ///
+  /// In de, this message translates to:
+  /// **'Gegner suchen'**
+  String get searchOpponent;
+
+  /// No description provided for @showMore.
+  ///
+  /// In de, this message translates to:
+  /// **'Mehr anzeigen'**
+  String get showMore;
+
   /// No description provided for @noResults.
   ///
   /// In de, this message translates to:

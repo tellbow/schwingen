@@ -54,7 +54,7 @@ class _WrestlerScreenState extends State<WrestlerScreen> {
             children: [
               _Header(queries: widget.queries, detail: detail),
               const SizedBox(height: 8),
-              YearChips(
+              YearDropdown(
                 years: years,
                 selected: _year,
                 onSelected: (year) => setState(() {
@@ -162,35 +162,32 @@ class _SeasonView extends StatelessWidget {
           StatTile(label: l10n.wreathFederal, value: '${wreaths.federal}'),
         ]),
         Columns([
-          Section(
+          SearchableSection<Ranking>(
             title: l10n.rankings,
-            children: [
-              if (season.rankings.isEmpty) Message(l10n.noResults),
-              for (final r in season.rankings)
-                ListTile(
-                  leading: RankBadge(r.rankLabel),
-                  title: Text(r.place.name, maxLines: 2, overflow: TextOverflow.ellipsis),
-                  subtitle: Text(
-                    [context.date(r.place.date), r.result, r.status].where((s) => s.isNotEmpty).join(' · '),
-                  ),
-                  trailing: Points(points: r.points, wreath: r.wreath),
-                  onTap: () => openPlace(context, queries, r.place.id),
-                ),
-            ],
+            hint: l10n.searchFestival,
+            items: season.rankings,
+            text: (r) => '${r.place.name} ${r.place.location}',
+            tile: (r) => ListTile(
+              leading: RankBadge(r.rankLabel),
+              title: Text(r.place.name, maxLines: 2, overflow: TextOverflow.ellipsis),
+              subtitle: Text([context.date(r.place.date), r.result, r.status].where((s) => s.isNotEmpty).join(' · ')),
+              trailing: Points(points: r.points, wreath: r.wreath),
+              onTap: () => openPlace(context, queries, r.place.id),
+            ),
           ),
           if (season.eloHistory.isNotEmpty || season.rankings.isNotEmpty) _Trends(season),
           if (season.opponents.isNotEmpty)
-            Section(
+            SearchableSection<OpponentRecord>(
               title: l10n.opponents,
-              children: [
-                for (final o in season.opponents)
-                  ListTile(
-                    title: PersonName(o.opponent),
-                    subtitle: Text('${o.wins} ${l10n.wins} · ${o.draws} ${l10n.draws} · ${o.losses} ${l10n.losses}'),
-                    trailing: const Icon(Icons.chevron_right),
-                    onTap: () => openHeadToHead(context, queries, wrestler, o.opponent),
-                  ),
-              ],
+              hint: l10n.searchOpponent,
+              items: season.opponents,
+              text: (o) => '${o.opponent.name} ${o.opponent.vorname}',
+              tile: (o) => ListTile(
+                title: PersonName(o.opponent),
+                subtitle: Text('${o.wins} ${l10n.wins} · ${o.draws} ${l10n.draws} · ${o.losses} ${l10n.losses}'),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => openHeadToHead(context, queries, wrestler, o.opponent),
+              ),
             ),
         ]),
       ],
