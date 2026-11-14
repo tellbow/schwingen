@@ -25,26 +25,15 @@ async function generateSitemap(): Promise<string> {
 	const pb = createServerPb();
 
 	const [wrestlers, places, associations, cantons, clubs] = await Promise.all([
-		pb
-			.collection('wrestler')
-			.getFullList<SitemapRecord>({ fields: 'id,updated', skipTotal: true })
-			.catch(() => []),
-		pb
-			.collection('places')
-			.getFullList<SitemapRecord>({ fields: 'id,updated', skipTotal: true })
-			.catch(() => []),
+		pb.collection('wrestler').getFullList<SitemapRecord>({ fields: 'id,updated', skipTotal: true }),
+		pb.collection('places').getFullList<SitemapRecord>({ fields: 'id,updated', skipTotal: true }),
 		pb
 			.collection('wrestlersByAssociation')
-			.getFullList<SitemapRecord>({ fields: 'id', skipTotal: true })
-			.catch(() => []),
+			.getFullList<SitemapRecord>({ fields: 'id', skipTotal: true }),
 		pb
 			.collection('wrestlersByCanton')
-			.getFullList<SitemapRecord>({ fields: 'id', skipTotal: true })
-			.catch(() => []),
-		pb
-			.collection('wrestlersByClub')
-			.getFullList<SitemapRecord>({ fields: 'id', skipTotal: true })
-			.catch(() => [])
+			.getFullList<SitemapRecord>({ fields: 'id', skipTotal: true }),
+		pb.collection('wrestlersByClub').getFullList<SitemapRecord>({ fields: 'id', skipTotal: true })
 	]);
 
 	const staticUrls = [
@@ -74,7 +63,16 @@ ${[...staticUrls, ...wrestlerUrls, ...placeUrls, ...associationUrls, ...cantonUr
 
 export const GET: RequestHandler = async () => {
 	if (!cachedSitemap || Date.now() - cachedSitemap.generatedAt > CACHE_TTL_MS) {
-		cachedSitemap = { xml: await generateSitemap(), generatedAt: Date.now() };
+		try {
+			cachedSitemap = { xml: await generateSitemap(), generatedAt: Date.now() };
+		} catch (error) {
+			console.error('sitemap: PocketBase unavailable', error);
+			if (!cachedSitemap)
+				return new Response('Service Unavailable', {
+					status: 503,
+					headers: { 'retry-after': '60' }
+				});
+		}
 	}
 
 	return new Response(cachedSitemap.xml, {

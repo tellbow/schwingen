@@ -55,7 +55,7 @@ export const load: PageServerLoad = async ({ url }) => {
 			drawDecisionRatio: 0
 		};
 
-		// Load data in parallel where possible
+		let failed = false;
 		const promises: Promise<void>[] = [];
 
 		if (year !== 'Alle') {
@@ -72,7 +72,7 @@ export const load: PageServerLoad = async ({ url }) => {
 						results.eloData = d.items;
 					})
 					.catch(() => {
-						results.eloData = [];
+						failed = true;
 					})
 			);
 		}
@@ -91,7 +91,7 @@ export const load: PageServerLoad = async ({ url }) => {
 					}));
 				})
 				.catch(() => {
-					results.averageRank = [];
+					failed = true;
 				}),
 
 			pb
@@ -107,7 +107,7 @@ export const load: PageServerLoad = async ({ url }) => {
 					}));
 				})
 				.catch(() => {
-					results.averagePoints = [];
+					failed = true;
 				}),
 
 			pb
@@ -121,7 +121,7 @@ export const load: PageServerLoad = async ({ url }) => {
 					results.mostWins = d.items;
 				})
 				.catch(() => {
-					results.mostWins = [];
+					failed = true;
 				}),
 
 			pb
@@ -134,7 +134,7 @@ export const load: PageServerLoad = async ({ url }) => {
 					results.mostPlacesAttended = d.items;
 				})
 				.catch(() => {
-					results.mostPlacesAttended = [];
+					failed = true;
 				}),
 
 			pb
@@ -147,7 +147,7 @@ export const load: PageServerLoad = async ({ url }) => {
 					results.mostWreaths = d.items;
 				})
 				.catch(() => {
-					results.mostWreaths = [];
+					failed = true;
 				}),
 
 			pb
@@ -167,12 +167,12 @@ export const load: PageServerLoad = async ({ url }) => {
 					results.drawDecisionRatio = sumAll > 0 ? Math.round((sumDraw / sumAll) * 100) : 0;
 				})
 				.catch(() => {
-					results.drawDecisionRatio = 0;
+					failed = true;
 				})
 		);
 
 		await Promise.all(promises);
-		cache.set(year, { data: results, cachedAt: Date.now() });
+		if (!failed) cache.set(year, { data: results, cachedAt: Date.now() });
 		return results;
 	} catch (e) {
 		console.error('Error loading statistics:', e);
