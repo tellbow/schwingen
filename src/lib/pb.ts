@@ -7,8 +7,20 @@ export const PB_URL =
 		: 'http://127.0.0.1:8090';
 
 // Create a PocketBase instance for server-side use
+export const PB_TIMEOUT_MS = 8_000;
+
 export function createServerPb(): PocketBase {
-	return new PocketBase(PB_URL);
+	const pb = new PocketBase(PB_URL);
+	pb.beforeSend = (url, options) => ({
+		url,
+		options: {
+			...options,
+			signal: AbortSignal.any(
+				[options.signal, AbortSignal.timeout(PB_TIMEOUT_MS)].filter((s): s is AbortSignal => !!s)
+			)
+		}
+	});
+	return pb;
 }
 
 // Client-side PocketBase instance (through proxy to avoid CORS)

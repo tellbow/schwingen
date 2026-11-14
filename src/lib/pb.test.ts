@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { getClientPb } from './pb';
+import { createServerPb, getClientPb } from './pb';
 
 const emptyList = { page: 1, perPage: 10, totalItems: 0, totalPages: 0, items: [] };
 
@@ -42,5 +42,35 @@ describe('getClientPb', () => {
 
 	it('returns the same client every time', () => {
 		expect(getClientPb()).toBe(getClientPb());
+	});
+});
+
+describe('createServerPb', () => {
+	afterEach(() => {
+		vi.unstubAllGlobals();
+		vi.restoreAllMocks();
+	});
+
+	it('gives up on a PocketBase that does not answer within the timeout', async () => {
+		const timeout = vi
+			.spyOn(AbortSignal, 'timeout')
+			.mockReturnValue(AbortSignal.abort(new DOMException('timed out', 'TimeoutError')));
+		vi.stubGlobal(
+			'fetch',
+			vi.fn(async (_url: string, init?: RequestInit) => {
+				init?.signal?.throwIfAborted();
+				return Response.json(emptyList);
+			})
+		);
+		await expect(createServerPb().collection('wrestler').getList(1, 1)).rejects.toThrow();
+		expect(timeout).toHaveBeenCalledWith(8_000);
+	});
+
+	it('answers normally within the timeout', async () => {
+		vi.stubGlobal(
+			'fetch',
+			vi.fn(async () => Response.json(emptyList))
+		);
+		expect((await createServerPb().collection('wrestler').getList(1, 1)).items).toEqual([]);
 	});
 });
