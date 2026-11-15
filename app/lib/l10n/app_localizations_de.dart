@@ -368,4 +368,13 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get bugScreenshotAlt => 'Bildschirmfoto der App';
+
+  @override
+  String get showPlanned => 'Geplante Schwingfeste anzeigen';
+
+  @override
+  String get planned => 'geplant';
+
+  @override
+  String get plannedNoResults => 'Dieses Schwingfest hat noch nicht stattgefunden; die Rangliste folgt.';
 }

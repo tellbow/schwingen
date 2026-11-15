@@ -195,6 +195,16 @@ void main() {
     expect((await q.place('p2'))?.type, 'Eidgenössisch');
   });
 
+  test('places can leave out planned festivals', () async {
+    await db.execute("INSERT INTO places VALUES ('p9', 'Geplantes', 'Bern', '2999-07-01 00:00:00.000Z', '')");
+    addTearDown(() => db.delete('places', where: "id = 'p9'"));
+    final all = await q.places('', null);
+    expect(all.map((p) => p.id), ['p9', 'p2', 'p1', 'p3']);
+    expect(all.first.planned, isTrue);
+    expect(all[1].planned, isFalse);
+    expect((await q.places('', null, planned: false)).map((p) => p.id), ['p2', 'p1', 'p3']);
+  });
+
   test('placeRankings sorts ranks and attaches each wrestler bouts', () async {
     final rankings = await q.placeRankings('p1');
     expect(rankings.map((r) => r.rankLabel), ['1', '2a', '2b', '10']);

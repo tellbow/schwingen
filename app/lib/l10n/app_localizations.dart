@@ -763,6 +763,24 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Bildschirmfoto der App'**
   String get bugScreenshotAlt;
+
+  /// No description provided for @showPlanned.
+  ///
+  /// In de, this message translates to:
+  /// **'Geplante Schwingfeste anzeigen'**
+  String get showPlanned;
+
+  /// No description provided for @planned.
+  ///
+  /// In de, this message translates to:
+  /// **'geplant'**
+  String get planned;
+
+  /// No description provided for @plannedNoResults.
+  ///
+  /// In de, this message translates to:
+  /// **'Dieses Schwingfest hat noch nicht stattgefunden; die Rangliste folgt.'**
+  String get plannedNoResults;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

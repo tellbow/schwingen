@@ -15,7 +15,10 @@ export const load: PageServerLoad = async ({ url }) => {
 		{ param: 'type', column: 'placeType.type', match: 'equals' }
 	]);
 	const quickSearch = buildQuickSearchFilter(url.searchParams, ['name', 'location']);
-	const filter = [safeFilter, quickSearch].filter(Boolean).join(' && ');
+	const hidePlanned = url.searchParams.get('planned') === 'hide';
+	const filter = [safeFilter, quickSearch, hidePlanned ? 'year <= @now' : '']
+		.filter(Boolean)
+		.join(' && ');
 	const sort = sanitizeSort(url.searchParams.get('sort'), '-year,-created');
 
 	try {

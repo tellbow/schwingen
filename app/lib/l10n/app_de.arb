@@ -203,5 +203,8 @@
     }
   },
   "bugWithScreenshot": "Bildschirmfoto mitsenden",
-  "bugScreenshotAlt": "Bildschirmfoto der App"
+  "bugScreenshotAlt": "Bildschirmfoto der App",
+  "showPlanned": "Geplante Schwingfeste anzeigen",
+  "planned": "geplant",
+  "plannedNoResults": "Dieses Schwingfest hat noch nicht stattgefunden; die Rangliste folgt."
 }

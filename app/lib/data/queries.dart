@@ -139,7 +139,13 @@ class Queries {
     return [for (final r in rows) r['y'] as int];
   }
 
-  Future<List<PlaceSummary>> places(String search, int? year, {int limit = 50, int offset = 0}) async {
+  Future<List<PlaceSummary>> places(
+    String search,
+    int? year, {
+    bool planned = true,
+    int limit = 50,
+    int offset = 0,
+  }) async {
     final match = matchWords(search, ['p.name', 'p.location']);
     final range = _yearRange(year);
     final rows = await db.rawQuery(
@@ -147,7 +153,7 @@ class Queries {
       SELECT p.id AS placeId, p.name AS placeName, p.location, p.year AS date, t.type
       FROM places p
       LEFT JOIN placeType t ON t.id = p.placeType
-      WHERE ${match.where} AND ${range.where}
+      WHERE ${match.where} AND ${range.where} ${planned ? '' : "AND p.year <= strftime('%Y-%m-%d %H:%M:%S', 'now')"}
       ORDER BY p.year DESC, p.name
       LIMIT ? OFFSET ?''',
       [...match.args, ...range.args, limit, offset],

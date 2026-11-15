@@ -2,7 +2,8 @@
 	import { buildSearchParams } from '#lib/utils/search-params.js';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
-	import { formatDate } from '#lib/utils/format.js';
+	import { formatDate, isPlanned } from '#lib/utils/format.js';
+	import { Badge } from '#lib/components/ui/badge/index.js';
 	import { t, localizePath, type Locale } from '#lib/i18n/index.svelte.js';
 	import Pagination from '#lib/components/pagination.svelte';
 
@@ -14,24 +15,14 @@
 	let filterLocation = $state('');
 	let filterYear = $state('');
 	let filterType = $state('');
+	let showPlanned = $state(page.url.searchParams.get('planned') !== 'hide');
 	let loading = $state(false);
 
 	let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 
 	const YEARS = [
 		'',
-		'2015',
-		'2016',
-		'2017',
-		'2018',
-		'2019',
-		'2020',
-		'2021',
-		'2022',
-		'2023',
-		'2024',
-		'2025',
-		'2026'
+		...Array.from({ length: new Date().getFullYear() - 2013 }, (_, i) => String(2015 + i))
 	];
 	const PLACE_TYPES = [
 		{ value: '', labelKey: 'common.all' },
@@ -52,7 +43,8 @@
 				name: filterName,
 				location: filterLocation,
 				year: filterYear,
-				type: filterType
+				type: filterType,
+				planned: showPlanned ? '' : 'hide'
 			},
 			pageNum
 		);
@@ -85,6 +77,11 @@
 </svelte:head>
 
 <h1 class="sr-only">{t(locale, 'places.metaTitle')}</h1>
+
+<label class="mb-3 flex items-center gap-2 text-sm">
+	<input type="checkbox" bind:checked={showPlanned} onchange={search} />
+	{t(locale, 'places.showPlanned')}
+</label>
 
 <div class="overflow-x-auto">
 	<table class="data-table w-full">
@@ -160,6 +157,9 @@
 							<a href="/rankings/{p.id}" class="hover:underline">
 								{p.name}
 							</a>
+							{#if isPlanned(p.year)}
+								<Badge variant="secondary">{t(locale, 'places.planned')}</Badge>
+							{/if}
 							<span class="block text-xs text-muted-foreground md:hidden"
 								>{p.expand?.placeType?.type ?? ''}</span
 							>

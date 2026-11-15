@@ -56,7 +56,8 @@ class _PlaceScreenState extends State<PlaceScreen> {
                 Section(
                   title: context.l10n.rankings,
                   children: [
-                    if (rankings.isEmpty) Message(context.l10n.noResults),
+                    if (rankings.isEmpty)
+                      Message(place.planned ? context.l10n.plannedNoResults : context.l10n.noResults),
                     for (final r in rankings) _RankingTile(queries: widget.queries, ranking: r),
                   ],
                 ),

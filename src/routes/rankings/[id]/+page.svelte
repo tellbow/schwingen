@@ -80,7 +80,10 @@
 						{#if rankings.length === 0}
 							<tr
 								><td colspan="8" class="py-8 text-center text-muted-foreground"
-									>{t(locale, 'rankings.noResultsFound')}</td
+									>{t(
+										locale,
+										data.planned ? 'rankings.plannedNoResults' : 'rankings.noResultsFound'
+									)}</td
 								></tr
 							>
 						{/if}

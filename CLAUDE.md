@@ -104,6 +104,7 @@ The app runs on **Kubernetes**. Keep this in mind when writing code:
 ### Releases and data
 
 - Data is scraped and imported locally (`tellbow/schwingen-data` → local PocketBase), never in production
+- Planned festivals (ESV's agenda) are `places` with a future date and no rankings; `isPlanned()` in `format.ts` on the web (`/places?planned=hide` hides them), `PlaceSummary.planned` in the app (a switch on the festival list)
 - A GitHub release `vX.Y.Z` with `data.db` attached by hand ships code and data together; its tag must be signed with a key in `.github/release-signers.asc`
 - `.github/workflows/release.yml` verifies the tag, strips account/login records from the asset, attaches `app.db.gz` for the iOS app (`scripts/build-app-db.sh`), then pushes both images as `X.Y.Z` with SBOM, provenance and a cosign signature
 - Flux bumps the deployments; the pocketbase initContainer downloads the latest release's `data.db` on start

@@ -4,6 +4,11 @@ export function yearOnly(value: string | null | undefined): string {
 	return value ? value.split('-')[0] : '';
 }
 
+export function isPlanned(value: string | null | undefined, now: Date = new Date()): boolean {
+	const date = value ? new Date(value) : null;
+	return !!date && !isNaN(date.getTime()) && date > now;
+}
+
 export function formatDate(value: string | null | undefined, locale: Locale = 'de'): string {
 	if (!value) return '';
 	const date = new Date(value);

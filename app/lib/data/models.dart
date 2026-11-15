@@ -77,6 +77,8 @@ class PlaceSummary {
   final String location;
   final String date;
   final String type;
+
+  bool get planned => DateTime.tryParse(date)?.isAfter(DateTime.now()) ?? false;
 }
 
 class Bout {

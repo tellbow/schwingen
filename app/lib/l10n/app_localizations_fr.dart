@@ -368,4 +368,13 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get bugScreenshotAlt => 'Capture d\'écran de l\'app';
+
+  @override
+  String get showPlanned => 'Afficher les fêtes prévues';
+
+  @override
+  String get planned => 'prévue';
+
+  @override
+  String get plannedNoResults => 'Cette fête n\'a pas encore eu lieu ; le classement suivra.';
 }

@@ -3,7 +3,7 @@ import { createServerPb } from '#lib/pb.js';
 import { throwLoadError } from '#lib/utils/load-error.js';
 import { validateRouteParam } from '#lib/utils/filter.js';
 import { groupBoutsByWrestler } from '#lib/utils/rankings.js';
-import { yearOnly } from '#lib/utils/format.js';
+import { isPlanned, yearOnly } from '#lib/utils/format.js';
 import { error } from '@sveltejs/kit';
 import type { BoutRecord, PlaceRecord, RankingRecord } from '#lib/types/pocketbase.js';
 
@@ -60,6 +60,7 @@ export const load: PageServerLoad = async ({ params }) => {
 		throwLoadError(e, 'Place not found');
 	}
 
+	const planned = isPlanned(place.year);
 	place.year = yearOnly(place.year);
 
 	const rankings = rankingsResult.items.sort((a, b) => {
@@ -72,6 +73,7 @@ export const load: PageServerLoad = async ({ params }) => {
 	const boutsByWrestler = groupBoutsByWrestler(bouts);
 	return {
 		place,
+		planned,
 		rankings: rankings.map((r) => ({
 			...r,
 			bouts: (r.expand?.wrestler && boutsByWrestler.get(r.expand.wrestler.id)) || []

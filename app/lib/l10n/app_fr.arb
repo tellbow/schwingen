@@ -110,5 +110,8 @@
   "bugBusy": "Trop de rapports sont arrivés d'ici. Réessaie dans une heure.",
   "close": "Fermer",
   "bugWithScreenshot": "Joindre la capture d'écran",
-  "bugScreenshotAlt": "Capture d'écran de l'app"
+  "bugScreenshotAlt": "Capture d'écran de l'app",
+  "showPlanned": "Afficher les fêtes prévues",
+  "planned": "prévue",
+  "plannedNoResults": "Cette fête n'a pas encore eu lieu ; le classement suivra."
 }

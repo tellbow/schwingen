@@ -20,6 +20,7 @@ class _PlacesScreenState extends State<PlacesScreen> {
   late final _years = widget.queries.placeYears();
   var _search = '';
   int? _year;
+  var _planned = true;
 
   @override
   Widget build(BuildContext context) => Scaffold(
@@ -36,14 +37,25 @@ class _PlacesScreenState extends State<PlacesScreen> {
               onSelected: (year) => setState(() => _year = year),
             ),
           ),
+          SwitchListTile(
+            title: Text(context.l10n.showPlanned),
+            value: _planned,
+            onChanged: (value) => setState(() => _planned = value),
+          ),
           Expanded(
             child: PagedList<PlaceSummary>(
-              key: ValueKey('$_search|$_year'),
-              load: (offset) => widget.queries.places(_search, _year, offset: offset, limit: PagedList.pageSize),
+              key: ValueKey('$_search|$_year|$_planned'),
+              load: (offset) =>
+                  widget.queries.places(_search, _year, planned: _planned, offset: offset, limit: PagedList.pageSize),
               itemBuilder: (context, place) => ListTile(
                 title: Text(place.name, maxLines: 2, overflow: TextOverflow.ellipsis),
                 subtitle: Text(
-                  [context.date(place.date), place.location, place.type].where((s) => s.isNotEmpty).join(' · '),
+                  [
+                    context.date(place.date),
+                    place.location,
+                    place.type,
+                    if (place.planned) context.l10n.planned,
+                  ].where((s) => s.isNotEmpty).join(' · '),
                 ),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () => openPlace(context, widget.queries, place.id),

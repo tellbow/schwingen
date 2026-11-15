@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { formatDate, yearOnly } from './format';
+import { formatDate, isPlanned, yearOnly } from './format';
 
 describe('yearOnly', () => {
 	it('returns empty string for null or undefined', () => {
@@ -17,6 +17,24 @@ describe('yearOnly', () => {
 
 	it('returns the value unchanged when it has no dash', () => {
 		expect(yearOnly('2023')).toBe('2023');
+	});
+});
+
+describe('isPlanned', () => {
+	const now = new Date('2026-11-15T12:00:00Z');
+
+	it('is true for a festival after now', () => {
+		expect(isPlanned('2027-01-02 00:00:00.000Z', now)).toBe(true);
+	});
+
+	it('is false for a past festival', () => {
+		expect(isPlanned('2026-08-30 00:00:00.000Z', now)).toBe(false);
+	});
+
+	it('is false for an empty or invalid date', () => {
+		expect(isPlanned('', now)).toBe(false);
+		expect(isPlanned(null, now)).toBe(false);
+		expect(isPlanned('soon', now)).toBe(false);
 	});
 });
 
