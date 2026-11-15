@@ -174,16 +174,19 @@ class YearDropdown extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Padding(
     padding: const EdgeInsets.symmetric(horizontal: 16),
-    child: Align(
-      alignment: Alignment.centerLeft,
-      child: DropdownButton<int?>(
-        value: selected,
-        onChanged: onSelected,
-        items: [
-          for (final year in <int?>[null, ...years])
-            DropdownMenuItem(value: year, child: Text(year == null ? context.l10n.all : '$year')),
-        ],
-      ),
+    child: Row(
+      children: [
+        Text(context.l10n.year, style: Theme.of(context).textTheme.titleMedium),
+        const SizedBox(width: 16),
+        DropdownButton<int?>(
+          value: selected,
+          onChanged: onSelected,
+          items: [
+            for (final year in <int?>[null, ...years])
+              DropdownMenuItem(value: year, child: Text(year == null ? context.l10n.all : '$year')),
+          ],
+        ),
+      ],
     ),
   );
 }

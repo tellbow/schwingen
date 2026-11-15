@@ -173,7 +173,9 @@ class _HomeScreenState extends State<HomeScreen> {
             if (wide) const VerticalDivider(width: 1),
             Expanded(
               key: const Key('pages'),
-              child: MediaQuery.removePadding(context: context, removeLeft: wide, child: pages),
+              child: Builder(
+                builder: (context) => MediaQuery.removePadding(context: context, removeLeft: wide, child: pages),
+              ),
             ),
           ],
         ),

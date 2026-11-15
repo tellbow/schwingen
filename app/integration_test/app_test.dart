@@ -102,7 +102,10 @@ void main() {
     await tester.tap(tab(l10n.navPlaces));
     await pumpUntil(tester, find.byType(ListTile));
     await shot(tester, 'places');
-    await tester.tap(find.byType(ListTile).first);
+    await tester.tap(find.byType(SwitchListTile));
+    await tester.pump(const Duration(milliseconds: 500));
+    await pumpUntil(tester, find.widgetWithIcon(ListTile, Icons.chevron_right));
+    await tester.tap(find.widgetWithIcon(ListTile, Icons.chevron_right).first);
     await pumpUntil(tester, find.byType(ExpansionTile));
     await shot(tester, 'points-distribution');
     await tester.tap(find.byType(ExpansionTile).first);
