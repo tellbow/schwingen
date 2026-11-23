@@ -289,6 +289,7 @@ bun run build   # Verify production build succeeds
 ├── docker/                  # frontend/ and pocketbase/ Dockerfiles
 ├── docker-compose.yml
 ├── app/                     # Flutter iOS app (local SQLite from a release's data.db)
+├── renovate.json            # Renovate (GitHub App): grouped PRs on Mondays, releases ≥ 7 days old, patches/digests automerge
 └── .github/workflows/       # ci.yml (push/PR/weekly: lint, tests, app, osv-scanner, zizmor, gitleaks, semgrep), release.yml (published release)
 ```
 

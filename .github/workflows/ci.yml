@@ -102,7 +102,9 @@ jobs:
   #   prototype-pollution-loop: t() only reads translation keys from code;
   #   react-insecure-request: start.ts polls the local dev PocketBase;
   #   dynamic-urllib-use-detected: the app-store skill's asc.py calls only
-  #     App Store Connect's API and its upload URLs.
+  #     App Store Connect's API and its upload URLs;
+  #   renovate-missing-minimum-release-age: renovate.json sets the 7 days
+  #     for all packages, not per rule.
   semgrep:
     runs-on: ubuntu-latest
     steps:
@@ -116,3 +118,4 @@ jobs:
           --exclude-rule javascript.lang.security.audit.prototype-pollution.prototype-pollution-loop.prototype-pollution-loop
           --exclude-rule typescript.react.security.react-insecure-request.react-insecure-request
           --exclude-rule python.lang.security.audit.dynamic-urllib-use-detected.dynamic-urllib-use-detected
+          --exclude-rule package_managers.renovate.renovate-missing-minimum-release-age.renovate-missing-minimum-release-age
