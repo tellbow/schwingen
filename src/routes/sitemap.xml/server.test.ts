@@ -3,10 +3,14 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 const pocketbase = { up: true };
 vi.mock('#lib/pb.js', () => ({
 	createServerPb: () => ({
-		collection: () => ({
-			getFullList: async () => {
+		collection: (name: string) => ({
+			getFullList: async (options?: { filter?: string }) => {
 				if (!pocketbase.up) throw new Error('PocketBase down');
-				return [{ id: 'abc', updated: '2026-01-02 10:00:00.000Z' }];
+				if (name !== 'places') return [{ id: 'abc', updated: '2026-01-02 10:00:00.000Z' }];
+				if (options?.filter === 'rankings_via_place.id != ""')
+					return [{ id: 'ranked' }, { id: 'rankedplanned' }];
+				if (options?.filter === 'year > @now') return [{ id: 'planned' }, { id: 'rankedplanned' }];
+				return [{ id: 'empty' }];
 			}
 		})
 	})
@@ -40,5 +44,13 @@ describe('GET /sitemap.xml', () => {
 		vi.useRealTimers();
 		expect(stale.status).toBe(200);
 		expect(await stale.text()).toContain('/wrestler/abc');
+	});
+
+	it('lists festivals with rankings or a planned date, each once', async () => {
+		const xml = await (await GET()).text();
+		expect(xml).toContain('/rankings/ranked<');
+		expect(xml).toContain('/rankings/planned<');
+		expect(xml.split('<loc>https://schwingen.tellbow.ch/rankings/rankedplanned<')).toHaveLength(2);
+		expect(xml).not.toContain('/rankings/empty');
 	});
 });

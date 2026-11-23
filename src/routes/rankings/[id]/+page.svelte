@@ -14,6 +14,9 @@
 
 <svelte:head>
 	<title>{place.name} {place.year} - {t(locale, 'rankings.detailTitleSuffix')}</title>
+	{#if rankings.length === 0 && !data.planned}
+		<meta name="robots" content="noindex" />
+	{/if}
 	<meta
 		name="description"
 		content="{t(locale, 'rankings.detailDescriptionPrefix')} {place.name} {place.year}."

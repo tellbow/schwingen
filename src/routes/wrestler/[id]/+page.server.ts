@@ -3,6 +3,7 @@ import { createServerPb } from '#lib/pb.js';
 import { throwLoadError } from '#lib/utils/load-error.js';
 import { validateRouteParam } from '#lib/utils/filter.js';
 import { yearOnly } from '#lib/utils/format.js';
+import { fetchWrestlerElo, fetchWrestlerRankings } from '#lib/utils/wrestler-profile.js';
 import { error } from '@sveltejs/kit';
 
 export const load: PageServerLoad = async ({ params }) => {
@@ -24,7 +25,12 @@ export const load: PageServerLoad = async ({ params }) => {
 
 		wrestler.year = yearOnly(wrestler.year) || '-';
 
-		return { wrestler };
+		const [rankings, elo] = await Promise.all([
+			fetchWrestlerRankings(pb, wrestlerId, 'Alle'),
+			fetchWrestlerElo(pb, wrestlerId, 'Alle')
+		]);
+
+		return { wrestler, rankings, elo };
 	} catch (e) {
 		throwLoadError(e, 'Wrestler not found');
 	}

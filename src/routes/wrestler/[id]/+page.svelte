@@ -1,15 +1,15 @@
 <script lang="ts">
-	import type {
-		BoutRecord,
-		EloRecord,
-		RankingRecord,
-		WithExpand,
-		WrestlerRecord
-	} from '#lib/types/pocketbase.js';
+	import type { BoutRecord, WithExpand, WrestlerRecord } from '#lib/types/pocketbase.js';
 	import { untrack } from 'svelte';
 	import { page } from '$app/state';
 	import { getClientPb } from '#lib/pb.js';
-	import { yearOnly } from '#lib/utils/format.js';
+	import {
+		PROFILE_YEARS,
+		countWreaths,
+		fetchWrestlerElo,
+		fetchWrestlerRankings,
+		type ProfileYear
+	} from '#lib/utils/wrestler-profile.js';
 	import { t, type Locale } from '#lib/i18n/index.svelte.js';
 	import WreathMark from '#lib/components/rankings/wreath-mark.svelte';
 	import WrestlerStatsCharts from '#lib/components/wrestler/wrestler-stats-charts.svelte';
@@ -20,86 +20,33 @@
 	const wrestler = $derived(data.wrestler);
 	const locale = $derived(page.data.locale as Locale);
 
-	let selectedYear = $state<string | number>('Alle');
-	let rankingsData = $state<WithExpand<RankingRecord, 'place'>[]>([]);
+	let selectedYear = $state<ProfileYear>('Alle');
+	let rankingsData = $derived(data.rankings);
+	let eloData = $derived<{ rating: number | string }>(data.elo);
+	const wreaths = $derived(countWreaths(rankingsData));
+	const club = $derived(wrestler.expand?.club?.name);
+	const metaTitle = $derived(
+		`${wrestler.vorname} ${wrestler.name} – ${t(locale, 'wrestler.metaRole')}${club ? `, ${club}` : ''} - Tellbow`
+	);
+	const metaDescription = $derived(
+		`${t(locale, 'wrestler.metaDescriptionPrefix')} ${wrestler.vorname} ${wrestler.name}` +
+			`${club ? ` (${club})` : ''}: ${data.rankings.length} ${t(locale, 'wrestler.metaFestivals')}, ` +
+			`${countWreaths(data.rankings).reduce((a, b) => a + b, 0)} ${t(locale, 'wrestler.metaWreaths')}` +
+			`${data.elo.rating === '-' ? '' : `, ELO ${data.elo.rating}`}.`
+	);
 	let opponentsData = $state<WrestlerRecord[]>([]);
-	let eloData = $state<{ rating: number | string } | null>(null);
-	let wreath1 = $state(0);
-	let wreath2 = $state(0);
-	let wreath3 = $state(0);
 
-	let loadingRankings = $state(true);
+	let loadingRankings = $state(false);
 	let loadingOpponents = $state(true);
 
-	const YEARS = [2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026, 'Alle'];
-
-	async function fetchEloForYear(pb: ReturnType<typeof getClientPb>, year: number) {
-		try {
-			const res = await pb.collection(`elo${year}`).getList<EloRecord>(1, 1, {
-				filter: `wrestler.id="${wrestler.id}"`,
-				skipTotal: true,
-				fields: 'id,rating'
-			});
-			return res.items[0] ?? null;
-		} catch {
-			return null;
-		}
-	}
-
 	async function loadElo() {
-		const pb = getClientPb();
-		if (selectedYear === 'Alle') {
-			const years = YEARS.filter((y) => y !== 'Alle')
-				.map(Number)
-				.sort((a, b) => b - a);
-			const [mostRecent, ...rest] = years;
-			const recentHit = await fetchEloForYear(pb, mostRecent);
-			if (recentHit) {
-				eloData = recentHit;
-				return;
-			}
-			const results = await Promise.all(rest.map((y) => fetchEloForYear(pb, y)));
-			eloData = results.find(Boolean) ?? { rating: '-' };
-		} else {
-			eloData = (await fetchEloForYear(pb, selectedYear as number)) ?? { rating: '-' };
-		}
+		eloData = await fetchWrestlerElo(getClientPb(), wrestler.id, selectedYear);
 	}
 
 	async function loadRankings() {
 		loadingRankings = true;
-		const pb = getClientPb();
-		const filter =
-			selectedYear === 'Alle'
-				? `wrestler.id = "${wrestler.id}"`
-				: `wrestler.id = "${wrestler.id}" && place.year ~ "${selectedYear}"`;
-
 		try {
-			const d = await pb
-				.collection('rankings')
-				.getFullList<WithExpand<RankingRecord, 'place'>>(200, {
-					filter,
-					expand: 'place,place.placeType',
-					sort: '-place.year,-created',
-					fields:
-						'id,rank,rank2,points,final,result,wreath,status,expand.place.id,expand.place.name,expand.place.year,expand.place.expand.placeType.type'
-				});
-
-			wreath1 = 0;
-			wreath2 = 0;
-			wreath3 = 0;
-			d.forEach((item) => {
-				if (item.wreath) {
-					const t = item.expand?.place?.expand?.placeType?.type;
-					if (t === 'Gauverband' || t === 'Kantonal') wreath1++;
-					else if (t === 'Teilverband' || t === 'Berg') wreath2++;
-					else if (t === 'Eidgenössisch') wreath3++;
-				}
-				if (item.expand?.place) {
-					item.expand.place.originalDate = item.expand.place.year;
-					item.expand.place.year = yearOnly(item.expand.place.year);
-				}
-			});
-			rankingsData = d;
+			rankingsData = await fetchWrestlerRankings(getClientPb(), wrestler.id, selectedYear);
 		} catch (e) {
 			console.error(e);
 			rankingsData = [];
@@ -148,26 +95,16 @@
 		void wrestler.id;
 		untrack(() => {
 			selectedYear = 'Alle';
-			loadElo();
-			loadRankings();
 			loadOpponents();
 		});
 	});
 </script>
 
 <svelte:head>
-	<title>{wrestler.vorname} {wrestler.name} - Tellbow</title>
-	<meta
-		name="description"
-		content="{t(locale, 'wrestler.metaDescriptionPrefix')} {wrestler.vorname} {wrestler.name}."
-	/>
-
-	<meta property="og:title" content="{wrestler.vorname} {wrestler.name} - Tellbow" />
-
-	<meta
-		property="og:description"
-		content="{t(locale, 'wrestler.metaDescriptionPrefix')} {wrestler.vorname} {wrestler.name}."
-	/>
+	<title>{metaTitle}</title>
+	<meta name="description" content={metaDescription} />
+	<meta property="og:title" content={metaTitle} />
+	<meta property="og:description" content={metaDescription} />
 </svelte:head>
 
 <!-- Hero -->
@@ -222,7 +159,9 @@
 		</div>
 		<div class="rounded-xl bg-surface-lowest p-4">
 			<p class="mb-1 text-xs text-outline">{t(locale, 'wrestler.wreaths')}</p>
-			<p class="mt-1 text-base font-bold tracking-tight">{wreath1}* · {wreath2}** · {wreath3}***</p>
+			<p class="mt-1 text-base font-bold tracking-tight">
+				{wreaths[0]}* · {wreaths[1]}** · {wreaths[2]}***
+			</p>
 		</div>
 		<div class="rounded-xl bg-surface-lowest p-4">
 			<p class="mb-1 text-xs text-outline">{t(locale, 'wrestler.status')}</p>
@@ -257,7 +196,7 @@
 				bind:value={selectedYear}
 				onchange={onYearChange}
 			>
-				{#each YEARS as y (y)}
+				{#each PROFILE_YEARS as y (y)}
 					<option value={y}>{y === 'Alle' ? t(locale, 'common.all') : y}</option>
 				{/each}
 			</select>

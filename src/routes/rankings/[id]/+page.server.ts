@@ -26,21 +26,15 @@ export const load: PageServerLoad = async ({ params }) => {
 				expand: 'placeType',
 				fields: 'id,name,location,year,number,expand.placeType.type'
 			}),
-			pb
-				.collection('rankings')
-				.getList<RankingRecord>(1, 500, {
-					filter: `place = "${placeId}"`,
-					expand: 'wrestler,wrestler.status',
-					sort: '-created',
-					fields:
-						'id,rank,rank2,points,result,final,wreath,status,expand.wrestler.id,expand.wrestler.name,expand.wrestler.vorname,expand.wrestler.expand.status.symbol',
-					skipTotal: true,
-					requestKey: `rankings-place-${placeId}`
-				})
-				.catch((e) => {
-					console.error('Error loading rankings:', placeId, e);
-					return { items: [] };
-				}),
+			pb.collection('rankings').getList<RankingRecord>(1, 500, {
+				filter: `place = "${placeId}"`,
+				expand: 'wrestler,wrestler.status',
+				sort: '-created',
+				fields:
+					'id,rank,rank2,points,result,final,wreath,status,expand.wrestler.id,expand.wrestler.name,expand.wrestler.vorname,expand.wrestler.expand.status.symbol',
+				skipTotal: true,
+				requestKey: `rankings-place-${placeId}`
+			}),
 			pb
 				.collection('bouts')
 				.getFullList<BoutRecord>(1000, {

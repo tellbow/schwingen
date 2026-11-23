@@ -24,9 +24,18 @@ function url(path: string, lastmod?: string): string {
 async function generateSitemap(): Promise<string> {
 	const pb = createServerPb();
 
-	const [wrestlers, places, associations, cantons, clubs] = await Promise.all([
+	const placesWhere = (filter: string) =>
+		pb.collection('places').getFullList<SitemapRecord>({
+			filter,
+			fields: 'id,updated',
+			skipTotal: true,
+			requestKey: `sitemap-places-${filter}`
+		});
+
+	const [wrestlers, rankedPlaces, plannedPlaces, associations, cantons, clubs] = await Promise.all([
 		pb.collection('wrestler').getFullList<SitemapRecord>({ fields: 'id,updated', skipTotal: true }),
-		pb.collection('places').getFullList<SitemapRecord>({ fields: 'id,updated', skipTotal: true }),
+		placesWhere('rankings_via_place.id != ""'),
+		placesWhere('year > @now'),
 		pb
 			.collection('wrestlersByAssociation')
 			.getFullList<SitemapRecord>({ fields: 'id', skipTotal: true }),
@@ -49,6 +58,7 @@ async function generateSitemap(): Promise<string> {
 
 	const wrestlerUrls = wrestlers.map((w) => url(`/wrestler/${w.id}`, w.updated?.substring(0, 10)));
 
+	const places = [...new Map([...rankedPlaces, ...plannedPlaces].map((p) => [p.id, p])).values()];
 	const placeUrls = places.map((p) => url(`/rankings/${p.id}`, p.updated?.substring(0, 10)));
 
 	const associationUrls = associations.map((a) => url(`/associations/association/${a.id}`));
