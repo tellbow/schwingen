@@ -19,12 +19,12 @@
 			"groupName": "app dependencies"
 		},
 		{
-			"matchDepNames": ["flutter"],
-			"groupName": "app dependencies"
-		},
-		{
 			"matchManagers": ["github-actions"],
 			"groupName": "github actions"
+		},
+		{
+			"matchDepNames": ["flutter"],
+			"groupName": "app dependencies"
 		},
 		{
 			"matchManagers": ["dockerfile", "docker-compose"],
@@ -49,14 +49,6 @@
 			"matchStrings": ["ARG PB_VERSION=(?<currentValue>\\d+\\.\\d+\\.\\d+)"],
 			"depNameTemplate": "pocketbase",
 			"datasourceTemplate": "custom.pocketbase"
-		},
-		{
-			"description": "The Flutter SDK of CI (subosito/flutter-action's flutter-version)",
-			"customType": "regex",
-			"managerFilePatterns": ["/^\\.github/workflows/ci\\.yml$/"],
-			"matchStrings": ["flutter-version: '(?<currentValue>\\d+\\.\\d+\\.\\d+)'"],
-			"depNameTemplate": "flutter",
-			"datasourceTemplate": "flutter-version"
 		}
 	],
 	"customDatasources": {
