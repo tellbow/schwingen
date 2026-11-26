@@ -108,7 +108,7 @@ The app runs on **Kubernetes**. Keep this in mind when writing code:
 - A GitHub release `vX.Y.Z` with `data.db` attached by hand ships code and data together; its tag must be signed with a key in `.github/release-signers.asc`
 - `.github/workflows/release.yml` verifies the tag, strips account/login records from the asset, attaches `app.db.gz` for the iOS app (`scripts/build-app-db.sh`), then pushes both images as `X.Y.Z` with SBOM, provenance and a cosign signature
 - Flux bumps the deployments; the pocketbase initContainer downloads the latest release's `data.db` on start
-- Production has no PocketBase superuser — the published `data.db` contains no accounts
+- The published `data.db` contains no accounts; production's pocketbase initContainer `lock-superuser` adds one superuser with a random password nobody keeps, so PocketBase logs no installer link
 - The `release` skill (`/release`) walks through a release step by step
 
 ---

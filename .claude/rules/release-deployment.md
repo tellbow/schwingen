@@ -19,7 +19,7 @@ Every release rebuilds both images, even a data-only release — the image bump 
 
 ## Rules
 
-- **No accounts in a published `data.db`** — `_superusers`, `users`, `_externalAuths`, `_mfas`, `_otps`, `_authOrigins` must be empty. Production runs without a superuser.
+- **No accounts in a published `data.db`** — `_superusers`, `users`, `_externalAuths`, `_mfas`, `_otps`, `_authOrigins` must be empty. In production the `lock-superuser` initContainer (`tellbow/gitops`) upserts a superuser with a random, discarded password, so PocketBase never logs its installer link.
 - **Schema changes are migrations** in `pb_migrations/` — they ship in the pocketbase image and run on start, on top of whatever `data.db` the release carries.
 - **Local `PB_ENCRYPTION_KEY` = production key** — `data.db` settings are encrypted with it; a mismatch stops PocketBase from starting.
 - **Local PocketBase version = image version** (`PB_VERSION` in `docker/pocketbase/Dockerfile`). A `data.db` written by a newer PocketBase may not open in the image.
