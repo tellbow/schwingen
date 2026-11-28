@@ -167,13 +167,11 @@
     }
   },
   "outcomesBySeason": "Siege, Gestellte und Niederlagen pro Saison",
+  "outcomesByFestival": "Siege, Gestellte und Niederlagen pro Fest",
   "festivalRanks": "Rang pro Fest",
   "festivalPoints": "Punkte pro Fest",
   "rankAndPoints": "Rang {rank} · {points} Punkte",
   "rankBySeason": "Ø Rang pro Saison (Rang 1 oben)",
-  "pointsDistribution": "Punkteverteilung",
-  "withWreathLegend": "mit Kranz",
-  "withoutWreath": "ohne Kranz",
   "activeByAssociation": "Aktive pro Verband",
   "activeByCanton": "Aktive pro Kanton / Gauverband",
   "mapHint": "Tippe auf eine Region für die Zahl.",
@@ -206,5 +204,52 @@
   "bugScreenshotAlt": "Bildschirmfoto der App",
   "showPlanned": "Geplante Schwingfeste anzeigen",
   "planned": "geplant",
-  "plannedNoResults": "Dieses Schwingfest hat noch nicht stattgefunden; die Rangliste folgt."
+  "plannedNoResults": "Dieses Schwingfest hat noch nicht stattgefunden; die Rangliste folgt.",
+  "starters": "Teilnehmer",
+  "wreathsWithRate": "Kränze · {percent} %",
+  "wreathLine": "Kranz ab",
+  "outcomesByRound": "Entschiedene und gestellte Gänge",
+  "decided": "Entschieden",
+  "upsets": "Grösste Überraschungen",
+  "upsetsSubtitle": "Siege gegen Schwinger mit höherer ELO {year}",
+  "upsetOver": "bezwingt {loser} · ELO {winnerElo} gegen {loserElo}",
+  "byAssociation": "Teilnehmer und Kränze pro Verband",
+  "startersAndWreaths": "{starters} am Start · {wreaths} Kränze",
+  "@wreathsWithRate": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "@upsetsSubtitle": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "@upsetOver": {
+    "placeholders": {
+      "loser": {
+        "type": "String"
+      },
+      "winnerElo": {
+        "type": "int"
+      },
+      "loserElo": {
+        "type": "int"
+      }
+    }
+  },
+  "@startersAndWreaths": {
+    "placeholders": {
+      "starters": {
+        "type": "int"
+      },
+      "wreaths": {
+        "type": "int"
+      }
+    }
+  }
 }

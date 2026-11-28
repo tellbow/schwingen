@@ -211,6 +211,12 @@ void main() {
     final winner = rankings.first;
     expect(winner.bouts.map((b) => (b.round, b.result, b.opponent?.id)), [(1, '+', 'w2'), (2, '+', 'w3')]);
     expect(rankings.last.status, 'Unfall');
+    expect(rankings.map((r) => (r.association, r.previousElo)), [
+      ('Bernisch-Kantonaler', 1490),
+      ('Bernisch-Kantonaler', null),
+      ('Bernisch-Kantonaler', null),
+      ('', 1300),
+    ]);
   });
 
   test('meetings lists bouts between two wrestlers, newest first', () async {

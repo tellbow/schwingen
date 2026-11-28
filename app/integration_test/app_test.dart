@@ -80,6 +80,10 @@ void main() {
     await tester.tap(find.text('2025').last);
     await pumpUntil(tester, find.text(l10n.eloOfYear(2025)));
     await shot(tester, 'wrestler-2025');
+    await tester.scrollUntilVisible(find.text(l10n.outcomesByFestival), 300, scrollable: page);
+    await tester.ensureVisible(find.text(l10n.outcomesByFestival));
+    await tester.pump(const Duration(milliseconds: 300));
+    await shot(tester, 'festival-outcomes');
     await tester.scrollUntilVisible(find.text(l10n.festivalRanks), 300, scrollable: page);
     await tester.ensureVisible(find.text(l10n.festivalRanks));
     await tester.pump(const Duration(milliseconds: 300));
@@ -106,8 +110,12 @@ void main() {
     await tester.pump(const Duration(milliseconds: 500));
     await pumpUntil(tester, find.widgetWithIcon(ListTile, Icons.chevron_right));
     await tester.tap(find.widgetWithIcon(ListTile, Icons.chevron_right).first);
-    await pumpUntil(tester, find.byType(ExpansionTile));
-    await shot(tester, 'points-distribution');
+    await pumpUntil(tester, find.text(l10n.starters));
+    await shot(tester, 'festival-statistics');
+    await tester.scrollUntilVisible(find.text(l10n.outcomesByRound), 300, scrollable: page);
+    await tester.pump(const Duration(milliseconds: 300));
+    await shot(tester, 'festival-rounds');
+    await tester.scrollUntilVisible(find.byType(ExpansionTile).first, 300, scrollable: page);
     await tester.tap(find.byType(ExpansionTile).first);
     await tester.pump(const Duration(milliseconds: 500));
     await shot(tester, 'place');

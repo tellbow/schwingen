@@ -306,6 +306,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get outcomesBySeason => 'Siege, Gestellte und Niederlagen pro Saison';
 
   @override
+  String get outcomesByFestival => 'Siege, Gestellte und Niederlagen pro Fest';
+
+  @override
   String get festivalRanks => 'Rang pro Fest';
 
   @override
@@ -318,15 +321,6 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get rankBySeason => 'Ø Rang pro Saison (Rang 1 oben)';
-
-  @override
-  String get pointsDistribution => 'Punkteverteilung';
-
-  @override
-  String get withWreathLegend => 'mit Kranz';
-
-  @override
-  String get withoutWreath => 'ohne Kranz';
 
   @override
   String get activeByAssociation => 'Aktive pro Verband';
@@ -377,4 +371,42 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get plannedNoResults => 'Dieses Schwingfest hat noch nicht stattgefunden; die Rangliste folgt.';
+
+  @override
+  String get starters => 'Teilnehmer';
+
+  @override
+  String wreathsWithRate(int percent) {
+    return 'Kränze · $percent %';
+  }
+
+  @override
+  String get wreathLine => 'Kranz ab';
+
+  @override
+  String get outcomesByRound => 'Entschiedene und gestellte Gänge';
+
+  @override
+  String get decided => 'Entschieden';
+
+  @override
+  String get upsets => 'Grösste Überraschungen';
+
+  @override
+  String upsetsSubtitle(int year) {
+    return 'Siege gegen Schwinger mit höherer ELO $year';
+  }
+
+  @override
+  String upsetOver(String loser, int winnerElo, int loserElo) {
+    return 'bezwingt $loser · ELO $winnerElo gegen $loserElo';
+  }
+
+  @override
+  String get byAssociation => 'Teilnehmer und Kränze pro Verband';
+
+  @override
+  String startersAndWreaths(int starters, int wreaths) {
+    return '$starters am Start · $wreaths Kränze';
+  }
 }

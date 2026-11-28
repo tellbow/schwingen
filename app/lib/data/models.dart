@@ -99,6 +99,8 @@ class PlaceRanking {
     required this.status,
     required this.wrestler,
     required this.bouts,
+    this.association = '',
+    this.previousElo,
   });
 
   final String rank;
@@ -108,6 +110,8 @@ class PlaceRanking {
   final String status;
   final Person? wrestler;
   final List<Bout> bouts;
+  final String association;
+  final num? previousElo;
 
   String get rankLabel => '$rank$rank2';
 }

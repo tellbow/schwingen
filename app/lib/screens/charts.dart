@@ -66,20 +66,29 @@ class Legend extends StatelessWidget {
   }
 }
 
-class SeasonOutcomeChart extends StatelessWidget {
-  const SeasonOutcomeChart(this.trends, {super.key});
+typedef OutcomeBar = ({String label, String name, BoutCounts counts});
 
-  final List<SeasonTrend> trends;
+class OutcomeChart extends StatelessWidget {
+  const OutcomeChart({super.key, required this.title, required this.bars, this.winLabel});
+
+  final String title;
+  final List<OutcomeBar> bars;
+  final String? winLabel;
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final scheme = Theme.of(context).colorScheme;
     final colors = outcomeColors(scheme);
-    final seasons = trends.where((t) => t.counts.total > 0).toList();
+    final shown = bars.where((b) => b.counts.total > 0).toList();
+    final parts = [
+      (colors.win, winLabel ?? l10n.wins, (BoutCounts c) => c.wins),
+      (colors.draw, l10n.draws, (BoutCounts c) => c.draws),
+      (colors.loss, l10n.losses, (BoutCounts c) => c.losses),
+    ].where((p) => shown.any((b) => p.$3(b.counts) > 0)).toList();
     return ChartFrame(
-      title: l10n.outcomesBySeason,
-      legend: [(colors.win, l10n.wins), (colors.draw, l10n.draws), (colors.loss, l10n.losses)],
+      title: title,
+      legend: [for (final (color, label, _) in parts) (color, label)],
       chart: LayoutBuilder(
         builder: (context, constraints) => BarChart(
           BarChartData(
@@ -89,7 +98,7 @@ class SeasonOutcomeChart extends StatelessWidget {
             gridData: _grid(scheme, 50),
             titlesData: _titles(
               context,
-              bottom: (value) => shortYear(seasons[value.toInt()].year),
+              bottom: (value) => shown[value.toInt()].label,
               leftStep: 50,
               left: (value) => '${value.round()} %',
             ),
@@ -100,29 +109,26 @@ class SeasonOutcomeChart extends StatelessWidget {
                 fitInsideVertically: true,
                 getTooltipColor: (_) => scheme.inverseSurface,
                 getTooltipItem: (group, _, _, _) {
-                  final t = seasons[group.x];
+                  final t = shown[group.x];
                   return BarTooltipItem(
-                    '${t.year}\n${t.counts.wins} ${l10n.wins} · ${t.counts.draws} ${l10n.draws} · '
-                    '${t.counts.losses} ${l10n.losses}',
+                    '${t.name}\n${[for (final (_, label, count) in parts) '${count(t.counts)} $label'].join(' · ')}',
                     _tooltipStyle(scheme),
                   );
                 },
               ),
             ),
             barGroups: [
-              for (final (i, t) in seasons.indexed)
+              for (final (i, t) in shown.indexed)
                 BarChartGroupData(
                   x: i,
                   barRods: [
                     BarChartRodData(
                       toY: 100,
                       color: Colors.transparent,
-                      width: _rodWidth(constraints.maxWidth, seasons.length),
+                      width: _rodWidth(constraints.maxWidth, shown.length),
                       borderRadius: BorderRadius.circular(4),
                       rodStackItems: _stack([
-                        (t.counts.wins * 100 / t.counts.total, colors.win),
-                        (t.counts.draws * 100 / t.counts.total, colors.draw),
-                        (t.counts.losses * 100 / t.counts.total, colors.loss),
+                        for (final (color, _, count) in parts) (count(t.counts) * 100 / t.counts.total, color),
                       ], scheme),
                     ),
                   ],
@@ -291,77 +297,6 @@ class RankDuelChart extends StatelessWidget {
                 ),
               ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-class PointsHistogramChart extends StatelessWidget {
-  const PointsHistogramChart(this.bins, {super.key, this.width = 0.5});
-
-  final List<PointsBin> bins;
-  final double width;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = context.l10n;
-    final scheme = Theme.of(context).colorScheme;
-    final wreath = seriesColor(scheme), other = outcomeColors(scheme).draw;
-    final axis = axisRange([0, ...bins.map((b) => b.total)]);
-    final step = max(axis.step, 1.0);
-    final labelStep = histogramLabelStep(bins.last.from - bins.first.from);
-    return ChartFrame(
-      title: l10n.pointsDistribution,
-      legend: [(wreath, l10n.withWreathLegend), (other, l10n.withoutWreath)],
-      chart: LayoutBuilder(
-        builder: (context, constraints) => BarChart(
-          BarChartData(
-            minY: 0,
-            maxY: (axis.max / step).ceil() * step,
-            borderData: FlBorderData(show: false),
-            gridData: _grid(scheme, step),
-            titlesData: _titles(
-              context,
-              bottom: (value) {
-                final from = bins[value.toInt()].from;
-                return from == from.roundToDouble() && from.round() % labelStep == 0 ? '${from.round()}' : '';
-              },
-              leftStep: step,
-              left: (value) => '${value.round()}',
-            ),
-            barTouchData: BarTouchData(
-              touchTooltipData: BarTouchTooltipData(
-                maxContentWidth: 220,
-                fitInsideHorizontally: true,
-                fitInsideVertically: true,
-                getTooltipColor: (_) => scheme.inverseSurface,
-                getTooltipItem: (group, _, _, _) {
-                  final b = bins[group.x];
-                  return BarTooltipItem(
-                    '${context.decimal(b.from)}–${context.decimal(b.from + width - 0.25)}\n'
-                    '${b.wreath} ${l10n.withWreathLegend} · ${b.other} ${l10n.withoutWreath}',
-                    _tooltipStyle(scheme),
-                  );
-                },
-              ),
-            ),
-            barGroups: [
-              for (final (i, b) in bins.indexed)
-                BarChartGroupData(
-                  x: i,
-                  barRods: [
-                    BarChartRodData(
-                      toY: b.total.toDouble(),
-                      color: Colors.transparent,
-                      width: _rodWidth(constraints.maxWidth, bins.length),
-                      borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
-                      rodStackItems: _stack([(b.wreath.toDouble(), wreath), (b.other.toDouble(), other)], scheme),
-                    ),
-                  ],
-                ),
-            ],
-          ),
         ),
       ),
     );

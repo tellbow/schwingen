@@ -644,6 +644,12 @@ abstract class AppLocalizations {
   /// **'Siege, Gestellte und Niederlagen pro Saison'**
   String get outcomesBySeason;
 
+  /// No description provided for @outcomesByFestival.
+  ///
+  /// In de, this message translates to:
+  /// **'Siege, Gestellte und Niederlagen pro Fest'**
+  String get outcomesByFestival;
+
   /// No description provided for @festivalRanks.
   ///
   /// In de, this message translates to:
@@ -667,24 +673,6 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Ø Rang pro Saison (Rang 1 oben)'**
   String get rankBySeason;
-
-  /// No description provided for @pointsDistribution.
-  ///
-  /// In de, this message translates to:
-  /// **'Punkteverteilung'**
-  String get pointsDistribution;
-
-  /// No description provided for @withWreathLegend.
-  ///
-  /// In de, this message translates to:
-  /// **'mit Kranz'**
-  String get withWreathLegend;
-
-  /// No description provided for @withoutWreath.
-  ///
-  /// In de, this message translates to:
-  /// **'ohne Kranz'**
-  String get withoutWreath;
 
   /// No description provided for @activeByAssociation.
   ///
@@ -781,6 +769,66 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Dieses Schwingfest hat noch nicht stattgefunden; die Rangliste folgt.'**
   String get plannedNoResults;
+
+  /// No description provided for @starters.
+  ///
+  /// In de, this message translates to:
+  /// **'Teilnehmer'**
+  String get starters;
+
+  /// No description provided for @wreathsWithRate.
+  ///
+  /// In de, this message translates to:
+  /// **'Kränze · {percent} %'**
+  String wreathsWithRate(int percent);
+
+  /// No description provided for @wreathLine.
+  ///
+  /// In de, this message translates to:
+  /// **'Kranz ab'**
+  String get wreathLine;
+
+  /// No description provided for @outcomesByRound.
+  ///
+  /// In de, this message translates to:
+  /// **'Entschiedene und gestellte Gänge'**
+  String get outcomesByRound;
+
+  /// No description provided for @decided.
+  ///
+  /// In de, this message translates to:
+  /// **'Entschieden'**
+  String get decided;
+
+  /// No description provided for @upsets.
+  ///
+  /// In de, this message translates to:
+  /// **'Grösste Überraschungen'**
+  String get upsets;
+
+  /// No description provided for @upsetsSubtitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Siege gegen Schwinger mit höherer ELO {year}'**
+  String upsetsSubtitle(int year);
+
+  /// No description provided for @upsetOver.
+  ///
+  /// In de, this message translates to:
+  /// **'bezwingt {loser} · ELO {winnerElo} gegen {loserElo}'**
+  String upsetOver(String loser, int winnerElo, int loserElo);
+
+  /// No description provided for @byAssociation.
+  ///
+  /// In de, this message translates to:
+  /// **'Teilnehmer und Kränze pro Verband'**
+  String get byAssociation;
+
+  /// No description provided for @startersAndWreaths.
+  ///
+  /// In de, this message translates to:
+  /// **'{starters} am Start · {wreaths} Kränze'**
+  String startersAndWreaths(int starters, int wreaths);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

@@ -1,11 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:tellbow/data/charts.dart';
-import 'package:tellbow/data/models.dart';
 
 import 'stats_test.dart' show ranking;
-
-PlaceRanking placeRanking(String points, {bool wreath = false}) =>
-    PlaceRanking(rank: '1', rank2: '', points: points, wreath: wreath, status: '', wrestler: null, bouts: const []);
 
 void main() {
   group('festivalResults', () {
@@ -42,37 +38,12 @@ void main() {
     expect(averageRankBySeason(rankings), {2024: 3.0, 2025: null});
   });
 
-  group('pointsHistogram', () {
-    test('counts wreaths and the rest per half point, with empty bins in between', () {
-      final bins = pointsHistogram([
-        placeRanking('58.75', wreath: true),
-        placeRanking('58.50', wreath: true),
-        placeRanking('57.25', wreath: true),
-        placeRanking('57.00'),
-        placeRanking('56.00'),
-      ]);
-      expect(bins.map((b) => (b.from, b.wreath, b.other)), [
-        (56.0, 0, 1),
-        (56.5, 0, 0),
-        (57.0, 1, 1),
-        (57.5, 0, 0),
-        (58.0, 0, 0),
-        (58.5, 2, 0),
-      ]);
-    });
-
-    test('ignores rankings without points', () {
-      expect(pointsHistogram([placeRanking(''), placeRanking('0')]), isEmpty);
-    });
-  });
-
-  test('histogramLabelStep keeps at most seven labels on the points axis', () {
-    expect(histogramLabelStep(2.5), 1);
-    expect(histogramLabelStep(9), 2);
-    expect(histogramLabelStep(33), 5);
-    expect(histogramLabelStep(60), 10);
-    expect(histogramLabelStep(25), 5);
-    expect(histogramLabelStep(200), 20);
+  test('monthLabels names each new month, but never on two neighbouring bars', () {
+    final dates = [
+      for (final (m, d) in [(2, 1), (4, 1), (4, 20), (5, 3), (6, 1), (6, 8)]) DateTime(2025, m, d),
+    ];
+    expect(monthLabels(dates, (d) => '${d.month}'), ['2', '', '', '5', '', '']);
+    expect(monthLabels(const [], (d) => ''), isEmpty);
   });
 
   test('shareOfMax scales to the largest value', () {

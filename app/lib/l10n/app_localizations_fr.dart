@@ -306,6 +306,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get outcomesBySeason => 'Victoires, nuls et défaites par saison';
 
   @override
+  String get outcomesByFestival => 'Victoires, nuls et défaites par fête';
+
+  @override
   String get festivalRanks => 'Rang par fête';
 
   @override
@@ -318,15 +321,6 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get rankBySeason => 'Rang moy. par saison (1er rang en haut)';
-
-  @override
-  String get pointsDistribution => 'Répartition des points';
-
-  @override
-  String get withWreathLegend => 'avec couronne';
-
-  @override
-  String get withoutWreath => 'sans couronne';
 
   @override
   String get activeByAssociation => 'Actifs par association';
@@ -377,4 +371,42 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get plannedNoResults => 'Cette fête n\'a pas encore eu lieu ; le classement suivra.';
+
+  @override
+  String get starters => 'Participants';
+
+  @override
+  String wreathsWithRate(int percent) {
+    return 'Couronnes · $percent %';
+  }
+
+  @override
+  String get wreathLine => 'Couronne dès';
+
+  @override
+  String get outcomesByRound => 'Passes décidées et nulles';
+
+  @override
+  String get decided => 'Décidées';
+
+  @override
+  String get upsets => 'Plus grandes surprises';
+
+  @override
+  String upsetsSubtitle(int year) {
+    return 'Victoires contre des lutteurs à l\'ELO $year plus élevé';
+  }
+
+  @override
+  String upsetOver(String loser, int winnerElo, int loserElo) {
+    return 'bat $loser · ELO $winnerElo contre $loserElo';
+  }
+
+  @override
+  String get byAssociation => 'Participants et couronnes par association';
+
+  @override
+  String startersAndWreaths(int starters, int wreaths) {
+    return '$starters au départ · $wreaths couronnes';
+  }
 }

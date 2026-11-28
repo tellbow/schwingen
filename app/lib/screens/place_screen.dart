@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 
-import '../data/charts.dart';
+import '../data/festival_stats.dart';
 import '../data/models.dart';
 import '../data/queries.dart';
 import 'charts.dart';
 import 'context.dart';
+import 'stat_grid.dart';
 import 'wide.dart';
 import 'widgets.dart';
 
@@ -33,7 +34,11 @@ class _PlaceScreenState extends State<PlaceScreen> {
           final (place, rankings) = data;
           if (place == null) return Message(context.l10n.noData);
           final theme = Theme.of(context);
-          final bins = pointsHistogram(rankings);
+          final l10n = context.l10n;
+          final summary = wreathSummary(rankings);
+          final rounds = outcomesByRound(rankings);
+          final surprises = upsets(rankings);
+          final associations = byAssociation(rankings);
           return ListView(
             padding: const EdgeInsets.only(bottom: 24),
             children: [
@@ -51,8 +56,56 @@ class _PlaceScreenState extends State<PlaceScreen> {
                 ),
               ),
               Columns([
-                if (bins.length >= 2)
-                  Section(title: context.l10n.tabStatistics, children: [PointsHistogramChart(bins)]),
+                if (rankings.isNotEmpty)
+                  Section(
+                    title: l10n.tabStatistics,
+                    children: [
+                      StatGrid([
+                        StatTile(label: l10n.starters, value: '${summary.starters}'),
+                        StatTile(label: l10n.wreathsWithRate(summary.wreathPercent), value: '${summary.wreaths}'),
+                        StatTile(
+                          label: l10n.wreathLine,
+                          value: summary.wreathLine == null ? '–' : context.decimal(summary.wreathLine!),
+                        ),
+                      ]),
+                      if (rounds.length >= 2)
+                        OutcomeChart(
+                          title: l10n.outcomesByRound,
+                          winLabel: l10n.decided,
+                          bars: [
+                            for (final MapEntry(key: round, value: counts) in rounds.entries)
+                              (label: '$round', name: l10n.round(round), counts: counts),
+                          ],
+                        ),
+                    ],
+                  ),
+                if (surprises.isNotEmpty)
+                  Section(
+                    title: l10n.upsets,
+                    subtitle: l10n.upsetsSubtitle(int.parse(yearOf(place.date)) - 1),
+                    children: [
+                      for (final u in surprises)
+                        ListTile(
+                          leading: Text(l10n.round(u.round)),
+                          title: PersonName(u.winner),
+                          subtitle: Text(l10n.upsetOver(u.loser.fullName, u.winnerElo.round(), u.loserElo.round())),
+                          trailing: const Icon(Icons.chevron_right),
+                          onTap: () => openWrestler(context, widget.queries, u.winner.id),
+                        ),
+                    ],
+                  ),
+                if (associations.length >= 2)
+                  Section(
+                    title: l10n.byAssociation,
+                    children: [
+                      for (final a in associations)
+                        ListTile(
+                          dense: true,
+                          title: Text(a.name),
+                          trailing: Text(l10n.startersAndWreaths(a.starters, a.wreaths)),
+                        ),
+                    ],
+                  ),
                 Section(
                   title: context.l10n.rankings,
                   children: [

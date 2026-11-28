@@ -173,6 +173,12 @@ class Queries {
     return rows.isEmpty ? null : placeOf(rows.first);
   }
 
+  Future<int?> _previousEloYear(String placeId) async {
+    final rows = await db.rawQuery('SELECT year FROM places WHERE id = ?', [placeId]);
+    final year = int.tryParse(yearOf(text(rows.firstOrNull?['year'])));
+    return year != null && (await eloYears()).contains(year - 1) ? year - 1 : null;
+  }
+
   Future<List<PlaceRanking>> placeRankings(String placeId) async {
     final boutRows = await db.rawQuery(
       '''
@@ -195,12 +201,18 @@ class Queries {
         ),
       );
     }
+    final eloYear = await _previousEloYear(placeId);
     final rows = await db.rawQuery(
       '''
-      SELECT r.rank, r.rank2, r.points, r.wreath, r.status, w.id, w.name, w.vorname, s.symbol
+      SELECT r.rank, r.rank2, r.points, r.wreath, r.status, w.id, w.name, w.vorname, s.symbol,
+        a.name AS association, ${eloYear == null ? 'NULL' : 'e.rating'} AS previousElo
       FROM rankings r
       LEFT JOIN wrestler w ON w.id = r.wrestler
       LEFT JOIN wrestlerStatus s ON s.id = w.status
+      LEFT JOIN club c ON c.id = w.club
+      LEFT JOIN canton ca ON ca.id = c.canton
+      LEFT JOIN association a ON a.id = ca.association
+      ${eloYear == null ? '' : 'LEFT JOIN elo$eloYear e ON e.wrestler = r.wrestler'}
       WHERE r.place = ?''',
       [placeId],
     );
@@ -214,6 +226,8 @@ class Queries {
           status: text(r['status']),
           wrestler: r['id'] == null ? null : personOf(r),
           bouts: bouts[text(r['id'])] ?? const [],
+          association: text(r['association']),
+          previousElo: r['previousElo'] as num?,
         ),
     ];
     rankings.sort((a, b) => compareRanks(a.rank, a.rank2, b.rank, b.rank2));

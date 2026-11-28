@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../data/charts.dart';
@@ -208,12 +209,27 @@ class _Trends extends StatelessWidget {
     final elo = {for (final e in season.eloHistory) e.year: e.rating};
     final wins = {for (final t in trends) t.year: t.winPercent};
     final points = {for (final t in trends) t.year: t.averagePoints};
+    final bouted = results.where((r) => boutCounts([r.ranking.result]).total > 0).toList();
+    final month = DateFormat.MMM(context.localeName);
+    final labels = monthLabels([for (final r in bouted) r.date], month.format);
     final charts = [
       if (yearSeries(elo) case final s when s.isNotEmpty)
         TrendChart(title: 'ELO', points: s, format: (v) => '${v.round()}'),
       if (yearSeries(wins) case final s when s.isNotEmpty)
         TrendChart(title: l10n.winRate, points: s, format: (v) => '${v.round()} %', range: const AxisRange(0, 100, 25)),
-      if (trends.where((t) => t.counts.total > 0).length >= 2) SeasonOutcomeChart(trends),
+      if (trends.where((t) => t.counts.total > 0).length >= 2)
+        OutcomeChart(
+          title: l10n.outcomesBySeason,
+          bars: [for (final t in trends) (label: shortYear(t.year), name: '${t.year}', counts: t.counts)],
+        ),
+      if (bouted.length >= 2)
+        OutcomeChart(
+          title: l10n.outcomesByFestival,
+          bars: [
+            for (final (i, r) in bouted.indexed)
+              (label: labels[i], name: r.ranking.place.name, counts: boutCounts([r.ranking.result])),
+          ],
+        ),
       if (yearSeries(points) case final s when s.isNotEmpty)
         TrendChart(title: l10n.averagePoints, points: s, format: context.decimal),
       if (FestivalChart.hasData(results, rank: true))

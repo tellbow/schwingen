@@ -28,31 +28,14 @@ Map<int, double?> averageRankBySeason(List<Ranking> rankings) => {
   for (final MapEntry(key: year, value: season) in bySeason(rankings).entries) year: averageRank(season),
 };
 
-class PointsBin {
-  const PointsBin(this.from, this.wreath, this.other);
-
-  final double from;
-  final int wreath;
-  final int other;
-
-  int get total => wreath + other;
-}
-
-List<PointsBin> pointsHistogram(List<PlaceRanking> rankings, {double width = 0.5}) {
-  final scored = [
-    for (final r in rankings)
-      if (double.tryParse(r.points) case final points? when points > 0) ((points / width).floor(), r.wreath),
-  ];
-  if (scored.isEmpty) return const [];
-  final first = scored.map((s) => s.$1).reduce(min), last = scored.map((s) => s.$1).reduce(max);
-  final wreath = List.filled(last - first + 1, 0), other = List.filled(last - first + 1, 0);
-  for (final (bin, won) in scored) {
-    (won ? wreath : other)[bin - first]++;
+List<String> monthLabels(List<DateTime> dates, String Function(DateTime) format) {
+  final labels = <String>[];
+  for (final (i, date) in dates.indexed) {
+    final starts = i == 0 || dates[i - 1].month != date.month;
+    labels.add(starts && (i == 0 || labels[i - 1].isEmpty) ? format(date) : '');
   }
-  return [for (var i = 0; i <= last - first; i++) PointsBin((first + i) * width, wreath[i], other[i])];
+  return labels;
 }
-
-int histogramLabelStep(double span) => [1, 2, 5, 10].firstWhere((step) => span / step <= 7, orElse: () => 20);
 
 List<double> shareOfMax(List<num> values) {
   final top = values.fold<num>(0, max);
